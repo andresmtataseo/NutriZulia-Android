@@ -41,9 +41,14 @@ class PacientesFragment : Fragment() {
 
         viewModel.onCreate()
 
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
-            binding.progress.visibility = if (it) View.VISIBLE else View.GONE
+        binding.swipeRefreshLayout.setOnRefreshListener {
+                viewModel.obtenerPacientes()
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+            binding.swipeRefreshLayout.isRefreshing = isLoading
         })
+
 
         viewModel.pacientes.observe(viewLifecycleOwner, Observer { pacientes ->
             if (!pacientes.isNullOrEmpty()) {
@@ -61,7 +66,9 @@ class PacientesFragment : Fragment() {
                     val textoFiltrado = text.toString().trim()
                     val pacientesFiltrados = listaOriginalPacientes.filter { paciente ->
                         paciente.primerNombre.contains(textoFiltrado, ignoreCase = true) ||
+                                paciente.segundoNombre.contains(textoFiltrado, ignoreCase = true) ||
                                 paciente.primerApellido.contains(textoFiltrado, ignoreCase = true) ||
+                                paciente.segundoApellido.contains(textoFiltrado, ignoreCase = true) ||
                                 paciente.cedula.contains(textoFiltrado, ignoreCase = true)
                     }
 
@@ -77,7 +84,6 @@ class PacientesFragment : Fragment() {
         viewModel.mensaje.observe(viewLifecycleOwner, Observer { mensaje ->
             mostrarSnackbar(binding.root, mensaje)
         })
-
 
         binding.btnRegistrarPaciente.setOnClickListener {
             findNavController().navigate(R.id.action_pacientesFragment_to_registrarPacienteFragment)

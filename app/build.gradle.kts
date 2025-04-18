@@ -78,5 +78,7 @@ dependencies {
     implementation(libs.hilt.android)
     // Hilt compiler integration
     ksp(libs.hilt.compiler)
+    // Swipe
+    implementation(libs.androidx.swiperefreshlayout)
 
 }
