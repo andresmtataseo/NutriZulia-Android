@@ -243,78 +243,6 @@
         <item>Inga</item>
     </string-array>
 
-    <string-array name="estados_venezuela">
-        <item>DISTRITO CAPITAL</item>
-        <item>AMAZONAS</item>
-        <item>ANZOATEGUI</item>
-        <item>APURE</item>
-        <item>ARAGUA</item>
-        <item>BARINAS</item>
-        <item>BOLIVAR</item>
-        <item>CARABOBO</item>
-        <item>COJEDES</item>
-        <item>DELTA AMACURO</item>
-        <item>FALCON</item>
-        <item>GUARICO</item>
-        <item>LARA</item>
-        <item>MERIDA</item>
-        <item>BOLIVARIANO DE MIRANDA</item>
-        <item>MONAGAS</item>
-        <item>NUEVA ESPARTA</item>
-        <item>PORTUGUESA</item>
-        <item>SUCRE</item>
-        <item>TACHIRA</item>
-        <item>TRUJILLO</item>
-        <item>YARACUY</item>
-        <item>ZULIA</item>
-        <item>LA GUAIRA</item>
-    </string-array>
-
-    <string-array name="municipios_zulia">
-        <item>MARA</item>
-        <item>SUCRE</item>
-        <item>ALMIRANTE PADILLA</item>
-        <item>JESUS MARIA SEMPRUM</item>
-        <item>BARALT</item>
-        <item>SAN FRANCISCO</item>
-        <item>CABIMAS</item>
-        <item>LAGUNILLAS</item>
-        <item>SANTA RITA</item>
-        <item>CATATUMBO</item>
-        <item>SIMON BOLIVAR</item>
-        <item>MACHIQUES DE PERIJA</item>
-        <item>LA CAÑADA DE URDANETA</item>
-        <item>JESUS ENRIQUE LOSSADA</item>
-        <item>FRANCISCO JAVIER PULGAR</item>
-        <item>INDIGENA BOLIVARIANO GUAJIRA</item>
-        <item>MARACAIBO</item>
-        <item>ROSARIO DE PERIJA</item>
-        <item>MIRANDA</item>
-        <item>COLON</item>
-        <item>VALMORE RODRIGUEZ</item>
-    </string-array>
-
-    <string-array name="parroquias_maracaibo">
-        <item>ANTONIO BORJAS ROMERO</item>
-        <item>BOLIVAR</item>
-        <item>CACIQUE MARA</item>
-        <item>CARACCIOLO PARRA PEREZ</item>
-        <item>CECILIO ACOSTA</item>
-        <item>CRISTO DE ARANZA</item>
-        <item>COQUIVACOA</item>
-        <item>CHIQUINQUIRA</item>
-        <item>FRANCISCO EUGENIO BUSTAMANTE</item>
-        <item>IDELFONSO VASQUEZ</item>
-        <item>JUANA DE ÁVILA</item>
-        <item>LUIS HURTADO HIGUERA</item>
-        <item>MANUEL DAGNINO</item>
-        <item>OLEGARIO VILLALOBOS</item>
-        <item>RAUL LEONI</item>
-        <item>SANTA LUCIA</item>
-        <item>VENANCIO PULGAR</item>
-        <item>SAN ISIDRO</item>
-    </string-array>
-
     <string-array name="tiposCedulas">
         <item>V</item>
         <item>E</item>
@@ -331,7 +259,6 @@
 
     <string-array name="tiposIdentificacion">
         <item>Cedulado</item>
-        <item>No cedulado (Menor de edad)</item>
         <item>No cedulado</item>
     </string-array>
 

@@ -25,11 +25,39 @@ object RoomModule {
             context,
             Database::class.java,
             DATABASE_NAME
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Singleton
     @Provides
     fun providePacienteDao(database: Database) = database.getPacienteDao()
+
+    @Singleton
+    @Provides
+    fun provideUbicacionDao(database: Database) = database.getUbicacionDao()
+
+    @Singleton
+    @Provides
+    fun provideRepresentanteDao(database: Database) = database.getRepresentanteDao()
+
+    @Singleton
+    @Provides
+    fun provideCitaDao(database: Database) = database.getCitaDao()
+
+    @Singleton
+    @Provides
+    fun provideConsultaDao(database: Database) = database.getConsultaDao()
+
+    @Singleton
+    @Provides
+    fun provideSignosVitalesDao(database: Database) = database.getSignosVitalesDao()
+
+    @Singleton
+    @Provides
+    fun provideUsuarioDao(database: Database) = database.getUsuarioDao()
+
+    @Singleton
+    @Provides
+    fun provideActividadDao(database: Database) = database.getActividadDao()
 
 }

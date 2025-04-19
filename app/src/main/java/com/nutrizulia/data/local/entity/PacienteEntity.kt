@@ -11,14 +11,14 @@ import com.nutrizulia.domain.model.Paciente
     tableName = "pacientes",
     indices = [
         Index(value = ["cedula"], unique = true),
-        Index(value = ["parroquias_id"])
+        Index(value = ["ubicacion_id"])
     ],
-//    foreignKeys = [ForeignKey(
-//        entity = ParroquiaEntity::class,
-//        parentColumns = ["id"],
-//        childColumns = ["parroquias_id"],
-//        onDelete = ForeignKey.NO_ACTION
-//    )]
+    foreignKeys = [ForeignKey(
+        entity = UbicacionEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["ubicacion_id"],
+        onDelete = ForeignKey.NO_ACTION
+    )]
 )
 data class PacienteEntity(
     @PrimaryKey(autoGenerate = true)
@@ -33,7 +33,7 @@ data class PacienteEntity(
     @ColumnInfo(name = "etnia") val etnia: String,
     @ColumnInfo(name = "nacionalidad") val nacionalidad: String,
     @ColumnInfo(name = "grupo_sanguineo") val grupoSanguineo: String,
-    @ColumnInfo(name = "parroquias_id") val parroquiasId: Int, // Clave foránea a la tabla Parroquia
+    @ColumnInfo(name = "ubicacion_id") val ubicacionId: Int,
     @ColumnInfo(name = "telefono") val telefono: String,
     @ColumnInfo(name = "correo") val correo: String,
     @ColumnInfo(name = "fecha_ingreso") val fechaIngreso: String
@@ -50,7 +50,7 @@ fun Paciente.toEntity() = PacienteEntity(
     etnia = etnia,
     nacionalidad = nacionalidad,
     grupoSanguineo = grupoSanguineo,
-    parroquiasId = parroquia,
+    ubicacionId = ubicacionId,
     telefono = telefono,
     correo = correo,
     fechaIngreso = fechaIngreso)

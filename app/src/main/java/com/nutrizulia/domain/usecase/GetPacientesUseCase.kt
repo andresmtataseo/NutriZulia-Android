@@ -8,7 +8,7 @@ class GetPacientesUseCase @Inject constructor(private val repository: PacienteRe
 
     suspend operator fun invoke() : List<Paciente>? {
         val pacientes = repository.getAllPacientes()
-        if (!pacientes.isNullOrEmpty()) {
+        if (pacientes.isNotEmpty()) {
             return repository.getAllPacientes()
         } else {
             return null

@@ -14,10 +14,10 @@ data class Paciente(
     var etnia: String,
     var nacionalidad: String,
     var grupoSanguineo: String,
-    var parroquia: Int,
+    var ubicacionId: Int,
     var telefono: String,
     var correo: String,
     var fechaIngreso: String
 )
 
-fun PacienteEntity.toDomain() = Paciente(id, cedula, primerNombre, segundoNombre, primerApellido, segundoApellido, fechaNacimiento, genero, etnia, nacionalidad, grupoSanguineo, parroquiasId, telefono, correo, fechaIngreso)
+fun PacienteEntity.toDomain() = Paciente(id, cedula, primerNombre, segundoNombre, primerApellido, segundoApellido, fechaNacimiento, genero, etnia, nacionalidad, grupoSanguineo, ubicacionId, telefono, correo, fechaIngreso)

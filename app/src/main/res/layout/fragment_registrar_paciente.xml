@@ -69,7 +69,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tfTipoCedula"
@@ -104,8 +105,8 @@
                     android:id="@+id/tiCedula"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLength="8"
-                    android:inputType="number" />
+                    android:inputType="number"
+                    android:maxLength="8" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -118,29 +119,11 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tfIdentificarPor"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/elegir_identificacion">
-
-                <AutoCompleteTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    app:simpleItems="@array/tiposIdentificacionNoCeduladoMenor"
-                    tools:ignore="LabelFor" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
             <LinearLayout
                 android:id="@+id/layoutNoCeduladoMenorEdadRepresentante"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:visibility="gone">
+                android:orientation="horizontal">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tfParentesco"
@@ -171,31 +154,6 @@
                     android:text="@string/designar_representante"
                     app:icon="@drawable/ic_agregar_paciente"
                     app:iconGravity="textStart" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutNoCeduladoMenorEdadPartida"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:visibility="gone">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tfPartidaNacimiento"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:hint="@string/numero_de_partida_de_nacimiento"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/tiPartidaNacimiento"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number" />
-
-                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
 
@@ -401,10 +359,12 @@
             android:hint="@string/estado">
 
             <AutoCompleteTextView
+                android:id="@+id/dropdownEntidades"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="false"
                 android:inputType="none"
-                app:simpleItems="@array/estados_venezuela"
                 tools:ignore="LabelFor" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -418,10 +378,12 @@
             android:hint="@string/municipio">
 
             <AutoCompleteTextView
+                android:id="@+id/dropdownMunicipios"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="false"
                 android:inputType="none"
-                app:simpleItems="@array/municipios_zulia"
                 tools:ignore="LabelFor" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -435,10 +397,12 @@
             android:hint="@string/parroquia">
 
             <AutoCompleteTextView
+                android:id="@+id/dropdownParroquias"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="false"
                 android:inputType="none"
-                app:simpleItems="@array/parroquias_maracaibo"
                 tools:ignore="LabelFor" />
 
         </com.google.android.material.textfield.TextInputLayout>

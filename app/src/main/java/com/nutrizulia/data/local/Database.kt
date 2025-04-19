@@ -2,20 +2,32 @@ package com.nutrizulia.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.nutrizulia.data.local.dao.*
 import com.nutrizulia.data.local.entity.*
-import com.nutrizulia.data.local.dao.PacienteDao
+
 
 @Database(
     entities = [
         PacienteEntity::class,
-        ParroquiaEntity::class,
-        MunicipioEntity::class,
-        EstadoEntity::class
+        UbicacionEntity::class,
+        RepresentanteEntity::class,
+        CitaEntity::class,
+        ConsultaEntity::class,
+        SignosVitalesEntity::class,
+        UsuarioEntity::class,
+        ActividadEntity::class
     ],
-    version = 1
+    version = 5
 )
 abstract class Database: RoomDatabase() {
 
     abstract fun getPacienteDao(): PacienteDao
+    abstract fun getUbicacionDao(): UbicacionDao
+    abstract fun getRepresentanteDao(): RepresentanteDao
+    abstract fun getCitaDao(): CitaDao
+    abstract fun getConsultaDao(): ConsultaDao
+    abstract fun getSignosVitalesDao(): SignosVitalesDao
+    abstract fun getUsuarioDao(): UsuarioDao
+    abstract fun getActividadDao(): ActividadDao
 
 }

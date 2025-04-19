@@ -11,13 +11,17 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentRegistrarPacienteBinding
+import com.nutrizulia.domain.model.Entidad
+import com.nutrizulia.domain.model.Municipio
 import com.nutrizulia.domain.model.Paciente
+import com.nutrizulia.domain.model.Parroquia
 import com.nutrizulia.presentation.viewmodel.RegistrarPacienteViewModel
 import com.nutrizulia.util.Utils.mostrarErrorEnCampo
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import com.nutrizulia.util.Utils.obtenerFechaActual
 import com.nutrizulia.util.Utils.obtenerTexto
 import dagger.hilt.android.AndroidEntryPoint
+import android.widget.ArrayAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -28,8 +32,15 @@ class RegistrarPacienteFragment : Fragment() {
     private lateinit var binding: FragmentRegistrarPacienteBinding
     private val fechaNacimientoCalendar = Calendar.getInstance()
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private var listaEntidades = listOf<Entidad>()
+    private var listaMunicipios = listOf<Municipio>()
+    private var listaParroquias = listOf<Parroquia>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentRegistrarPacienteBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -37,36 +48,62 @@ class RegistrarPacienteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configurarDropdownCedulado()
-        configurarDropdownIdentificarPor()
         configurarFechaNacimiento()
 
-        binding.btnLimpiar.setOnClickListener {
-            binding.tfTipoCedula.editText?.setText("")
-            binding.tfCedula.editText?.setText("")
-            binding.tfEsCedulado.editText?.setText("")
-            binding.tfIdentificarPor.editText?.setText("")
-            binding.tfParentesco.editText?.setText("")
-            binding.tfPartidaNacimiento.editText?.setText("")
-            binding.tfPrimerNombre.editText?.setText("")
-            binding.tfsegundoNombre.editText?.setText("")
-            binding.tfPrimerApellido.editText?.setText("")
-            binding.tfSegundoApellido.editText?.setText("")
-            binding.tfFechaNacimiento.editText?.setText("")
-            binding.tfGenero.editText?.setText("")
-            binding.tfEtnia.editText?.setText("")
-            binding.tfNacionalidad.editText?.setText("")
-            binding.tfSanguineo.editText?.setText("")
-            binding.tfEstado.editText?.setText("")
-            binding.tfMunicipio.editText?.setText("")
-            binding.tfParroquia.editText?.setText("")
-            binding.tfPrefijo.editText?.setText("")
-            binding.tfTelefono.editText?.setText("")
-            binding.tfEmail.editText?.setText("")
+
+        viewModel.cargarEntidades()
+
+        // Observa entidades
+        viewModel.entidades.observe(viewLifecycleOwner) { entidades ->
+            listaEntidades = entidades
+            val nombres = entidades.map { it.entidad }
+            val adapter =
+                ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
+            binding.dropdownEntidades.setAdapter(adapter)
         }
 
-        binding.btnRegistrar.setOnClickListener {
-            registrarPaciente()
+        // Cuando seleccionan una entidad, carga municipios
+        binding.dropdownEntidades.setOnItemClickListener { _, _, position, _ ->
+            val entidad = listaEntidades[position]
+            listaMunicipios = emptyList()
+            listaParroquias = emptyList()
+            viewModel.cargarMunicipios(entidad.codEntidad)
+            binding.dropdownMunicipios.setText("") // limpiar selección previa
+            binding.dropdownParroquias.setText("") // limpiar parroquias
         }
+
+        // Observa municipios
+        viewModel.municipios.observe(viewLifecycleOwner) { municipios ->
+            listaMunicipios = municipios
+            val nombres = municipios.map { it.municipio }
+            val adapter =
+                ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
+            binding.dropdownMunicipios.setAdapter(adapter)
+        }
+
+        // Cuando seleccionan un municipio, carga parroquias
+        binding.dropdownMunicipios.setOnItemClickListener { _, _, position, _ ->
+            val entidad =
+                listaEntidades.firstOrNull { it.entidad == binding.dropdownEntidades.text.toString() }
+                    ?: listaEntidades.first() // respaldo si falla
+            val municipio = listaMunicipios[position]
+            listaParroquias = emptyList()
+            viewModel.cargarParroquias(entidad.codEntidad, municipio.codMunicipio)
+            binding.dropdownParroquias.setText("") // limpiar parroquias anteriores
+        }
+
+        // Observa parroquias
+        viewModel.parroquias.observe(viewLifecycleOwner) { parroquias ->
+            listaParroquias = parroquias
+            val nombres = parroquias.map { it.parroquia }
+            val adapter =
+                ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
+            binding.dropdownParroquias.setAdapter(adapter)
+        }
+
+        binding.btnLimpiar.setOnClickListener { limpiarCampos() }
+
+        binding.btnRegistrar.setOnClickListener { registrarPaciente() }
 
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             mostrarSnackbar(binding.root, mensaje)
@@ -79,6 +116,7 @@ class RegistrarPacienteFragment : Fragment() {
                         mostrarErrorEnCampo(binding.tfTipoCedula, " ")
                         mostrarErrorEnCampo(binding.tfCedula, message)
                     }
+
                     "primerNombre" -> mostrarErrorEnCampo(binding.tfPrimerNombre, message)
                     "primerApellido" -> mostrarErrorEnCampo(binding.tfPrimerApellido, message)
                     "fechaNacimiento" -> mostrarErrorEnCampo(binding.tfFechaNacimiento, message)
@@ -86,14 +124,17 @@ class RegistrarPacienteFragment : Fragment() {
                     "etnia" -> mostrarErrorEnCampo(binding.tfEtnia, message)
                     "nacionalidad" -> mostrarErrorEnCampo(binding.tfNacionalidad, message)
                     "grupoSanguineo" -> mostrarErrorEnCampo(binding.tfSanguineo, message)
-                    "direccion" -> { mostrarErrorEnCampo(binding.tfEstado, message)
-                                    mostrarErrorEnCampo(binding.tfMunicipio, message)
-                                    mostrarErrorEnCampo(binding.tfParroquia, message)
+                    "direccion" -> {
+                        mostrarErrorEnCampo(binding.tfEstado, message)
+                        mostrarErrorEnCampo(binding.tfMunicipio, message)
+                        mostrarErrorEnCampo(binding.tfParroquia, message)
                     }
+
                     "telefono" -> {
                         mostrarErrorEnCampo(binding.tfPrefijo, " ")
                         mostrarErrorEnCampo(binding.tfTelefono, message)
                     }
+
                     "correo" -> mostrarErrorEnCampo(binding.tfEmail, message)
                 }
             }
@@ -106,8 +147,15 @@ class RegistrarPacienteFragment : Fragment() {
         }
     }
 
+    private fun obtenerIdParroquiaSeleccionada(): Int? {
+        val nombreParroquiaSeleccionada = binding.dropdownParroquias.text.toString()
+        val parroquiaEncontrada =
+            listaParroquias.find { it.parroquia == nombreParroquiaSeleccionada }
+        return parroquiaEncontrada?.id
+    }
 
     private fun registrarPaciente() {
+        quitarError()
         val nuevoPaciente = Paciente(
             id = 0,
             cedula = obtenerTexto(binding.tfTipoCedula) + obtenerTexto(binding.tfCedula),
@@ -120,7 +168,7 @@ class RegistrarPacienteFragment : Fragment() {
             etnia = obtenerTexto(binding.tfEtnia),
             nacionalidad = obtenerTexto(binding.tfNacionalidad),
             grupoSanguineo = obtenerTexto(binding.tfSanguineo),
-            parroquia = 1,
+            ubicacionId = obtenerIdParroquiaSeleccionada() ?: 0,
             telefono = obtenerTexto(binding.tfPrefijo) + obtenerTexto(binding.tfTelefono),
             correo = obtenerTexto(binding.tfEmail),
             fechaIngreso = obtenerFechaActual(),
@@ -128,31 +176,48 @@ class RegistrarPacienteFragment : Fragment() {
         viewModel.registrarPaciente(nuevoPaciente)
     }
 
-    private fun configurarDropdownCedulado() = binding.tfEsCedulado.editText?.let { editText ->
-        (editText as? AutoCompleteTextView)?.apply {
-            val opciones = resources.getStringArray(R.array.tiposIdentificacion)
-            setText(opciones.first(), false)
-            setOnItemClickListener { parent, _, position, _ ->
-                when (parent.getItemAtPosition(position) as String) {
-                    opciones[0] -> mostrarLayoutCedulado()
-                    opciones[1] -> mostrarLayoutNoCeduladoMenor()
-                    else -> ocultarTodosLosLayouts()
-                }
-            }
-        }
+    private fun limpiarCampos() {
+        binding.tfTipoCedula.editText?.setText("")
+        binding.tfCedula.editText?.setText("")
+        binding.tfEsCedulado.editText?.setText("")
+        binding.tfParentesco.editText?.setText("")
+        binding.tfPrimerNombre.editText?.setText("")
+        binding.tfsegundoNombre.editText?.setText("")
+        binding.tfPrimerApellido.editText?.setText("")
+        binding.tfSegundoApellido.editText?.setText("")
+        binding.tfFechaNacimiento.editText?.setText("")
+        binding.tfGenero.editText?.setText("")
+        binding.tfEtnia.editText?.setText("")
+        binding.tfNacionalidad.editText?.setText("")
+        binding.tfSanguineo.editText?.setText("")
+        binding.tfEstado.editText?.setText("")
+        binding.tfMunicipio.editText?.setText("")
+        binding.tfParroquia.editText?.setText("")
+        binding.tfPrefijo.editText?.setText("")
+        binding.tfTelefono.editText?.setText("")
+        binding.tfEmail.editText?.setText("")
     }
 
-    private fun configurarDropdownIdentificarPor() = binding.tfIdentificarPor.editText?.let { editText ->
-        (editText as? AutoCompleteTextView)?.apply {
-            val opciones = resources.getStringArray(R.array.tiposIdentificacionNoCeduladoMenor)
-            setOnItemClickListener { parent, _, position, _ ->
-                when (parent.getItemAtPosition(position) as String) {
-                    opciones[0] -> mostrarLayoutRepresentante()
-                    opciones[1] -> mostrarLayoutPartida()
-                    else -> ocultarSubLayoutsNoCedulado()
-                }
-            }
-        }
+    private fun quitarError() {
+        binding.tfTipoCedula.error = null
+        binding.tfCedula.error = null
+        binding.tfEsCedulado.error = null
+        binding.tfParentesco.error = null
+        binding.tfPrimerNombre.error = null
+        binding.tfsegundoNombre.error = null
+        binding.tfPrimerApellido.error = null
+        binding.tfSegundoApellido.error = null
+        binding.tfFechaNacimiento.error = null
+        binding.tfGenero.error = null
+        binding.tfEtnia.error = null
+        binding.tfNacionalidad.error = null
+        binding.tfSanguineo.error = null
+        binding.tfEstado.error = null
+        binding.tfMunicipio.error = null
+        binding.tfParroquia.error = null
+        binding.tfPrefijo.error = null
+        binding.tfTelefono.error = null
+        binding.tfEmail.error = null
     }
 
     private fun configurarFechaNacimiento() = binding.tfFechaNacimiento.editText?.let {
@@ -184,37 +249,33 @@ class RegistrarPacienteFragment : Fragment() {
         binding.tfFechaNacimiento.editText?.setText(dateFormatter.format(fechaNacimientoCalendar.time))
     }
 
-    private fun mostrarLayoutCedulado() {
-        binding.layoutCedulado.visibility = View.VISIBLE
-        binding.layoutNoCeduladoMenorEdad.visibility = View.GONE
-        ocultarSubLayoutsNoCedulado()
+    private fun configurarDropdownCedulado() {
+        val dropdown = binding.tfEsCedulado.editText as? AutoCompleteTextView ?: return
+        dropdown.setOnItemClickListener { _, _, position, _ ->
+            when (position) {
+                0 -> {
+                    binding.layoutCedulado.visibility = View.VISIBLE
+                    binding.layoutNoCeduladoMenorEdad.visibility = View.GONE
+                    binding.tfParentesco.editText?.setText("")
+                }
+
+                1 -> {
+                    binding.layoutNoCeduladoMenorEdad.visibility = View.VISIBLE
+                    binding.layoutCedulado.visibility = View.GONE
+                    binding.tfCedula.editText?.setText("")
+                    binding.tfTipoCedula.editText?.setText("")
+                }
+
+                else -> {
+                    binding.layoutNoCeduladoMenorEdad.visibility = View.GONE
+                    binding.layoutCedulado.visibility = View.GONE
+                    binding.tfParentesco.editText?.setText("")
+                    binding.tfCedula.editText?.setText("")
+                    binding.tfTipoCedula.editText?.setText("")
+                }
+            }
+        }
     }
 
-    private fun mostrarLayoutNoCeduladoMenor() {
-        binding.layoutCedulado.visibility = View.GONE
-        binding.layoutNoCeduladoMenorEdad.visibility = View.VISIBLE
-        ocultarSubLayoutsNoCedulado()
-    }
-
-    private fun mostrarLayoutRepresentante() {
-        binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.VISIBLE
-        binding.layoutNoCeduladoMenorEdadPartida.visibility = View.GONE
-    }
-
-    private fun mostrarLayoutPartida() {
-        binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
-        binding.layoutNoCeduladoMenorEdadPartida.visibility = View.VISIBLE
-    }
-
-    private fun ocultarTodosLosLayouts() {
-        binding.layoutCedulado.visibility = View.GONE
-        binding.layoutNoCeduladoMenorEdad.visibility = View.GONE
-        ocultarSubLayoutsNoCedulado()
-    }
-
-    private fun ocultarSubLayoutsNoCedulado() {
-        binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
-        binding.layoutNoCeduladoMenorEdadPartida.visibility = View.GONE
-    }
 
 }

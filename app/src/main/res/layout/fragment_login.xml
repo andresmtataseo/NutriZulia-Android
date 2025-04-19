@@ -25,7 +25,7 @@
         android:layout_height="150dp"
         android:layout_marginBottom="36dp"
         android:contentDescription="@string/logo"
-        app:srcCompat="@drawable/logo" />
+        app:srcCompat="@drawable/ic_logo" />
 
     <TextView
         android:id="@+id/tvIniciarSesion"
