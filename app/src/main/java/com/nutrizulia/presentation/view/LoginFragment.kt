@@ -11,32 +11,64 @@ import com.nutrizulia.presentation.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 import com.nutrizulia.databinding.FragmentLoginBinding
+import com.nutrizulia.util.Utils.mostrarSnackbar
+import com.nutrizulia.util.Utils.obtenerTexto
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
+
+    private val viewModel: LoginViewModel by viewModels()
+    private lateinit var binding: FragmentLoginBinding
 
     companion object {
         fun newInstance() = LoginFragment()
     }
 
-    private val viewModel: LoginViewModel by viewModels()
-
-    private lateinit var binding: FragmentLoginBinding
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        binding.btnContinuar.setOnClickListener {
-            val intent = Intent(requireContext(), MainActivity::class.java)
-            startActivity(intent)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+//        viewModel.crearUsuario()
+
+        viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
+            mostrarSnackbar(binding.root, mensaje)
+        }
+
+//        viewModel.error.observe(viewLifecycleOwner) { error ->
+//            if (error) {
+//                binding.tfCedula.error = " "
+//                binding.tfContrasena.error = " "
+//            } else {
+//                binding.tfCedula.error = null
+//                binding.tfContrasena.error = null
+//            }
+//
+//        }
+
+        viewModel.salir.observe(viewLifecycleOwner) { salir ->
+            if (salir) requireActivity().finish()
+        }
+
+        viewModel.autenticado.observe(viewLifecycleOwner) { autenticado ->
+            if (autenticado) {
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+            }
+        }
+
+        binding.btnSalir.setOnClickListener {
             requireActivity().finish()
         }
 
-        return binding.root
+        binding.btnContinuar.setOnClickListener {
+            viewModel.logearUsuario(obtenerTexto(binding.tfCedula), obtenerTexto(binding.tfContrasena))
+        }
+
     }
 
 }

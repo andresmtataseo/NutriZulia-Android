@@ -28,7 +28,6 @@ class PacientesViewModel @Inject constructor(
             val result = getPacientesUseCase()
             if (!result.isNullOrEmpty()) {
                 pacientes.postValue(result)
-                mensaje.postValue("Pacientes cargados correctamente.")
             } else {
                 mensaje.postValue("No se encontraron pacientes.")
             }

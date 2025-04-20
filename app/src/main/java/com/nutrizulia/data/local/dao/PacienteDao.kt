@@ -16,6 +16,9 @@ interface PacienteDao {
     @Query("SELECT * FROM pacientes WHERE cedula = :cedula")
     suspend fun getPacienteByCedula(cedula: String): PacienteEntity?
 
+    @Query("SELECT * FROM pacientes WHERE id = :idPaciente")
+    suspend fun getPacienteById(idPaciente: Int): PacienteEntity?
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertPaciente(paciente: PacienteEntity): Long
 

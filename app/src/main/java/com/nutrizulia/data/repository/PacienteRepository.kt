@@ -13,6 +13,11 @@ class PacienteRepository @Inject constructor(private val pacienteDao: PacienteDa
         return response.map { it.toDomain() }
     }
 
+    suspend fun getPacienteById(id: Int): Paciente? {
+        return pacienteDao.getPacienteById(id)?.toDomain()
+    }
+
+
     suspend fun insertPaciente(paciente: Paciente): Long {
         return pacienteDao.insertPaciente(paciente.toEntity() )
     }

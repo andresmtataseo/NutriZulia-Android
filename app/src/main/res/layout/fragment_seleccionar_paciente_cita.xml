@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".presentation.view.ConsultasFragment">
+    tools:context=".presentation.view.SeleccionarPacienteCitaFragment">
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progress"
@@ -20,7 +21,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewConsultas"
+            android:id="@+id/recyclerViewPacientes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingHorizontal="12dp"
@@ -32,6 +33,7 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <!-- Resto de tus componentes... -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -40,7 +42,7 @@
             android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/buscar_consulta"
+            android:hint="@string/buscar_paciente"
             app:liftOnScroll="true"
             app:liftOnScrollColor="?attr/colorSurfaceContainerHighest" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -49,29 +51,28 @@
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:hint="@string/buscar_consulta"
+        android:hint="@string/buscar_paciente"
         app:layout_anchor="@id/search_bar">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewCitasFiltradas"
+            android:id="@+id/recyclerViewPacientesFiltrados"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingHorizontal="12dp"
             android:clipToPadding="false"
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/item_cita" />
+            tools:listitem="@layout/item_paciente" />
 
     </com.google.android.material.search.SearchView>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/btnAgendar"
+        android:id="@+id/btnRegistrarPaciente"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:layout_gravity="bottom|end"
-        android:contentDescription=""
-        android:text="@string/agendar"
-        app:icon="@drawable/ic_agregar_consulta"/>
-
+        android:layout_margin="16dp"
+        android:contentDescription="@string/icono_de_registrar_paciente_nuevo"
+        android:text="@string/registrar"
+        app:icon="@drawable/ic_agregar_paciente" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

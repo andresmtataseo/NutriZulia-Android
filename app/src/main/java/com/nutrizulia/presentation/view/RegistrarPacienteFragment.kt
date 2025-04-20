@@ -1,6 +1,5 @@
 package com.nutrizulia.presentation.view
 
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +21,10 @@ import com.nutrizulia.util.Utils.obtenerFechaActual
 import com.nutrizulia.util.Utils.obtenerTexto
 import dagger.hilt.android.AndroidEntryPoint
 import android.widget.ArrayAdapter
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,8 +33,6 @@ class RegistrarPacienteFragment : Fragment() {
 
     private val viewModel: RegistrarPacienteViewModel by viewModels()
     private lateinit var binding: FragmentRegistrarPacienteBinding
-    private val fechaNacimientoCalendar = Calendar.getInstance()
-    private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private var listaEntidades = listOf<Entidad>()
     private var listaMunicipios = listOf<Municipio>()
     private var listaParroquias = listOf<Parroquia>()
@@ -48,8 +49,8 @@ class RegistrarPacienteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         configurarDropdownCedulado()
-        configurarFechaNacimiento()
 
+        configurarSelectorFecha(binding.tfFechaNacimiento.editText as TextInputEditText)
 
         viewModel.cargarEntidades()
 
@@ -220,34 +221,32 @@ class RegistrarPacienteFragment : Fragment() {
         binding.tfEmail.error = null
     }
 
-    private fun configurarFechaNacimiento() = binding.tfFechaNacimiento.editText?.let {
-        binding.tfFechaNacimiento.setStartIconOnClickListener { mostrarDatePickerDialog() }
-        it.setOnClickListener { mostrarDatePickerDialog() }
-    }
+    private fun configurarSelectorFecha(editText: TextInputEditText) {
+        val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        dateFormatter.timeZone = TimeZone.getTimeZone("UTC")
 
-    private fun mostrarDatePickerDialog() {
-        DatePickerDialog(
-            requireContext(),
-            { _, year, month, dayOfMonth ->
-                fechaNacimientoCalendar.apply {
-                    set(Calendar.YEAR, year)
-                    set(Calendar.MONTH, month)
-                    set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                }
-                actualizarFechaNacimientoEditText()
-            },
-            fechaNacimientoCalendar.get(Calendar.YEAR),
-            fechaNacimientoCalendar.get(Calendar.MONTH),
-            fechaNacimientoCalendar.get(Calendar.DAY_OF_MONTH)
-        ).apply {
-            datePicker.maxDate = System.currentTimeMillis()
-            show()
+        val constraints = CalendarConstraints.Builder()
+            .setValidator(DateValidatorPointBackward.now())
+            .build()
+
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText("Selecciona la fecha")
+            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+            .setCalendarConstraints(constraints)
+            .build()
+
+        datePicker.addOnPositiveButtonClickListener { utcDate ->
+            editText.setText(dateFormatter.format(utcDate))
         }
+
+        val abrirPicker = {
+            datePicker.show(parentFragmentManager, "MaterialDatePicker")
+        }
+
+        editText.setOnClickListener { abrirPicker() }
+        binding.tfFechaNacimiento.setStartIconOnClickListener { abrirPicker() }
     }
 
-    private fun actualizarFechaNacimientoEditText() {
-        binding.tfFechaNacimiento.editText?.setText(dateFormatter.format(fechaNacimientoCalendar.time))
-    }
 
     private fun configurarDropdownCedulado() {
         val dropdown = binding.tfEsCedulado.editText as? AutoCompleteTextView ?: return

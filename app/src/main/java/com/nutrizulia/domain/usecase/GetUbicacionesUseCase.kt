@@ -10,9 +10,11 @@ class GetUbicacionesUseCase @Inject constructor(
     private val repository: UbicacionRepository
 ) {
     suspend fun getEntidades(): List<Entidad> {
-        // devolver de la base de datos las entidades
-        return repository.getEntidades()
-        // sino hay, consultar la api
+        val lista = repository.getEntidades()
+        if (lista.isEmpty()) {
+            repository.descargarUbicaciones()
+        }
+        return lista
     }
     suspend fun getMunicipios(codEntidad: String): List<Municipio> {
         return repository.getMunicipios(codEntidad)

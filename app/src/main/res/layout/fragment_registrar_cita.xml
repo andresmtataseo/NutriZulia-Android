@@ -133,7 +133,7 @@
             android:textStyle="normal|bold" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tfEsTipoCita"
+            android:id="@+id/tfTipoCita"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -203,19 +203,14 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:hint="@string/fecha_de_la_cita"
-            app:endIconMode="clear_text"
-            app:helperText="Ejemplo: DD/MM/AAAA"
-            app:helperTextEnabled="true"
             app:startIconDrawable="@drawable/ic_calendario">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:inputType="date"
-                android:maxLength="10" />
+                android:focusable="false"
+                android:inputType="none" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -225,17 +220,14 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:hint="@string/hora_de_la_cita"
-            app:endIconMode="clear_text"
             app:startIconDrawable="@drawable/ic_reloj">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:inputType="time"
-                android:maxLength="10" />
+                android:focusable="false"
+                android:inputType="none" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

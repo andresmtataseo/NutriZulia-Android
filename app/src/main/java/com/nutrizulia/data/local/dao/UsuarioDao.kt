@@ -1,6 +1,7 @@
 package com.nutrizulia.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import com.nutrizulia.data.local.entity.UsuarioEntity
 
@@ -12,5 +13,8 @@ interface UsuarioDao {
 
     @Query("SELECT correo FROM usuarios WHERE cedula = :cedula")
     suspend fun getCorreoByCedula(cedula: String): String?
+
+    @Insert
+    suspend fun insertUsuario(usuario: UsuarioEntity): Long
 
 }
