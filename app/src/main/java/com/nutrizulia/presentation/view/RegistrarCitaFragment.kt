@@ -69,7 +69,8 @@ class RegistrarCitaFragment : Fragment() {
         }
 
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
-            if (salir) findNavController().navigate(R.id.action_registrarCitaFragment_to_consultasFragment2)
+            if (salir) findNavController().popBackStack(R.id.consultasFragment, false)
+
         }
 
         viewModel.cargarPaciente(args.idPaciente)
@@ -112,26 +113,37 @@ class RegistrarCitaFragment : Fragment() {
         binding.tfHoraCita.error = null
     }
 
+    private var ultimaFechaSeleccionada: Long? = null
+
     private fun mostrarSelectorFecha(editText: TextInputEditText) {
         val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         dateFormatter.timeZone = TimeZone.getTimeZone("UTC")
 
-        val constraints = CalendarConstraints.Builder()
-            .setValidator(DateValidatorPointForward.now())
-            .build()
-
-        val datePicker = MaterialDatePicker.Builder.datePicker()
-            .setTitleText("Selecciona la fecha")
-            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-            .setCalendarConstraints(constraints)
-            .build()
-
-        datePicker.addOnPositiveButtonClickListener { utcDate ->
-            editText.setText(dateFormatter.format(utcDate))
-        }
-
         val abrirPicker = {
-            datePicker.show(parentFragmentManager, "MaterialDatePicker")
+            val fragmentManager = parentFragmentManager
+            val existingPicker = fragmentManager.findFragmentByTag("MaterialDatePicker")
+            if (existingPicker != null) {
+                fragmentManager.beginTransaction().remove(existingPicker).commit()
+            }
+
+            val constraints = CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointForward.now())
+                .build()
+
+            val seleccionInicial = ultimaFechaSeleccionada ?: MaterialDatePicker.todayInUtcMilliseconds()
+
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Selecciona la fecha")
+                .setSelection(seleccionInicial)
+                .setCalendarConstraints(constraints)
+                .build()
+
+            datePicker.addOnPositiveButtonClickListener { utcDate ->
+                ultimaFechaSeleccionada = utcDate
+                editText.setText(dateFormatter.format(utcDate))
+            }
+
+            datePicker.show(fragmentManager, "MaterialDatePicker")
         }
 
         editText.setOnClickListener { abrirPicker() }
@@ -139,32 +151,46 @@ class RegistrarCitaFragment : Fragment() {
     }
 
 
+
+    private var ultimaHora: Int = 12
+    private var ultimoMinuto: Int = 0
+
     @SuppressLint("DefaultLocale")
     private fun mostrarSelectorHora(editText: TextInputEditText) {
-        val picker = MaterialTimePicker.Builder()
-            .setTimeFormat(TimeFormat.CLOCK_12H)
-            .setHour(12)
-            .setMinute(0)
-            .setTitleText("Selecciona la hora")
-            .build()
-
-        picker.addOnPositiveButtonClickListener {
-            val hour = picker.hour
-            val minute = picker.minute
-            val amPm = if (hour < 12) "AM" else "PM"
-            val hourFormatted = if (hour % 12 == 0) 12 else hour % 12
-            val minuteFormatted = String.format("%02d", minute)
-            val horaFinal = "$hourFormatted:$minuteFormatted $amPm"
-            editText.setText(horaFinal)
-        }
-
         val abrirPicker = {
-            picker.show(parentFragmentManager, "MaterialTimePicker")
+            val fragmentManager = parentFragmentManager
+            val existingPicker = fragmentManager.findFragmentByTag("MaterialTimePicker")
+            if (existingPicker != null) {
+                fragmentManager.beginTransaction().remove(existingPicker).commit()
+            }
+
+            val picker = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_12H)
+                .setHour(ultimaHora)
+                .setMinute(ultimoMinuto)
+                .setTitleText("Selecciona la hora")
+                .build()
+
+            picker.addOnPositiveButtonClickListener {
+                ultimaHora = picker.hour
+                ultimoMinuto = picker.minute
+
+                val hour = ultimaHora
+                val minute = ultimoMinuto
+                val amPm = if (hour < 12) "AM" else "PM"
+                val hourFormatted = if (hour % 12 == 0) 12 else hour % 12
+                val minuteFormatted = String.format("%02d", minute)
+                val horaFinal = "$hourFormatted:$minuteFormatted $amPm"
+                editText.setText(horaFinal)
+            }
+
+            picker.show(fragmentManager, "MaterialTimePicker")
         }
 
         editText.setOnClickListener { abrirPicker() }
         binding.tfHoraCita.setStartIconOnClickListener { abrirPicker() }
-
     }
+
+
 
 }

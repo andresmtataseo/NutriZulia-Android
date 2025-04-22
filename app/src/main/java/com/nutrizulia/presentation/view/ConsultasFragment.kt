@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.R
 import com.nutrizulia.presentation.viewmodel.ConsultasViewModel
 import com.nutrizulia.databinding.FragmentConsultasBinding
-import com.nutrizulia.domain.model.Cita
-import com.nutrizulia.presentation.adapter.CitaAdapter
+import com.nutrizulia.domain.model.CitaConPaciente
+import com.nutrizulia.presentation.adapter.CitaConPacienteAdapter
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,8 +22,8 @@ class ConsultasFragment : Fragment() {
 
     private val viewModel: ConsultasViewModel by viewModels()
     private lateinit var binding: FragmentConsultasBinding
-    private lateinit var citaAdapter: CitaAdapter
-    private var listaOriginalCitas: List<Cita> = emptyList()
+    private lateinit var citaConPacienteAdapter: CitaConPacienteAdapter
+    private var listaOriginalCitasConPacientes: List<CitaConPaciente> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,30 +52,41 @@ class ConsultasFragment : Fragment() {
         }
 
 
-        viewModel.citas.observe(viewLifecycleOwner) { citas ->
-            if (!citas.isNullOrEmpty()) {
-                listaOriginalCitas = citas
-                citaAdapter = CitaAdapter(citas, onClickListener = { cita -> onCitaClick(cita) })
+        viewModel.citasConPacientes.observe(viewLifecycleOwner) { citasConPacientes ->
+            if (!citasConPacientes.isNullOrEmpty()) {
+                listaOriginalCitasConPacientes = citasConPacientes
+                citaConPacienteAdapter = CitaConPacienteAdapter(
+                    citasConPacientes,
+                    onClickCardListener = { citaConPaciente ->
+                        findNavController().navigate(ConsultasFragmentDirections.actionConsultasFragmentToRegistrarConsultaFragment(citaConPaciente.cita.id))
+                    },
+                    onClickReagendarListener = { citaConPaciente ->
+                        findNavController().navigate(ConsultasFragmentDirections.actionConsultasFragmentToReagendarCitaFragment(citaConPaciente.cita.id))
+                    },
+                    onClickVerMasListener = { citaConPaciente ->
+                        findNavController().navigate(ConsultasFragmentDirections.actionConsultasFragmentToVerCitaFragment(citaConPaciente.cita.id))
+                    }
+                )
 
                 // Inicializar recyclerView principal
                 binding.recyclerViewConsultas.apply {
                     layoutManager = LinearLayoutManager(requireContext())
-                    adapter = citaAdapter
+                    adapter = citaConPacienteAdapter
                 }
 
                 // Activar buscador ahora que el adapter existe
                 binding.searchView.getEditText().addTextChangedListener { text ->
                     val textoFiltrado = text.toString().trim()
-                    val citasFiltradas = listaOriginalCitas.filter { cita ->
-                        cita.tipoCita.contains(textoFiltrado, ignoreCase = true) ||
-                                cita.especialidad.contains(textoFiltrado, ignoreCase = true) ||
-                                cita.estado.contains(textoFiltrado, ignoreCase = true)
+                    val citasFiltradas = listaOriginalCitasConPacientes.filter { cita ->
+                        cita.cita.tipoCita.contains(textoFiltrado, ignoreCase = true) ||
+                                cita.cita.especialidad.contains(textoFiltrado, ignoreCase = true) ||
+                                cita.cita.estado.contains(textoFiltrado, ignoreCase = true)
                     }
 
-                    citaAdapter.updateCitas(citasFiltradas)
+                    citaConPacienteAdapter.updateCitas(citasFiltradas)
                     binding.recyclerViewCitasFiltradas.apply {
                         layoutManager = LinearLayoutManager(requireContext())
-                        adapter = citaAdapter
+                        adapter = citaConPacienteAdapter
                     }
                 }
             }
@@ -86,8 +97,5 @@ class ConsultasFragment : Fragment() {
         }
 
     }
-
-    private fun onCitaClick(cita: Cita) {
-        findNavController().navigate(R.id.action_consultasFragment_to_registrarConsultaFragment)
-    }
+    
 }

@@ -1,6 +1,7 @@
 package com.nutrizulia.util
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
@@ -11,6 +12,7 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.Date
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 object Utils {
 
@@ -58,6 +60,17 @@ object Utils {
         return formatoFecha.format(Date())
     }
 
+    /**
+     * Obtiene la hora actual en formato HH:mm.
+     *
+     * @return Una cadena representando la hora actual en el formato deseado.
+     */
+    @SuppressLint("SimpleDateFormat")
+    fun obtenerHoraActual(): String {
+        val formatoHora = SimpleDateFormat("HH:mm")
+        return formatoHora.format(Date())
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun calcularEdad(fechaNacimiento: String): Int {
         return try {
@@ -68,5 +81,44 @@ object Utils {
         } catch (e: Exception) {
             -1
         }
+    }
+
+    /**
+     * Muestra un diálogo de alerta genérico de Material Design 3 con dos botones (positivo y negativo).
+     *
+     * @param context El Context necesario para crear el diálogo.
+     * @param title El título del diálogo. Se recomienda usar getString(R.string.your_title) para localización.
+     * @param message El mensaje principal del diálogo. Se recomienda usar getString(R.string.your_message).
+     * @param positiveButtonText El texto para el botón positivo (por defecto: "Aceptar"). Usa recursos de String.
+     * @param negativeButtonText El texto para el botón negativo (por defecto: "Cancelar"). Usa recursos de String.
+     * @param onPositiveClick Lambda (función) opcional que se ejecuta al presionar el botón positivo.
+     * @param onNegativeClick Lambda (función) opcional que se ejecuta al presionar el botón negativo.
+     * @param isCancelable Boolean que indica si el diálogo se puede cerrar tocando fuera de él o con el botón Atrás (por defecto: true).
+     */
+    fun mostrarDialog(
+        context: Context,
+        title: String,
+        message: String,
+        positiveButtonText: String = "Aceptar", // Valor por defecto
+        negativeButtonText: String = "Cancelar", // Valor por defecto
+        onPositiveClick: (() -> Unit)? = null, // Acción opcional para el botón positivo
+        onNegativeClick: (() -> Unit)? = null, // Acción opcional para el botón negativo
+        isCancelable: Boolean = true // Por defecto, se puede cancelar
+    ) {
+        MaterialAlertDialogBuilder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setCancelable(isCancelable) // Establecer si se puede cancelar o no
+            .setNegativeButton(negativeButtonText) { dialog, which ->
+                // Ejecutar la acción negativa si se proporcionó
+                onNegativeClick?.invoke()
+                // El diálogo se cierra automáticamente por defecto al hacer clic en un botón
+            }
+            .setPositiveButton(positiveButtonText) { dialog, which ->
+                // Ejecutar la acción positiva si se proporcionó
+                onPositiveClick?.invoke()
+                // El diálogo se cierra automáticamente
+            }
+            .show() // Mostrar el diálogo
     }
 }

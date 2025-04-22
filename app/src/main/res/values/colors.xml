@@ -1,8 +1,8 @@
 <resources>
     <color name="md_theme_primary_logo">#003FC4</color>
-    <color name="color_cita_pendiente">#FFF9C4</color>
-    <color name="color_cita_completada">#C8E6C9</color>
-    <color name="color_cita_cancelada">#FFCDD2</color>
+    <color name="color_cita_pendiente">#F57F17</color>
+    <color name="color_cita_completada">#4CAF50</color>
+    <color name="color_cita_cancelada">#F44336</color>
     <color name="md_theme_primary">#003FC4</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
     <color name="md_theme_primaryContainer">#2959E4</color>

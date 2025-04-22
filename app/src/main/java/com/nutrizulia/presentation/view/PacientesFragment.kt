@@ -92,6 +92,6 @@ class PacientesFragment : Fragment() {
     }
 
     private fun onPacienteClick(paciente: Paciente) {
-        mostrarSnackbar(binding.root, "Paciente ${paciente.primerNombre} seleccionado")
+        findNavController().navigate(R.id.action_pacientesFragment_to_verPacienteFragment)
     }
 }

@@ -143,7 +143,9 @@ class RegistrarPacienteFragment : Fragment() {
 
         viewModel.salir.observe(viewLifecycleOwner) { exitoso ->
             if (exitoso) {
-                findNavController().navigate(R.id.action_registrarPacienteFragment_to_pacientesFragment)
+                findNavController().popBackStack()
+            // Puedes opcionalmente especificar un destino hasta el cual retroceder
+            // findNavController().popBackStack(R.id.destino_anterior, false)
             }
         }
     }

@@ -3,7 +3,7 @@ package com.nutrizulia.domain.model
 import com.nutrizulia.data.local.entity.SignosVitalesEntity
 
 data class SignosVitales(
-    val consultaId: Int,
+    var consultaId: Int,
     val peso: Double,
     val altura: Double,
     val temperatura: Double,

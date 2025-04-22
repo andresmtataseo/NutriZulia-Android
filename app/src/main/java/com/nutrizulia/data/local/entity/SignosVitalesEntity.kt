@@ -16,7 +16,7 @@ import com.nutrizulia.domain.model.SignosVitales
     )]
 )
 data class SignosVitalesEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo(name = "consulta_id") val consultaId: Int,
     @ColumnInfo(name = "peso") val peso: Double,
     @ColumnInfo(name = "altura") val altura: Double,
