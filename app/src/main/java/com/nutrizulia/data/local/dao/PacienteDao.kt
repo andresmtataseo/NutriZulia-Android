@@ -10,11 +10,17 @@ import com.nutrizulia.data.local.entity.PacienteEntity
 @Dao
 interface PacienteDao {
 
-    @Query("SELECT * FROM pacientes ORDER BY primer_nombre ASC")
+    @Query("SELECT * FROM pacientes ORDER BY fecha_ingreso ASC")
     suspend fun getAllPacientes(): List<PacienteEntity>
 
     @Query("SELECT * FROM pacientes WHERE cedula = :cedula")
     suspend fun getPacienteByCedula(cedula: String): PacienteEntity?
+
+    @Query("SELECT * FROM pacientes WHERE correo = :correo")
+    suspend fun getPacienteByCorreo(correo: String): PacienteEntity?
+
+    @Query("SELECT * FROM pacientes WHERE telefono = :telefono")
+    suspend fun getPacienteByTelefono(telefono: String): PacienteEntity?
 
     @Query("SELECT * FROM pacientes WHERE id = :idPaciente")
     suspend fun getPacienteById(idPaciente: Int): PacienteEntity?

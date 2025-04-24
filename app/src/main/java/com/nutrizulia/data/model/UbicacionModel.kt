@@ -6,5 +6,7 @@ data class UbicacionModel(
     val codMunicipio: Int,
     val municipio: String,
     val codParroquia: Int,
-    val parroquia: String
+    val parroquia: String,
+    val idComunidad: Int,
+    val nombreComunidad: String
 )

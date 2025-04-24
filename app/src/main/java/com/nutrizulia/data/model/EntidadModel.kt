@@ -1,6 +1,7 @@
 package com.nutrizulia.data.model
 
 import com.google.gson.annotations.SerializedName
+import com.nutrizulia.domain.model.Entidad
 
 data class EntidadModel(
     @SerializedName("cod_entidad_ine") val codEntidadIne: String,

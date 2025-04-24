@@ -17,6 +17,17 @@ class PacienteRepository @Inject constructor(private val pacienteDao: PacienteDa
         return pacienteDao.getPacienteById(id)?.toDomain()
     }
 
+    suspend fun getPacienteByCedula(cedula: String): Paciente? {
+        return pacienteDao.getPacienteByCedula(cedula)?.toDomain()
+    }
+
+    suspend fun getPacienteByCorreo(correo: String): Paciente? {
+        return pacienteDao.getPacienteByCorreo(correo)?.toDomain()
+    }
+
+    suspend fun getPacienteByTelefono(telefono: String): Paciente? {
+        return pacienteDao.getPacienteByTelefono(telefono)?.toDomain()
+    }
 
     suspend fun insertPaciente(paciente: Paciente): Long {
         return pacienteDao.insertPaciente(paciente.toEntity() )

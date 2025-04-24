@@ -23,8 +23,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import android.widget.ArrayAdapter
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
+import com.nutrizulia.domain.model.Comunidad
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,6 +38,7 @@ class RegistrarPacienteFragment : Fragment() {
     private var listaEntidades = listOf<Entidad>()
     private var listaMunicipios = listOf<Municipio>()
     private var listaParroquias = listOf<Parroquia>()
+    private var listaComunidades = listOf<Comunidad>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,7 +53,7 @@ class RegistrarPacienteFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         configurarDropdownCedulado()
 
-        configurarSelectorFecha(binding.tfFechaNacimiento.editText as TextInputEditText)
+        mostrarSelectorFecha(binding.tfFechaNacimiento.editText as TextInputEditText)
 
         viewModel.cargarEntidades()
 
@@ -71,6 +74,7 @@ class RegistrarPacienteFragment : Fragment() {
             viewModel.cargarMunicipios(entidad.codEntidad)
             binding.dropdownMunicipios.setText("") // limpiar selección previa
             binding.dropdownParroquias.setText("") // limpiar parroquias
+            binding.dropdownComunidades.setText("") // limpiar comunidades
         }
 
         // Observa municipios
@@ -91,6 +95,7 @@ class RegistrarPacienteFragment : Fragment() {
             listaParroquias = emptyList()
             viewModel.cargarParroquias(entidad.codEntidad, municipio.codMunicipio)
             binding.dropdownParroquias.setText("") // limpiar parroquias anteriores
+            binding.dropdownComunidades.setText("") // limpiar comunidades
         }
 
         // Observa parroquias
@@ -101,6 +106,30 @@ class RegistrarPacienteFragment : Fragment() {
                 ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
             binding.dropdownParroquias.setAdapter(adapter)
         }
+
+        // Cuando se selecciona una parroquia, carga comunidades
+        binding.dropdownParroquias.setOnItemClickListener { _, _, position, _ ->
+            val entidad =
+                listaEntidades.firstOrNull { it.entidad == binding.dropdownEntidades.text.toString() }
+                    ?: listaEntidades.first() // respaldo si falla
+            val municipio =
+                listaMunicipios.firstOrNull { it.municipio == binding.dropdownMunicipios.text.toString() }
+                    ?: listaMunicipios.first() // respaldo si falla
+            val parroquia =
+                listaParroquias.firstOrNull { it.parroquia == binding.dropdownParroquias.text.toString() }
+                    ?: listaParroquias.first() // respaldo si falla
+            viewModel.cargarComunidades(entidad.codEntidad, municipio.codMunicipio, parroquia.codParroquia)
+        }
+
+        //Observa comunidades
+        viewModel.comunidades.observe(viewLifecycleOwner) { comunidades ->
+            listaComunidades = comunidades
+            val nombres = comunidades.map { it.nombreComunidad }
+            val adapter =
+                ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
+            binding.dropdownComunidades.setAdapter(adapter)
+        }
+
 
         binding.btnLimpiar.setOnClickListener { limpiarCampos() }
 
@@ -120,17 +149,15 @@ class RegistrarPacienteFragment : Fragment() {
 
                     "primerNombre" -> mostrarErrorEnCampo(binding.tfPrimerNombre, message)
                     "primerApellido" -> mostrarErrorEnCampo(binding.tfPrimerApellido, message)
+                    "segundoApellido" -> mostrarErrorEnCampo(binding.tfSegundoApellido, message)
                     "fechaNacimiento" -> mostrarErrorEnCampo(binding.tfFechaNacimiento, message)
                     "genero" -> mostrarErrorEnCampo(binding.tfGenero, message)
                     "etnia" -> mostrarErrorEnCampo(binding.tfEtnia, message)
                     "nacionalidad" -> mostrarErrorEnCampo(binding.tfNacionalidad, message)
-                    "grupoSanguineo" -> mostrarErrorEnCampo(binding.tfSanguineo, message)
-                    "direccion" -> {
-                        mostrarErrorEnCampo(binding.tfEstado, message)
-                        mostrarErrorEnCampo(binding.tfMunicipio, message)
-                        mostrarErrorEnCampo(binding.tfParroquia, message)
-                    }
-
+                    "estado" -> mostrarErrorEnCampo(binding.tfEstado, message)
+                    "municipio" -> mostrarErrorEnCampo(binding.tfMunicipio, message)
+                    "parroquia" -> mostrarErrorEnCampo(binding.tfParroquia, message)
+                    "comunidad" -> mostrarErrorEnCampo(binding.tfComunidad, message)
                     "telefono" -> {
                         mostrarErrorEnCampo(binding.tfPrefijo, " ")
                         mostrarErrorEnCampo(binding.tfTelefono, message)
@@ -150,11 +177,11 @@ class RegistrarPacienteFragment : Fragment() {
         }
     }
 
-    private fun obtenerIdParroquiaSeleccionada(): Int? {
-        val nombreParroquiaSeleccionada = binding.dropdownParroquias.text.toString()
-        val parroquiaEncontrada =
-            listaParroquias.find { it.parroquia == nombreParroquiaSeleccionada }
-        return parroquiaEncontrada?.id
+    private fun obtenerIdComunidadSeleccionada(): String? {
+        val nombreComunidadeleccionada = binding.dropdownComunidades.text.toString()
+        val comunidadEncontrada =
+            listaComunidades.find { it.nombreComunidad == nombreComunidadeleccionada }
+        return comunidadEncontrada?.idComunidad
     }
 
     private fun registrarPaciente() {
@@ -162,16 +189,18 @@ class RegistrarPacienteFragment : Fragment() {
         val nuevoPaciente = Paciente(
             id = 0,
             cedula = obtenerTexto(binding.tfTipoCedula) + obtenerTexto(binding.tfCedula),
-            primerNombre = obtenerTexto(binding.tfPrimerNombre),
+            primerNombre = obtenerTexto(binding.tfPrimerNombre) ?: "",
             segundoNombre = obtenerTexto(binding.tfsegundoNombre),
-            primerApellido = obtenerTexto(binding.tfPrimerApellido),
-            segundoApellido = obtenerTexto(binding.tfSegundoApellido),
-            fechaNacimiento = obtenerTexto(binding.tfFechaNacimiento),
-            genero = obtenerTexto(binding.tfGenero),
-            etnia = obtenerTexto(binding.tfEtnia),
-            nacionalidad = obtenerTexto(binding.tfNacionalidad),
-            grupoSanguineo = obtenerTexto(binding.tfSanguineo),
-            ubicacionId = obtenerIdParroquiaSeleccionada() ?: 0,
+            primerApellido = obtenerTexto(binding.tfPrimerApellido) ?: "",
+            segundoApellido = obtenerTexto(binding.tfSegundoApellido) ?: "",
+            fechaNacimiento = obtenerTexto(binding.tfFechaNacimiento) ?: "",
+            genero = obtenerTexto(binding.tfGenero) ?: "",
+            etnia = obtenerTexto(binding.tfEtnia) ?: "",
+            nacionalidad = obtenerTexto(binding.tfNacionalidad) ?: "",
+            codEntidad = listaEntidades.firstOrNull { it.entidad == binding.dropdownEntidades.text.toString() }?.codEntidad ?: "",
+            codMunicipio = listaMunicipios.firstOrNull { it.municipio == binding.dropdownMunicipios.text.toString() }?.codMunicipio ?: "",
+            codParroquia = listaParroquias.firstOrNull { it.parroquia == binding.dropdownParroquias.text.toString() }?.codParroquia ?: "",
+            idComunidad = obtenerIdComunidadSeleccionada().toString(),
             telefono = obtenerTexto(binding.tfPrefijo) + obtenerTexto(binding.tfTelefono),
             correo = obtenerTexto(binding.tfEmail),
             fechaIngreso = obtenerFechaActual(),
@@ -180,25 +209,25 @@ class RegistrarPacienteFragment : Fragment() {
     }
 
     private fun limpiarCampos() {
-        binding.tfTipoCedula.editText?.setText("")
-        binding.tfCedula.editText?.setText("")
-        binding.tfEsCedulado.editText?.setText("")
-        binding.tfParentesco.editText?.setText("")
-        binding.tfPrimerNombre.editText?.setText("")
-        binding.tfsegundoNombre.editText?.setText("")
-        binding.tfPrimerApellido.editText?.setText("")
-        binding.tfSegundoApellido.editText?.setText("")
-        binding.tfFechaNacimiento.editText?.setText("")
-        binding.tfGenero.editText?.setText("")
-        binding.tfEtnia.editText?.setText("")
-        binding.tfNacionalidad.editText?.setText("")
-        binding.tfSanguineo.editText?.setText("")
-        binding.tfEstado.editText?.setText("")
-        binding.tfMunicipio.editText?.setText("")
-        binding.tfParroquia.editText?.setText("")
-        binding.tfPrefijo.editText?.setText("")
-        binding.tfTelefono.editText?.setText("")
-        binding.tfEmail.editText?.setText("")
+        binding.tfTipoCedula.editText?.text = null
+        binding.tfCedula.editText?.text = null
+        binding.tfEsCedulado.editText?.text = null
+        binding.tfParentesco.editText?.text = null
+        binding.tfPrimerNombre.editText?.text = null
+        binding.tfsegundoNombre.editText?.text = null
+        binding.tfPrimerApellido.editText?.text = null
+        binding.tfSegundoApellido.editText?.text = null
+        binding.tfFechaNacimiento.editText?.text = null
+        binding.tfGenero.editText?.text = null
+        binding.tfEtnia.editText?.text = null
+        binding.tfNacionalidad.editText?.text = null
+        binding.tfEstado.editText?.text = null
+        binding.tfMunicipio.editText?.text = null
+        binding.tfParroquia.editText?.text = null
+        binding.tfComunidad.editText?.text = null
+        binding.tfPrefijo.editText?.text = null
+        binding.tfTelefono.editText?.text = null
+        binding.tfEmail.editText?.text = null
     }
 
     private fun quitarError() {
@@ -214,35 +243,46 @@ class RegistrarPacienteFragment : Fragment() {
         binding.tfGenero.error = null
         binding.tfEtnia.error = null
         binding.tfNacionalidad.error = null
-        binding.tfSanguineo.error = null
         binding.tfEstado.error = null
         binding.tfMunicipio.error = null
         binding.tfParroquia.error = null
+        binding.tfComunidad.error = null
         binding.tfPrefijo.error = null
         binding.tfTelefono.error = null
         binding.tfEmail.error = null
     }
 
-    private fun configurarSelectorFecha(editText: TextInputEditText) {
+    private var ultimaFechaSeleccionada: Long? = null
+
+    private fun mostrarSelectorFecha(editText: TextInputEditText) {
         val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         dateFormatter.timeZone = TimeZone.getTimeZone("UTC")
 
-        val constraints = CalendarConstraints.Builder()
-            .setValidator(DateValidatorPointBackward.now())
-            .build()
-
-        val datePicker = MaterialDatePicker.Builder.datePicker()
-            .setTitleText("Selecciona la fecha")
-            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-            .setCalendarConstraints(constraints)
-            .build()
-
-        datePicker.addOnPositiveButtonClickListener { utcDate ->
-            editText.setText(dateFormatter.format(utcDate))
-        }
-
         val abrirPicker = {
-            datePicker.show(parentFragmentManager, "MaterialDatePicker")
+            val fragmentManager = parentFragmentManager
+            val existingPicker = fragmentManager.findFragmentByTag("MaterialDatePicker")
+            if (existingPicker != null) {
+                fragmentManager.beginTransaction().remove(existingPicker).commit()
+            }
+
+            val constraints = CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointBackward.now())
+                .build()
+
+            val seleccionInicial = ultimaFechaSeleccionada ?: MaterialDatePicker.todayInUtcMilliseconds()
+
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Selecciona la fecha")
+                .setSelection(seleccionInicial)
+                .setCalendarConstraints(constraints)
+                .build()
+
+            datePicker.addOnPositiveButtonClickListener { utcDate ->
+                ultimaFechaSeleccionada = utcDate
+                editText.setText(dateFormatter.format(utcDate))
+            }
+
+            datePicker.show(fragmentManager, "MaterialDatePicker")
         }
 
         editText.setOnClickListener { abrirPicker() }

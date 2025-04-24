@@ -66,7 +66,6 @@ class PacientesFragment : Fragment() {
                     val textoFiltrado = text.toString().trim()
                     val pacientesFiltrados = listaOriginalPacientes.filter { paciente ->
                         paciente.primerNombre.contains(textoFiltrado, ignoreCase = true) ||
-                                paciente.segundoNombre.contains(textoFiltrado, ignoreCase = true) ||
                                 paciente.primerApellido.contains(textoFiltrado, ignoreCase = true) ||
                                 paciente.segundoApellido.contains(textoFiltrado, ignoreCase = true) ||
                                 paciente.cedula.contains(textoFiltrado, ignoreCase = true)
@@ -92,6 +91,6 @@ class PacientesFragment : Fragment() {
     }
 
     private fun onPacienteClick(paciente: Paciente) {
-        findNavController().navigate(R.id.action_pacientesFragment_to_verPacienteFragment)
+        findNavController().navigate(R.id.action_pacientesFragment_to_accionesPacienteFragment)
     }
 }

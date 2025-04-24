@@ -9,7 +9,10 @@ import com.nutrizulia.data.local.entity.*
 @Database(
     entities = [
         PacienteEntity::class,
-        UbicacionEntity::class,
+        ComunidadEntity::class,
+        ParroquiaEntity::class,
+        MunicipioEntity::class,
+        EntidadEntity::class,
         RepresentanteEntity::class,
         CitaEntity::class,
         ConsultaEntity::class,
@@ -17,12 +20,16 @@ import com.nutrizulia.data.local.entity.*
         UsuarioEntity::class,
         ActividadEntity::class
     ],
-    version = 7
+    version = 1,
+    exportSchema = false
 )
 abstract class Database: RoomDatabase() {
 
     abstract fun getPacienteDao(): PacienteDao
-    abstract fun getUbicacionDao(): UbicacionDao
+    abstract fun getComunidadDao(): ComunidadDao
+    abstract fun getParroquiaDao(): ParroquiaDao
+    abstract fun getMunicipioDao(): MunicipioDao
+    abstract fun getEntidadDao(): EntidadDao
     abstract fun getRepresentanteDao(): RepresentanteDao
     abstract fun getCitaDao(): CitaDao
     abstract fun getConsultaDao(): ConsultaDao

@@ -38,12 +38,7 @@ class RegistrarConsultaViewModel @Inject constructor(
     fun cargarCitaConPaciente(idCita: Int) {
         viewModelScope.launch {
             val encontrado = getCitaConPacienteUseCase(idCita)
-            if (encontrado != null) {
-                _citaConPaciente.value = encontrado
-            } else {
-                _mensaje.value = "Error al buscar la cita."
-                _salir.value = true
-            }
+            _citaConPaciente.value = encontrado
         }
 
     }
@@ -52,7 +47,6 @@ class RegistrarConsultaViewModel @Inject constructor(
         val erroresActuales = _errores.value?.toMutableMap() ?: mutableMapOf()
         erroresActuales.clear()
 
-        if (consulta.diagnosticoPrincipal.isBlank()) erroresActuales["diagPrincipal"] = "El diagnóstico principal es obligatorio."
         if (signosVitales.peso <= 0) erroresActuales["peso"] = "El peso es obligatorio."
         if (signosVitales.altura <= 0) erroresActuales["altura"] = "La altura es obligatoria."
 

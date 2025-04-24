@@ -8,7 +8,7 @@ data class Cita(
     val pacienteId: Int,
     val tipoCita: String,
     val especialidad: String,
-    val motivoCita: String,
+    val motivoCita: String?,
     val fechaProgramada: String,
     val horaProgramada: String,
     val estado: String

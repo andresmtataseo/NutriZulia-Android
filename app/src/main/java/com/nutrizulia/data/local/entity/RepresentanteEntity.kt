@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nutrizulia.domain.model.Representante
+import javax.annotation.Nonnull
 
 @Entity(
     tableName = "representantes",
@@ -17,12 +18,12 @@ import com.nutrizulia.domain.model.Representante
         entity = PacienteEntity::class,
         parentColumns = ["id"],
         childColumns = ["paciente_id"],
-        onDelete = ForeignKey.NO_ACTION
+        onDelete = ForeignKey.CASCADE
     ), ForeignKey(
         entity = PacienteEntity::class,
         parentColumns = ["id"],
         childColumns = ["representante_id"],
-        onDelete = ForeignKey.NO_ACTION
+        onDelete = ForeignKey.CASCADE
     )]
 )
 data class RepresentanteEntity(

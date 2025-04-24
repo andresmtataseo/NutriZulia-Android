@@ -34,9 +34,9 @@ object Utils {
      * @param textInputLayout Componente TextInputLayout del cual se extraerá el texto.
      * @return El texto ingresado sin espacios extra, o `null` si el campo es nulo o está vacío.
      */
-    fun obtenerTexto(textInputLayout: TextInputLayout?): String {
+    fun obtenerTexto(textInputLayout: TextInputLayout?): String? {
         val texto = textInputLayout?.editText?.text?.toString()?.trim()
-        return if (texto.isNullOrEmpty()) "" else texto
+        return texto
     }
 
     /**

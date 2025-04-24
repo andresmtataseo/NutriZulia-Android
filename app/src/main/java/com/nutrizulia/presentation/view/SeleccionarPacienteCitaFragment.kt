@@ -68,7 +68,6 @@ class SeleccionarPacienteCitaFragment : Fragment() {
                     val textoFiltrado = text.toString().trim()
                     val pacientesFiltrados = listaOriginalPacientes.filter { paciente ->
                         paciente.primerNombre.contains(textoFiltrado, ignoreCase = true) ||
-                                paciente.segundoNombre.contains(textoFiltrado, ignoreCase = true) ||
                                 paciente.primerApellido.contains(
                                     textoFiltrado,
                                     ignoreCase = true

@@ -15,12 +15,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object RoomModule {
 
-    private const val DATABASE_NAME = "nutrizulia_db"
+    private const val DATABASE_NAME = "nutrizulia_database"
 
     @Singleton
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): Database {
-        Log.d("RoomDB", "Ruta de la base de datos: ${context.getDatabasePath("nutrizulia.db")}")
         return Room.databaseBuilder(
             context,
             Database::class.java,
@@ -34,7 +33,19 @@ object RoomModule {
 
     @Singleton
     @Provides
-    fun provideUbicacionDao(database: Database) = database.getUbicacionDao()
+    fun provideEntidadDao(database: Database) = database.getEntidadDao()
+
+    @Singleton
+    @Provides
+    fun provideMunicipioDao(database: Database) = database.getMunicipioDao()
+
+    @Singleton
+    @Provides
+    fun provideParroquiaDao(database: Database) = database.getParroquiaDao()
+
+    @Singleton
+    @Provides
+    fun provideComunidadDao(database: Database) = database.getComunidadDao()
 
     @Singleton
     @Provides

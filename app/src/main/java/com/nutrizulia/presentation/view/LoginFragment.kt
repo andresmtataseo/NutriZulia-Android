@@ -32,7 +32,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 //
-//        viewModel.crearUsuario()
+        viewModel.crearUsuario()
 
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             mostrarSnackbar(binding.root, mensaje)
@@ -55,7 +55,7 @@ class LoginFragment : Fragment() {
 
         viewModel.autenticado.observe(viewLifecycleOwner) { autenticado ->
             if (autenticado) {
-                val intent = Intent(requireContext(), MainActivity::class.java)
+                val intent = Intent(requireContext(), PreCargarActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             }
@@ -66,7 +66,8 @@ class LoginFragment : Fragment() {
         }
 
         binding.btnContinuar.setOnClickListener {
-            viewModel.logearUsuario(obtenerTexto(binding.tfCedula), obtenerTexto(binding.tfContrasena))
+            viewModel.logearUsuario(binding.tfCedula.editText?.text.toString(), binding.tfContrasena.editText?.text.toString()
+            )
         }
 
     }

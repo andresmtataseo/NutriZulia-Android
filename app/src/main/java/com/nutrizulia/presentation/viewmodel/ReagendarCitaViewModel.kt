@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.view
+package com.nutrizulia.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 

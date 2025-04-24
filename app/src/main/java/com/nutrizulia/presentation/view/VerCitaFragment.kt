@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.nutrizulia.R
+import com.nutrizulia.presentation.viewmodel.VerCitaViewModel
 
 class VerCitaFragment : Fragment() {
 

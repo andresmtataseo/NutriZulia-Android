@@ -1,209 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="sanguineos">
-        <item>No especificado</item>
-        <item>A+</item>
-        <item>A-</item>
-        <item>B+</item>
-        <item>B-</item>
-        <item>AB+</item>
-        <item>AB-</item>
-        <item>O+</item>
-        <item>O-</item>
-    </string-array>
-
     <string-array name="generos">
-        <item>FEMENINO</item>
-        <item>MASCULINO</item>
+        <item>Femenino</item>
+        <item>Masculino</item>
     </string-array>
 
     <string-array name="nacionalidades">
-        <item>Afgano (Afganistán)</item>
-        <item>Albanés (Albania)</item>
-        <item>Alemán (Alemania)</item>
-        <item>Andorrano (Andorra)</item>
-        <item>Angoleño (Angola)</item>
-        <item>Antiguano (Antigua y Barbuda)</item>
-        <item>Argentino (Argentina)</item>
-        <item>Armenio (Armenia)</item>
-        <item>Arubeño (Aruba)</item>
-        <item>Australiano (Australia)</item>
-        <item>Austriaco (Austria)</item>
-        <item>Azerbaiyano (Azerbaiyán)</item>
-        <item>Bahameño (Bahamas)</item>
-        <item>Bareiní (Baréin)</item>
-        <item>Bangladesí (Bangladés)</item>
-        <item>Barbadense (Barbados)</item>
-        <item>Belga (Bélgica)</item>
-        <item>Beliceño (Belice)</item>
-        <item>Beninés (Benín)</item>
-        <item>Bielorruso (Bielorrusia)</item>
-        <item>Birmano (Myanmar)</item>
-        <item>Boliviano (Bolivia)</item>
-        <item>Bosnio (Bosnia y Herzegovina)</item>
-        <item>Botsuano (Botsuana)</item>
-        <item>Brasileño (Brasil)</item>
-        <item>Bruneano (Brunéi)</item>
-        <item>Búlgaro (Bulgaria)</item>
-        <item>Burkinés (Burkina Faso)</item>
-        <item>Burundés (Burundi)</item>
-        <item>Butanés (Bután)</item>
-        <item>Caboverdiano (Cabo Verde)</item>
-        <item>Camboyano (Camboya)</item>
-        <item>Camerunés (Camerún)</item>
-        <item>Canadiense (Canadá)</item>
-        <item>Catarí (Catar)</item>
-        <item>Centroafricano (República Centroafricana)</item>
-        <item>Chadiano (Chad)</item>
-        <item>Checo (República Checa)</item>
-        <item>Chileno (Chile)</item>
-        <item>Chino (China)</item>
-        <item>Chipriota (Chipre)</item>
-        <item>Colombiano (Colombia)</item>
-        <item>Comorense (Comoras)</item>
-        <item>Congoleño (República del Congo)</item>
-        <item>Norcoreano (Corea del Norte)</item>
-        <item>Surcoreano (Corea del Sur)</item>
-        <item>Marfileño (Costa de Marfil)</item>
-        <item>Costarricense (Costa Rica)</item>
-        <item>Croata (Croacia)</item>
-        <item>Cubano (Cuba)</item>
-        <item>Danés (Dinamarca)</item>
-        <item>Dominiqués (Dominica)</item>
-        <item>Ecuatoriano (Ecuador)</item>
-        <item>Egipcio (Egipto)</item>
-        <item>Salvadoreño (El Salvador)</item>
-        <item>Emiratí (Emiratos Árabes Unidos)</item>
-        <item>Eritreo (Eritrea)</item>
-        <item>Eslovaco (Eslovaquia)</item>
-        <item>Esloveno (Eslovenia)</item>
-        <item>Español (España)</item>
-        <item>Estadounidense (Estados Unidos)</item>
-        <item>Estonio (Estonia)</item>
-        <item>Etíope (Etiopía)</item>
-        <item>Filipino (Filipinas)</item>
-        <item>Finlandés (Finlandia)</item>
-        <item>Francés (Francia)</item>
-        <item>Gabonés (Gabón)</item>
-        <item>Gambiano (Gambia)</item>
-        <item>Georgiano (Georgia)</item>
-        <item>Ghanés (Ghana)</item>
-        <item>Granadino (Granada)</item>
-        <item>Griego (Grecia)</item>
-        <item>Guatemalteco (Guatemala)</item>
-        <item>Guineano (Guinea)</item>
-        <item>Guineano Ecuatorial (Guinea Ecuatorial)</item>
-        <item>Guyanés (Guyana)</item>
-        <item>Haitiano (Haití)</item>
-        <item>Hondureño (Honduras)</item>
-        <item>Húngaro (Hungría)</item>
-        <item>Indio (India)</item>
-        <item>Indonesio (Indonesia)</item>
-        <item>Iraquí (Irak)</item>
-        <item>Iraní (Irán)</item>
-        <item>Irlandés (Irlanda)</item>
-        <item>Islandés (Islandia)</item>
-        <item>Israelí (Israel)</item>
-        <item>Italiano (Italia)</item>
-        <item>Jamaicano (Jamaica)</item>
-        <item>Japonés (Japón)</item>
-        <item>Jordano (Jordania)</item>
-        <item>Kazajo (Kazajistán)</item>
-        <item>Keniano (Kenia)</item>
-        <item>Kirguís (Kirguistán)</item>
-        <item>Kiribatiano (Kiribati)</item>
-        <item>Kuwaití (Kuwait)</item>
-        <item>Laosiano (Laos)</item>
-        <item>Lesotense (Lesoto)</item>
-        <item>Letón (Letonia)</item>
-        <item>Libanés (Líbano)</item>
-        <item>Liberiano (Liberia)</item>
-        <item>Libio (Libia)</item>
-        <item>Liechtensteiniano (Liechtenstein)</item>
-        <item>Lituano (Lituania)</item>
-        <item>Luxemburgués (Luxemburgo)</item>
-        <item>Macedonio (Macedonia del Norte)</item>
-        <item>Malauí (Malaui)</item>
-        <item>Malasio (Malasia)</item>
-        <item>Maldivo (Maldivas)</item>
-        <item>Maliense (Malí)</item>
-        <item>Maltés (Malta)</item>
-        <item>Marroquí (Marruecos)</item>
-        <item>Mauriciano (Mauricio)</item>
-        <item>Mauritano (Mauritania)</item>
-        <item>Mexicano (México)</item>
-        <item>Micronesio (Micronesia)</item>
-        <item>Moldavo (Moldavia)</item>
-        <item>Monegasco (Mónaco)</item>
-        <item>Mongol (Mongolia)</item>
-        <item>Montenegrino (Montenegro)</item>
-        <item>Mozambiqueño (Mozambique)</item>
-        <item>Namibio (Namibia)</item>
-        <item>Nauruano (Nauru)</item>
-        <item>Nepalí (Nepal)</item>
-        <item>Nicaragüense (Nicaragua)</item>
-        <item>Nigerino (Níger)</item>
-        <item>Nigeriano (Nigeria)</item>
-        <item>Noruego (Noruega)</item>
-        <item>Neozelandés (Nueva Zelanda)</item>
-        <item>Omaní (Omán)</item>
-        <item>Neerlandés (Países Bajos)</item>
-        <item>Pakistaní (Pakistán)</item>
-        <item>Palauano (Palaos)</item>
-        <item>Palestino (Palestina)</item>
-        <item>Panameño (Panamá)</item>
-        <item>Papú (Papúa Nueva Guinea)</item>
-        <item>Paraguayo (Paraguay)</item>
-        <item>Peruano (Perú)</item>
-        <item>Polaco (Polonia)</item>
-        <item>Portugués (Portugal)</item>
-        <item>Británico (Reino Unido)</item>
-        <item>Ruandés (Ruanda)</item>
-        <item>Rumano (Rumania)</item>
-        <item>Ruso (Rusia)</item>
-        <item>Samoano (Samoa)</item>
-        <item>Cristobaleño (San Cristóbal y Nieves)</item>
-        <item>Sanmarinense (San Marino)</item>
-        <item>Sanvicentino (San Vicente y las Granadinas)</item>
-        <item>Santalucense (Santa Lucía)</item>
-        <item>Santotomense (Santo Tomé y Príncipe)</item>
-        <item>Senegalés (Senegal)</item>
-        <item>Serbio (Serbia)</item>
-        <item>Seychellense (Seychelles)</item>
-        <item>Sierraleonés (Sierra Leona)</item>
-        <item>Singapurense (Singapur)</item>
-        <item>Sirio (Siria)</item>
-        <item>Somalí (Somalia)</item>
-        <item>Ceilanés (Sri Lanka)</item>
-        <item>Eswatiniano (Esuatini / Suazilandia)</item>
-        <item>Sudafricano (Sudáfrica)</item>
-        <item>Sudanés (Sudán)</item>
-        <item>Sursudanés (Sudán del Sur)</item>
-        <item>Sueco (Suecia)</item>
-        <item>Suizo (Suiza)</item>
-        <item>Surinamés (Surinam)</item>
-        <item>Tailandés (Tailandia)</item>
-        <item>Tanzano (Tanzania)</item>
-        <item>Tayiko (Tayikistán)</item>
-        <item>Timorense (Timor Oriental)</item>
-        <item>Togolés (Togo)</item>
-        <item>Tongano (Tonga)</item>
-        <item>Trinitobagense (Trinidad y Tobago)</item>
-        <item>Tunecino (Túnez)</item>
-        <item>Turcomano (Turkmenistán)</item>
-        <item>Turco (Turquía)</item>
-        <item>Tuvaluano (Tuvalu)</item>
-        <item>Ucraniano (Ucrania)</item>
-        <item>Ugandés (Uganda)</item>
-        <item>Uruguayo (Uruguay)</item>
-        <item>Uzbeko (Uzbekistán)</item>
-        <item>Vanuatuense (Vanuatu)</item>
-        <item>Venezolano (Venezuela)</item>
-        <item>Vietnamita (Vietnam)</item>
-        <item>Yemení (Yemen)</item>
-        <item>Yibutiano (Yibuti)</item>
-        <item>Zambiano (Zambia)</item>
-        <item>Zimbabuense (Zimbabue)</item>
+        <item>Afgano</item>
+        <item>Albanés</item>
+        <item>Alemán</item>
+        <item>Andorrano</item>
+        <item>Angoleño</item>
+        <item>Antiguano</item>
+        <item>Argentino</item>
+        <item>Armenio</item>
+        <item>Arubeño</item>
+        <item>Australiano</item>
+        <item>Austriaco</item>
+        <item>Azerbaiyano</item>
+        <item>Bahameño</item>
+        <item>Bareiní</item>
+        <item>Bangladesí</item>
+        <item>Barbadense</item>
+        <item>Belga</item>
+        <item>Beliceño</item>
+        <item>Beninés</item>
+        <item>Bielorruso</item>
+        <item>Birmano</item>
+        <item>Boliviano</item>
+        <item>Bosnio</item>
+        <item>Botsuano</item>
+        <item>Brasileño</item>
+        <item>Bruneano</item>
+        <item>Búlgaro</item>
+        <item>Burkinés</item>
+        <item>Burundés</item>
+        <item>Butanés</item>
+        <item>Caboverdiano</item>
+        <item>Camboyano</item>
+        <item>Camerunés</item>
+        <item>Canadiense</item>
+        <item>Catarí</item>
+        <item>Centroafricano</item>
+        <item>Chadiano</item>
+        <item>Checo</item>
+        <item>Chileno</item>
+        <item>Chino</item>
+        <item>Chipriota</item>
+        <item>Colombiano</item>
+        <item>Comorense</item>
+        <item>Congoleño</item>
+        <item>Norcoreano</item>
+        <item>Surcoreano</item>
+        <item>Marfileño</item>
+        <item>Costarricense</item>
+        <item>Croata</item>
+        <item>Cubano</item>
+        <item>Danés</item>
+        <item>Dominiqués</item>
+        <item>Ecuatoriano</item>
+        <item>Egipcio</item>
+        <item>Salvadoreño</item>
+        <item>Emiratí</item>
+        <item>Eritreo</item>
+        <item>Eslovaco</item>
+        <item>Esloveno</item>
+        <item>Español</item>
+        <item>Estadounidense</item>
+        <item>Estonio</item>
+        <item>Etíope</item>
+        <item>Filipino</item>
+        <item>Finlandés</item>
+        <item>Francés</item>
+        <item>Gabonés</item>
+        <item>Gambiano</item>
+        <item>Georgiano</item>
+        <item>Ghanés</item>
+        <item>Granadino</item>
+        <item>Griego</item>
+        <item>Guatemalteco</item>
+        <item>Guineano</item>
+        <item>Guineano Ecuatorial</item>
+        <item>Guyanés</item>
+        <item>Haitiano</item>
+        <item>Hondureño</item>
+        <item>Húngaro</item>
+        <item>Indio</item>
+        <item>Indonesio</item>
+        <item>Iraquí</item>
+        <item>Iraní</item>
+        <item>Irlandés</item>
+        <item>Islandés</item>
+        <item>Israelí</item>
+        <item>Italiano</item>
+        <item>Jamaicano</item>
+        <item>Japonés</item>
+        <item>Jordano</item>
+        <item>Kazajo</item>
+        <item>Keniano</item>
+        <item>Kirguís</item>
+        <item>Kiribatiano</item>
+        <item>Kuwaití</item>
+        <item>Laosiano</item>
+        <item>Lesotense</item>
+        <item>Letón</item>
+        <item>Libanés</item>
+        <item>Liberiano</item>
+        <item>Libio</item>
+        <item>Liechtensteiniano</item>
+        <item>Lituano</item>
+        <item>Luxemburgués</item>
+        <item>Macedonio</item>
+        <item>Malauí</item>
+        <item>Malasio</item>
+        <item>Maldivo</item>
+        <item>Maliense</item>
+        <item>Maltés</item>
+        <item>Marroquí</item>
+        <item>Mauriciano</item>
+        <item>Mauritano</item>
+        <item>Mexicano</item>
+        <item>Micronesio</item>
+        <item>Moldavo</item>
+        <item>Monegasco</item>
+        <item>Mongol</item>
+        <item>Montenegrino</item>
+        <item>Mozambiqueño</item>
+        <item>Namibio</item>
+        <item>Nauruano</item>
+        <item>Nepalí</item>
+        <item>Nicaragüense</item>
+        <item>Nigerino</item>
+        <item>Nigeriano</item>
+        <item>Noruego</item>
+        <item>Neozelandés</item>
+        <item>Omaní</item>
+        <item>Neerlandés</item>
+        <item>Pakistaní</item>
+        <item>Palauano</item>
+        <item>Palestino</item>
+        <item>Panameño</item>
+        <item>Papú</item>
+        <item>Paraguayo</item>
+        <item>Peruano</item>
+        <item>Polaco</item>
+        <item>Portugués</item>
+        <item>Británico</item>
+        <item>Ruandés</item>
+        <item>Rumano</item>
+        <item>Ruso</item>
+        <item>Samoano</item>
+        <item>Cristobaleño</item>
+        <item>Sanmarinense</item>
+        <item>Sanvicentino</item>
+        <item>Santalucense</item>
+        <item>Santotomense</item>
+        <item>Senegalés</item>
+        <item>Serbio</item>
+        <item>Seychellense</item>
+        <item>Sierraleonés</item>
+        <item>Singapurense</item>
+        <item>Sirio</item>
+        <item>Somalí</item>
+        <item>Ceilanés</item>
+        <item>Eswatiniano</item>
+        <item>Sudafricano</item>
+        <item>Sudanés</item>
+        <item>Sursudanés</item>
+        <item>Sueco</item>
+        <item>Suizo</item>
+        <item>Surinamés</item>
+        <item>Tailandés</item>
+        <item>Tanzano</item>
+        <item>Tayiko</item>
+        <item>Timorense</item>
+        <item>Togolés</item>
+        <item>Tongano</item>
+        <item>Trinitobagense</item>
+        <item>Tunecino</item>
+        <item>Turcomano</item>
+        <item>Turco</item>
+        <item>Tuvaluano</item>
+        <item>Ucraniano</item>
+        <item>Ugandés</item>
+        <item>Uruguayo</item>
+        <item>Uzbeko</item>
+        <item>Vanuatuense</item>
+        <item>Venezolano</item>
+        <item>Vietnamita</item>
+        <item>Yemení</item>
+        <item>Yibutiano</item>
+        <item>Zambiano</item>
+        <item>Zimbabuense</item>
     </string-array>
 
     <string-array name="etnias">
@@ -225,7 +213,6 @@
         <item>Yukpa</item>
         <item>Barí</item>
         <item>Akawaio</item>
-        <item>Yeral (Yaruro)</item>
         <item>Mapoyo</item>
         <item>Uruak (Arutani)</item>
         <item>Sapé</item>
@@ -235,7 +222,7 @@
         <item>Sanemá</item>
         <item>Hotï</item>
         <item>Eñepa</item>
-        <item>Wanai (Wanai)</item>
+        <item>Wanai</item>
         <item>Pumé (Yaruro)</item>
         <item>Chaima</item>
         <item>Cuiba</item>
@@ -249,7 +236,7 @@
     </string-array>
 
     <string-array name="prefijosTelefonicos">
-        <item />
+        <item>    </item>
         <item>0414</item>
         <item>0424</item>
         <item>0412</item>
@@ -262,9 +249,9 @@
         <item>No cedulado</item>
     </string-array>
 
-    <string-array name="tiposIdentificacionNoCeduladoMenor">
-        <item>Representante</item>
-        <item>Número de Partida de Nacimiento</item>
+    <string-array name="SioNo">
+        <item>Si</item>
+        <item>No</item>
     </string-array>
 
     <string-array name="parentescos">
@@ -275,7 +262,6 @@
         <item>Primo(a)</item>
         <item>Bisabuelo(a)</item>
         <item>Tatarabuelo(a)</item>
-
         <item>Padre/Madre Adoptivo(a)</item>
         <item>Padrastro/Madastra</item>
         <item>Padrino/Madrina</item>
@@ -285,8 +271,54 @@
     </string-array>
 
     <string-array name="especialidades">
-        <item>Nutrición Clínica</item>
-        <item>Desnutrición</item>
+        <item>No aplica</item>
+        <item>Alergología</item>
+        <item>Anatomopatología</item>
+        <item>Anestesiología</item>
+        <item>Cirugía General</item>
+        <item>Cirugía Cardiovascular</item>
+        <item>Cirugía de la Mano</item>
+        <item>Cirugía Pediátrica</item>
+        <item>Cirugía Plástica</item>
+        <item>Cirugía Laparoscópica</item>
+        <item>Cardiología</item>
+        <item>Dermatología</item>
+        <item>Endocrinología y Metabolismo</item>
+        <item>Foniatría</item>
+        <item>Gastroenterología</item>
+        <item>Genética</item>
+        <item>Geriatría</item>
+        <item>Ginecología</item>
+        <item>Hematología</item>
+        <item>Higiene</item>
+        <item>Infectología y Laboratorio Clínico</item>
+        <item>Inmunología</item>
+        <item>Medicina Interna</item>
+        <item>Medicina Crítica (Terapia Intensiva)</item>
+        <item>Medicina General</item>
+        <item>Medicina del Trabajo</item>
+        <item>Medicina Estética</item>
+        <item>Medicina Legal y Forense</item>
+        <item>Medicina Nuclear</item>
+        <item>Microbiología</item>
+        <item>Nefrología</item>
+        <item>Neumonología</item>
+        <item>Neurología</item>
+        <item>Nutrición</item>
+        <item>Obstetricia</item>
+        <item>Oftalmología</item>
+        <item>Oncología</item>
+        <item>Otorrinolaringología</item>
+        <item>Psiquiatría (Adultos e Infantil)</item>
+        <item>Pediatría y Puericultura</item>
+        <item>Radiología (Imagenología)</item>
+        <item>Reumatología</item>
+        <item>Rehabilitación y Medicina Física</item>
+        <item>Salud Pública</item>
+        <item>Sexología</item>
+        <item>Traumatología y Ortopedia</item>
+        <item>Urología</item>
+        <item>Venereología</item>
     </string-array>
 
     <string-array name="tiposCitas">

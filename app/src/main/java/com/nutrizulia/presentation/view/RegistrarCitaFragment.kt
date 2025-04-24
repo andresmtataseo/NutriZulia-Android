@@ -96,11 +96,11 @@ class RegistrarCitaFragment : Fragment() {
             id = 0,
             usuarioId = 1,
             pacienteId = args.idPaciente,
-            tipoCita = obtenerTexto(binding.tfTipoCita),
-            especialidad = obtenerTexto(binding.tfEspecialidad),
+            tipoCita = obtenerTexto(binding.tfTipoCita) ?: "",
+            especialidad = obtenerTexto(binding.tfEspecialidad) ?: "",
             motivoCita = obtenerTexto(binding.tfMotivoCita),
-            fechaProgramada = obtenerTexto(binding.tfFechaCita),
-            horaProgramada = obtenerTexto(binding.tfHoraCita),
+            fechaProgramada = obtenerTexto(binding.tfFechaCita) ?: "",
+            horaProgramada = obtenerTexto(binding.tfHoraCita) ?: "",
             estado = EstadoCita.PENDIENTE.descripcion
         )
         viewModel.registrarCita(citaNueva)

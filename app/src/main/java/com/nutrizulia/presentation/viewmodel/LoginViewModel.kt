@@ -38,9 +38,7 @@ class LoginViewModel @Inject constructor(
         if (cedula.isNotBlank() || clave.isNotBlank()) {
             viewModelScope.launch {
                 val result = getUsuarioByCedulaClaveUseCase(cedula, clave)
-                Log.d("AUTENTICACION USUARIO", "EL RESULTADO: ${result.toString()}")
                 if (result != null) {
-                    _mensaje.value = "Bienvenido ${result.primerNombre} ${result.primerApellido}"
                     _autenticado.value = true
                     _usuario.value = result
                 } else {
@@ -70,13 +68,20 @@ class LoginViewModel @Inject constructor(
             isActivo = true
         )
         viewModelScope.launch {
-            val result = insertUsuarioUseCase(usuario)
-            if ( result > 0 ) {
-                Log.d("Usuario", "Registrado exitosamente")
+            val isExist = getUsuarioByCedulaClaveUseCase(usuario.cedula, usuario.clave)
+            if (isExist != null) {
+                Log.d("Usuario", "Ya existe")
+                return@launch
+            } else {
+                val result = insertUsuarioUseCase(usuario)
+                if ( result > 0 ) {
+                    Log.d("Usuario", "Registrado exitosamente")
+                }
+                else {
+                    Log.d("Usuario", "errorrrrr")
+                }
             }
-             else {
-                Log.d("Usuario", "errorrrrr")
-            }
+
         }
     }
 

@@ -19,14 +19,14 @@ data class UsuarioEntity(
     @ColumnInfo(name = "id") val id: Int = 0,
     @ColumnInfo(name = "cedula") val cedula: String,
     @ColumnInfo(name = "primer_nombre") val primerNombre: String,
-    @ColumnInfo(name = "segundo_nombre") val segundoNombre: String,
+    @ColumnInfo(name = "segundo_nombre") val segundoNombre: String?,
     @ColumnInfo(name = "primer_apellido") val primerApellido: String,
     @ColumnInfo(name = "segundo_apellido") val segundoApellido: String,
     @ColumnInfo(name = "profesion") val profesion: String,
     @ColumnInfo(name = "telefono") val telefono: String,
     @ColumnInfo(name = "correo") val correo: String,
     @ColumnInfo(name = "clave") val clave: String,
-    @ColumnInfo(name = "isActivo") val isActivo: Boolean
+    @ColumnInfo(name = "isActivo") val isActivo: Boolean = true
 )
 
 fun Usuario.toEntity() = UsuarioEntity(

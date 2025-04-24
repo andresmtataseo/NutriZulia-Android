@@ -179,22 +179,23 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layoutGlicemiaBasal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tfGlicemia"
+                android:id="@+id/tfGlicemiaBasal"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_weight="1"
-                android:hint="@string/glicemia"
+                android:hint="Glicemia Basal"
                 app:suffixText="mg/dL">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/tiGlicemia"
+                    android:id="@+id/tiGlicemiaBasal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
@@ -203,7 +204,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <ImageButton
-                android:id="@+id/btnRemoverGlicemia"
+                android:id="@+id/btnRemoverGlicemiaBasal"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="12dp"
@@ -216,6 +217,273 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layoutGlicemiaPostprandial"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfGlicemiaPostprandial"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Glicemia PostPrandial"
+                app:suffixText="mg/dL">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiGlicemiaPostprandial"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="3" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverGlicemiaPostprandial"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutGlicemiaAleatoria"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfGlicemiaAleatoria"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Glicemia aleatoria"
+                app:suffixText="mg/dL">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiGlicemiaAleatoria"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="3" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverGlicemiaAleatoria"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutHemoglobinaGlicosilada"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfHemoglobinaGlicosilada"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Hemoglobina Glicosilada"
+                app:suffixText="%">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiHemoglobinaGlicosilada"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:maxLength="3" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverHemoglobinaGlicosilada"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutTrigliceridos"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfTrigliceridos"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Triglicéridos"
+                app:suffixText="mg/dL">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiTrigliceridos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="3" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverTrigliceridos"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutColesterolTotal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfColesterolTotal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Colesterol total"
+                app:suffixText="mg/dL">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiColesterolTotal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="3" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverColesterolTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutColesterolHdl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfColesterolHdl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Colesterol HDL"
+                app:suffixText="mg/dL">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiColesterolHdl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="3" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverColesterolHdl"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutColesterolLdl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfColesterolLdl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Colesterol LDL"
+                app:suffixText="mg/dL">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiColesterolLdl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="3" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverColesterolLdl"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover"
+                tools:ignore="TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutTensionArterial"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
@@ -253,6 +521,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layoutFrecuenciaCardiaca"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
@@ -290,6 +559,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layoutPulso"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
@@ -327,6 +597,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layoutSTO2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
@@ -346,7 +617,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:maxLength="3" />
+                    android:maxLength="2" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -364,6 +635,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layoutTemperatura"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
@@ -401,6 +673,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layoutFrecuenciaRespiratoria"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -437,6 +710,157 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/layoutCircuferenciaBraquial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfCircuferenciaBraquial"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Circuferencia braquial"
+                app:suffixText="cm">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiCircuferenciaBraquial"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:maxLength="6" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverCircuferenciaBraquial"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutCircuferenciaCadera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfCircuferenciaCadera"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Circuferencia de cadera"
+                app:suffixText="cm">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiCircuferenciaCadera"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:maxLength="7" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverCircuferenciaCadera"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutCircuferenciaCintura"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfCircuferenciaCintura"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Circuferencia de cintura"
+                app:suffixText="cm">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiCircuferenciaCintura"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:maxLength="7" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverCircuferenciaCintura"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutPerimetroCefalico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfPerimetroCefalico"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:hint="Perímetro cefálico"
+                app:suffixText="cm">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiPerimetroCefalico"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:maxLength="5" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoverPerimetroCefalico"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/actionBarItemBackground"
+                android:contentDescription="@string/revomer_signo_vital"
+                android:src="@drawable/ic_remover" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnAgregarDato"
@@ -448,6 +872,107 @@
             android:text="@string/agregar_signos"
             app:icon="@drawable/ic_agregar_datos"
             app:iconGravity="textStart" />
+
+        <LinearLayout
+            android:id="@+id/layoutEmbarazo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:text="Información de embarazo"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfIsEmbarazo"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="¿Pacienta embarazada?">
+
+                <AutoCompleteTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    app:simpleItems="@array/SioNo"
+                    tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutSiEmbarazo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:baselineAligned="false"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tfFechaUltimaMenstruacion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:hint="Fecha de la última menstruación"
+                    app:startIconDrawable="@drawable/ic_calendario">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiFechaUltimaMenstruacion"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:inputType="none"
+                        android:maxLength="10" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tfSemanasGestacion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:hint="Semanas de gestación"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiCedula"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:maxLength="2" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tfPesoPreEmbarazo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:hint="Peso antes del embarazo"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiPesoPreEmbarazo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:maxLength="6" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+        </LinearLayout>
 
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"

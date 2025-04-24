@@ -4,15 +4,17 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
+import androidx.room.Index // Importa la anotación Index
 import com.nutrizulia.domain.model.Actividad
 
 @Entity(
     tableName = "actividades",
+    indices = [Index(value = ["usuario_id"])],
     foreignKeys = [ForeignKey(
         entity = UsuarioEntity::class,
         parentColumns = ["id"],
         childColumns = ["usuario_id"],
-        onDelete = ForeignKey.NO_ACTION
+        onDelete = ForeignKey.CASCADE
     )]
 )
 data class ActividadEntity(

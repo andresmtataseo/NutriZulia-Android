@@ -9,9 +9,9 @@ data class Consulta(
     val actividadId: Int?,
     val fecha: String,
     val hora: String,
-    val diagnosticoPrincipal: String,
-    val diagnosticoSecundario: String,
-    val observaciones: String
+    val diagnosticoPrincipal: String?,
+    val diagnosticoSecundario: String?,
+    val observaciones: String?
 )
 
 fun ConsultaEntity.toDomain() = Consulta(usuarioId, pacienteId, citaId, actividadId, fecha, hora, diagnosticoPrincipal, diagnosticoSecundario, observaciones)

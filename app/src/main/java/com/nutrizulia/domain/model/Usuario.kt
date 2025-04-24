@@ -6,7 +6,7 @@ data class Usuario(
     val id: Int,
     var cedula: String,
     var primerNombre: String,
-    var segundoNombre: String,
+    var segundoNombre: String?,
     var primerApellido: String,
     var segundoApellido: String,
     var profesion: String,
