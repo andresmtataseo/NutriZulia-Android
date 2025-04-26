@@ -1,6 +1,5 @@
 package com.nutrizulia.presentation.view
 
-import android.content.DialogInterface
 import android.os.Build
 import androidx.fragment.app.viewModels
 import android.os.Bundle
@@ -9,25 +8,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
+import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.nutrizulia.R
+import com.google.android.material.textfield.TextInputEditText
 import com.nutrizulia.databinding.FragmentRegistrarConsultaBinding
-import com.nutrizulia.domain.model.Cita
 import com.nutrizulia.domain.model.Consulta
 import com.nutrizulia.domain.model.SignosVitales
 import com.nutrizulia.presentation.viewmodel.RegistrarConsultaViewModel
-import com.nutrizulia.util.EstadoCita
 import com.nutrizulia.util.Utils.calcularEdad
+import com.nutrizulia.util.Utils.mostrarDialog
 import com.nutrizulia.util.Utils.mostrarErrorEnCampo
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import com.nutrizulia.util.Utils.obtenerFechaActual
 import com.nutrizulia.util.Utils.obtenerHoraActual
 import com.nutrizulia.util.Utils.obtenerTexto
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 @AndroidEntryPoint
 class RegistrarConsultaFragment : Fragment() {
@@ -38,6 +43,7 @@ class RegistrarConsultaFragment : Fragment() {
     private val listSignosVitales = arrayOf("Glicemia Basal", "Glicemia Postprandial", "Glicemia Aleatoria", "Hemoglobina Glicosilada" ,"Triglicéridos", "Colesterol Total", "Colesterol HDL", "Colesterol LDL", "Tensión arterial", "Frecuencia cardiaca", "Pulso", "Saturación de oxigeno", "Frecuencia respiratoria", "Temperatura", "Circuferencia braquial", "Circuferencia cadera", "Circuferencia cintura", "Perimetro cefálico")
     private lateinit var mapSignosVitales: Map<String, LinearLayout>
     private lateinit var stateSignosVitales: BooleanArray
+    private var ultimaFechaSeleccionada: Long? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,9 +85,7 @@ class RegistrarConsultaFragment : Fragment() {
 
         viewModel.cargarCitaConPaciente(args.idCita)
 
-        viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
-            mostrarSnackbar(binding.root, mensaje)
-        }
+        viewModel.mensaje.observe(viewLifecycleOwner) {mostrarSnackbar(binding.root, it) }
 
         viewModel.errores.observe(viewLifecycleOwner) { errores ->
             quitarErrores()
@@ -94,10 +98,7 @@ class RegistrarConsultaFragment : Fragment() {
             }
         }
 
-        viewModel.salir.observe(viewLifecycleOwner) { salir ->
-            if (salir) findNavController().popBackStack()
-
-        }
+        viewModel.salir.observe(viewLifecycleOwner) { if (it) findNavController().popBackStack() }
 
         viewModel.citaConPaciente.observe(viewLifecycleOwner) { citaConPaciente ->
             if (citaConPaciente != null) {
@@ -106,90 +107,46 @@ class RegistrarConsultaFragment : Fragment() {
                 binding.tfEdadPaciente.editText?.setText("${calcularEdad(citaConPaciente.paciente.fechaNacimiento)}")
                 if (citaConPaciente.paciente.genero == "FEMENINO") {
                     binding.layoutEmbarazo.visibility = View.VISIBLE
+                    mostrarSelectorFecha(binding.tfFechaUltimaMenstruacion.editText as TextInputEditText)
                 }
             }
         }
 
-        binding.btnRegistrarConsulta.setOnClickListener {
-            registrarConsulta()
+        binding.btnRegistrarConsulta.setOnClickListener { registrarConsulta() }
+
+        binding.btnLimpiar.setOnClickListener {
+            mostrarDialog(
+                requireContext(),
+                "Advertencia",
+                "¿Desea limpiar todos los campos?",
+                "Sí",
+                "No",
+                { limpiarCampos() },
+                { },
+                true
+            )
         }
 
-        binding.btnAgregarDato.setOnClickListener {
-        showVitalSignSelectionDialog()
-        }
+        binding.btnAgregarDato.setOnClickListener { showVitalSignSelectionDialog() }
 
-        binding.btnRemoverGlicemiaBasal.setOnClickListener {
-            binding.layoutGlicemiaBasal.visibility = View.GONE
-            binding.tfGlicemiaBasal.editText?.text = null
-        }
-        binding.btnRemoverGlicemiaPostprandial.setOnClickListener {
-            binding.layoutGlicemiaPostprandial.visibility = View.GONE
-            binding.tfGlicemiaPostprandial.editText?.text = null
-        }
-        binding.btnRemoverGlicemiaAleatoria.setOnClickListener {
-            binding.layoutGlicemiaAleatoria.visibility = View.GONE
-            binding.tfGlicemiaAleatoria.editText?.text = null
-        }
-        binding.btnRemoverHemoglobinaGlicosilada.setOnClickListener {
-            binding.layoutHemoglobinaGlicosilada.visibility = View.GONE
-            binding.tfHemoglobinaGlicosilada.editText?.text = null
-        }
-        binding.btnRemoverTrigliceridos.setOnClickListener {
-            binding.layoutTrigliceridos.visibility = View.GONE
-            binding.tfTrigliceridos.editText?.text = null
-        }
-        binding.btnRemoverColesterolTotal.setOnClickListener {
-            binding.layoutColesterolTotal.visibility = View.GONE
-            binding.tfColesterolTotal.editText?.text = null
-        }
-        binding.btnRemoverColesterolHdl.setOnClickListener {
-            binding.layoutColesterolHdl.visibility = View.GONE
-            binding.tfColesterolHdl.editText?.text = null
-        }
-        binding.btnRemoverColesterolLdl.setOnClickListener {
-            binding.layoutColesterolLdl.visibility = View.GONE
-            binding.tfColesterolLdl.editText?.text = null
-        }
-        binding.btnRemoverTensionArterial.setOnClickListener {
-            binding.layoutTensionArterial.visibility = View.GONE
-            binding.tfTensionArterial.editText?.text = null
-        }
-        binding.btnRemoverFrecuenciaCardiaca.setOnClickListener {
-            binding.layoutFrecuenciaCardiaca.visibility = View.GONE
-            binding.tfFrecuenciaCardiaca.editText?.text = null
-        }
-        binding.btnRemoverPulso.setOnClickListener {
-            binding.layoutPulso.visibility = View.GONE
-            binding.tfPulso.editText?.text = null
-        }
-        binding.btnRemoverSTO2.setOnClickListener {
-            binding.layoutSTO2.visibility = View.GONE
-            binding.tfSTO2.editText?.text = null
-        }
-        binding.btnRemoverTemperatura.setOnClickListener {
-            binding.layoutTemperatura.visibility = View.GONE
-            binding.tfTemperatura.editText?.text = null
-        }
-        binding.btnRemoverFrecuenciaRespiratoria.setOnClickListener {
-            binding.layoutFrecuenciaRespiratoria.visibility = View.GONE
-            binding.tfFrecuenciaRespiratoria.editText?.text = null
-        }
-        binding.btnRemoverCircuferenciaBraquial.setOnClickListener {
-            binding.layoutCircuferenciaBraquial.visibility = View.GONE
-            binding.tfCircuferenciaBraquial.editText?.text = null
-        }
-        binding.btnRemoverCircuferenciaCadera.setOnClickListener {
-            binding.layoutCircuferenciaCadera.visibility = View.GONE
-            binding.tfCircuferenciaCadera.editText?.text = null
-        }
-        binding.btnRemoverCircuferenciaCintura.setOnClickListener {
-            binding.layoutCircuferenciaCintura.visibility = View.GONE
-            binding.tfCircuferenciaCintura.editText?.text = null
-        }
-        binding.btnRemoverPerimetroCefalico.setOnClickListener {
-            binding.layoutPerimetroCefalico.visibility = View.GONE
-            binding.tfPerimetroCefalico.editText?.text = null
-        }
+        configurarRemoverCampo(binding.btnRemoverGlicemiaBasal, binding.layoutGlicemiaBasal, binding.tfGlicemiaBasal.editText!!, "Glicemia Basal")
+        configurarRemoverCampo(binding.btnRemoverGlicemiaPostprandial, binding.layoutGlicemiaPostprandial, binding.tfGlicemiaPostprandial.editText!!, "Glicemia Postprandial")
+        configurarRemoverCampo(binding.btnRemoverGlicemiaAleatoria, binding.layoutGlicemiaAleatoria, binding.tfGlicemiaAleatoria.editText!!, "Glicemia Aleatoria")
+        configurarRemoverCampo(binding.btnRemoverHemoglobinaGlicosilada, binding.layoutHemoglobinaGlicosilada, binding.tfHemoglobinaGlicosilada.editText!!, "Hemoglobina Glicosilada")
+        configurarRemoverCampo(binding.btnRemoverTrigliceridos, binding.layoutTrigliceridos, binding.tfTrigliceridos.editText!!, "Triglicéridos")
+        configurarRemoverCampo(binding.btnRemoverColesterolTotal, binding.layoutColesterolTotal, binding.tfColesterolTotal.editText!!, "Colesterol Total")
+        configurarRemoverCampo(binding.btnRemoverColesterolHdl, binding.layoutColesterolHdl, binding.tfColesterolHdl.editText!!, "Colesterol HDL")
+        configurarRemoverCampo(binding.btnRemoverColesterolLdl, binding.layoutColesterolLdl, binding.tfColesterolLdl.editText!!, "Colesterol LDL")
+        configurarRemoverCampo(binding.btnRemoverTensionArterial, binding.layoutTensionArterial, binding.tfTensionArterial.editText!!, "Tensión Arterial")
+        configurarRemoverCampo(binding.btnRemoverFrecuenciaCardiaca, binding.layoutFrecuenciaCardiaca, binding.tfFrecuenciaCardiaca.editText!!, "Frecuencia Cardíaca")
+        configurarRemoverCampo(binding.btnRemoverPulso, binding.layoutPulso, binding.tfPulso.editText!!, "Pulso")
+        configurarRemoverCampo(binding.btnRemoverSTO2, binding.layoutSTO2, binding.tfSTO2.editText!!, "STO2")
+        configurarRemoverCampo(binding.btnRemoverTemperatura, binding.layoutTemperatura, binding.tfTemperatura.editText!!, "Temperatura")
+        configurarRemoverCampo(binding.btnRemoverFrecuenciaRespiratoria, binding.layoutFrecuenciaRespiratoria, binding.tfFrecuenciaRespiratoria.editText!!, "Frecuencia Respiratoria")
+        configurarRemoverCampo(binding.btnRemoverCircuferenciaBraquial, binding.layoutCircuferenciaBraquial, binding.tfCircuferenciaBraquial.editText!!, "Circunferencia Braquial")
+        configurarRemoverCampo(binding.btnRemoverCircuferenciaCadera, binding.layoutCircuferenciaCadera, binding.tfCircuferenciaCadera.editText!!, "Circunferencia Cadera")
+        configurarRemoverCampo(binding.btnRemoverCircuferenciaCintura, binding.layoutCircuferenciaCintura, binding.tfCircuferenciaCintura.editText!!, "Circunferencia Cintura")
+        configurarRemoverCampo(binding.btnRemoverPerimetroCefalico, binding.layoutPerimetroCefalico, binding.tfPerimetroCefalico.editText!!, "Perímetro Cefálico")
 
     }
 
@@ -313,4 +270,94 @@ class RegistrarConsultaFragment : Fragment() {
         binding.tfPeso.error = null
         binding.tfAltura.error = null
     }
+
+    private fun limpiarCampos() {
+        quitarErrores()
+        binding.tfDiagnosticoPrincipal.editText?.text = null
+        binding.tfDiagnosticoSecundario.editText?.text = null
+        binding.tfPeso.editText?.text = null
+        binding.tfAltura.editText?.text = null
+        binding.tfGlicemiaBasal.editText?.text = null
+        binding.tfGlicemiaPostprandial.editText?.text = null
+        binding.tfGlicemiaAleatoria.editText?.text = null
+        binding.tfHemoglobinaGlicosilada.editText?.text = null
+        binding.tfTrigliceridos.editText?.text = null
+        binding.tfColesterolTotal.editText?.text = null
+        binding.tfColesterolHdl.editText?.text = null
+        binding.tfColesterolLdl.editText?.text = null
+        binding.tfTensionArterial.editText?.text = null
+        binding.tfFrecuenciaCardiaca.editText?.text = null
+        binding.tfPulso.editText?.text = null
+        binding.tfSTO2.editText?.text = null
+        binding.tfFrecuenciaRespiratoria.editText?.text = null
+        binding.tfTemperatura.editText?.text = null
+        binding.tfCircuferenciaBraquial.editText?.text = null
+        binding.tfCircuferenciaCadera.editText?.text = null
+        binding.tfCircuferenciaCintura.editText?.text = null
+        binding.tfPerimetroCefalico.editText?.text = null
+        binding.tfIsEmbarazo.editText?.text = null
+        binding.tfFechaUltimaMenstruacion.editText?.text = null
+        binding.tfSemanasGestacion.editText?.text = null
+        binding.tfPesoPreEmbarazo.editText?.text = null
+    }
+
+    private fun configurarRemoverCampo(
+        boton: View,
+        layout: View,
+        campoTexto: EditText?,
+        nombreCampo: String
+    ) {
+        boton.setOnClickListener {
+            mostrarDialog(
+                requireContext(),
+                "Advertencia",
+                "¿Desea remover el campo $nombreCampo?",
+                "Sí",
+                "No",
+                {
+                    layout.visibility = View.GONE
+                    campoTexto?.text = null
+                },
+                {},
+                true
+            )
+        }
+    }
+
+    private fun mostrarSelectorFecha(editText: TextInputEditText) {
+        val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        dateFormatter.timeZone = TimeZone.getTimeZone("UTC")
+
+        val abrirPicker = {
+            val fragmentManager = parentFragmentManager
+            val existingPicker = fragmentManager.findFragmentByTag("MaterialDatePicker")
+            if (existingPicker != null) {
+                fragmentManager.beginTransaction().remove(existingPicker).commit()
+            }
+
+            val constraints = CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointBackward.now())
+                .build()
+
+            val seleccionInicial = ultimaFechaSeleccionada ?: MaterialDatePicker.todayInUtcMilliseconds()
+
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Selecciona la fecha")
+                .setSelection(seleccionInicial)
+                .setCalendarConstraints(constraints)
+                .build()
+
+            datePicker.addOnPositiveButtonClickListener { utcDate ->
+                ultimaFechaSeleccionada = utcDate
+                editText.setText(dateFormatter.format(utcDate))
+            }
+
+            datePicker.show(fragmentManager, "MaterialDatePicker")
+        }
+
+        editText.setOnClickListener { abrirPicker() }
+        binding.tfFechaUltimaMenstruacion.setStartIconOnClickListener { abrirPicker() }
+    }
+
+
 }

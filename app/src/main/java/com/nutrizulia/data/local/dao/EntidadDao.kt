@@ -9,6 +9,9 @@ import com.nutrizulia.data.local.entity.EntidadEntity
 @Dao
 interface EntidadDao {
 
+    @Query("SELECT * FROM entidades WHERE cod_entidad_ine = :codEntidad")
+    suspend fun getEntidad(codEntidad: String): EntidadEntity
+
     @Query("SELECT * FROM entidades")
     suspend fun getEntidades(): List<EntidadEntity>
 

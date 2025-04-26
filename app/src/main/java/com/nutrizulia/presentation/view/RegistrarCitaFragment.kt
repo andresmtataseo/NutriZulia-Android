@@ -24,6 +24,7 @@ import com.nutrizulia.databinding.FragmentRegistrarCitaBinding
 import com.nutrizulia.domain.model.Cita
 import com.nutrizulia.util.EstadoCita
 import com.nutrizulia.util.Utils.calcularEdad
+import com.nutrizulia.util.Utils.mostrarDialog
 import com.nutrizulia.util.Utils.mostrarErrorEnCampo
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import com.nutrizulia.util.Utils.obtenerTexto
@@ -87,7 +88,18 @@ class RegistrarCitaFragment : Fragment() {
             registrarCita()
         }
 
-
+        binding.btnLimpiar.setOnClickListener {
+            mostrarDialog(
+                requireContext(),
+                "Advertencia",
+                "¿Desea limpiar todos los campos?",
+                "Sí",
+                "No",
+                { limpiarCampos() },
+                { },
+                true
+            )
+        }
 
     }
 
@@ -104,6 +116,15 @@ class RegistrarCitaFragment : Fragment() {
             estado = EstadoCita.PENDIENTE.descripcion
         )
         viewModel.registrarCita(citaNueva)
+    }
+
+    private fun limpiarCampos() {
+        quitarErrores()
+        binding.tfTipoCita.editText?.text?.clear()
+        binding.tfEspecialidad.editText?.text?.clear()
+        binding.tfMotivoCita.editText?.text?.clear()
+        binding.tfFechaCita.editText?.text?.clear()
+        binding.tfHoraCita.editText?.text?.clear()
     }
 
     private fun quitarErrores() {

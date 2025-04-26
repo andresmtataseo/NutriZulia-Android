@@ -900,7 +900,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:hint="¿Pacienta embarazada?">
+                android:hint="¿Pacienta embarazada? *">
 
                 <AutoCompleteTextView
                     android:layout_width="match_parent"
@@ -924,7 +924,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:hint="Fecha de la última menstruación"
+                    android:hint="Fecha de la última menstruación *"
                     app:startIconDrawable="@drawable/ic_calendario">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -942,7 +942,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:hint="Semanas de gestación"
+                    android:hint="Semanas de gestación *"
+                    app:suffixText="semanas"
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -959,7 +960,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:hint="Peso antes del embarazo"
+                    android:hint="Peso antes del embarazo *"
+                    app:suffixText="kg"
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -1054,6 +1056,8 @@
                 android:layout_marginEnd="4dp"
                 android:layout_weight="2"
                 android:text="@string/limpiar"
+                android:textColor="@color/color_cita_cancelada"
+                app:iconTint="@color/color_cita_cancelada"
                 app:icon="@drawable/ic_limpiar"
                 app:iconGravity="textStart"
                 tools:ignore="TouchTargetSizeCheck" />

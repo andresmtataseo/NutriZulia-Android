@@ -4,35 +4,74 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nutrizulia.domain.model.Paciente
+import com.nutrizulia.domain.usecase.GetPacientesByFiltro
 import com.nutrizulia.domain.usecase.GetPacientesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SeleccionarPacienteCitaViewModel @Inject constructor(
-    private val getPacientesUseCase: GetPacientesUseCase
-    ) : ViewModel() {
+    private val getPacientesByFiltro: GetPacientesByFiltro
+) : ViewModel() {
 
-        val pacientes = MutableLiveData<List<Paciente>?>()
-        val mensaje = MutableLiveData<String>()
-        val isLoading = MutableLiveData<Boolean>()
+    private val _filtro = MutableStateFlow("")
+    val filtro: StateFlow<String> = _filtro
 
-        fun onCreate() {
-            obtenerPacientes()
-        }
+    private val _mensaje = MutableStateFlow<String?>(null)
+    val mensaje: StateFlow<String?> = _mensaje
 
-        fun obtenerPacientes() {
-            viewModelScope.launch {
-                isLoading.postValue(true)
-                val result = getPacientesUseCase()
-                if (!result.isNullOrEmpty()) {
-                    pacientes.postValue(result)
-                } else {
-                    mensaje.postValue("No se encontraron pacientes.")
-                }
-                isLoading.postValue(false)
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    // Lista de todos los pacientes
+    val pacientes: StateFlow<List<Paciente>> = getPacientesByFiltro("")
+        .onEach {
+            _isLoading.value = false
+            if (it.isEmpty()) {
+                _mensaje.value = "No se encontraron pacientes."
             }
         }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
+    // Lista de pacientes filtrados
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+    val pacientesFiltrados: StateFlow<List<Paciente>> = _filtro
+        .debounce(300)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            _isLoading.value = true
+            getPacientesByFiltro(query)
+        }
+        .onEach {
+            _isLoading.value = false
+            if (it.isEmpty()) {
+                _mensaje.value = "No se encontraron pacientes."
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    // Función para actualizar el filtro de búsqueda
+    fun buscarPacientes(query: String) {
+        _mensaje.value = null
+        _filtro.value = query.trim()
     }
+}

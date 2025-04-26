@@ -21,12 +21,16 @@ import com.nutrizulia.util.Utils.obtenerFechaActual
 import com.nutrizulia.util.Utils.obtenerTexto
 import dagger.hilt.android.AndroidEntryPoint
 import android.widget.ArrayAdapter
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.nutrizulia.domain.model.Comunidad
+import com.nutrizulia.util.Utils.mostrarDialog
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,160 +39,99 @@ class RegistrarPacienteFragment : Fragment() {
 
     private val viewModel: RegistrarPacienteViewModel by viewModels()
     private lateinit var binding: FragmentRegistrarPacienteBinding
-    private var listaEntidades = listOf<Entidad>()
-    private var listaMunicipios = listOf<Municipio>()
-    private var listaParroquias = listOf<Parroquia>()
-    private var listaComunidades = listOf<Comunidad>()
+    private var ultimaFechaSeleccionada: Long? = null
+    private var entidadSel: Entidad? = null
+    private var municipioSel: Municipio? = null
+    private var parroquiaSel: Parroquia? = null
+    private var comunidadSel: Comunidad? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentRegistrarPacienteBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         configurarDropdownCedulado()
 
         mostrarSelectorFecha(binding.tfFechaNacimiento.editText as TextInputEditText)
 
         viewModel.cargarEntidades()
 
-        // Observa entidades
-        viewModel.entidades.observe(viewLifecycleOwner) { entidades ->
-            listaEntidades = entidades
-            val nombres = entidades.map { it.entidad }
-            val adapter =
-                ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
-            binding.dropdownEntidades.setAdapter(adapter)
+        binding.btnLimpiar.setOnClickListener {
+            mostrarDialog(
+                requireContext(),
+                "Advertencia",
+                "¿Está seguro de limpiar todos los campos?",
+                "Sí",
+                "No",
+                { limpiarCampos() },
+                { },
+                true
+            )
         }
 
-        // Cuando seleccionan una entidad, carga municipios
-        binding.dropdownEntidades.setOnItemClickListener { _, _, position, _ ->
-            val entidad = listaEntidades[position]
-            listaMunicipios = emptyList()
-            listaParroquias = emptyList()
-            viewModel.cargarMunicipios(entidad.codEntidad)
-            binding.dropdownMunicipios.setText("") // limpiar selección previa
-            binding.dropdownParroquias.setText("") // limpiar parroquias
-            binding.dropdownComunidades.setText("") // limpiar comunidades
-        }
+        binding.btnRegistrar.setOnClickListener { registrarPaciente(entidadSel, municipioSel, parroquiaSel, comunidadSel) }
 
-        // Observa municipios
-        viewModel.municipios.observe(viewLifecycleOwner) { municipios ->
-            listaMunicipios = municipios
-            val nombres = municipios.map { it.municipio }
-            val adapter =
-                ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
-            binding.dropdownMunicipios.setAdapter(adapter)
-        }
+        viewModel.mensaje.observe(viewLifecycleOwner) { mostrarSnackbar(binding.root, it) }
 
-        // Cuando seleccionan un municipio, carga parroquias
-        binding.dropdownMunicipios.setOnItemClickListener { _, _, position, _ ->
-            val entidad =
-                listaEntidades.firstOrNull { it.entidad == binding.dropdownEntidades.text.toString() }
-                    ?: listaEntidades.first() // respaldo si falla
-            val municipio = listaMunicipios[position]
-            listaParroquias = emptyList()
-            viewModel.cargarParroquias(entidad.codEntidad, municipio.codMunicipio)
-            binding.dropdownParroquias.setText("") // limpiar parroquias anteriores
-            binding.dropdownComunidades.setText("") // limpiar comunidades
-        }
+        viewModel.errores.observe(viewLifecycleOwner) { mostrarErroresEnCampos(it) }
 
-        // Observa parroquias
-        viewModel.parroquias.observe(viewLifecycleOwner) { parroquias ->
-            listaParroquias = parroquias
-            val nombres = parroquias.map { it.parroquia }
-            val adapter =
-                ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
-            binding.dropdownParroquias.setAdapter(adapter)
-        }
+        viewModel.salir.observe(viewLifecycleOwner) { if (it) findNavController().popBackStack() }
 
-        // Cuando se selecciona una parroquia, carga comunidades
-        binding.dropdownParroquias.setOnItemClickListener { _, _, position, _ ->
-            val entidad =
-                listaEntidades.firstOrNull { it.entidad == binding.dropdownEntidades.text.toString() }
-                    ?: listaEntidades.first() // respaldo si falla
-            val municipio =
-                listaMunicipios.firstOrNull { it.municipio == binding.dropdownMunicipios.text.toString() }
-                    ?: listaMunicipios.first() // respaldo si falla
-            val parroquia =
-                listaParroquias.firstOrNull { it.parroquia == binding.dropdownParroquias.text.toString() }
-                    ?: listaParroquias.first() // respaldo si falla
-            viewModel.cargarComunidades(entidad.codEntidad, municipio.codMunicipio, parroquia.codParroquia)
-        }
-
-        //Observa comunidades
-        viewModel.comunidades.observe(viewLifecycleOwner) { comunidades ->
-            listaComunidades = comunidades
-            val nombres = comunidades.map { it.nombreComunidad }
-            val adapter =
-                ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
-            binding.dropdownComunidades.setAdapter(adapter)
-        }
-
-
-        binding.btnLimpiar.setOnClickListener { limpiarCampos() }
-
-        binding.btnRegistrar.setOnClickListener { registrarPaciente() }
-
-        viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
-            mostrarSnackbar(binding.root, mensaje)
-        }
-
-        viewModel.errores.observe(viewLifecycleOwner) { errores ->
-            errores.forEach { (key, message) ->
-                when (key) {
-                    "cedula" -> {
-                        mostrarErrorEnCampo(binding.tfTipoCedula, " ")
-                        mostrarErrorEnCampo(binding.tfCedula, message)
-                    }
-
-                    "primerNombre" -> mostrarErrorEnCampo(binding.tfPrimerNombre, message)
-                    "primerApellido" -> mostrarErrorEnCampo(binding.tfPrimerApellido, message)
-                    "segundoApellido" -> mostrarErrorEnCampo(binding.tfSegundoApellido, message)
-                    "fechaNacimiento" -> mostrarErrorEnCampo(binding.tfFechaNacimiento, message)
-                    "genero" -> mostrarErrorEnCampo(binding.tfGenero, message)
-                    "etnia" -> mostrarErrorEnCampo(binding.tfEtnia, message)
-                    "nacionalidad" -> mostrarErrorEnCampo(binding.tfNacionalidad, message)
-                    "estado" -> mostrarErrorEnCampo(binding.tfEstado, message)
-                    "municipio" -> mostrarErrorEnCampo(binding.tfMunicipio, message)
-                    "parroquia" -> mostrarErrorEnCampo(binding.tfParroquia, message)
-                    "comunidad" -> mostrarErrorEnCampo(binding.tfComunidad, message)
-                    "telefono" -> {
-                        mostrarErrorEnCampo(binding.tfPrefijo, " ")
-                        mostrarErrorEnCampo(binding.tfTelefono, message)
-                    }
-
-                    "correo" -> mostrarErrorEnCampo(binding.tfEmail, message)
-                }
+        // Entidades → Municipios
+        binding.dropdownEntidades.bind(viewLifecycleOwner, viewModel.entidades,
+            toText = { it.entidad },
+            onItemSelected = { e ->
+                entidadSel = e
+                municipioSel = null; parroquiaSel = null; comunidadSel = null
+                binding.tfMunicipio.editText?.text = null; binding.tfParroquia.editText?.text = null; binding.tfComunidad.editText?.text = null
+                binding.tfMunicipio.visibility = View.VISIBLE; binding.tfParroquia.visibility = View.GONE; binding.tfComunidad.visibility = View.GONE
+                viewModel.cargarMunicipios(e.codEntidad)
             }
-        }
+        )
 
-        viewModel.salir.observe(viewLifecycleOwner) { exitoso ->
-            if (exitoso) {
-                findNavController().popBackStack()
-            // Puedes opcionalmente especificar un destino hasta el cual retroceder
-            // findNavController().popBackStack(R.id.destino_anterior, false)
+        // Municipios → Parroquias
+        binding.dropdownMunicipios.bind(viewLifecycleOwner, viewModel.municipios,
+            toText = { it.municipio },
+            onItemSelected = { m ->
+                municipioSel = m
+                parroquiaSel = null; comunidadSel = null
+                binding.tfParroquia.editText?.text = null; binding.tfComunidad.editText?.text = null
+                binding.tfParroquia.visibility = View.VISIBLE; binding.tfComunidad.visibility = View.GONE
+                viewModel.cargarParroquias(entidadSel!!.codEntidad, m.codMunicipio)
             }
-        }
+        )
+
+        // Parroquias → Comunidades
+        binding.dropdownParroquias.bind(viewLifecycleOwner, viewModel.parroquias,
+            toText = { it.parroquia },
+            onItemSelected = { p ->
+                parroquiaSel = p
+                comunidadSel = null
+                binding.tfComunidad.editText?.text = null
+                binding.tfComunidad.visibility = View.VISIBLE
+                viewModel.cargarComunidades(entidadSel!!.codEntidad, municipioSel!!.codMunicipio, p.codParroquia)
+            }
+        )
+
+        // Comunidades
+        binding.dropdownComunidades.bind(viewLifecycleOwner, viewModel.comunidades,
+            toText = { it.nombreComunidad },
+            onItemSelected = { c ->
+                comunidadSel = c
+            }
+        )
+
+
     }
 
-    private fun obtenerIdComunidadSeleccionada(): String? {
-        val nombreComunidadeleccionada = binding.dropdownComunidades.text.toString()
-        val comunidadEncontrada =
-            listaComunidades.find { it.nombreComunidad == nombreComunidadeleccionada }
-        return comunidadEncontrada?.idComunidad
-    }
-
-    private fun registrarPaciente() {
+    private fun registrarPaciente(entidad: Entidad?, municipio: Municipio?, parroquia: Parroquia?, comunidad: Comunidad?) {
         quitarError()
         val nuevoPaciente = Paciente(
             id = 0,
-            cedula = obtenerTexto(binding.tfTipoCedula) + obtenerTexto(binding.tfCedula),
+            cedula = obtenerTexto(binding.tfTipoCedula) + "-" + obtenerTexto(binding.tfCedula),
             primerNombre = obtenerTexto(binding.tfPrimerNombre) ?: "",
             segundoNombre = obtenerTexto(binding.tfsegundoNombre),
             primerApellido = obtenerTexto(binding.tfPrimerApellido) ?: "",
@@ -197,10 +140,10 @@ class RegistrarPacienteFragment : Fragment() {
             genero = obtenerTexto(binding.tfGenero) ?: "",
             etnia = obtenerTexto(binding.tfEtnia) ?: "",
             nacionalidad = obtenerTexto(binding.tfNacionalidad) ?: "",
-            codEntidad = listaEntidades.firstOrNull { it.entidad == binding.dropdownEntidades.text.toString() }?.codEntidad ?: "",
-            codMunicipio = listaMunicipios.firstOrNull { it.municipio == binding.dropdownMunicipios.text.toString() }?.codMunicipio ?: "",
-            codParroquia = listaParroquias.firstOrNull { it.parroquia == binding.dropdownParroquias.text.toString() }?.codParroquia ?: "",
-            idComunidad = obtenerIdComunidadSeleccionada().toString(),
+            codEntidad = entidad?.codEntidad ?: "",
+            codMunicipio = municipio?.codMunicipio?: "",
+            codParroquia = parroquia?.codParroquia?: "",
+            idComunidad = comunidad?.idComunidad?: "",
             telefono = obtenerTexto(binding.tfPrefijo) + obtenerTexto(binding.tfTelefono),
             correo = obtenerTexto(binding.tfEmail),
             fechaIngreso = obtenerFechaActual(),
@@ -209,6 +152,7 @@ class RegistrarPacienteFragment : Fragment() {
     }
 
     private fun limpiarCampos() {
+        quitarError()
         binding.tfTipoCedula.editText?.text = null
         binding.tfCedula.editText?.text = null
         binding.tfEsCedulado.editText?.text = null
@@ -251,8 +195,6 @@ class RegistrarPacienteFragment : Fragment() {
         binding.tfTelefono.error = null
         binding.tfEmail.error = null
     }
-
-    private var ultimaFechaSeleccionada: Long? = null
 
     private fun mostrarSelectorFecha(editText: TextInputEditText) {
         val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -318,5 +260,62 @@ class RegistrarPacienteFragment : Fragment() {
         }
     }
 
+    private fun mostrarErroresEnCampos(errores: Map<String, String>) {
+        val campoMap: Map<String, TextInputLayout> = mapOf(
+            "primerNombre"    to binding.tfPrimerNombre,
+            "primerApellido"  to binding.tfPrimerApellido,
+            "segundoApellido" to binding.tfSegundoApellido,
+            "fechaNacimiento" to binding.tfFechaNacimiento,
+            "genero"          to binding.tfGenero,
+            "etnia"           to binding.tfEtnia,
+            "nacionalidad"    to binding.tfNacionalidad,
+            "estado"          to binding.tfEstado,
+            "municipio"       to binding.tfMunicipio,
+            "parroquia"       to binding.tfParroquia,
+            "comunidad"       to binding.tfComunidad,
+            "correo"          to binding.tfEmail
+        )
+
+        errores.forEach { (key, message) ->
+            when (key) {
+                "cedula" -> {
+                    mostrarErrorEnCampo(binding.tfTipoCedula, " ")
+                    mostrarErrorEnCampo(binding.tfCedula, message)
+                }
+                "telefono" -> {
+                    mostrarErrorEnCampo(binding.tfPrefijo, " ")
+                    mostrarErrorEnCampo(binding.tfTelefono, message)
+                }
+                else -> {
+                    campoMap[key]?.let { layout ->
+                        mostrarErrorEnCampo(layout, message)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun <T> AutoCompleteTextView.bind(
+        lifecycleOwner: LifecycleOwner,
+        itemsLive: LiveData<List<T>>,
+        toText: (T) -> String,
+        onItemSelected: (T) -> Unit
+    ) {
+        var currentItems: List<T> = emptyList()
+
+        itemsLive.observe(lifecycleOwner) { items ->
+            currentItems = items
+            val names = items.map(toText)
+            val adapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, names)
+            setAdapter(adapter)
+            if (text.toString() !in names) {
+                setText("", false)
+            }
+        }
+
+        setOnItemClickListener { _, _, position, _ ->
+            onItemSelected(currentItems[position])
+        }
+    }
 
 }

@@ -359,7 +359,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:hint="@string/municipio">
+            android:hint="@string/municipio"
+            android:visibility="gone">
 
             <AutoCompleteTextView
                 android:id="@+id/dropdownMunicipios"
@@ -378,7 +379,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:hint="@string/parroquia">
+            android:hint="@string/parroquia"
+            android:visibility="gone">
 
             <AutoCompleteTextView
                 android:id="@+id/dropdownParroquias"
@@ -397,7 +399,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:hint="Comunidad *">
+            android:hint="Comunidad *"
+            android:visibility="gone">
 
             <AutoCompleteTextView
                 android:id="@+id/dropdownComunidades"
@@ -508,6 +511,8 @@
                 android:layout_marginEnd="4dp"
                 android:layout_weight="2"
                 android:text="@string/limpiar"
+                android:textColor="@color/color_cita_cancelada"
+                app:iconTint="@color/color_cita_cancelada"
                 app:icon="@drawable/ic_limpiar"
                 app:iconGravity="textStart" />
 
@@ -522,7 +527,5 @@
                 app:icon="@drawable/ic_guardar"
                 app:iconGravity="textStart" />
         </LinearLayout>
-
     </LinearLayout>
-
 </ScrollView>

@@ -13,8 +13,11 @@ object CheckData {
      * @return true si la cédula cumple con el formato, false en caso contrario.
      */
     fun esCedulaValida(cedula: String?): Boolean {
-        val patronCedula = "^[VE][0-9]{1,8}$"
-        return cedula?.matches(Regex(patronCedula)) == true
+        if (cedula.isNullOrEmpty()) {
+            return false
+        }
+        val patronCedula = "^(?i)[VE]-\\d{1,8}(-\\d{2})?$"
+        return cedula.matches(Regex(patronCedula))
     }
 
     /**
@@ -29,14 +32,18 @@ object CheckData {
     }
 
     /**
-     * Verifica si un número de teléfono venezolano es válido.
+     * Valida si una cadena es un número de teléfono venezolano válido con formato:
+     * Prefijo (0414, 0424, 0412, 0416, 0426) + 7 dígitos.
      *
-     * @param numero El número de teléfono a validar.
-     * @return true si el número cumple con el formato, false en caso contrario.
+     * @param numero La cadena a validar (puede ser null).
+     * @return true si el número coincide con el patrón especificado, false en caso contrario.
      */
     fun esNumeroTelefonoValido(numero: String?): Boolean {
-        val patronTelefono = "^(0414|0424|0412|0416|0426)[0-9]{7}$"
-        return numero?.matches(Regex(patronTelefono)) == true
+        if (numero.isNullOrEmpty()) {
+            return false
+        }
+        val patronTelefono = "^(0414|0424|0412|0416|0426)\\d{7}$"
+        return numero.matches(Regex(patronTelefono))
     }
 
     /**

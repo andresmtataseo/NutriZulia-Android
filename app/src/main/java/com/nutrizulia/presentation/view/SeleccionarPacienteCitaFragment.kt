@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.R
@@ -17,6 +18,8 @@ import com.nutrizulia.presentation.adapter.PacienteAdapter
 import com.nutrizulia.presentation.viewmodel.SeleccionarPacienteCitaViewModel
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SeleccionarPacienteCitaFragment : Fragment() {
@@ -24,82 +27,91 @@ class SeleccionarPacienteCitaFragment : Fragment() {
     private val viewModel: SeleccionarPacienteCitaViewModel by viewModels()
     private lateinit var binding: FragmentSeleccionarPacienteCitaBinding
     private lateinit var pacienteAdapter: PacienteAdapter
-    private var listaOriginalPacientes: List<Paciente> = emptyList()
+    private lateinit var pacienteFiltradoAdapter: PacienteAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSeleccionarPacienteCitaBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupRecyclerViews()
+        setupListeners()
+        setupObservers()
+    }
 
-        viewModel.onCreate()
+    private fun setupRecyclerViews() {
+        pacienteAdapter = PacienteAdapter(
+            emptyList(),
+            onClickListener = { paciente -> onPacienteClick(paciente) })
+        pacienteFiltradoAdapter = PacienteAdapter(
+            emptyList(),
+            onClickListener = { paciente -> onPacienteClick(paciente) })
 
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.obtenerPacientes()
+        binding.recyclerViewPacientes.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = pacienteAdapter
         }
 
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
-            binding.swipeRefreshLayout.isRefreshing = isLoading
-        })
+        binding.recyclerViewPacientesFiltrados.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = pacienteFiltradoAdapter
+        }
+    }
 
+    private fun setupListeners() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            // Reseteamos el filtro para traer todos los pacientes de nuevo
+            viewModel.buscarPacientes("")
+            binding.swipeRefreshLayout.isRefreshing = false
+        }
 
-        viewModel.pacientes.observe(viewLifecycleOwner, Observer { pacientes ->
-            if (!pacientes.isNullOrEmpty()) {
-                listaOriginalPacientes = pacientes
-                pacienteAdapter = PacienteAdapter(
-                    pacientes,
-                    onClickListener = { paciente ->
-                        findNavController().navigate(SeleccionarPacienteCitaFragmentDirections.actionSeleccionarPacienteCitaFragmentToRegistrarCitaFragment(paciente.id))})
+        binding.searchView.getEditText().addTextChangedListener { text ->
+            val query = text.toString().trim()
+            viewModel.buscarPacientes(query)
+        }
 
-                // Inicializar recyclerView principal
-                binding.recyclerViewPacientes.apply {
-                    layoutManager = LinearLayoutManager(requireContext())
-                    adapter = pacienteAdapter
-                }
+//        binding.btnRegistrarPaciente.setOnClickListener {
+//            findNavController().navigate(R.id.action_pacientesFragment_to_registrarPacienteFragment)
+//        }
+    }
 
-                // Activar buscador ahora que el adapter existe
-                binding.searchView.getEditText().addTextChangedListener { text ->
-                    val textoFiltrado = text.toString().trim()
-                    val pacientesFiltrados = listaOriginalPacientes.filter { paciente ->
-                        paciente.primerNombre.contains(textoFiltrado, ignoreCase = true) ||
-                                paciente.primerApellido.contains(
-                                    textoFiltrado,
-                                    ignoreCase = true
-                                ) ||
-                                paciente.segundoApellido.contains(
-                                    textoFiltrado,
-                                    ignoreCase = true
-                                ) ||
-                                paciente.cedula.contains(textoFiltrado, ignoreCase = true)
-                    }
+    private fun setupObservers() {
+        // Pacientes
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.pacientes.collectLatest { pacientes ->
+                pacienteAdapter.updatePacientes(pacientes)
+            }
+        }
 
-                    pacienteAdapter.updatePacientes(pacientesFiltrados)
-                    binding.recyclerViewPacientesFiltrados.apply {
-                        layoutManager = LinearLayoutManager(requireContext())
-                        adapter = pacienteAdapter
-                    }
+        // Pacientes filtrados
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.pacientesFiltrados.collectLatest { pacientesFiltrados ->
+                pacienteFiltradoAdapter.updatePacientes(pacientesFiltrados)
+            }
+        }
+
+        // Mensajes
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.mensaje.collectLatest { mensaje ->
+                mensaje?.let {
+                    mostrarSnackbar(binding.root, it)
                 }
             }
-        })
-
-        viewModel.mensaje.observe(viewLifecycleOwner, Observer { mensaje ->
-            mostrarSnackbar(binding.root, mensaje)
-        })
-
-        binding.btnRegistrarPaciente.setOnClickListener {
-            findNavController().navigate(R.id.action_seleccionarPacienteCitaFragment_to_registrarPacienteFragment)
         }
 
+        // Loading
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isLoading.collectLatest { isLoading ->
+                binding.swipeRefreshLayout.isRefreshing = isLoading
+            }
+        }
     }
 
     private fun onPacienteClick(paciente: Paciente) {
-        mostrarSnackbar(binding.root, "Paciente ${paciente.primerNombre} seleccionado")
+        findNavController().navigate(
+            SeleccionarPacienteCitaFragmentDirections.actionSeleccionarPacienteCitaFragmentToRegistrarCitaFragment(paciente.id)
+        )
     }
-
 }

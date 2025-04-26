@@ -28,11 +28,8 @@
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/item_paciente" />
-
-
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <!-- Resto de tus componentes... -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

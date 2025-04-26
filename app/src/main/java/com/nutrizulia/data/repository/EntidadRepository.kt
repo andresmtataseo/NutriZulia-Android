@@ -12,6 +12,10 @@ class EntidadRepository @Inject constructor(
     private val api: EntidadService
 ){
 
+    suspend fun getEntidad(codEntidad: String): Entidad {
+        return dao.getEntidad(codEntidad).toDomain()
+    }
+
     suspend fun getEntidades(): List<Entidad> {
         return dao.getEntidades().map { it.toDomain() }
     }

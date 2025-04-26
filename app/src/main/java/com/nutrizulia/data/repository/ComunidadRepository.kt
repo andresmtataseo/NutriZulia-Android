@@ -12,8 +12,12 @@ class ComunidadRepository @Inject constructor(
     private val api: ComunidadService
 ) {
 
-    suspend fun getComunidadesByParroquia(codEntidad: String, codMunicipio: String, codParroquia: String): List<Comunidad> {
-        return dao.getComunidadesByParroquia(codEntidad, codMunicipio, codParroquia).map { it.toDomain() }
+    suspend fun getComunidad(codEntidad: String, codMunicipio: String, codParroquia: String, idComunidad: String): Comunidad {
+        return dao.getComunidad(codEntidad, codMunicipio, codParroquia, idComunidad).toDomain()
+    }
+
+    suspend fun getComunidades(codEntidad: String, codMunicipio: String, codParroquia: String): List<Comunidad> {
+        return dao.getComunidades(codEntidad, codMunicipio, codParroquia).map { it.toDomain() }
     }
 
     suspend fun insertComunidades(comunidades: List<Comunidad>): List<Long> {

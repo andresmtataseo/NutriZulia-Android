@@ -178,7 +178,7 @@
                 android:id="@+id/tiMotivoCita"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName|textCapWords" />
+                android:inputType="textMultiLine" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -247,6 +247,8 @@
                 android:layout_marginEnd="4dp"
                 android:layout_weight="2"
                 android:text="@string/limpiar"
+                android:textColor="@color/color_cita_cancelada"
+                app:iconTint="@color/color_cita_cancelada"
                 app:icon="@drawable/ic_limpiar"
                 app:iconGravity="textStart" />
 

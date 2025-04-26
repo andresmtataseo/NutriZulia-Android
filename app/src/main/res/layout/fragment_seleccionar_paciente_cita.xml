@@ -66,13 +66,13 @@
 
     </com.google.android.material.search.SearchView>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/btnRegistrarPaciente"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/icono_de_registrar_paciente_nuevo"
-        android:text="@string/registrar"
-        app:icon="@drawable/ic_agregar_paciente" />
+<!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
+<!--        android:id="@+id/btnRegistrarPaciente"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="bottom|end"-->
+<!--        android:layout_margin="16dp"-->
+<!--        android:contentDescription="@string/icono_de_registrar_paciente_nuevo"-->
+<!--        android:text="@string/registrar"-->
+<!--        app:icon="@drawable/ic_agregar_paciente" />-->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

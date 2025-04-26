@@ -7,18 +7,106 @@
     android:orientation="vertical"
     tools:context=".presentation.view.AccionesPacienteFragment">
 
+    <com.google.android.material.card.MaterialCardView
+        style="?attr/materialCardViewElevatedStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="24dp"
+
+        app:cardElevation="6dp"
+        android:id="@+id/cardPaciente">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Nombre completo -->
+            <TextView
+                android:id="@+id/tvNombreCompleto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:text="Nombre"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Cédula -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:paddingTop="4dp">
+
+                <TextView
+                    android:id="@+id/tvCedula"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="Cédula: V12345678"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/tvGenero"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Género: DESCONOCIDO"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+
+            <!-- Fecha de nacimiento -->
+
+            <!-- Correo o teléfono (opcional) -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:paddingTop="4dp">
+
+                <TextView
+                    android:id="@+id/tvFechaNacimiento"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:text="Fecha de nacimiento: DD/MM/YYYY"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/tvEdad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edad:" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="24dp">
+        android:orientation="horizontal">
         <com.google.android.material.card.MaterialCardView
             style="?attr/materialCardViewElevatedStyle"
             android:id="@+id/cardViewInformacionPersonal"
             android:layout_height="200dp"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:layout_marginEnd="12dp">
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="12dp"
+            app:cardElevation="6dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,12 +134,18 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardViewEditar"
+            android:id="@+id/cardViewEditarInformacionPersonal"
             style="?attr/materialCardViewElevatedStyle"
             android:layout_height="200dp"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:layout_marginStart="12dp">
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="12dp"
+            app:cardElevation="6dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -84,17 +178,21 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="24dp">
+        android:orientation="horizontal">
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardViewHistoria"
+            android:id="@+id/cardViewHistoriaMedica"
             style="?attr/materialCardViewElevatedStyle"
             android:layout_height="200dp"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:layout_marginEnd="12dp">
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="24dp"
+            app:cardElevation="6dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -122,12 +220,18 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardViewResumen"
+            android:id="@+id/cardViewResumenMedico"
             style="?attr/materialCardViewElevatedStyle"
             android:layout_height="200dp"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:layout_marginStart="12dp">
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="24dp"
+            app:cardElevation="6dp">
 
             <LinearLayout
                 android:layout_width="match_parent"

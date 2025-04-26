@@ -14,6 +14,10 @@ class MunicipioRepository @Inject constructor(
     private val api: MunicipioService
 ){
 
+    suspend fun getMunicipio(codEntidad: String, codMunicipio: String): Municipio {
+        return dao.getMunicipio(codEntidad, codMunicipio).toDomain()
+    }
+
     suspend fun getMunicipios(codEntidad: String): List<Municipio> {
         return dao.getMunicipios(codEntidad).map { it.toDomain() }
     }

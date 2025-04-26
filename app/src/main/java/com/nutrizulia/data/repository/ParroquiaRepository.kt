@@ -12,6 +12,10 @@ class ParroquiaRepository @Inject constructor(
     private val api: ParroquiaService
 ) {
 
+    suspend fun getParroquia(codEntidad: String, codMunicipio: String, codParroquia: String): Parroquia {
+        return dao.getParroquia(codEntidad, codMunicipio, codParroquia).toDomain()
+    }
+
     suspend fun getParroquias(codEntidad: String, codMunicipio: String): List<Parroquia> {
         return dao.getParroquias(codEntidad, codMunicipio).map { it.toDomain() }
     }

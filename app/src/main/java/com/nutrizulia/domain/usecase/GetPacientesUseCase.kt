@@ -6,14 +6,8 @@ import javax.inject.Inject
 
 class GetPacientesUseCase @Inject constructor(private val repository: PacienteRepository) {
 
-    suspend operator fun invoke() : List<Paciente>? {
-        val pacientes = repository.getAllPacientes()
-        if (pacientes.isNotEmpty()) {
-            return repository.getAllPacientes()
-        } else {
-            return null
-
-        }
+    suspend operator fun invoke() : List<Paciente> {
+        return repository.getPacientes()
     }
 
 }

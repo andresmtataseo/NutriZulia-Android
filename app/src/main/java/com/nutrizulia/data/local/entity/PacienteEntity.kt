@@ -46,6 +46,7 @@ data class PacienteEntity(
 )
 
 fun Paciente.toEntity() = PacienteEntity(
+    id = id,
     cedula = cedula,
     primerNombre = primerNombre,
     segundoNombre = segundoNombre,

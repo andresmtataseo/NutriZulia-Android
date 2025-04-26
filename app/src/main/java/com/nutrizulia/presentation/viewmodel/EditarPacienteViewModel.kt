@@ -11,11 +11,16 @@ import com.nutrizulia.domain.model.Entidad
 import com.nutrizulia.domain.model.Municipio
 import com.nutrizulia.domain.model.Paciente
 import com.nutrizulia.domain.model.Parroquia
+import com.nutrizulia.domain.usecase.GetComunidad
 import com.nutrizulia.domain.usecase.GetComunidades
+import com.nutrizulia.domain.usecase.GetEntidad
 import com.nutrizulia.domain.usecase.GetEntidades
+import com.nutrizulia.domain.usecase.GetMunicipio
 import com.nutrizulia.domain.usecase.GetMunicipios
+import com.nutrizulia.domain.usecase.GetPacienteByIdUseCase
+import com.nutrizulia.domain.usecase.GetParroquia
 import com.nutrizulia.domain.usecase.GetParroquias
-import com.nutrizulia.domain.usecase.InsertPacienteUseCase
+import com.nutrizulia.domain.usecase.UpdatePaciente
 import com.nutrizulia.util.CheckData.esCedulaValida
 import com.nutrizulia.util.CheckData.esCorreoValido
 import com.nutrizulia.util.CheckData.esFechaValida
@@ -27,17 +32,33 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RegistrarPacienteViewModel @Inject constructor(
-    private val insertPacienteUseCase: InsertPacienteUseCase,
+class EditarPacienteViewModel @Inject constructor(
+    private val getPacienteByIdUseCase: GetPacienteByIdUseCase,
+    private val updatePaciente: UpdatePaciente,
+    private val getEntidad: GetEntidad,
+    private val getMunicipio: GetMunicipio,
+    private val getParroquia: GetParroquia,
+    private val getComunidad: GetComunidad,
     private val getEntidades: GetEntidades,
     private val getMunicipios: GetMunicipios,
     private val getParroquias: GetParroquias,
     private val getComunidades: GetComunidades
-) : ViewModel() {
+): ViewModel() {
 
-    val mensaje = MutableLiveData<String>()
-    val errores = MutableLiveData<Map<String, String>>()
-    val salir = MutableLiveData<Boolean>()
+    private val _paciente = MutableLiveData<Paciente>()
+    val paciente: LiveData<Paciente>  get() = _paciente
+
+    private val _entidad = MutableLiveData<Entidad>()
+    val entidad: LiveData<Entidad> get() = _entidad
+
+    private val _municipio = MutableLiveData<Municipio>()
+    val municipio: LiveData<Municipio> get() = _municipio
+
+    private val _parroquia = MutableLiveData<Parroquia>()
+    val parroquia: LiveData<Parroquia> get() = _parroquia
+
+    private val _comunidad = MutableLiveData<Comunidad>()
+    val comunidad: LiveData<Comunidad> get() = _comunidad
 
     private val _entidades = MutableLiveData<List<Entidad>>()
     val entidades: LiveData<List<Entidad>> get() = _entidades
@@ -50,6 +71,37 @@ class RegistrarPacienteViewModel @Inject constructor(
 
     private val _comunidades = MutableLiveData<List<Comunidad>>()
     val comunidades: LiveData<List<Comunidad>> get() = _comunidades
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _mensaje = MutableLiveData<String>()
+    val mensaje: LiveData<String> get() = _mensaje
+
+    private val _errores = MutableLiveData<Map<String, String>>()
+    val errores: LiveData<Map<String, String>> get() = _errores
+
+    private val _salir = MutableLiveData<Boolean>()
+    val salir: LiveData<Boolean> get() = _salir
+
+
+    fun getPacienteById(idPaciente: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val paciente = getPacienteByIdUseCase(idPaciente)
+            _paciente.value = paciente
+            val entidad = getEntidad(paciente.codEntidad)
+            _entidad.value = entidad
+            val municipio = getMunicipio(entidad.codEntidad, paciente.codMunicipio)
+            _municipio.value = municipio
+            val parroquia = getParroquia(entidad.codEntidad, municipio.codMunicipio, paciente.codParroquia)
+            _parroquia.value = parroquia
+            val comunidad = getComunidad(entidad.codEntidad, municipio.codMunicipio, parroquia.codParroquia, paciente.idComunidad)
+            _comunidad.value = comunidad
+            _isLoading.value = false
+        }
+
+    }
 
     fun cargarEntidades() {
         viewModelScope.launch {
@@ -79,11 +131,11 @@ class RegistrarPacienteViewModel @Inject constructor(
         }
     }
 
-    fun registrarPaciente(paciente: Paciente) {
+    fun actualizarPaciente(paciente: Paciente) {
         val erroresMap = validarDatosPaciente(paciente)
         if (erroresMap.isNotEmpty()) {
-            errores.value = erroresMap
-            mensaje.value = "Error: Corrige los campos en rojo."
+            _errores.value = erroresMap
+            _mensaje.value = "Error: Corrige los campos en rojo."
             return
         }
 
@@ -91,20 +143,20 @@ class RegistrarPacienteViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val result = insertPacienteUseCase(paciente)
+                val result = updatePaciente(paciente)
                 if (result > 0) {
-                    mensaje.postValue("Paciente registrado correctamente.")
-                    salir.postValue(true)
+                    _mensaje.postValue("Paciente actualizado correctamente.")
+                    _salir.postValue(true)
                 } else {
-                    mensaje.postValue("Error desconocido al registrar paciente (código: $result).")
-                    salir.postValue(false)
+                    _mensaje.postValue("Error desconocido al actualizar el paciente (código: $result).")
+                    _salir.postValue(false)
                 }
             } catch (e: DomainException) {
-                mensaje.postValue(e.message)
-                salir.postValue(false)
+                _mensaje.postValue(e.message)
+                _salir.postValue(false)
             } catch (e: Exception) {
-                mensaje.postValue("Ocurrió un error inesperado al registrar paciente: ${e.message}")
-                salir.postValue(false)
+                _mensaje.postValue("Ocurrió un error inesperado al registrar paciente: ${e.message}")
+                _salir.postValue(false)
                 Log.e("RegistrarPacienteViewModel", "Error al registrar paciente", e)
             }
 
@@ -178,7 +230,8 @@ class RegistrarPacienteViewModel @Inject constructor(
         p.genero = p.genero.uppercase().trim()
         p.etnia = p.etnia.uppercase().trim()
         p.nacionalidad = p.nacionalidad.uppercase().trim()
-        p.telefono = formatearTelefono(p.telefono?.trim())
+        p.telefono = formatearTelefono(p.telefono)
         p.correo = p.correo?.lowercase()?.trim()
     }
+
 }

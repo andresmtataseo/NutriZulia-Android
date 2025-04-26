@@ -9,6 +9,9 @@ import com.nutrizulia.data.local.entity.ParroquiaEntity
 @Dao
 interface ParroquiaDao {
 
+    @Query("SELECT * FROM parroquias WHERE cod_entidad_ine = :codEntidad AND cod_municipio_ine = :codMunicipio AND cod_parroquia_ine = :codParroquia")
+    suspend fun getParroquia(codEntidad: String, codMunicipio: String, codParroquia: String): ParroquiaEntity
+
     @Query("SELECT * FROM parroquias WHERE cod_entidad_ine = :codEntidad AND cod_municipio_ine = :codMunicipio")
     suspend fun getParroquias(codEntidad: String, codMunicipio: String): List<ParroquiaEntity>
 

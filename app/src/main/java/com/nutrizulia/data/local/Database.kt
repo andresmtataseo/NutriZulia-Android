@@ -20,7 +20,7 @@ import com.nutrizulia.data.local.entity.*
         UsuarioEntity::class,
         ActividadEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class Database: RoomDatabase() {

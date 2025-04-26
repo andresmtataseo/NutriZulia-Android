@@ -78,7 +78,11 @@
             app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_pacientesFragment_to_accionesPacienteFragment"
-            app:destination="@id/accionesPacienteFragment" />
+            app:destination="@id/accionesPacienteFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/reportesFragment"
@@ -137,9 +141,11 @@
     <fragment
         android:id="@+id/verPacienteFragment"
         android:name="com.nutrizulia.presentation.view.VerPacienteFragment"
-        android:label="Detalles del Paciente"
-        tools:layout="@layout/fragment_ver_paciente" >
-        <argument android:name="idPaciente" />
+        android:label="Información Personal"
+        tools:layout="@layout/fragment_ver_paciente">
+        <argument
+            android:name="idPaciente"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/verCitaFragment"
@@ -161,11 +167,47 @@
     <fragment
         android:id="@+id/accionesPacienteFragment"
         android:name="com.nutrizulia.presentation.view.AccionesPacienteFragment"
-        android:label="fragment_acciones_paciente"
-        tools:layout="@layout/fragment_acciones_paciente" >
+        android:label="Selecciona una acción"
+        tools:layout="@layout/fragment_acciones_paciente">
         <action
             android:id="@+id/action_accionesPacienteFragment_to_verPacienteFragment"
-            app:destination="@id/verPacienteFragment" />
+            app:destination="@id/verPacienteFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <argument
+            android:name="idPaciente"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_accionesPacienteFragment_to_editarPacienteFragment"
+            app:destination="@id/editarPacienteFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_accionesPacienteFragment_to_historiaPacienteFragment"
+            app:destination="@id/historiaPacienteFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/editarPacienteFragment"
+        android:name="com.nutrizulia.presentation.view.EditarPacienteFragment"
+        android:label="Editar Información"
+        tools:layout="@layout/fragment_editar_paciente">
+        <argument
+            android:name="idPaciente"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/historiaPacienteFragment"
+        android:name="com.nutrizulia.presentation.view.HistoriaPacienteFragment"
+        android:label="Historia Medica"
+        tools:layout="@layout/fragment_historia_paciente">
         <argument
             android:name="idPaciente"
             app:argType="integer" />

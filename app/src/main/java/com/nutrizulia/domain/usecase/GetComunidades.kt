@@ -11,7 +11,7 @@ class GetComunidades @Inject constructor(
 ) {
 
     suspend operator fun invoke(codEntidad: String, codMunicipio: String, codParroquia: String): List<Comunidad> {
-        var comunidades = repository.getComunidadesByParroquia(codEntidad, codMunicipio, codParroquia)
+        var comunidades = repository.getComunidades(codEntidad, codMunicipio, codParroquia)
         if (comunidades.isEmpty()) {
             val token = loginRepository.loginSegen().token
             if (token != null) {
