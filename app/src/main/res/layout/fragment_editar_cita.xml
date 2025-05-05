@@ -4,18 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.view.VerCitaFragment">
+    tools:context=".presentation.view.EditarCitaFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progressBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:visibility="gone" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,8 +27,32 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tvIniciarSesion"
+                style="@style/Widget.MaterialComponents.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/datos_de_la_cita"
+                android:textSize="22sp"
+                android:textStyle="normal|bold" />
+
+            <TextView
+                android:id="@+id/tvIngreseDatos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:text="@string/debe_completar_los_campos_marcados_con" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
                 android:text="@string/informacion_del_paciente"
                 android:textSize="16sp"
@@ -37,7 +63,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:enabled="false"
                 android:hint="@string/nombre_completo">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -45,6 +70,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="false"
+                    android:enabled="false"
                     android:focusable="false"
                     android:inputType="none"
                     android:text="@string/desconocido"
@@ -65,7 +91,6 @@
                     android:layout_marginEnd="4dp"
                     android:layout_marginBottom="8dp"
                     android:layout_weight="1"
-                    android:enabled="false"
                     android:hint="@string/edad">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -73,6 +98,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
+                        android:enabled="false"
                         android:focusable="false"
                         android:inputType="none"
                         android:text="@string/desconocido"
@@ -87,7 +113,6 @@
                     android:layout_marginStart="4dp"
                     android:layout_marginBottom="8dp"
                     android:layout_weight="1"
-                    android:enabled="false"
                     android:hint="@string/g_nero">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -95,6 +120,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="false"
+                        android:enabled="false"
                         android:focusable="false"
                         android:inputType="none"
                         android:text="@string/desconocido"
@@ -124,15 +150,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:enabled="false"
                 android:hint="@string/tipo_de_cita">
 
                 <AutoCompleteTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:enabled="false"
-                    android:focusable="false"
                     android:inputType="none"
                     app:simpleItems="@array/tiposCitas"
                     tools:ignore="LabelFor,SpeakableTextPresentCheck" />
@@ -145,15 +167,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:enabled="false"
                 android:hint="@string/especialidad">
 
                 <AutoCompleteTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:enabled="false"
-                    android:focusable="false"
                     android:inputType="none"
                     app:simpleItems="@array/especialidades"
                     tools:ignore="LabelFor,SpeakableTextPresentCheck" />
@@ -165,7 +183,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:enabled="false"
                 android:hint="@string/motivo"
                 app:endIconMode="clear_text">
 
@@ -173,9 +190,6 @@
                     android:id="@+id/tiMotivoCita"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:enabled="false"
-                    android:focusable="false"
                     android:inputType="textPersonName|textCapWords" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -200,15 +214,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:enabled="false"
                 android:hint="@string/fecha_de_la_cita"
                 app:startIconDrawable="@drawable/ic_calendario">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:enabled="false"
+                    android:clickable="true"
                     android:focusable="false"
                     android:inputType="none" />
 
@@ -219,19 +231,50 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:enabled="false"
                 android:hint="@string/hora_de_la_cita"
                 app:startIconDrawable="@drawable/ic_reloj">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:enabled="false"
+                    android:clickable="true"
                     android:focusable="false"
                     android:inputType="none" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnDeshacer"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="2"
+                    android:text="Deshacer"
+                    android:textColor="@color/color_cita_cancelada"
+                    app:iconTint="@color/color_cita_cancelada"
+                    app:icon="@drawable/ic_deshacer"
+                    app:iconGravity="textStart" />
+
+                <Button
+                    android:id="@+id/btnGuardarCambios"
+                    style="?attr/materialButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Guardar cambios"
+                    app:icon="@drawable/ic_guardar"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
 
         </LinearLayout>
     </LinearLayout>

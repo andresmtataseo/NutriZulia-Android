@@ -57,14 +57,13 @@ class ConsultasFragment : Fragment() {
                 listaOriginalCitasConPacientes = citasConPacientes
                 citaConPacienteAdapter = CitaConPacienteAdapter(
                     citasConPacientes,
-                    onClickCardListener = { citaConPaciente ->
-                        findNavController().navigate(ConsultasFragmentDirections.actionConsultasFragmentToRegistrarConsultaFragment(citaConPaciente.cita.id))
+                    onClickCardCitaListener = { citaConPaciente ->
+                        findNavController().navigate(ConsultasFragmentDirections.actionConsultasFragmentToAccionesCitaFragment(citaConPaciente.cita.id))
                     },
-                    onClickReagendarListener = { citaConPaciente ->
-                        findNavController().navigate(ConsultasFragmentDirections.actionConsultasFragmentToReagendarCitaFragment(citaConPaciente.cita.id))
-                    },
-                    onClickVerMasListener = { citaConPaciente ->
-                        findNavController().navigate(ConsultasFragmentDirections.actionConsultasFragmentToVerCitaFragment(citaConPaciente.cita.id))
+                    onClickCardConsultaListener = { citaConPaciente ->
+                        findNavController().navigate(ConsultasFragmentDirections.actionConsultasFragmentToAccionesConsultaFragment(citaConPaciente.cita.id))
+                    }, onClickCitaPerdidaListener = { citaConPaciente ->
+                        findNavController().navigate(ConsultasFragmentDirections.actionConsultasFragmentToAccionesCitaPerdidaFragment(citaConPaciente.cita.id))
                     }
                 )
 

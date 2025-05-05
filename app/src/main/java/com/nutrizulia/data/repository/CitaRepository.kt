@@ -28,9 +28,12 @@ class CitaRepository @Inject constructor(
         return citaDao.insertCita(cita.toEntity() )
     }
 
-    suspend fun updateEstadoCita(idCita: Int, nuevoEstado: String) {
-        citaDao.actualizarEstadoCita(idCita, nuevoEstado)
+    suspend fun updateEstadoCita(idCita: Int, nuevoEstado: String): Int {
+        return citaDao.actualizarEstadoCita(idCita, nuevoEstado)
     }
 
+    suspend fun updateCita(cita: Cita): Int {
+        return citaDao.updateCita(cita.toEntity())
+    }
 
 }

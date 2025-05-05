@@ -16,9 +16,9 @@ import com.nutrizulia.util.Utils.calcularEdad
 
 class CitaConPacienteAdapter(
     private var citasConPacientes: List<CitaConPaciente>,
-    private val onClickCardListener: (CitaConPaciente) -> Unit,
-    private val onClickReagendarListener: (CitaConPaciente) -> Unit,
-    private val onClickVerMasListener: (CitaConPaciente) -> Unit
+    private val onClickCardCitaListener: (CitaConPaciente) -> Unit,
+    private val onClickCardConsultaListener: (CitaConPaciente) -> Unit,
+    private val onClickCitaPerdidaListener: (CitaConPaciente) -> Unit
 ) : RecyclerView.Adapter<CitaConPacienteViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CitaConPacienteViewHolder {
@@ -33,9 +33,9 @@ class CitaConPacienteAdapter(
         val citaConPaciente = citasConPacientes[position]
         holder.bind(
             citaConPaciente,
-            onClickCardListener,
-            onClickReagendarListener,
-            onClickVerMasListener
+            onClickCardCitaListener,
+            onClickCardConsultaListener,
+            onClickCitaPerdidaListener
         )
     }
 
@@ -54,9 +54,9 @@ class CitaConPacienteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
     @SuppressLint("SetTextI18n")
     fun bind(
         citaConPaciente: CitaConPaciente,
-        onCardClick: (CitaConPaciente) -> Unit,
-        onReagendarClick: (CitaConPaciente) -> Unit,
-        onVerMasClick: (CitaConPaciente) -> Unit
+        onCardCitaClick: (CitaConPaciente) -> Unit,
+        onCardConsultaClick: (CitaConPaciente) -> Unit,
+        onCardCitaPerdidaClick: (CitaConPaciente) -> Unit
     ) = with(binding) {
 
         val paciente = citaConPaciente.paciente
@@ -65,7 +65,7 @@ class CitaConPacienteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         tvNombreCompletoPaciente.text =
             "${paciente.primerNombre} ${paciente.segundoNombre} ${paciente.primerApellido} ${paciente.segundoApellido}"
         tvCedulaPaciente.text = "Cédula: ${paciente.cedula}"
-        tvEdad.text = "Edad: ${calcularEdad(paciente.fechaNacimiento)}"
+        tvEdad.text = "Edad: ${calcularEdad(paciente.fechaNacimiento)} años"
         tvFechaProgramada.text = "Fecha: ${cita.fechaProgramada}"
         tvHoraProgramda.text = "Hora: ${cita.horaProgramada}"
         tvEstado.text = cita.estado
@@ -84,24 +84,16 @@ class CitaConPacienteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         // Control de visibilidad
         when (cita.estado) {
             EstadoCita.PENDIENTE.descripcion, EstadoCita.REPROGRAMADA.descripcion -> {
-                btnReagendar.visibility = View.VISIBLE
-                btnVerMas.visibility = View.VISIBLE
-                cardCita.setOnClickListener { onCardClick(citaConPaciente) }
+                cardCita.setOnClickListener { onCardCitaClick(citaConPaciente) }
             }
-            EstadoCita.CANCELADA.descripcion,
-            EstadoCita.NO_ASISTIO.descripcion,
             EstadoCita.COMPLETADA.descripcion -> {
-                btnReagendar.visibility = View.GONE
-                btnVerMas.visibility = View.VISIBLE
+                cardCita.setOnClickListener{ onCardConsultaClick(citaConPaciente) }
             }
-            else -> {
-                btnReagendar.visibility = View.VISIBLE
-                btnVerMas.visibility = View.VISIBLE
+            EstadoCita.CANCELADA.descripcion, EstadoCita.NO_ASISTIO.descripcion -> {
+                cardCita.setOnClickListener { onCardCitaPerdidaClick(citaConPaciente) }
             }
+
         }
 
-        // Asignar listeners correctos
-        btnReagendar.setOnClickListener { onReagendarClick(citaConPaciente) }
-        btnVerMas.setOnClickListener { onVerMasClick(citaConPaciente) }
     }
 }

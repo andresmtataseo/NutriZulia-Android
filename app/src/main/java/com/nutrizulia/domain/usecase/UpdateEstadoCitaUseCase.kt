@@ -6,8 +6,8 @@ import javax.inject.Inject
 class UpdateEstadoCitaUseCase @Inject constructor(
     private val citaRepository: CitaRepository
 ) {
-    suspend operator fun invoke(idCita: Int, nuevoEstado: String) {
-        citaRepository.updateEstadoCita(idCita, nuevoEstado)
+    suspend operator fun invoke(idCita: Int, nuevoEstado: String): Int {
+        return citaRepository.updateEstadoCita(idCita, nuevoEstado)
     }
 
 }

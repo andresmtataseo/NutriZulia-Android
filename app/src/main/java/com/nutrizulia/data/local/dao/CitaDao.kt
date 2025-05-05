@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
+import androidx.room.Update
 import com.nutrizulia.data.local.dto.CitaConPacienteDto
 import com.nutrizulia.data.local.entity.CitaEntity
 
@@ -15,7 +16,7 @@ interface CitaDao {
     @Query("SELECT * FROM citas WHERE paciente_id = :pacienteId")
     suspend fun getCitasByPacienteId(pacienteId: Int): List<CitaEntity>
 
-    @Query("SELECT * FROM citas")
+    @Query("SELECT * FROM citas ORDER BY fecha_programada ASC")
     suspend fun getAllCitas(): List<CitaEntity>
 
     @Transaction
@@ -38,5 +39,7 @@ interface CitaDao {
     @Query("UPDATE citas SET fecha_programada = :fechaProgramada, hora_programada = :horaProgramada WHERE id = :citaId")
     suspend fun actualizarFechaCita(citaId: Int, fechaProgramada: String, horaProgramada: String)
 
+    @Update
+    suspend fun updateCita(cita: CitaEntity): Int
 
 }

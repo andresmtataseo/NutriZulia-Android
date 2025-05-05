@@ -12,8 +12,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class VerCitaViewModel @Inject constructor(
-    private val getCitaConPaciente: GetCitaConPacienteUseCase
+class AccionesCitaViewModel @Inject constructor(
+    private val getCitaConPaciente: GetCitaConPacienteUseCase,
+    private val updateEstadoCitaUseCase: UpdateEstadoCitaUseCase,
 ) : ViewModel() {
 
     private var _citaConPaciente = MutableLiveData<CitaConPaciente>()
@@ -36,10 +37,23 @@ class VerCitaViewModel @Inject constructor(
                 _citaConPaciente.value = result
             } else {
                 _mensaje.value = "Error: Cita no encontrada"
-                _salir.value = true
             }
             _isLoading.value = false
         }
     }
 
+    fun cancelarCita(idCita: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = updateEstadoCitaUseCase(idCita, "CANCELADA")
+            if (result > 0) {
+                _salir.value = true
+                _mensaje.value = "Cita cancelada con éxito"
+            } else {
+                _mensaje.value = "Error: La cita no pudo ser cancelada"
+            }
+            _isLoading.value = false
+        }
+
+    }
 }

@@ -54,6 +54,7 @@ data class ConsultaEntity(
 )
 
 fun Consulta.toEntity() = ConsultaEntity(
+    id = id,
     usuarioId = usuarioId,
     pacienteId = pacienteId,
     citaId = citaId,

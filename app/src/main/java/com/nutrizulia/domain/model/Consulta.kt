@@ -3,6 +3,7 @@ package com.nutrizulia.domain.model
 import com.nutrizulia.data.local.entity.ConsultaEntity
 
 data class Consulta(
+    val id: Int,
     val usuarioId: Int,
     val pacienteId: Int,
     val citaId: Int?,
@@ -14,4 +15,4 @@ data class Consulta(
     val observaciones: String?
 )
 
-fun ConsultaEntity.toDomain() = Consulta(usuarioId, pacienteId, citaId, actividadId, fecha, hora, diagnosticoPrincipal, diagnosticoSecundario, observaciones)
+fun ConsultaEntity.toDomain() = Consulta(id, usuarioId, pacienteId, citaId, actividadId, fecha, hora, diagnosticoPrincipal, diagnosticoSecundario, observaciones)

@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.nutrizulia.R
 import com.nutrizulia.presentation.viewmodel.AccionesPacienteViewModel
 import com.nutrizulia.databinding.FragmentAccionesPacienteBinding
 import com.nutrizulia.util.Utils.calcularEdad

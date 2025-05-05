@@ -45,6 +45,7 @@ data class CitaEntity(
 )
 
 fun Cita.toEntity() = CitaEntity(
+    id = id,
     usuarioId = usuarioId,
     pacienteId = pacienteId,
     tipoCita = tipoCita,

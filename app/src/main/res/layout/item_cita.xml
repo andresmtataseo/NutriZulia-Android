@@ -14,8 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp">
+        android:padding="16dp">
 
         <!-- Nombre completo -->
         <TextView
@@ -108,7 +107,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:gravity="right">
+            android:gravity="right"
+            android:visibility="gone">
 
             <Button
                 android:id="@+id/btnReagendar"
@@ -116,7 +116,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
-                android:text="Reagendar" />
+                android:text="Modificar" />
 
             <Button
                 android:id="@+id/btnVerMas"

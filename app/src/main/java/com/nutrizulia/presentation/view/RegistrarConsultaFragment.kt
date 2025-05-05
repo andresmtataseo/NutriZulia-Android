@@ -18,6 +18,7 @@ import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentRegistrarConsultaBinding
 import com.nutrizulia.domain.model.Consulta
 import com.nutrizulia.domain.model.SignosVitales
@@ -98,7 +99,7 @@ class RegistrarConsultaFragment : Fragment() {
             }
         }
 
-        viewModel.salir.observe(viewLifecycleOwner) { if (it) findNavController().popBackStack() }
+        viewModel.salir.observe(viewLifecycleOwner) { if (it) findNavController().popBackStack(R.id.consultasFragment, false) }
 
         viewModel.citaConPaciente.observe(viewLifecycleOwner) { citaConPaciente ->
             if (citaConPaciente != null) {
@@ -152,6 +153,7 @@ class RegistrarConsultaFragment : Fragment() {
 
     private fun registrarConsulta() {
         val consultaNueva = Consulta(
+            id = 0,
             usuarioId = 1,
             pacienteId = viewModel.citaConPaciente.value?.paciente?.id ?: 0,
             citaId = args.idCita,
@@ -174,7 +176,7 @@ class RegistrarConsultaFragment : Fragment() {
             colesterolTotal = obtenerTexto(binding.tfColesterolTotal)?.toIntOrNull(),
             colesterolHdl = obtenerTexto(binding.tfColesterolHdl)?.toIntOrNull(),
             colesterolLdl = obtenerTexto(binding.tfColesterolLdl)?.toIntOrNull(),
-            tensionArterial = obtenerTexto(binding.tfTensionArterial),
+            tensionArterial = obtenerTexto(binding.tfTensionArterial)?.ifEmpty { null },
             frecuenciaCardiaca = obtenerTexto(binding.tfFrecuenciaCardiaca)?.toIntOrNull(),
             pulso = obtenerTexto(binding.tfPulso)?.toIntOrNull(),
             saturacionOxigeno = obtenerTexto(binding.tfSTO2)?.toIntOrNull(),

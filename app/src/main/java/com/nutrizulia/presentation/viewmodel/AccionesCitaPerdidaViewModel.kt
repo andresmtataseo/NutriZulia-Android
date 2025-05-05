@@ -6,13 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nutrizulia.domain.model.CitaConPaciente
 import com.nutrizulia.domain.usecase.GetCitaConPacienteUseCase
-import com.nutrizulia.domain.usecase.UpdateEstadoCitaUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class VerCitaViewModel @Inject constructor(
+class AccionesCitaPerdidaViewModel @Inject constructor(
     private val getCitaConPaciente: GetCitaConPacienteUseCase
 ) : ViewModel() {
 
@@ -36,7 +35,6 @@ class VerCitaViewModel @Inject constructor(
                 _citaConPaciente.value = result
             } else {
                 _mensaje.value = "Error: Cita no encontrada"
-                _salir.value = true
             }
             _isLoading.value = false
         }
