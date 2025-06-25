@@ -13,7 +13,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container, LoginFragment.newInstance())
+                .replace(R.id.container, LoginFragment())
                 .commitNow()
         }
     }

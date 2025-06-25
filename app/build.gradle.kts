@@ -70,6 +70,12 @@ dependencies {
     implementation(libs.retrofit)
     // Retrofit converter integration
     implementation(libs.converter.gson)
+
+    // OkHttp logging integration
+    implementation(libs.logging.interceptor)
+    // Security integration
+    implementation(libs.androidx.security.crypto)
+
     // Room integration
     implementation(libs.androidx.room.runtime)
     // Room ktx integration

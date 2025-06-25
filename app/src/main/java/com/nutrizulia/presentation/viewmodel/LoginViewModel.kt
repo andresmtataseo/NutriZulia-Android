@@ -5,84 +5,49 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nutrizulia.domain.model.Usuario
-import com.nutrizulia.domain.usecase.GetUsuarioByCedulaClaveUseCase
-import com.nutrizulia.domain.usecase.InsertUsuarioUseCase
+import com.nutrizulia.domain.model.auth.SignIn
+import com.nutrizulia.domain.usecase.auth.SignInUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val getUsuarioByCedulaClaveUseCase: GetUsuarioByCedulaClaveUseCase,
-    private val insertUsuarioUseCase: InsertUsuarioUseCase
+    private val signInUseCase: SignInUseCase
 ) : ViewModel() {
 
-    private val _usuario = MutableLiveData<Usuario?>()
-    val usuario: LiveData<Usuario?> get() = _usuario
-
-    private val _mensaje = MutableLiveData<String>()
-    val mensaje: LiveData<String> get() = _mensaje
-
-    private val _error = MutableLiveData<Boolean>()
-    val error: LiveData<Boolean> get() = _error
-
-    private val _salir = MutableLiveData<Boolean>()
-    val salir: LiveData<Boolean> get() = _salir
-
-    private val _autenticado = MutableLiveData<Boolean>()
-    val autenticado: LiveData<Boolean> get() = _autenticado
+    private val _signInResult = MutableLiveData<Result<SignIn>>()
+    val signInResult: LiveData<Result<SignIn>> get() = _signInResult
 
     fun logearUsuario(cedula: String, clave: String) {
-        _error.value = false
-        if (cedula.isNotBlank() || clave.isNotBlank()) {
+        if (cedula.isNotBlank() && clave.isNotBlank()) {
             viewModelScope.launch {
-                val result = getUsuarioByCedulaClaveUseCase(cedula, clave)
-                if (result != null) {
-                    _autenticado.value = true
-                    _usuario.value = result
-                } else {
-                    _mensaje.value = "Datos incorrectos."
-                    _error.value = true
-                    _autenticado.value = false
+                try {
+                    Log.d("LoginViewModel", "Iniciando autenticación para Cédula: $cedula")
+
+                    val result = signInUseCase(cedula, clave)
+                    _signInResult.value = result
+
+                    result.onSuccess { signIn ->
+                        Log.d("LoginViewModel", "✅ Autenticación exitosa")
+                        Log.d("LoginViewModel", "Token: ${signIn.token}")
+                        Log.d("LoginViewModel", "Tipo de Token: ${signIn.type}")
+                        Log.d("LoginViewModel", "Usuario: ${signIn.usuario.nombres} ${signIn.usuario.apellidos}")
+                        Log.d("LoginViewModel", "Correo: ${signIn.usuario.correo}")
+                    }
+
+                    result.onFailure { error ->
+                        Log.e("LoginViewModel", "❌ Fallo de autenticación: ${error.message}")
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("LoginViewModel", "❌ Excepción durante autenticación: ${e.message}")
+                    _signInResult.value = Result.failure(e)
                 }
             }
         } else {
-            _mensaje.value = "Completa los campos."
-            _error.value = true
+            Log.w("LoginViewModel", "Campos vacíos: cedula='$cedula', clave='${clave.length} caracteres'")
+            _signInResult.value = Result.failure(Exception("Completa los campos."))
         }
     }
-
-    fun crearUsuario() {
-        val usuario = Usuario (
-            id = 0,
-            cedula = "30465183",
-            primerNombre = "ANDRES",
-            segundoNombre = "EDUARDO",
-            primerApellido = "MORENO",
-            segundoApellido = "TATASEO",
-            profesion = "INGENIERO EN INFORMATICA",
-            telefono = "04246719783",
-            correo = "andresmoreno2001@gmail.com",
-            clave = "andres",
-            isActivo = true
-        )
-        viewModelScope.launch {
-            val isExist = getUsuarioByCedulaClaveUseCase(usuario.cedula, usuario.clave)
-            if (isExist != null) {
-                Log.d("Usuario", "Ya existe")
-                return@launch
-            } else {
-                val result = insertUsuarioUseCase(usuario)
-                if ( result > 0 ) {
-                    Log.d("Usuario", "Registrado exitosamente")
-                }
-                else {
-                    Log.d("Usuario", "errorrrrr")
-                }
-            }
-
-        }
-    }
-
 }

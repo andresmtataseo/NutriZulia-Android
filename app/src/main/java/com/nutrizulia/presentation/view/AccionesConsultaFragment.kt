@@ -14,7 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentAccionesConsultaBinding
-import com.nutrizulia.presentation.viewmodel.AccionesConsultaViewModel
+//import com.nutrizulia.presentation.viewmodel.AccionesConsultaViewModel
 import com.nutrizulia.util.EstadoCita
 import com.nutrizulia.util.Utils.calcularEdad
 import com.nutrizulia.util.Utils.mostrarDialog
@@ -24,7 +24,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class AccionesConsultaFragment : Fragment() {
 
-    private val viewModel: AccionesConsultaViewModel by viewModels()
+//    private val viewModel: AccionesConsultaViewModel by viewModels()
     private lateinit var binding: FragmentAccionesConsultaBinding
     private val args: AccionesConsultaFragmentArgs by navArgs()
 
@@ -37,54 +37,54 @@ class AccionesConsultaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.obtenerPaciente(args.idCita)
-
-        viewModel.citaConPaciente.observe(viewLifecycleOwner) {
-            val paciente = it.paciente
-            val cita = it.cita
-
-            binding.tvNombreCompletoPaciente.text = "${paciente.primerNombre} ${paciente.segundoNombre} ${paciente.primerApellido} ${paciente.segundoApellido}"
-            binding.tvCedulaPaciente.text = "Cédula: ${paciente.cedula}"
-            binding.tvEdad.text = "Edad: ${calcularEdad(paciente.fechaNacimiento)} años"
-            binding.tvFechaProgramada.text = "Fecha: ${cita.fechaProgramada}"
-            binding.tvHoraProgramda.text = "Hora: ${cita.horaProgramada}"
-            binding.tvEstado.text = cita.estado
-
-            val colorResId = when (cita.estado) {
-                EstadoCita.PENDIENTE.descripcion,
-                EstadoCita.REPROGRAMADA.descripcion -> R.color.color_cita_pendiente
-                EstadoCita.COMPLETADA.descripcion -> R.color.color_cita_completada
-                EstadoCita.CANCELADA.descripcion,
-                EstadoCita.NO_ASISTIO.descripcion -> R.color.color_cita_cancelada
-                else -> R.color.color_cita_pendiente
-            }
-
-            binding.tvEstado.setTextColor(ContextCompat.getColor(requireContext(), colorResId))
-
-            viewModel.obtenerConsulta(args.idCita)
-
-            viewModel.consulta.observe(viewLifecycleOwner) { consulta ->
-                if (consulta != null) {
-                    binding.cardViewDetallesConsulta.setOnClickListener { findNavController().navigate(AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToVerConsultaFragment(consulta.id)) }
-                    binding.cardViewModificarConsulta.setOnClickListener { findNavController().navigate(AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToEditarConsultaFragment(consulta.id)) }
-                    binding.cardViewBorrarConsulta.setOnClickListener {
-                mostrarDialog(
-                    requireContext(),
-                    "Advertencia",
-                    "¿Desea borrar la consulta?",
-                    "Sí",
-                    "No",
-                    { viewModel.borrarConsulta(consulta.id) },
-                    { },
-                    true
-                )
-                    }
-                }
-            }
-
-            binding.cardViewDetallesCita.setOnClickListener { findNavController().navigate(AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToVerCitaFragment(cita.id)) }
-
-        }
+//        viewModel.obtenerPaciente(args.idCita)
+//
+//        viewModel.citaConPaciente.observe(viewLifecycleOwner) {
+//            val paciente = it.paciente
+//            val cita = it.cita
+//
+//            binding.tvNombreCompletoPaciente.text = "${paciente.primerNombre} ${paciente.segundoNombre} ${paciente.primerApellido} ${paciente.segundoApellido}"
+//            binding.tvCedulaPaciente.text = "Cédula: ${paciente.cedula}"
+//            binding.tvEdad.text = "Edad: ${calcularEdad(paciente.fechaNacimiento)} años"
+//            binding.tvFechaProgramada.text = "Fecha: ${cita.fechaProgramada}"
+//            binding.tvHoraProgramda.text = "Hora: ${cita.horaProgramada}"
+//            binding.tvEstado.text = cita.estado
+//
+//            val colorResId = when (cita.estado) {
+//                EstadoCita.PENDIENTE.descripcion,
+//                EstadoCita.REPROGRAMADA.descripcion -> R.color.color_cita_pendiente
+//                EstadoCita.COMPLETADA.descripcion -> R.color.color_cita_completada
+//                EstadoCita.CANCELADA.descripcion,
+//                EstadoCita.NO_ASISTIO.descripcion -> R.color.color_cita_cancelada
+//                else -> R.color.color_cita_pendiente
+//            }
+//
+//            binding.tvEstado.setTextColor(ContextCompat.getColor(requireContext(), colorResId))
+//
+//            viewModel.obtenerConsulta(args.idCita)
+//
+//            viewModel.consulta.observe(viewLifecycleOwner) { consulta ->
+//                if (consulta != null) {
+//                    binding.cardViewDetallesConsulta.setOnClickListener { findNavController().navigate(AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToVerConsultaFragment(consulta.id)) }
+//                    binding.cardViewModificarConsulta.setOnClickListener { findNavController().navigate(AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToEditarConsultaFragment(consulta.id)) }
+//                    binding.cardViewBorrarConsulta.setOnClickListener {
+//                mostrarDialog(
+//                    requireContext(),
+//                    "Advertencia",
+//                    "¿Desea borrar la consulta?",
+//                    "Sí",
+//                    "No",
+//                    { viewModel.borrarConsulta(consulta.id) },
+//                    { },
+//                    true
+//                )
+//                    }
+//                }
+//            }
+//
+//            binding.cardViewDetallesCita.setOnClickListener { findNavController().navigate(AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToVerCitaFragment(cita.id)) }
+//
+//        }
 
 //        viewModel.mensaje.observe(viewLifecycleOwner) { mostrarSnackbar(requireView(), it) }
 //        viewModel.isLoading.observe(viewLifecycleOwner) { binding.progress.visibility = if (it) View.VISIBLE else View.GONE }
