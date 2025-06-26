@@ -30,10 +30,10 @@
             android:id="@+id/cuentaFragment"
             android:icon="@drawable/ic_cuenta"
             android:title="@string/cuenta" />
-<!--        <item-->
-<!--            android:id="@+id/cerrarSesion"-->
-<!--            android:icon="@drawable/ic_menu_cerrar_sesion"-->
-<!--            android:title="@string/menu_cerrar_sesion" />-->
+        <item
+            android:id="@+id/cerrarSesion"
+            android:icon="@drawable/ic_menu_cerrar_sesion"
+            android:title="@string/menu_cerrar_sesion" />
     </group>
     <group>
         <item

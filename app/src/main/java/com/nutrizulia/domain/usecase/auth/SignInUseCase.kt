@@ -9,12 +9,7 @@ class SignInUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(cedula: String, clave: String): Result<SignIn> {
         return try {
-            val result = repository.authenticate(cedula, clave)
-            if (result != null) {
-                Result.success(result)
-            } else {
-                Result.failure(Exception("Credenciales inválidas"))
-            }
+            Result.success(repository.authenticate(cedula, clave))
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializer
+import com.nutrizulia.data.remote.api.ErrorInterceptor
 import com.nutrizulia.data.remote.api.auth.AuthInterceptor
 import com.nutrizulia.data.remote.api.auth.IAuthService
 import com.nutrizulia.data.remote.api.catalog.ICatalogService
@@ -37,15 +38,12 @@ object NetworkModule {
     @Provides
     fun provideGson(): Gson {
         return GsonBuilder()
-            // Soporte para LocalDate
             .registerTypeAdapter(LocalDate::class.java, JsonSerializer<LocalDate> { src, _, _ ->
                 JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE))
             })
             .registerTypeAdapter(LocalDate::class.java, JsonDeserializer { json, _, _ ->
                 LocalDate.parse(json.asString, DateTimeFormatter.ISO_LOCAL_DATE)
             })
-
-            // Soporte para LocalDateTime
             .registerTypeAdapter(LocalDateTime::class.java, JsonSerializer<LocalDateTime> { src, _, _ ->
                 JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
             })
@@ -55,8 +53,6 @@ object NetworkModule {
             .create()
     }
 
-
-    // --- Nuevo: Provee HttpLoggingInterceptor para depuración ---
     @Provides
     @Singleton
     fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
@@ -65,72 +61,74 @@ object NetworkModule {
         }
     }
 
-    // --- Nuevo: OkHttpClient para Autenticación (no necesita token aún) ---
     @Provides
     @Singleton
-    @AuthOkHttpClient // Calificador personalizado para diferenciar este OkHttpClient
+    fun provideErrorHandlingInterceptor(): ErrorInterceptor {
+        return ErrorInterceptor()
+    }
+
+    @Provides
+    @Singleton
+    @AuthOkHttpClient
     fun provideAuthOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor
+        loggingInterceptor: HttpLoggingInterceptor,
+        errorInterceptor: ErrorInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
+            .addInterceptor(errorInterceptor)
             .build()
     }
 
-    // --- Nuevo: OkHttpClient para Llamadas Autenticadas (con token) ---
     @Provides
     @Singleton
-    @AuthenticatedOkHttpClient // Calificador personalizado para diferenciar este OkHttpClient
+    @AuthenticatedOkHttpClient
     fun provideAuthenticatedOkHttpClient(
-        authInterceptor: AuthInterceptor, // Tu interceptor personalizado para añadir el JWT
-        loggingInterceptor: HttpLoggingInterceptor
+        authInterceptor: AuthInterceptor,
+        loggingInterceptor: HttpLoggingInterceptor,
+        errorInterceptor: ErrorInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(authInterceptor) // ¡Aquí es donde se añade tu JWT!
-            .addInterceptor(loggingInterceptor) // Incluye el logger para depuración
+            .addInterceptor(authInterceptor)
+            .addInterceptor(loggingInterceptor)
+            .addInterceptor(errorInterceptor)
             .build()
     }
 
-    // --- Actualizado: Provee Retrofit para el Servicio de Autenticación ---
-    // Esta instancia de Retrofit usa el OkHttpClient *sin* el AuthInterceptor
     @Singleton
     @Provides
-    @AuthRetrofit // Calificador personalizado para esta instancia de Retrofit
+    @AuthRetrofit
     fun provideAuthRetrofit(
-        @AuthOkHttpClient okHttpClient: OkHttpClient, // Inyecta el OkHttpClient específico para auth
+        @AuthOkHttpClient okHttpClient: OkHttpClient,
         gson: Gson
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient) // Usa el OkHttpClient sin el token de autenticación
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
-    // --- Actualizado: Provee Retrofit para Servicios Autenticados ---
-    // Esta instancia de Retrofit usa el OkHttpClient *con* el AuthInterceptor
     @Singleton
     @Provides
-    @AuthenticatedRetrofit // Calificador personalizado para esta instancia de Retrofit
+    @AuthenticatedRetrofit
     fun provideAuthenticatedRetrofit(
-        @AuthenticatedOkHttpClient okHttpClient: OkHttpClient, // Inyecta el OkHttpClient autenticado
+        @AuthenticatedOkHttpClient okHttpClient: OkHttpClient,
         gson: Gson
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient) // Usa el OkHttpClient con el token de autenticación
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
-    // --- Actualizado: Provee IAuthService usando el AuthRetrofit ---
     @Singleton
     @Provides
     fun provideAuthService(@AuthRetrofit retrofit: Retrofit): IAuthService {
         return retrofit.create(IAuthService::class.java)
     }
 
-    // --- Actualizado: Provee otros servicios usando el AuthenticatedRetrofit ---
     @Singleton
     @Provides
     fun provideCatalogService(@AuthenticatedRetrofit retrofit: Retrofit): ICatalogService {
@@ -148,11 +146,8 @@ object NetworkModule {
     fun provideUserService(@AuthenticatedRetrofit retrofit: Retrofit): IUserService {
         return retrofit.create(IUserService::class.java)
     }
-
 }
 
-// --- Nuevos: Calificadores personalizados para diferenciar instancias de Retrofit y OkHttpClient ---
-// Esto es crucial para que Hilt sepa qué instancia inyectar cuando hay múltiples proveedores.
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class AuthOkHttpClient

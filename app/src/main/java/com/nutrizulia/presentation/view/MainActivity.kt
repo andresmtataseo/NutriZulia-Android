@@ -1,5 +1,6 @@
 package com.nutrizulia.presentation.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import com.google.android.material.navigation.NavigationView
@@ -11,14 +12,20 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.nutrizulia.R
+import com.nutrizulia.data.preferences.TokenManager
 import com.nutrizulia.databinding.ActivityMainBinding
+import com.nutrizulia.util.Utils.mostrarDialog
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    @Inject
+    lateinit var tokenManager: TokenManager
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,23 +35,61 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.inicioFragment, R.id.consultasFragment, R.id.pacientesFragment, R.id.reportesFragment, R.id.cuentaFragment, R.id.ayudaFragment
+                R.id.inicioFragment, R.id.consultasFragment, R.id.pacientesFragment,
+                R.id.reportesFragment, R.id.cuentaFragment, R.id.ayudaFragment
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        // Listener para ítems seleccionados manualmente (para logout)
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.cerrarSesion -> {
+                    mostrarDialog(
+                        context = this,
+                        title = "Confirmar cierre de sesión",
+                        message = "¿Estás seguro que quieres cerrar sesión?",
+                        positiveButtonText = "Cerrar sesión",
+                        negativeButtonText = "Cancelar",
+                        onPositiveClick = {
+                            cerrarSesion()
+                        },
+                        onNegativeClick = {
+                        }
+                    )
+                    true
+                }
+                else -> {
+                    val handled = androidx.navigation.ui.NavigationUI.onNavDestinationSelected(menuItem, navController)
+                    if (handled) drawerLayout.closeDrawers()
+                    handled
+                }
+            }
+        }
+
+    }
+
+    private fun cerrarSesion() {
+        // Borrar token
+        tokenManager.clearToken()
+
+        // Opcional: limpiar datos de usuario en Room aquí si usas
+
+        // Navegar a login y limpiar backstack
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
         return true
     }

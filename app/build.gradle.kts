@@ -75,6 +75,9 @@ dependencies {
     implementation(libs.logging.interceptor)
     // Security integration
     implementation(libs.androidx.security.crypto)
+    // Gson integration
+    implementation (libs.gson)
+
 
     // Room integration
     implementation(libs.androidx.room.runtime)
