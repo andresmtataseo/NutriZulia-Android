@@ -59,9 +59,10 @@ import com.nutrizulia.data.local.dao.user.*
     ],
     views = [
         PacienteConCita::class,
-        PacienteConConsultaYDetalles::class
+        PacienteConConsultaYDetalles::class,
+        PerfilInstitucional::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(
@@ -117,4 +118,6 @@ abstract class AppDatabase : RoomDatabase() {
     // DAOs para Vistas
     abstract fun pacienteConCitaDao(): PacienteConCitaDao
     abstract fun pacienteConConsultaYDetallesDao(): PacienteConConsultaYDetallesDao
+    abstract fun perfilInstitucionalDao(): PerfilInstitucionalDao
+
 }

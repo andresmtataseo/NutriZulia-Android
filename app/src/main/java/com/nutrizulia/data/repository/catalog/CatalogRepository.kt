@@ -1,10 +1,16 @@
 package com.nutrizulia.data.repository.catalog
 
 import com.nutrizulia.data.local.dao.catalog.*
+import com.nutrizulia.data.local.dao.user.InstitucionDao
+import com.nutrizulia.data.local.dao.user.RolDao
+import com.nutrizulia.data.local.dao.user.UsuarioInstitucionDao
 import com.nutrizulia.data.local.entity.catalog.VersionEntity
+import com.nutrizulia.util.TokenManager
 import com.nutrizulia.data.remote.api.catalog.CatalogService
 import com.nutrizulia.data.remote.dto.catalog.VersionResponseDto
 import com.nutrizulia.data.remote.dto.catalog.toEntity
+import com.nutrizulia.data.remote.dto.user.toEntity
+import com.nutrizulia.util.JwtUtils
 import com.nutrizulia.util.SyncResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,6 +19,7 @@ import javax.inject.Inject
 class CatalogRepository @Inject constructor(
     private val service: CatalogService,
     private val versionDao: VersionDao,
+    private val rolDao: RolDao,
     private val etniaDao: EtniaDao,
     private val enfermedadDao: EnfermedadDao,
     private val nacionalidadDao: NacionalidadDao,
@@ -33,8 +40,11 @@ class CatalogRepository @Inject constructor(
     private val riesgoBiologicoDao: RiesgoBiologicoDao,
     private val tipoActividadDao: TipoActividadDao,
     private val tipoIndicadorDao: TipoIndicadorDao,
-    private val tipoInstitucionDao: TipoInstitucionDao
-) {
+    private val tipoInstitucionDao: TipoInstitucionDao,
+    private val institucionDao: InstitucionDao,
+  //  private val usuarioInstitucionDao: UsuarioInstitucionDao,
+    private val tokenManager: TokenManager,
+    ) {
 
     suspend fun syncAllCatalogs(): SyncResult = withContext(Dispatchers.IO) {
         return@withContext try {
@@ -48,13 +58,14 @@ class CatalogRepository @Inject constructor(
 
             // Lote 1: catálogos independientes
             val lote1 = setOf(
-                "etnias", "enfermedades", "nacionalidades", "especialidades",
+                "roles", "etnias", "enfermedades", "nacionalidades", "especialidades",
                 "grupos_etarios", "parentescos", "regex",
                 "riesgos_biologicos", "tipos_actividades", "tipos_indicadores", "tipos_instituciones"
             )
 
             for (catalogo in versiones.filter { it.nombreTabla in lote1 }) {
                 totalInsertados += when (catalogo.nombreTabla) {
+                    "roles" -> syncIfNeeded(catalogo, { service.getRoles().body().orEmpty() }, { it.toEntity() }, rolDao::insertAll)
                     "etnias" -> syncIfNeeded(catalogo, { service.getEtnias().body().orEmpty() }, { it.toEntity() }, etniaDao::insertAll)
                     "enfermedades" -> syncIfNeeded(catalogo, { service.getEnfermedades().body().orEmpty() }, { it.toEntity() }, enfermedadDao::insertAll)
                     "nacionalidades" -> syncIfNeeded(catalogo, { service.getNacionalidades().body().orEmpty() }, { it.toEntity() }, nacionalidadDao::insertAll)
@@ -128,6 +139,25 @@ class CatalogRepository @Inject constructor(
                 }
                 updateVersion(catalogo)
             }
+
+            // buscar el id usuario
+            val token = tokenManager.getToken()
+            val usuarioId = JwtUtils.extractIdUsuario(token) ?: return@withContext SyncResult(0, false, "Error al obtener el ID del usuario")
+
+            // Lote 3: Instituciones
+            val lote3 = setOf(
+                "instituciones" //, "usuarios_instituciones"
+            )
+
+            for (catalogo in versiones.filter { it.nombreTabla in lote3 }) {
+                totalInsertados += when (catalogo.nombreTabla) {
+                    "instituciones" -> syncIfNeeded(catalogo, { service.getInstituciones().body().orEmpty() }, { it.toEntity() }, institucionDao::insertAll)
+                   //usuario_instituciones no es dentro de la tabla version, hay que hacerlo, quizas en la autenticacion, primero autentica, sincroniza catalog y luego crea el usuario_institucion
+                   // "usuarios_instituciones" -> syncIfNeeded(catalogo, { service.getUsuarioInstitucion(usuarioId).body().orEmpty() }, { it.toEntity() }, usuarioInstitucionDao::insertAll)
+                    else -> 0
+                }
+            }
+
 
             SyncResult(totalInsertados, true, "Sincronización completada con éxito")
 

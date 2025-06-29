@@ -150,7 +150,7 @@
         tools:layout="@layout/fragment_ver_paciente">
         <argument
             android:name="idPaciente"
-            app:argType="integer" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/verCitaFragment"
@@ -183,7 +183,7 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <argument
             android:name="idPaciente"
-            app:argType="integer" />
+            app:argType="string" />
         <action
             android:id="@+id/action_accionesPacienteFragment_to_editarPacienteFragment"
             app:destination="@id/editarPacienteFragment"
@@ -206,7 +206,7 @@
         tools:layout="@layout/fragment_editar_paciente">
         <argument
             android:name="idPaciente"
-            app:argType="integer" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/historiaPacienteFragment"
@@ -215,7 +215,7 @@
         tools:layout="@layout/fragment_historia_paciente">
         <argument
             android:name="idPaciente"
-            app:argType="integer" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/accionesCitaFragment"

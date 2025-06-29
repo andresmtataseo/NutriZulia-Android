@@ -3,6 +3,7 @@ package com.nutrizulia.presentation.view
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import androidx.activity.viewModels
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -12,23 +13,26 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.nutrizulia.R
-import com.nutrizulia.data.preferences.TokenManager
 import com.nutrizulia.databinding.ActivityMainBinding
+import com.nutrizulia.presentation.viewmodel.MainViewModel
 import com.nutrizulia.util.Utils.mostrarDialog
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
-    @Inject
-    lateinit var tokenManager: TokenManager
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel.isInstitutionSelected.observe(this) { isInstitutionSelected ->
+            if (!isInstitutionSelected) {
+                navigateToPreCarga()
+            }
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -48,7 +52,8 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        // Listener para ítems seleccionados manualmente (para logout)
+        setupObservers()
+
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.cerrarSesion -> {
@@ -57,13 +62,11 @@ class MainActivity : AppCompatActivity() {
                         title = "Confirmar cierre de sesión",
                         message = "¿Estás seguro que quieres cerrar sesión?",
                         positiveButtonText = "Cerrar sesión",
-                        negativeButtonText = "Cancelar",
                         onPositiveClick = {
-                            cerrarSesion()
-                        },
-                        onNegativeClick = {
+                            viewModel.logout()
                         }
                     )
+                    drawerLayout.closeDrawers()
                     true
                 }
                 else -> {
@@ -73,18 +76,34 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
     }
 
-    private fun cerrarSesion() {
-        // Borrar token
-        tokenManager.clearToken()
+    private fun navigateToPreCarga() {
+        val intent = Intent(this, PreCargarActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
 
-        // Opcional: limpiar datos de usuario en Room aquí si usas
+    /**
+     * Configura los observadores de LiveData del ViewModel.
+     */
+    private fun setupObservers() {
+        viewModel.logoutComplete.observe(this) { isComplete ->
+            if (isComplete) {
+                navigateToLogin()
+            }
+        }
+    }
 
-        // Navegar a login y limpiar backstack
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    /**
+     * Navega a la pantalla de Login y limpia el stack de actividades.
+     */
+    private fun navigateToLogin() {
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         startActivity(intent)
         finish()
     }
@@ -98,4 +117,5 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
+
 }

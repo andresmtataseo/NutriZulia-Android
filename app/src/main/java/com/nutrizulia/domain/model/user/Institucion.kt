@@ -4,14 +4,14 @@ import com.nutrizulia.data.local.entity.user.InstitucionEntity
 
 data class Institucion(
     val id: Int,
-    val municipioSaniitarioId: Int,
+    val municipioSanitarioId: Int,
     val tipoInstitucionId: Int,
     val nombre: String
 )
 
 fun InstitucionEntity.toDomain() = Institucion(
     id = id,
-    municipioSaniitarioId = municipioSaniitarioId,
+    municipioSanitarioId = municipioSanitarioId,
     tipoInstitucionId = tipoInstitucionId,
     nombre = nombre
 )

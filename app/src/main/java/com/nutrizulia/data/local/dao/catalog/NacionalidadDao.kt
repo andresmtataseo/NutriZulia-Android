@@ -11,6 +11,9 @@ interface NacionalidadDao {
     @Query("SELECT * FROM nacionalidades")
     suspend fun findAll(): List<NacionalidadEntity>
 
+    @Query("SELECT * FROM nacionalidades WHERE id = :id")
+    suspend fun findNacionalidadById(id: Int): NacionalidadEntity?
+
     @Insert
     suspend fun insertAll(nacionalidades: List<NacionalidadEntity>): List<Long>
 

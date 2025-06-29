@@ -31,14 +31,14 @@ import com.nutrizulia.domain.model.user.Institucion
 data class InstitucionEntity(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: Int,
-    @ColumnInfo(name = "municipio_sanitario_id") val municipioSaniitarioId: Int,
+    @ColumnInfo(name = "municipio_sanitario_id") val municipioSanitarioId: Int,
     @ColumnInfo(name = "tipo_institucion_id") val tipoInstitucionId: Int,
     @ColumnInfo(name = "nombre") val nombre: String
 )
 
 fun Institucion.toEntity() = InstitucionEntity(
     id = id,
-    municipioSaniitarioId = municipioSaniitarioId,
+    municipioSanitarioId = municipioSanitarioId,
     tipoInstitucionId = tipoInstitucionId,
     nombre = nombre
 )

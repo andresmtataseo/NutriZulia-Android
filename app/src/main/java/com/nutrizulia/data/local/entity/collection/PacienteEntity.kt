@@ -64,7 +64,7 @@ data class PacienteEntity(
     @ColumnInfo(name = "domicilio") val domicilio: String,
     @ColumnInfo(name = "telefono") val telefono: String?,
     @ColumnInfo(name = "correo") val correo: String?,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime = LocalDateTime.now(),
 )
 
 fun Paciente.toEntity() = PacienteEntity(

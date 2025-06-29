@@ -16,6 +16,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 object Utils {
 
+    fun generarUUID(): String {
+        return java.util.UUID.randomUUID().toString()
+    }
+
+
     /**
      * Muestra un mensaje tipo Snackbar en la pantalla.
      *
@@ -32,12 +37,12 @@ object Utils {
      * Obtiene el texto ingresado en un campo TextInputLayout.
      *
      * @param textInputLayout Componente TextInputLayout del cual se extraerá el texto.
-     * @return El texto ingresado sin espacios extra, o `null` si el campo es nulo o está vacío.
+     * @return El texto ingresado sin espacios extra, o cadena vacía si el campo es nulo o está vacío.
      */
-    fun obtenerTexto(textInputLayout: TextInputLayout?): String? {
-        val texto = textInputLayout?.editText?.text?.toString()?.trim()
-        return texto
+    fun obtenerTexto(textInputLayout: TextInputLayout?): String {
+        return textInputLayout?.editText?.text?.toString()?.trim().orEmpty()
     }
+
 
     /**
      * Establece un mensaje de error en un TextInputLayout.
@@ -65,22 +70,38 @@ object Utils {
      *
      * @return Una cadena representando la hora actual en el formato deseado.
      */
-    @SuppressLint("SimpleDateFormat")
     fun obtenerHoraActual(): String {
         val formatoHora = SimpleDateFormat("HH:mm")
         return formatoHora.format(Date())
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun calcularEdad(fechaNacimiento: String): Int {
-        return try {
-            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-            val nacimiento = LocalDate.parse(fechaNacimiento, formatter)
-            val hoy = LocalDate.now()
-            Period.between(nacimiento, hoy).years
-        } catch (e: Exception) {
-            -1
+    /**
+     * Calcula la edad completa y la devuelve en una clase personalizada.
+     * @param fechaNacimiento La fecha de nacimiento.
+     * @return Un objeto `Edad` con los años, meses y días.
+     */
+    fun calcularEdadDetallada(fechaNacimiento: LocalDate): Edad {
+        val hoy = LocalDate.now()
+
+        if (fechaNacimiento.isAfter(hoy)) {
+            return Edad(0, 0, 0)
         }
+
+        val periodo = Period.between(fechaNacimiento, hoy)
+        return Edad(periodo.years, periodo.months, periodo.days)
+    }
+
+    /**
+     * Calcula la edad en años a partir de un objeto LocalDate.
+     * @param fechaNacimiento La fecha de nacimiento como un objeto LocalDate.
+     * @return La edad en años completos. Devuelve 0 si la fecha es en el futuro.
+     */
+    fun calcularEdad(fechaNacimiento: LocalDate): Int {
+        val hoy = LocalDate.now()
+        if (fechaNacimiento.isAfter(hoy)) {
+            return 0
+        }
+        return Period.between(fechaNacimiento, hoy).years
     }
 
     /**

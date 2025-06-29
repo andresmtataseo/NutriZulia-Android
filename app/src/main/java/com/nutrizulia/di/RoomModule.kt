@@ -23,7 +23,7 @@ object RoomModule {
             context,
             AppDatabase::class.java,
             DATABASE_NAME
-        ).fallbackToDestructiveMigration().build()
+        ).fallbackToDestructiveMigration(true).build()
     }
 
     // DAOs para Entidades (Catalog)
@@ -189,4 +189,8 @@ object RoomModule {
     @Singleton
     @Provides
     fun providePacienteConConsultaYDetallesDao(database: AppDatabase) = database.pacienteConConsultaYDetallesDao()
+
+    @Singleton
+    @Provides
+    fun providePerfilInstitucionalDao(database: AppDatabase) = database.perfilInstitucionalDao()
 }

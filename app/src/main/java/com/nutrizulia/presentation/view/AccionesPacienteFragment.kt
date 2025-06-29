@@ -1,5 +1,6 @@
 package com.nutrizulia.presentation.view
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.fragment.app.viewModels
 import android.os.Bundle
@@ -12,13 +13,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 //import com.nutrizulia.presentation.viewmodel.AccionesPacienteViewModel
 import com.nutrizulia.databinding.FragmentAccionesPacienteBinding
+import com.nutrizulia.presentation.viewmodel.AccionesPacienteViewModel
 import com.nutrizulia.util.Utils.calcularEdad
+import com.nutrizulia.util.Utils.calcularEdadDetallada
+import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AccionesPacienteFragment : Fragment() {
 
-//    private val viewModel: AccionesPacienteViewModel by viewModels()
+    private val viewModel: AccionesPacienteViewModel by viewModels()
     private lateinit var binding: FragmentAccionesPacienteBinding
     private val args: AccionesPacienteFragmentArgs by navArgs()
 
@@ -31,46 +35,52 @@ class AccionesPacienteFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        viewModel.obtenerPaciente(args.idPaciente)
-//
-//        viewModel.pacientes.observe(viewLifecycleOwner) { paciente ->
-//            binding.tvNombreCompleto.text =
-//                "${paciente.primerNombre} ${paciente.segundoNombre} ${paciente.primerApellido} ${paciente.segundoApellido}"
-//            binding.tvCedula.text = "Cédula: ${paciente.cedula}"
-//            binding.tvGenero.text = "Género: ${paciente.genero}"
-//            binding.tvFechaNacimiento.text = "Fecha de nacimiento: ${paciente.fechaNacimiento}"
-//            binding.tvEdad.text = "Edad: ${calcularEdad(paciente.fechaNacimiento).toString()}"
-//        }
-//
-//        binding.cardViewInformacionPersonal.setOnClickListener {
-//            findNavController().navigate(
-//                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToVerPacienteFragment(
-//                    args.idPaciente
-//                )
-//            )
-//        }
-//
-//        binding.cardViewEditarInformacionPersonal.setOnClickListener {
-//            findNavController().navigate(
-//                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToEditarPacienteFragment(
-//                    args.idPaciente
-//                )
-//            )
-//        }
-//
-//        binding.cardViewHistoriaMedica.setOnClickListener {
-//            findNavController().navigate(
-//                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToHistoriaPacienteFragment(
-//                    args.idPaciente
-//                )
-//            )
-//        }
+        viewModel.obtenerPaciente(args.idPaciente)
 
-        //binding.cardViewResumenMedico.setOnClickListener { findNavController().navigate(AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentTo(args.idPaciente)) }
+        viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
+            binding.tvNombreCompleto.text = "${paciente.nombres} ${paciente.apellidos}"
+            binding.tvCedula.text = "Cédula: ${paciente.cedula}"
+            binding.tvGenero.text = "Género: ${paciente.genero}"
+            binding.tvFechaNacimiento.text = "Fecha de nacimiento: ${paciente.fechaNacimiento}"
+            val edad = calcularEdadDetallada(paciente.fechaNacimiento)
+            binding.tvEdad.text = "Edad: ${edad.anios} años, ${edad.meses} meses y ${edad.dias} días"
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { binding.progress.visibility = if (it) View.VISIBLE else View.INVISIBLE }
+
+        viewModel.salir.observe(viewLifecycleOwner) { if (it) requireActivity().onBackPressedDispatcher.onBackPressed() }
+
+        viewModel.mensaje.observe(viewLifecycleOwner) { mostrarSnackbar(binding.root, it) }
+
+        binding.cardViewInformacionPersonal.setOnClickListener {
+            findNavController().navigate(
+                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToVerPacienteFragment(
+                    args.idPaciente
+                )
+            )
+        }
+
+        binding.cardViewEditarInformacionPersonal.setOnClickListener {
+            findNavController().navigate(
+                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToEditarPacienteFragment(
+                    args.idPaciente
+                )
+            )
+        }
+
+        binding.cardViewHistoriaMedica.setOnClickListener {
+            findNavController().navigate(
+                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToHistoriaPacienteFragment(
+                    args.idPaciente
+                )
+            )
+        }
+
+//        binding.cardViewResumenMedico.setOnClickListener { findNavController().navigate(AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentTo(args.idPaciente)) }
 
     }
 

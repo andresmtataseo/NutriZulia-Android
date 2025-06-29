@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.nutrizulia"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -77,7 +77,8 @@ dependencies {
     implementation(libs.androidx.security.crypto)
     // Gson integration
     implementation (libs.gson)
-
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 
     // Room integration
     implementation(libs.androidx.room.runtime)

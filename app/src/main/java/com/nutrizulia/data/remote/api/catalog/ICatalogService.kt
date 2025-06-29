@@ -1,6 +1,7 @@
 package com.nutrizulia.data.remote.api.catalog
 
 import com.nutrizulia.data.remote.dto.catalog.*
+import com.nutrizulia.data.remote.dto.user.UsuarioInstitucionResponseDto
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -79,4 +80,14 @@ interface ICatalogService {
     @GET("/catalog/v1/regex")
     suspend fun getRegex(): Response<List<RegexResponseDto>>
 
+    @GET("/catalog/v1/roles")
+    suspend fun getRoles(): Response<List<RolResponseDto>>
+
+    @GET("/institution/v1/findAll")
+    suspend fun getInstituciones(): Response<List<InstitucionResponseDto>>
+
+    @GET("/user-institution/v1/findAll")
+    suspend fun getUsuarioInstitucion(
+        @Query("idUsuario") idUsuario: Int
+    ): Response<List<UsuarioInstitucionResponseDto>>
 }

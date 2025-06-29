@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            android:visibility="gone" />
+            android:visibility="invisible" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -308,7 +308,7 @@
                 android:hint="@string/estado">
 
                 <AutoCompleteTextView
-                    android:id="@+id/dropdownEntidades"
+                    android:id="@+id/dropdownEstados"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"

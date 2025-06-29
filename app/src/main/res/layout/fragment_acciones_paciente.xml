@@ -7,6 +7,13 @@
     android:orientation="vertical"
     tools:context=".presentation.view.AccionesPacienteFragment">
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible" />
+
     <com.google.android.material.card.MaterialCardView
         style="?attr/materialCardViewElevatedStyle"
         android:layout_width="match_parent"
@@ -29,7 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
-                android:text="Nombre"
+                android:text="Nombre Completo"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="16sp"
@@ -47,7 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
-                    android:text="Cédula: V12345678"
+                    android:text="Cédula:"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
@@ -55,7 +62,7 @@
                     android:id="@+id/tvGenero"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Género: DESCONOCIDO"
+                    android:text="Género:"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?attr/colorOnSurfaceVariant" />
             </LinearLayout>
@@ -75,9 +82,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
-                    android:text="Fecha de nacimiento: DD/MM/YYYY"
+                    android:text="Fecha de nacimiento:"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:paddingTop="4dp">
 
                 <TextView
                     android:id="@+id/tvEdad"

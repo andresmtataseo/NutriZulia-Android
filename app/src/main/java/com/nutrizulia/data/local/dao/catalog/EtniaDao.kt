@@ -11,6 +11,9 @@ interface EtniaDao {
     @Query("SELECT * FROM etnias")
     suspend fun findAll(): List<EtniaEntity>
 
+    @Query("SELECT * FROM etnias WHERE id = :id")
+    suspend fun findEtniaById(id: Int): EtniaEntity?
+
     @Query("SELECT COUNT(*) FROM etnias")
     suspend fun countAll(): Int
 

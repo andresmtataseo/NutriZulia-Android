@@ -11,6 +11,9 @@ interface MunicipioDao {
     @Query("SELECT * FROM municipios WHERE estado_id = :estadoId")
     suspend fun findAllByEstadoId(estadoId: Int): List<MunicipioEntity>
 
+    @Query("SELECT * FROM municipios WHERE id = :id")
+    suspend fun findMunicipioById(id: Int): MunicipioEntity?
+
     @Insert
     suspend fun insertAll(municipios: List<MunicipioEntity>): List<Long>
 

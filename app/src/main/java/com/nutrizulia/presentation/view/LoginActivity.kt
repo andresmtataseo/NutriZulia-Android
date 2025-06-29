@@ -6,7 +6,7 @@ import android.os.Bundle
 import com.nutrizulia.R
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import com.nutrizulia.data.preferences.TokenManager
+import com.nutrizulia.util.TokenManager
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {

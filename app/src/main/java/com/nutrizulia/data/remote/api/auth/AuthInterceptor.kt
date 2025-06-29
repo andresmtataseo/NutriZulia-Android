@@ -1,6 +1,6 @@
 package com.nutrizulia.data.remote.api.auth
 
-import com.nutrizulia.data.preferences.TokenManager
+import com.nutrizulia.util.TokenManager
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject

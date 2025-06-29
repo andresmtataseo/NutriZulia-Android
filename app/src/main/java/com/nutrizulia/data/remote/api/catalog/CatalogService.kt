@@ -1,6 +1,7 @@
 package com.nutrizulia.data.remote.api.catalog
 
 import com.nutrizulia.data.remote.dto.catalog.*
+import com.nutrizulia.data.remote.dto.user.UsuarioInstitucionResponseDto
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -94,6 +95,18 @@ class CatalogService @Inject constructor(
 
     suspend fun getRegex(): Response<List<RegexResponseDto>> {
         return api.getRegex()
+    }
+
+    suspend fun getRoles(): Response<List<RolResponseDto>> {
+        return api.getRoles()
+    }
+
+    suspend fun getInstituciones(): Response<List<InstitucionResponseDto>> {
+        return api.getInstituciones()
+    }
+
+    suspend fun getUsuarioInstitucion(idUsuario: Int): Response<List<UsuarioInstitucionResponseDto>> {
+        return api.getUsuarioInstitucion(idUsuario)
     }
 
 }
