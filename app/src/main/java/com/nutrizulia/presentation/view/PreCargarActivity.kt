@@ -26,8 +26,7 @@ class PreCargarActivity : AppCompatActivity() {
         binding = ActivityPreCargarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Ocultar el botón de continuar inicialmente
-        binding.btnContinuar.visibility = View.GONE
+        binding.btnContinuar.visibility = View.INVISIBLE
 
         setupWindowInsets()
         setupRecyclerView()
