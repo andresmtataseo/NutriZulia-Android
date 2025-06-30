@@ -1,13 +1,16 @@
 package com.nutrizulia.data.repository.collection
 
+import com.nutrizulia.data.local.dao.PacienteConCitaDao
 import com.nutrizulia.data.local.dao.collection.PacienteDao
 import com.nutrizulia.data.local.entity.collection.toEntity
+import com.nutrizulia.data.local.view.PacienteConCita
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.domain.model.collection.toDomain
 import javax.inject.Inject
 
 class PacienteRepository @Inject constructor(
-    private val pacienteDao: PacienteDao
+    private val pacienteDao: PacienteDao,
+    private val pacienteConCitaDao: PacienteConCitaDao
 ) {
 
     suspend fun insertPaciente(paciente: Paciente): Long {
@@ -32,5 +35,19 @@ class PacienteRepository @Inject constructor(
 
     suspend fun updatePaciente(paciente: Paciente): Int {
         return pacienteDao.update(paciente.toEntity())
+    }
+
+    // Pacientes con citas
+
+    suspend fun findPacienteConCitaByConsultaId(usuarioInstitucionId: Int, consultaId: String): PacienteConCita? {
+        return pacienteConCitaDao.findById(usuarioInstitucionId, consultaId)
+    }
+
+    suspend fun findAllPacientesConCitas(usuarioInstitucionId: Int): List<PacienteConCita> {
+        return pacienteConCitaDao.findAll(usuarioInstitucionId)
+    }
+
+    suspend fun findAllPacientesConCitasByFiltro(usuarioInstitucionId: Int, filtro: String): List<PacienteConCita> {
+        return pacienteConCitaDao.findAllByFiltro(usuarioInstitucionId, filtro)
     }
 }

@@ -13,6 +13,7 @@ import java.time.LocalDateTime
             p.cedula AS cedulaPaciente,
             p.nombres || ' ' || p.apellidos AS nombreCompleto,
             p.fecha_nacimiento AS fechaNacimientoPaciente,
+            c.usuario_institucion_id AS usuarioInstitucionId,
             c.id AS consultaId,
             c.fecha_hora_programada AS fechaHoraProgramadaConsulta,
             c.estado AS estadoConsulta
@@ -25,7 +26,8 @@ data class PacienteConCita(
     @ColumnInfo(name = "cedulaPaciente") val cedulaPaciente: String,
     @ColumnInfo(name = "nombreCompleto") val nombreCompleto: String,
     @ColumnInfo(name = "fechaNacimientoPaciente") val fechaNacimientoPaciente: LocalDate,
-    @ColumnInfo(name = "consultaId") val consultaId: Int,
+    @ColumnInfo(name = "usuarioInstitucionId") val usuarioInstitucionId: Int,
+    @ColumnInfo(name = "consultaId") val consultaId: String,
     @ColumnInfo(name = "fechaHoraProgramadaConsulta") val fechaHoraProgramadaConsulta: LocalDateTime,
     @ColumnInfo(name = "estadoConsulta") val estadoConsulta: Estado
 )

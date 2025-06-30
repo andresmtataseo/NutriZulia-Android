@@ -17,23 +17,12 @@
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:visibility="invisible" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="24dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginRight="24dp"
-            android:layout_marginBottom="12dp"
+            android:layout_margin="12dp"
             android:orientation="vertical">
-            <!--        <TextView-->
-            <!--            android:id="@+id/tvIniciarSesion"-->
-            <!--            style="@style/Widget.MaterialComponents.TextView"-->
-            <!--            android:layout_width="match_parent"-->
-            <!--            android:layout_height="wrap_content"-->
-            <!--            android:gravity="center"-->
-            <!--            android:text="@string/datos_del_paciente"-->
-            <!--            android:textSize="22sp"-->
-            <!--            android:textStyle="normal|bold" />-->
 
             <TextView
                 android:id="@+id/tvIngreseDatos"
@@ -140,26 +129,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:enabled="false"
-                android:hint="@string/primer_nombre">
+                android:hint="@string/nombres">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiPrimerNombre"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName|textCapWords" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tfSegundoNombre"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:enabled="false"
-                android:hint="@string/segundo_nombre">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/tiSegundoNombre"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName|textCapWords" />
@@ -172,26 +145,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:enabled="false"
-                android:hint="@string/primer_apellido">
+                android:hint="@string/apellidos">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiPrimerApellido"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName|textCapWords" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tfSegundoApellido"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:enabled="false"
-                android:hint="@string/segundo_apellido">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/tiSegundoApellido"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName|textCapWords" />
@@ -359,22 +316,18 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tfComunidad"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:id="@+id/tfDomicilio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:enabled="false"
-                android:hint="Comunidad *">
+                android:hint="@string/domicilio">
 
-                <AutoCompleteTextView
-                    android:id="@+id/dropdownComunidades"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiDomicilio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="false"
-                    android:inputType="none"
-                    tools:ignore="LabelFor" />
+                    android:inputType="textPersonName|textCapWords" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

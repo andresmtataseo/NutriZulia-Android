@@ -62,7 +62,7 @@ import com.nutrizulia.data.local.dao.user.*
         PacienteConConsultaYDetalles::class,
         PerfilInstitucional::class
     ],
-    version = 4,
+    version = 1,
     exportSchema = false
 )
 @TypeConverters(

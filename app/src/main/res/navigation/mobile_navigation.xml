@@ -127,8 +127,8 @@
         android:label="Registar Consulta"
         tools:layout="@layout/fragment_registrar_consulta">
         <argument
-            android:name="idCita"
-            app:argType="integer" />
+            android:name="idConsulta"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/seleccionarPacienteCitaFragment"
@@ -157,8 +157,8 @@
         android:name="com.nutrizulia.presentation.view.VerCitaFragment"
         android:label="fragment_ver_cita"
         tools:layout="@layout/fragment_ver_cita" >
-        <argument android:name="IdCita"
-            app:argType="integer" />
+        <argument android:name="IdConsulta"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/reagendarCitaFragment"
@@ -166,8 +166,8 @@
         android:label="fragment_reagendar_cita"
         tools:layout="@layout/fragment_editar_cita" >
         <argument
-            android:name="idCita"
-            app:argType="integer" />
+            android:name="idConsulta"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/accionesPacienteFragment"
@@ -244,8 +244,8 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <argument
-            android:name="idCita"
-            app:argType="integer" />
+            android:name="idConsulta"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/accionesConsultaFragment"
@@ -253,8 +253,8 @@
         android:label="fragment_acciones_consulta"
         tools:layout="@layout/fragment_acciones_consulta" >
         <argument
-            android:name="idCita"
-            app:argType="integer" />
+            android:name="idConsulta"
+            app:argType="string" />
         <action
             android:id="@+id/action_accionesConsultaFragment_to_verCitaFragment"
             app:destination="@id/verCitaFragment"
@@ -280,7 +280,7 @@
         tools:layout="@layout/fragment_ver_consulta">
         <argument
             android:name="idConsulta"
-            app:argType="integer" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/editarConsultaFragment"
@@ -289,7 +289,7 @@
         tools:layout="@layout/fragment_editar_consulta" >
         <argument
             android:name="idConsulta"
-            app:argType="integer" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/accionesCitaPerdidaFragment"
@@ -303,7 +303,7 @@
             android:id="@+id/action_accionesCitaPerdidaFragment_to_verCitaFragment"
             app:destination="@id/verCitaFragment" />
         <argument
-            android:name="idCita"
-            app:argType="integer" />
+            android:name="idConsulta"
+            app:argType="string" />
     </fragment>
 </navigation>

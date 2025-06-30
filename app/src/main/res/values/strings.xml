@@ -107,5 +107,8 @@
     <string name="recuperar">Recuperar</string>
     <string name="volver">Volver</string>
     <string name="informacion_de_la_cita">Información de la cita</string>
-
+    <string name="nombres">Nombres</string>
+    <string name="nombresR">Nombres *</string>
+    <string name="apellidos">Apellidos</string>
+    <string name="apellidosR">Apellidos *</string>
 </resources>

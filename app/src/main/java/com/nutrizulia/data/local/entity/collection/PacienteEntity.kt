@@ -16,7 +16,8 @@ import java.time.LocalDateTime
 @Entity(
     tableName = "pacientes",
     indices = [
-        Index(value = ["cedula"], unique = true),
+        Index(value = ["cedula", "usuario_institucion_id"], unique = true),
+        Index(value = ["cedula"]),
         Index(value = ["usuario_institucion_id"]),
         Index(value = ["etnia_id"]),
         Index(value = ["nacionalidad_id"]),

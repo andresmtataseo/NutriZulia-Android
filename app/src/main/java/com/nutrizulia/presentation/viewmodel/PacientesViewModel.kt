@@ -54,6 +54,7 @@ class PacientesViewModel @Inject constructor(
 
     fun obtenerPacientes() {
         viewModelScope.launch {
+            _isLoading.value = true
 
             sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
                 _idUsuarioInstitucion.value = institutionId
@@ -61,7 +62,6 @@ class PacientesViewModel @Inject constructor(
                 _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
             }
 
-            _isLoading.value = true
             val result = getPacientes(idUsuarioInstitucion.value ?: 0)
             if (result.isNotEmpty()) {
                 _pacientes.value = result
@@ -73,6 +73,13 @@ class PacientesViewModel @Inject constructor(
     fun buscarPacientes(query: String) {
         viewModelScope.launch {
             _isLoading.value = true
+
+            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
+                _idUsuarioInstitucion.value = institutionId
+            } ?: run {
+                _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
+            }
+
             _filtro.value = query
             val result = getPacientesByFiltro(idUsuarioInstitucion.value ?: 0, filtro.value ?: "")
             if (result.isNotEmpty()) {
