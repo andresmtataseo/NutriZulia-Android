@@ -119,7 +119,7 @@
         tools:layout="@layout/fragment_registrar_cita">
         <argument
             android:name="idPaciente"
-            app:argType="integer" />
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/registrarConsultaFragment"

@@ -243,7 +243,7 @@ class RegistrarPacienteFragment : Fragment() {
                 ultimaFechaSeleccionada = utcDateMillis
 
                 val localDate = Instant.ofEpochMilli(utcDateMillis)
-                    .atZone(ZoneId.systemDefault())
+                    .atZone(ZoneId.of("UTC"))
                     .toLocalDate()
 
                 editText.setText(localDate.format(dateFormatter))

@@ -6,21 +6,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.R
-//import com.nutrizulia.presentation.viewmodel.ConsultasViewModel
 import com.nutrizulia.databinding.FragmentConsultasBinding
-//import com.nutrizulia.domain.model.CitaConPaciente
-//import com.nutrizulia.presentation.adapter.CitaConPacienteAdapter
+import com.nutrizulia.presentation.viewmodel.ConsultasViewModel
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ConsultasFragment : Fragment() {
 
-//    private val viewModel: ConsultasViewModel by viewModels()
+    private val viewModel: ConsultasViewModel by viewModels()
     private lateinit var binding: FragmentConsultasBinding
 //    private lateinit var citaConPacienteAdapter: CitaConPacienteAdapter
 //    private var listaOriginalCitasConPacientes: List<CitaConPaciente> = emptyList()
@@ -37,9 +33,9 @@ class ConsultasFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        binding.btnAgendar.setOnClickListener {
-//            findNavController().navigate(R.id.action_consultasFragment_to_seleccionarPacienteCitaFragment)
-//        }
+        binding.btnAgendar.setOnClickListener {
+            findNavController().navigate(R.id.action_consultasFragment_to_seleccionarPacienteCitaFragment)
+        }
 //
 //        viewModel.onCreate()
 //
@@ -91,9 +87,9 @@ class ConsultasFragment : Fragment() {
 //            }
 //        }
 //
-//        viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
-//            mostrarSnackbar(binding.root, mensaje)
-//        }
+        viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
+            mostrarSnackbar(binding.root, mensaje)
+        }
 
     }
     

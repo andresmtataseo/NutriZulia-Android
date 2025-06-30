@@ -29,7 +29,7 @@
     <string name="selecciona_nacionalidad">Nacionalidad *</string>
     <string name="necesitas_ayuda">¿Necesitas ayuda?</string>
     <string name="datos_del_paciente">Datos del paciente</string>
-    <string name="debe_completar_los_campos_marcados_con">Debe completar los campos marcados con (*).</string>
+    <string name="debe_completar_los_campos_marcados_con">Los campos marcados con (*) son obligatorios.</string>
     <string name="identificacion">Identificación</string>
     <string name="paciente_cedulado">¿Paciente Cedulado?</string>
     <string name="tipo">Tipo *</string>

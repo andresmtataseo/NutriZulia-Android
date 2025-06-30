@@ -25,22 +25,17 @@ import com.nutrizulia.domain.model.catalog.Nacionalidad
 import com.nutrizulia.domain.model.catalog.Parroquia
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.presentation.viewmodel.EditarPacienteViewModel
-import com.nutrizulia.util.Utils.generarUUID
 import com.nutrizulia.util.Utils.mostrarDialog
 import com.nutrizulia.util.Utils.mostrarErrorEnCampo
 import com.nutrizulia.util.Utils.mostrarSnackbar
-import com.nutrizulia.util.Utils.obtenerFechaActual
 import com.nutrizulia.util.Utils.obtenerTexto
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import java.util.Locale
-import java.util.TimeZone
 
 @AndroidEntryPoint
 class EditarPacienteFragment : Fragment() {
@@ -308,7 +303,7 @@ class EditarPacienteFragment : Fragment() {
                 ultimaFechaSeleccionada = utcDateMillis
 
                 val localDate = Instant.ofEpochMilli(utcDateMillis)
-                    .atZone(ZoneId.systemDefault())
+                    .atZone(ZoneId.of("UTC"))
                     .toLocalDate()
 
                 editText.setText(localDate.format(dateFormatter))

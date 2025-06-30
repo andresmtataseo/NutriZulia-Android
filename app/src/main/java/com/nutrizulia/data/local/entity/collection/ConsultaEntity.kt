@@ -11,7 +11,6 @@ import com.nutrizulia.data.local.entity.user.UsuarioInstitucionEntity
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.enum.TipoConsulta
 import com.nutrizulia.domain.model.collection.Consulta
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity(
@@ -55,13 +54,13 @@ data class ConsultaEntity(
     @ColumnInfo(name = "usuario_institucion_id") val usuarioInstitucionId: Int,
     @ColumnInfo(name = "paciente_id") val pacienteId: String,
     @ColumnInfo(name = "tipo_actividad_id") val tipoActividadId: Int,
-    @ColumnInfo(name = "especialidad_remitente_id") val especialidadRemitente: Int,
+    @ColumnInfo(name = "especialidad_remitente_id") val especialidadRemitenteId: Int,
     @ColumnInfo(name = "tipo_consulta") val tipoConsulta: TipoConsulta,
     @ColumnInfo(name = "motivo_consulta") val motivoConsulta: String?,
-    @ColumnInfo(name = "fecha_programada") val fechaProgramada: LocalDate,
+    @ColumnInfo(name = "fecha_hora_programada") val fechaHoraProgramada: LocalDateTime?,
     @ColumnInfo(name = "observaciones") val observaciones: String?,
     @ColumnInfo(name = "planes") val planes: String?,
-    @ColumnInfo(name = "fecha_hora_real") val fechaHoraReal: LocalDateTime,
+    @ColumnInfo(name = "fecha_hora_real") val fechaHoraReal: LocalDateTime?,
     @ColumnInfo(name = "estado") val estado: Estado,
     @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
 )
@@ -71,10 +70,10 @@ fun Consulta.toEntity() = ConsultaEntity(
     usuarioInstitucionId = usuarioInstitucionId,
     pacienteId = pacienteId,
     tipoActividadId = tipoActividadId,
-    especialidadRemitente = especialidadRemitente,
-    tipoConsulta = tipoConsulta,
+    especialidadRemitenteId = especialidadRemitenteId,
+    tipoConsulta = tipoConsulta ?: TipoConsulta.PRIMERA_CONSULTA,
     motivoConsulta = motivoConsulta,
-    fechaProgramada = fechaProgramada,
+    fechaHoraProgramada = fechaHoraProgramada,
     observaciones = observaciones,
     planes = planes,
     fechaHoraReal = fechaHoraReal,

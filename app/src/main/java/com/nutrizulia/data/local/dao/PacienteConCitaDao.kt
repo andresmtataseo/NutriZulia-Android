@@ -11,15 +11,15 @@ interface PacienteConCitaDao {
     @Query("SELECT * FROM pacientes_con_citas")
     suspend fun getAllPacientesConCitas(): List<PacienteConCita>
 
-    @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estadoPendiente ORDER BY fechaProgramadaConsulta ASC")
+    @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estadoPendiente ORDER BY fechaHoraProgramadaConsulta ASC")
     suspend fun getPacientesConCitasPendientes(estadoPendiente: Estado = Estado.PENDIENTE): List<PacienteConCita>
 
-    @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estadoCancelada ORDER BY fechaProgramadaConsulta DESC")
+    @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estadoCancelada ORDER BY fechaHoraProgramadaConsulta DESC")
     suspend fun getPacientesConCitasCanceladas(estadoCancelada: Estado = Estado.CANCELADA): List<PacienteConCita>
 
-    @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estadoCompletada ORDER BY fechaProgramadaConsulta DESC")
+    @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estadoCompletada ORDER BY fechaHoraProgramadaConsulta DESC")
     suspend fun getPacientesConCitasCompletadas(estadoCompletada: Estado = Estado.COMPLETADA): List<PacienteConCita>
 
-    @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estado ORDER BY fechaProgramadaConsulta DESC")
+    @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estado ORDER BY fechaHoraProgramadaConsulta DESC")
     suspend fun getPacientesConCitasByEstado(estado: Estado): List<PacienteConCita>
 }

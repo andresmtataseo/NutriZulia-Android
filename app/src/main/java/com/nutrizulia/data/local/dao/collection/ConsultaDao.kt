@@ -10,7 +10,7 @@ import com.nutrizulia.data.local.entity.collection.ConsultaEntity
 @Dao
 interface ConsultaDao {
 
-    @Query("SELECT * FROM consultas WHERE usuario_institucion_id = :usuarioInstitucionId ORDER BY fecha_programada DESC")
+    @Query("SELECT * FROM consultas WHERE usuario_institucion_id = :usuarioInstitucionId ORDER BY fecha_hora_programada DESC")
     suspend fun findAllByUsuarioInstitucionId(usuarioInstitucionId: Int): List<ConsultaEntity>
 
     @Insert
