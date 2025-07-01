@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:clickable="true"
+    android:checkable="true"
     android:background="?android:attr/selectableItemBackground"
     app:cardElevation="6dp"
     android:id="@+id/cardInstitucion">

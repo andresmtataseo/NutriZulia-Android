@@ -1,11 +1,9 @@
 package com.nutrizulia.presentation.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.nutrizulia.R
@@ -56,7 +54,7 @@ class PerfilInstitucionalViewHolder(itemView: View) : RecyclerView.ViewHolder(it
 
     private val binding = ItemInstitucionBinding.bind(itemView)
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "ResourceType")
     fun bind(
         perfil: PerfilInstitucional,
         isSelected: Boolean,
@@ -68,11 +66,6 @@ class PerfilInstitucionalViewHolder(itemView: View) : RecyclerView.ViewHolder(it
         binding.tvMunicipioSanitario.text = "Municipio: ${perfil.municipioNombre}"
         binding.cardInstitucion.isChecked = isSelected
 
-        if (isSelected) {
-            binding.cardInstitucion.setCardBackgroundColor(ContextCompat.getColor(itemView.context, R.color.md_theme_primaryContainer))
-        } else {
-            binding.cardInstitucion.setCardBackgroundColor(ContextCompat.getColor(itemView.context, R.color.md_theme_surfaceVariant))
-        }
     }
 }
 

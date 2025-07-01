@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.inicioFragment, R.id.consultasFragment, R.id.pacientesFragment,
-                R.id.reportesFragment, R.id.cuentaFragment, R.id.ayudaFragment
+                R.id.reportesFragment, R.id.cuentaFragment, R.id.ayudaFragment, R.id.seleccionarInstitucionFragment
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -64,6 +64,19 @@ class MainActivity : AppCompatActivity() {
                         positiveButtonText = "Cerrar sesión",
                         onPositiveClick = {
                             viewModel.logout()
+                        }
+                    )
+                    drawerLayout.closeDrawers()
+                    true
+                }
+                R.id.salir -> {
+                    mostrarDialog(
+                        context = this,
+                        title = "Confirmar salida",
+                        message = "¿Estás seguro que quieres salir de la aplicación?",
+                        positiveButtonText = "Salir",
+                        onPositiveClick = {
+                            finish()
                         }
                     )
                     drawerLayout.closeDrawers()

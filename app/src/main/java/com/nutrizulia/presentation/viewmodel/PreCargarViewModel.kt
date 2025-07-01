@@ -25,7 +25,6 @@ class PreCargarViewModel @Inject constructor(
     private val syncUsuarioIntituciones: syncUsuarioIntituciones
 ) : ViewModel() {
 
-    // --- LiveData existentes ---
     private val _mensaje = MutableLiveData<String>()
     val mensaje: LiveData<String> get() = _mensaje
 
@@ -68,7 +67,7 @@ class PreCargarViewModel @Inject constructor(
                 _mensaje.postValue("Sincronizando perfil de usuario...")
                 syncUsuarioIntituciones(usuarioId)
 
-                val perfiles = getPerfilesInstitucionales(usuarioId.toInt())
+                val perfiles = getPerfilesInstitucionales(usuarioId)
                 _profiles.postValue(perfiles)
 
                 if (perfiles.isEmpty()) {

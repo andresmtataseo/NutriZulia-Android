@@ -111,4 +111,7 @@
     <string name="nombresR">Nombres *</string>
     <string name="apellidos">Apellidos</string>
     <string name="apellidosR">Apellidos *</string>
+    <string name="instituciones">Instituciones</string>
+    <string name="seleccionar">Seleccionar</string>
+    <string name="aceptar">Aceptar</string>
 </resources>

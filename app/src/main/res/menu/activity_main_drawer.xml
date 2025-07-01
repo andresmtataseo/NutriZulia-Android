@@ -22,6 +22,10 @@
             android:id="@+id/reportesFragment"
             android:icon="@drawable/ic_menu_reportes"
             android:title="@string/menu_reportes" />
+        <item
+            android:id="@+id/seleccionarInstitucionFragment"
+            android:icon="@drawable/ic_menu_instituciones"
+            android:title="@string/instituciones" />
     </group>
     <group
         android:id="@+id/menu_secundario"
@@ -36,6 +40,10 @@
             android:title="@string/menu_cerrar_sesion" />
     </group>
     <group>
+        <item
+            android:id="@+id/salir"
+            android:icon="@drawable/ic_menu_salir"
+            android:title="@string/salir" />
         <item
             android:id="@+id/ayudaFragment"
             android:icon="@drawable/ic_menu_ayuda"

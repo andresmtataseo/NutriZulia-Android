@@ -56,7 +56,7 @@ class PreCargarActivity : AppCompatActivity() {
 
     private fun setupObservers() {
         viewModel.isLoading.observe(this) { isLoading ->
-            binding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.progress.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
         }
 
         viewModel.mensaje.observe(this) { mensaje ->
@@ -67,7 +67,7 @@ class PreCargarActivity : AppCompatActivity() {
 
         viewModel.continuar.observe(this) { isReadyToContinue ->
             // Mostrar u ocultar el botón según el estado de isReadyToContinue
-            binding.btnContinuar.visibility = if (isReadyToContinue) View.VISIBLE else View.GONE
+            binding.btnContinuar.visibility = if (isReadyToContinue) View.VISIBLE else View.INVISIBLE
         }
 
         viewModel.profiles.observe(this) { perfiles ->
