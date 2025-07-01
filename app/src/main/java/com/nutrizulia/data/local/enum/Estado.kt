@@ -5,5 +5,6 @@ enum class Estado(val displayValue: String) {
     REPROGRAMADA("Reprogramada"),
     COMPLETADA("Completada"),
     CANCELADA("Cancelada"),
-    NO_ASISTIO("NO ASISTIÓ")
+    NO_ASISTIO("NO ASISTIÓ"),
+    SIN_PREVIA_CITA("SIN PREVIA CITA")
 }

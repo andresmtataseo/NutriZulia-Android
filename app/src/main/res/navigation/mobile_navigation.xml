@@ -218,7 +218,7 @@
     <fragment
         android:id="@+id/accionesCitaFragment"
         android:name="com.nutrizulia.presentation.view.AccionesCitaFragment"
-        android:label="Acciones de la Cita"
+        android:label="Gestionar Consulta"
         tools:layout="@layout/fragment_acciones_cita" >
         <action
             android:id="@+id/action_accionesCitaFragment_to_registrarConsultaFragment"
@@ -274,7 +274,7 @@
     <fragment
         android:id="@+id/accionesCitaPerdidaFragment"
         android:name="com.nutrizulia.presentation.view.AccionesCitaPerdidaFragment"
-        android:label="fragment_acciones_cita_perdida"
+        android:label="Gestionar Consulta"
         tools:layout="@layout/fragment_acciones_cita_perdida" >
         <argument
             android:name="idConsulta"

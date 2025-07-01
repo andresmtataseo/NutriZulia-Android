@@ -36,19 +36,20 @@ class AccionesCitaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.onCreate(args.idConsulta)
         setupObservers()
+        viewModel.onCreate(args.idConsulta)
         setupListeners()
     }
 
     @SuppressLint("SetTextI18n")
     private fun setupObservers() {
-        viewModel.mensaje.observe(viewLifecycleOwner) {
-            mostrarSnackbar(requireView(), it)
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
 
-        viewModel.isLoading.observe(viewLifecycleOwner) {
-            binding.progress.visibility = if (it) View.VISIBLE else View.INVISIBLE
+        viewModel.mensaje.observe(viewLifecycleOwner) {
+            mostrarSnackbar(requireView(), it)
         }
 
         viewModel.salir.observe(viewLifecycleOwner) {

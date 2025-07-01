@@ -34,7 +34,15 @@ class AccionesCitaViewModel @Inject constructor(
     val salir: LiveData<Boolean> get() = _salir
 
     fun onCreate(id: String) {
-        obtenerPacienteConCita(id)
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val pacienteJob = launch { obtenerPacienteConCita(id) }
+                pacienteJob.join()
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
     fun obtenerPacienteConCita(consultaId: String) {
