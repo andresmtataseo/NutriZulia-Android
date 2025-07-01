@@ -12,18 +12,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        android:visibility="gone" />
+        android:visibility="invisible" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardCita"
         style="?attr/materialCardViewElevatedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="12dp"
         android:clickable="true"
         android:background="?android:attr/selectableItemBackground"
-        app:cardElevation="6dp">
+        app:cardElevation="3dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -85,16 +85,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
-                    android:text="Fecha: "
+                    android:text="Fecha programada:"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?attr/colorOnSurfaceVariant" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:paddingTop="4dp">
 
                 <TextView
                     android:id="@+id/tvHoraProgramda"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
-                    android:text="Hora: "
+                    android:text="Hora programada:"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
@@ -110,7 +118,7 @@
                     android:id="@+id/tvEstadoTitulo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Estado: "
+                    android:text="Estado de la cita: "
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?attr/colorOnSurfaceVariant" />
                 <TextView
@@ -119,7 +127,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
-                    android:text=" "
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
@@ -142,11 +149,11 @@
             android:layout_weight="1"
             android:clickable="true"
             android:background="?android:attr/selectableItemBackground"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="6dp">
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="6dp"
+            app:cardElevation="3dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -181,11 +188,11 @@
             android:layout_weight="1"
             android:clickable="true"
             android:background="?android:attr/selectableItemBackground"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="12dp"
-            app:cardElevation="6dp">
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="6dp"
+            app:cardElevation="3dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -228,11 +235,11 @@
             android:layout_weight="1"
             android:clickable="true"
             android:background="?android:attr/selectableItemBackground"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginBottom="24dp"
-            app:cardElevation="6dp">
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="12dp"
+            app:cardElevation="3dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -267,11 +274,11 @@
             android:layout_weight="1"
             android:clickable="true"
             android:background="?android:attr/selectableItemBackground"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="24dp"
-            app:cardElevation="6dp">
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="12dp"
+            app:cardElevation="3dp">
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.nutrizulia.R
+import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.view.PacienteConCita
 import com.nutrizulia.databinding.ItemCitaBinding
-import com.nutrizulia.util.EstadoCita
 import com.nutrizulia.util.Utils.calcularEdad
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -63,28 +63,28 @@ class PacienteConCitaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         tvEdad.text = "Edad: ${calcularEdad(pacienteConCita.fechaNacimientoPaciente)} años"
         tvFechaProgramada.text = "Fecha: ${pacienteConCita.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
         tvHoraProgramda.text = "Hora: ${pacienteConCita.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
-        tvEstado.text = pacienteConCita.estadoConsulta.name
+        tvEstado.text = pacienteConCita.estadoConsulta.displayValue
 
-        val colorResId = when (pacienteConCita.estadoConsulta.name) {
-            EstadoCita.PENDIENTE.descripcion,
-            EstadoCita.REPROGRAMADA.descripcion -> R.color.color_cita_pendiente
-            EstadoCita.COMPLETADA.descripcion -> R.color.color_cita_completada
-            EstadoCita.CANCELADA.descripcion,
-            EstadoCita.NO_ASISTIO.descripcion -> R.color.color_cita_cancelada
+        val colorResId = when (pacienteConCita.estadoConsulta.displayValue) {
+            Estado.PENDIENTE.displayValue,
+            Estado.REPROGRAMADA.displayValue -> R.color.color_cita_pendiente
+            Estado.COMPLETADA.displayValue -> R.color.color_cita_completada
+            Estado.CANCELADA.displayValue,
+            Estado.NO_ASISTIO.displayValue -> R.color.color_cita_cancelada
             else -> R.color.color_cita_pendiente
         }
 
         tvEstado.setTextColor(ContextCompat.getColor(itemView.context, colorResId))
 
         // Control de visibilidad
-        when (pacienteConCita.estadoConsulta.name) {
-            EstadoCita.PENDIENTE.descripcion, EstadoCita.REPROGRAMADA.descripcion -> {
+        when (pacienteConCita.estadoConsulta.displayValue) {
+            Estado.PENDIENTE.displayValue, Estado.REPROGRAMADA.displayValue -> {
                 cardCita.setOnClickListener { onCardCitaClick(pacienteConCita) }
             }
-            EstadoCita.COMPLETADA.descripcion -> {
+            Estado.COMPLETADA.displayValue -> {
                 cardCita.setOnClickListener{ onCardConsultaClick(pacienteConCita) }
             }
-            EstadoCita.CANCELADA.descripcion, EstadoCita.NO_ASISTIO.descripcion -> {
+            Estado.CANCELADA.displayValue, Estado.NO_ASISTIO.displayValue -> {
                 cardCita.setOnClickListener { onCardCitaPerdidaClick(pacienteConCita) }
             }
 

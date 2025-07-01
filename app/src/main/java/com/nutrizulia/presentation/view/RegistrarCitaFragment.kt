@@ -64,13 +64,16 @@ class RegistrarCitaFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.onCreate(args.idPaciente, args.idConsulta)
 
-        mostrarSelectorFecha(binding.tfFechaCita.editText as TextInputEditText)
-        mostrarSelectorHora(binding.tfHoraCita.editText as TextInputEditText)
-
-        setupListeners()
         setupObservers()
+
+        viewModel.onCreate(args.idPaciente, args.idConsulta, args.isEditable)
+
+        if (!args.isEditable) {
+            deshabilitarCampos()
+        } else {
+            setupListeners()
+        }
 
         binding.dropdownTipoActividad.bind(viewLifecycleOwner, viewModel.tiposActividades,
             toText = { it.nombre   },
@@ -96,6 +99,10 @@ class RegistrarCitaFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        mostrarSelectorFecha(binding.tfFechaCita.editText as TextInputEditText)
+
+        mostrarSelectorHora(binding.tfHoraCita.editText as TextInputEditText)
+
         binding.btnRegistrarCita.setOnClickListener {
             registrarCita(args.idPaciente, args.idConsulta, tipoActividadSel?.id ?: 0, especialidadSel?.id ?: 0, tipoConsultaSel)
         }
@@ -116,12 +123,13 @@ class RegistrarCitaFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setupObservers() {
-        viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
-            mostrarSnackbar(binding.root, mensaje)
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
 
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progress.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
+        viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
+            mostrarSnackbar(binding.root, mensaje)
         }
 
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
@@ -248,6 +256,17 @@ class RegistrarCitaFragment : Fragment() {
         binding.tfEspecialidad.error = null
         binding.tfFechaCita.error = null
         binding.tfHoraCita.error = null
+    }
+
+    private fun deshabilitarCampos() {
+        binding.tfTipoActividad.isEnabled = false
+        binding.tfEspecialidad.isEnabled = false
+        binding.tfTipoConsulta.isEnabled = false
+        binding.tfMotivoConsulta.isEnabled = false
+        binding.tfFechaCita.isEnabled = false
+        binding.tfHoraCita.isEnabled = false
+        binding.btnRegistrarCita.visibility = View.GONE
+        binding.btnLimpiar.visibility = View.GONE
     }
 
     private fun mostrarSelectorFecha(editText: TextInputEditText) {

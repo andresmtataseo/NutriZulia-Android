@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.ConsultaEntity
+import com.nutrizulia.data.local.enum.Estado
 
 @Dao
 interface ConsultaDao {
@@ -26,6 +27,8 @@ interface ConsultaDao {
     @Upsert
     suspend fun upsert(consulta: ConsultaEntity): Long
 
+    @Query("UPDATE consultas SET estado = :estado WHERE id = :id")
+    suspend fun updateEstadoById(id: String, estado: Estado)
     @Update
     suspend fun update(consulta: ConsultaEntity): Int
 

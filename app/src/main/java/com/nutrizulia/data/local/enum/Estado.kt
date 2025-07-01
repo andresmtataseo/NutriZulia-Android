@@ -4,5 +4,6 @@ enum class Estado(val displayValue: String) {
     PENDIENTE("Pendiente"),
     REPROGRAMADA("Reprogramada"),
     COMPLETADA("Completada"),
-    CANCELADA("Cancelada")
+    CANCELADA("Cancelada"),
+    NO_ASISTIO("NO ASISTIÓ")
 }

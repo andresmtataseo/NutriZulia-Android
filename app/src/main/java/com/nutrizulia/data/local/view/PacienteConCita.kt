@@ -10,6 +10,7 @@ import java.time.LocalDateTime
     viewName = "pacientes_con_citas",
     value = """
         SELECT
+            p.id AS pacienteId,
             p.cedula AS cedulaPaciente,
             p.nombres || ' ' || p.apellidos AS nombreCompleto,
             p.fecha_nacimiento AS fechaNacimientoPaciente,
@@ -23,6 +24,7 @@ import java.time.LocalDateTime
     """
 )
 data class PacienteConCita(
+    @ColumnInfo(name = "pacienteId") val pacienteId: String,
     @ColumnInfo(name = "cedulaPaciente") val cedulaPaciente: String,
     @ColumnInfo(name = "nombreCompleto") val nombreCompleto: String,
     @ColumnInfo(name = "fechaNacimientoPaciente") val fechaNacimientoPaciente: LocalDate,

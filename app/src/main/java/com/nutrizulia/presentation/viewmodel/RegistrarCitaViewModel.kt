@@ -64,13 +64,33 @@ class RegistrarCitaViewModel @Inject constructor(
     private val _salir = MutableLiveData<Boolean>()
     val salir: LiveData<Boolean> = _salir
 
-    fun onCreate(idPaciente: String, idConsulta: String?) {
-        obtenerPaciente(idPaciente)
-        cargarTiposActividades()
-        cargarEspecialidades()
-        cargarTiposConsultas()
-        if (idConsulta != null) {
-            obtenerConsulta(idConsulta)
+    fun onCreate(idPaciente: String, idConsulta: String?, isEditable: Boolean) {
+//        obtenerPaciente(idPaciente)
+//        if (isEditable) {
+//            cargarTiposActividades()
+//            cargarEspecialidades()
+//            cargarTiposConsultas()
+//        }
+//        if (idConsulta != null) {
+//            obtenerConsulta(idConsulta)
+//        }
+        _isLoading.value = true // Inicia la carga
+        viewModelScope.launch {
+            try {
+                val pacienteJob = launch { obtenerPaciente(idPaciente) }
+                val catalogosJob = launch { cargarCatalogos() }
+
+                if (idConsulta != null) {
+                    val consultaJob = launch { obtenerConsulta(idConsulta) }
+                    consultaJob.join()
+                }
+
+                pacienteJob.join()
+                catalogosJob.join()
+
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
@@ -104,6 +124,12 @@ class RegistrarCitaViewModel @Inject constructor(
             _isLoading.postValue(false)
         }
     }
+
+     fun cargarCatalogos() {
+         cargarTiposActividades()
+         cargarEspecialidades()
+         cargarTiposConsultas()
+     }
 
     fun cargarTiposActividades() {
         viewModelScope.launch {

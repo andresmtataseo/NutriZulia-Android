@@ -131,6 +131,10 @@
             android:name="idConsulta"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="isEditable"
+            app:argType="boolean"
+            android:defaultValue="true" />
     </fragment>
     <fragment
         android:id="@+id/registrarConsultaFragment"
@@ -161,23 +165,6 @@
         tools:layout="@layout/fragment_ver_paciente">
         <argument
             android:name="idPaciente"
-            app:argType="string" />
-    </fragment>
-    <fragment
-        android:id="@+id/verCitaFragment"
-        android:name="com.nutrizulia.presentation.view.VerCitaFragment"
-        android:label="fragment_ver_cita"
-        tools:layout="@layout/fragment_ver_cita" >
-        <argument android:name="IdConsulta"
-            app:argType="string" />
-    </fragment>
-    <fragment
-        android:id="@+id/reagendarCitaFragment"
-        android:name="com.nutrizulia.presentation.view.EditarCitaFragment"
-        android:label="fragment_reagendar_cita"
-        tools:layout="@layout/fragment_editar_cita" >
-        <argument
-            android:name="idConsulta"
             app:argType="string" />
     </fragment>
     <fragment
@@ -231,22 +218,8 @@
     <fragment
         android:id="@+id/accionesCitaFragment"
         android:name="com.nutrizulia.presentation.view.AccionesCitaFragment"
-        android:label="fragment_acciones_cita"
+        android:label="Acciones de la Cita"
         tools:layout="@layout/fragment_acciones_cita" >
-        <action
-            android:id="@+id/action_accionesCitaFragment_to_verCitaFragment"
-            app:destination="@id/verCitaFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-        <action
-            android:id="@+id/action_accionesCitaFragment_to_reagendarCitaFragment"
-            app:destination="@id/reagendarCitaFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/action_accionesCitaFragment_to_registrarConsultaFragment"
             app:destination="@id/registrarConsultaFragment"
@@ -257,6 +230,9 @@
         <argument
             android:name="idConsulta"
             app:argType="string" />
+        <action
+            android:id="@+id/action_accionesCitaFragment_to_registrarCitaFragment"
+            app:destination="@id/registrarCitaFragment" />
     </fragment>
     <fragment
         android:id="@+id/accionesConsultaFragment"
@@ -266,13 +242,6 @@
         <argument
             android:name="idConsulta"
             app:argType="string" />
-        <action
-            android:id="@+id/action_accionesConsultaFragment_to_verCitaFragment"
-            app:destination="@id/verCitaFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/action_accionesConsultaFragment_to_verConsultaFragment"
             app:destination="@id/verConsultaFragment"
@@ -307,15 +276,12 @@
         android:name="com.nutrizulia.presentation.view.AccionesCitaPerdidaFragment"
         android:label="fragment_acciones_cita_perdida"
         tools:layout="@layout/fragment_acciones_cita_perdida" >
-        <action
-            android:id="@+id/action_accionesCitaPerdidaFragment_to_reagendarCitaFragment"
-            app:destination="@id/reagendarCitaFragment" />
-        <action
-            android:id="@+id/action_accionesCitaPerdidaFragment_to_verCitaFragment"
-            app:destination="@id/verCitaFragment" />
         <argument
             android:name="idConsulta"
             app:argType="string" />
+        <action
+            android:id="@+id/action_accionesCitaPerdidaFragment_to_registrarCitaFragment"
+            app:destination="@id/registrarCitaFragment" />
     </fragment>
     <fragment
         android:id="@+id/seleccionarInstitucionFragment"

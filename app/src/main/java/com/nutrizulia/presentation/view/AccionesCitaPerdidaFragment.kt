@@ -1,23 +1,15 @@
 package com.nutrizulia.presentation.view
 
 import android.os.Build
-import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentAccionesCitaPerdidaBinding
 //import com.nutrizulia.presentation.viewmodel.AccionesCitaPerdidaViewModel
-import com.nutrizulia.util.EstadoCita
-import com.nutrizulia.util.Utils.calcularEdad
-import com.nutrizulia.util.Utils.mostrarDialog
-import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
