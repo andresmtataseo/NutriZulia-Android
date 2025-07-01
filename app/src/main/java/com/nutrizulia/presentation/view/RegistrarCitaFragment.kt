@@ -50,7 +50,7 @@ class RegistrarCitaFragment : Fragment() {
     private lateinit var binding: FragmentRegistrarCitaBinding
     private val args: RegistrarCitaFragmentArgs by navArgs()
     private var ultimaFechaSeleccionada: Long? = null
-    private var ultimaHora: Int = 12
+    private var ultimaHora: Int = 8
     private var ultimoMinuto: Int = 0
     private var tipoActividadSel: TipoActividad? = null
     private var especialidadSel: Especialidad? = null
@@ -64,21 +64,14 @@ class RegistrarCitaFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.onCreate(args.idPaciente, args.idConsulta)
+
         mostrarSelectorFecha(binding.tfFechaCita.editText as TextInputEditText)
         mostrarSelectorHora(binding.tfHoraCita.editText as TextInputEditText)
 
-        viewModel.isLoading.observe(viewLifecycleOwner) {
-            binding.progress.visibility = if (it) View.VISIBLE else View.INVISIBLE
-        }
+        setupListeners()
+        setupObservers()
 
-        viewModel.mensaje.observe(viewLifecycleOwner) { mostrarSnackbar(binding.root, it) }
-
-        viewModel.salir.observe(viewLifecycleOwner) { salir ->
-            if (salir) findNavController().popBackStack(R.id.consultasFragment, false)
-
-        }
-
-        viewModel.cargarTiposActividades()
         binding.dropdownTipoActividad.bind(viewLifecycleOwner, viewModel.tiposActividades,
             toText = { it.nombre   },
             onItemSelected = { et ->
@@ -86,7 +79,6 @@ class RegistrarCitaFragment : Fragment() {
             }
         )
 
-        viewModel.cargarEspecialidades()
         binding.dropdownEspecialidades.bind(viewLifecycleOwner, viewModel.especialidades,
             toText = { it.nombre },
             onItemSelected = { na ->
@@ -94,40 +86,18 @@ class RegistrarCitaFragment : Fragment() {
             }
         )
 
-        viewModel.cargarTiposConsultas()
         binding.dropdownTipoConsulta.bind(viewLifecycleOwner, viewModel.tiposConsultas,
             toText = { it.displayValue },
             onItemSelected = { na ->
                 tipoConsultaSel = na
             }
         )
-//        binding.dropdownTipoConsulta.setText(TipoConsulta.PRIMERA_CONSULTA.displayValue, false)
 
-        viewModel.errores.observe(viewLifecycleOwner) { errores ->
-            quitarErrores()
-            errores.forEach { (key, message) ->
-                when (key) {
-                    "tipoActividad" -> mostrarErrorEnCampo(binding.tfTipoActividad, message)
-                    "tipoConsulta" -> mostrarErrorEnCampo(binding.tfTipoConsulta, message)
-                    "especialidad" -> mostrarErrorEnCampo(binding.tfEspecialidad, message)
-                    "fechaProgramada" -> mostrarErrorEnCampo(binding.tfFechaCita, message)
-                }
-            }
-        }
+    }
 
-        viewModel.obtenerPaciente(args.idPaciente)
-
-        viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
-            if (paciente != null) {
-                binding.tfNombreCompletoPaciente.editText?.setText("${paciente.nombres} ${paciente.apellidos}")
-                binding.tfGeneroPaciente.editText?.setText(paciente.genero)
-                val edad = calcularEdadDetallada(paciente.fechaNacimiento)
-                binding.tfEdadPaciente.editText?.setText("${edad.anios} años, ${edad.meses} meses y ${edad.dias} días")
-            }
-        }
-
+    private fun setupListeners() {
         binding.btnRegistrarCita.setOnClickListener {
-            registrarCita(args.idPaciente, tipoActividadSel?.id ?: 0, especialidadSel?.id ?: 0, tipoConsultaSel)
+            registrarCita(args.idPaciente, args.idConsulta, tipoActividadSel?.id ?: 0, especialidadSel?.id ?: 0, tipoConsultaSel)
         }
 
         binding.btnLimpiar.setOnClickListener {
@@ -142,13 +112,75 @@ class RegistrarCitaFragment : Fragment() {
                 true
             )
         }
-
     }
 
-    private fun registrarCita(pacienteId: String, tipoActividadId: Int, especialidadRemitenteId: Int, tipoConsulta: TipoConsulta?) {
+    @SuppressLint("SetTextI18n")
+    private fun setupObservers() {
+        viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
+            mostrarSnackbar(binding.root, mensaje)
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progress.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
+        }
+
+        viewModel.salir.observe(viewLifecycleOwner) { salir ->
+            if (salir) findNavController().popBackStack(R.id.consultasFragment, false)
+        }
+
+        viewModel.errores.observe(viewLifecycleOwner) { errores ->
+            quitarErrores()
+            errores.forEach { (key, message) ->
+                when (key) {
+                    "tipoActividad" -> mostrarErrorEnCampo(binding.tfTipoActividad, message)
+                    "tipoConsulta" -> mostrarErrorEnCampo(binding.tfTipoConsulta, message)
+                    "especialidad" -> mostrarErrorEnCampo(binding.tfEspecialidad, message)
+                    "fechaProgramada" -> mostrarErrorEnCampo(binding.tfFechaCita, message)
+                    "horaProgramada" -> mostrarErrorEnCampo(binding.tfHoraCita, message)
+                }
+            }
+        }
+
+        viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
+            if (paciente != null) {
+                binding.tfNombreCompletoPaciente.editText?.setText("${paciente.nombres} ${paciente.apellidos}")
+                binding.tfGeneroPaciente.editText?.setText(paciente.genero)
+                val edad = calcularEdadDetallada(paciente.fechaNacimiento)
+                binding.tfEdadPaciente.editText?.setText("${edad.anios} años, ${edad.meses} meses y ${edad.dias} días")
+            }
+        }
+
+        viewModel.consulta.observe(viewLifecycleOwner) { consulta ->
+            if (consulta != null) {
+                binding.tfMotivoConsulta.editText?.setText(consulta.motivoConsulta.orEmpty())
+                binding.tfFechaCita.editText?.setText(consulta.fechaHoraProgramada?.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                binding.tfHoraCita.editText?.setText(consulta.fechaHoraProgramada?.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US)))
+                binding.btnRegistrarCita.text = "Reprogramar"
+            }
+        }
+
+        viewModel.tipoActividad.observe(viewLifecycleOwner) { it ->
+            val tipoActividadDropdown = binding.tfTipoActividad.editText as? AutoCompleteTextView
+            tipoActividadDropdown?.setText(it.nombre, false)
+            tipoActividadSel = it
+        }
+
+        viewModel.especialidad.observe(viewLifecycleOwner) { it ->
+            val especialidadDropdown = binding.tfEspecialidad.editText as? AutoCompleteTextView
+            especialidadDropdown?.setText(it.nombre, false)
+            especialidadSel = it
+        }
+
+        viewModel.tipoConsulta.observe(viewLifecycleOwner) { it ->
+            val tipoConsultaDropdown = binding.tfTipoConsulta.editText as? AutoCompleteTextView
+            tipoConsultaDropdown?.setText(it.displayValue, false)
+            tipoConsultaSel = it
+        }
+    }
+
+    private fun registrarCita(pacienteId: String, consultaId: String?, tipoActividadId: Int, especialidadRemitenteId: Int, tipoConsulta: TipoConsulta?) {
         quitarErrores()
 
-        // --- PASO 1: OBTENER Y VALIDAR LA FECHA (LocalDate) ---
         val fechaStr = obtenerTexto(binding.tfFechaCita)
         if (fechaStr.isBlank()) {
             binding.tfFechaCita.error = "La fecha de la cita es obligatoria"
@@ -163,7 +195,6 @@ class RegistrarCitaFragment : Fragment() {
             return
         }
 
-        // --- PASO 2: OBTENER Y VALIDAR LA HORA (LocalTime) ---
         val horaStr = obtenerTexto(binding.tfHoraCita)
         if (horaStr.isBlank()) {
             binding.tfHoraCita.error = "La hora de la cita es obligatoria"
@@ -172,7 +203,6 @@ class RegistrarCitaFragment : Fragment() {
 
         val horaCita: LocalTime
         try {
-            // El formateador debe coincidir con el texto que genera tu selector de hora (ej: "3:30 PM")
             val formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
             horaCita = LocalTime.parse(horaStr, formatter)
         } catch (e: DateTimeParseException) {
@@ -180,12 +210,10 @@ class RegistrarCitaFragment : Fragment() {
             return
         }
 
-        // --- PASO 3: COMBINAR LocalDate Y LocalTime ---
         val fechaHoraProgramada: LocalDateTime = fechaCita.atTime(horaCita)
 
-        // --- CREACIÓN DEL OBJETO FINAL ---
         val citaNueva = Consulta(
-            id = generarUUID(),
+            id = consultaId ?: generarUUID(),
             usuarioInstitucionId = 0,
             pacienteId = pacienteId,
             tipoActividadId = tipoActividadId,
@@ -200,7 +228,7 @@ class RegistrarCitaFragment : Fragment() {
             updatedAt = LocalDateTime.now()
         )
 
-        viewModel.registrarConsulta(citaNueva)
+        viewModel.guardarConsulta(citaNueva)
     }
 
     private fun limpiarCampos() {

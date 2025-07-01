@@ -117,16 +117,20 @@
     <fragment
         android:id="@+id/registrarPacienteFragment"
         android:name="com.nutrizulia.presentation.view.RegistrarPacienteFragment"
-        android:label="Registar Paciente"
+        android:label="Datos del Paciente"
         tools:layout="@layout/fragment_registrar_paciente"/>
     <fragment
         android:id="@+id/registrarCitaFragment"
         android:name="com.nutrizulia.presentation.view.RegistrarCitaFragment"
-        android:label="Registrar Cita"
+        android:label="Datos de la Cita"
         tools:layout="@layout/fragment_registrar_cita">
         <argument
             android:name="idPaciente"
             app:argType="string" />
+        <argument
+            android:name="idConsulta"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/registrarConsultaFragment"

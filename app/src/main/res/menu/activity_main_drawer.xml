@@ -26,6 +26,10 @@
             android:id="@+id/seleccionarInstitucionFragment"
             android:icon="@drawable/ic_menu_instituciones"
             android:title="@string/instituciones" />
+        <item
+            android:id="@+id/ayudaFragment"
+            android:icon="@drawable/ic_menu_ayuda"
+            android:title="@string/menu_ayuda" />
     </group>
     <group
         android:id="@+id/menu_secundario"
@@ -38,16 +42,10 @@
             android:id="@+id/cerrarSesion"
             android:icon="@drawable/ic_menu_cerrar_sesion"
             android:title="@string/menu_cerrar_sesion" />
-    </group>
-    <group>
         <item
             android:id="@+id/salir"
             android:icon="@drawable/ic_menu_salir"
             android:title="@string/salir" />
-        <item
-            android:id="@+id/ayudaFragment"
-            android:icon="@drawable/ic_menu_ayuda"
-            android:title="@string/menu_ayuda" />
     </group>
 
 </menu>

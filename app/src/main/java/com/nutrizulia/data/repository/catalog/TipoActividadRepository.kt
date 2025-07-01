@@ -11,4 +11,7 @@ class TipoActividadRepository @Inject constructor(
     suspend fun findAll(): List<TipoActividad> {
         return dao.findAll().map { it.toDomain() }
     }
+    suspend fun findById(id: Int): TipoActividad? {
+        return dao.findById(id)?.toDomain()
+    }
 }

@@ -11,6 +11,9 @@ interface EspecialidadDao {
     @Query("SELECT * FROM especialidades")
     suspend fun findAll(): List<EspecialidadEntity>
 
+    @Query("SELECT * FROM especialidades WHERE id = :id")
+    suspend fun findById(id: Int): EspecialidadEntity?
+
     @Insert
     suspend fun insertAll(especialidades: List<EspecialidadEntity>): List<Long>
 

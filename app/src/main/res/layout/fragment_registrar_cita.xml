@@ -278,7 +278,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
-                    android:text="@string/registrar"
+                    android:text="@string/agendar"
                     app:icon="@drawable/ic_guardar"
                     app:iconGravity="textStart" />
             </LinearLayout>

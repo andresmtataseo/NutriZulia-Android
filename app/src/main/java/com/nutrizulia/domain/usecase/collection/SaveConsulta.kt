@@ -8,6 +8,6 @@ class SaveConsulta @Inject constructor(
     private val consultaRepository: ConsultaRepository
 ) {
     suspend operator fun invoke(consulta: Consulta): Long {
-        return consultaRepository.insert(consulta)
+        return consultaRepository.upsert(consulta)
     }
 }

@@ -11,4 +11,7 @@ class EspecialidadRepository @Inject constructor(
     suspend fun findAll(): List<Especialidad> {
         return dao.findAll().map { it.toDomain() }
     }
+    suspend fun findById(id: Int): Especialidad? {
+        return dao.findById(id)?.toDomain()
+    }
 }

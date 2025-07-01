@@ -11,6 +11,8 @@ interface TipoActividadDao {
     @Query("SELECT * FROM tipos_actividades")
     suspend fun findAll(): List<TipoActividadEntity>
 
+    @Query("SELECT * FROM tipos_actividades WHERE id = :id")
+    suspend fun findById(id: Int): TipoActividadEntity?
     @Insert
     suspend fun insertAll(tiposActividades: List<TipoActividadEntity>): List<Long>
 

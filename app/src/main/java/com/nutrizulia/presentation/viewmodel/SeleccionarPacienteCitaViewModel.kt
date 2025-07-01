@@ -4,9 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.domain.model.collection.Paciente
+import com.nutrizulia.domain.usecase.collection.GetConsultaProgramadaByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetPacientes
 import com.nutrizulia.domain.usecase.collection.GetPacientesByFiltro
+import com.nutrizulia.util.Event
 import com.nutrizulia.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
@@ -17,6 +20,7 @@ import javax.inject.Inject
 class SeleccionarPacienteCitaViewModel @Inject constructor(
     private val getPacientes: GetPacientes,
     private val getPacientesByFiltro: GetPacientesByFiltro,
+    private val getConsultaProgramadaByPacienteId: GetConsultaProgramadaByPacienteId,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -25,6 +29,12 @@ class SeleccionarPacienteCitaViewModel @Inject constructor(
 
     private val _pacientesFiltrados = MutableLiveData<List<Paciente>>()
     val pacientesFiltrados: LiveData<List<Paciente>> get() = _pacientesFiltrados
+
+    private val _consultaProgramada = MutableLiveData<Event<Consulta>>()
+    val consultaProgramada: LiveData<Event<Consulta>> get() = _consultaProgramada
+
+    private val _eventoNavegacion = MutableLiveData<Event<Pair<String, String?>>>()
+    val eventoNavegacion: LiveData<Event<Pair<String, String?>>> get() = _eventoNavegacion
 
     private val _filtro = MutableLiveData<String>()
     val filtro: LiveData<String> get() = _filtro
@@ -69,6 +79,24 @@ class SeleccionarPacienteCitaViewModel @Inject constructor(
                 _pacientesFiltrados.value = result
             } else {
                 _mensaje.value = "No se encontraron pacientes."
+            }
+            _isLoading.value = false
+        }
+    }
+
+
+
+    fun verificarCita(paciente: Paciente) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val citaExistente = getConsultaProgramadaByPacienteId(paciente.id)
+
+            if (citaExistente != null) {
+                // Si SÍ hay cita, envuelve la consulta en un Event
+                _consultaProgramada.value = Event(citaExistente)
+            } else {
+                // Si NO hay cita, envuelve los datos de navegación en un Event
+                _eventoNavegacion.value = Event(Pair(paciente.id, null))
             }
             _isLoading.value = false
         }
