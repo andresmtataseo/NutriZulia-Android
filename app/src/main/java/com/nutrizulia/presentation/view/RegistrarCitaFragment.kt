@@ -224,7 +224,7 @@ class RegistrarCitaFragment : Fragment() {
             observaciones = null,
             planes = null,
             fechaHoraReal = null,
-            estado = Estado.PENDIENTE,
+            estado = if (consultaId != null) Estado.REPROGRAMADA else Estado.PENDIENTE,
             updatedAt = LocalDateTime.now()
         )
 

@@ -11,6 +11,8 @@ import com.nutrizulia.data.local.view.PacienteConCita
 import com.nutrizulia.databinding.ItemCitaBinding
 import com.nutrizulia.util.EstadoCita
 import com.nutrizulia.util.Utils.calcularEdad
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class PacienteConCitaAdapter(
     private var pacientesConCita: List<PacienteConCita>,
@@ -59,8 +61,8 @@ class PacienteConCitaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         tvNombreCompletoPaciente.text = pacienteConCita.nombreCompleto
         tvCedulaPaciente.text = "Cédula: ${pacienteConCita.cedulaPaciente}"
         tvEdad.text = "Edad: ${calcularEdad(pacienteConCita.fechaNacimientoPaciente)} años"
-        tvFechaProgramada.text = "Fecha: ${pacienteConCita.fechaHoraProgramadaConsulta.toLocalDate()}"
-        tvHoraProgramda.text = "Hora: ${pacienteConCita.fechaHoraProgramadaConsulta.toLocalTime()}"
+        tvFechaProgramada.text = "Fecha: ${pacienteConCita.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+        tvHoraProgramda.text = "Hora: ${pacienteConCita.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
         tvEstado.text = pacienteConCita.estadoConsulta.name
 
         val colorResId = when (pacienteConCita.estadoConsulta.name) {

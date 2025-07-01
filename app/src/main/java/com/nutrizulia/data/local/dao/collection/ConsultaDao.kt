@@ -14,7 +14,7 @@ interface ConsultaDao {
     @Query("SELECT * FROM consultas WHERE usuario_institucion_id = :usuarioInstitucionId ORDER BY fecha_hora_programada DESC")
     suspend fun findAllByUsuarioInstitucionId(usuarioInstitucionId: Int): List<ConsultaEntity>
 
-    @Query("SELECT * FROM consultas WHERE paciente_id = :pacienteId AND estado = 'PENDIENTE'")
+    @Query("SELECT * FROM consultas WHERE paciente_id = :pacienteId AND estado = 'PENDIENTE' OR estado = 'REPROGRAMADA'")
     suspend fun findConsultaProgramadaByPacienteId(pacienteId: String): ConsultaEntity?
 
     @Query("SELECT * FROM consultas WHERE id = :id")

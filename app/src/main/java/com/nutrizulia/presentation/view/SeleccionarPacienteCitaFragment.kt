@@ -100,20 +100,14 @@ class SeleccionarPacienteCitaFragment : Fragment() {
         }
 
         viewModel.consultaProgramada.observe(viewLifecycleOwner) { event ->
-            // Consume el evento para evitar que el diálogo aparezca de nuevo
             event.getContentIfNotHandled()?.let { consulta ->
-                // FORMATEA LA FECHA AQUÍ
-                val formatter = DateTimeFormatter.ofPattern(
-                    "dd 'de' MMMM 'de' yyyy 'a las' hh:mm a",
-                    Locale("es", "ES")
-                )
-                val fechaFormateada = consulta.fechaHoraProgramada?.format(formatter)
+                val fecha = consulta.fechaHoraProgramada?.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                val hora = consulta.fechaHoraProgramada?.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))
 
                 mostrarDialog(
                     context = requireContext(),
                     title = "Reprogramar cita",
-                    // Usa la fecha formateada en el mensaje
-                    message = "Este paciente ya tiene una cita programada para el $fechaFormateada ¿Quieres reprogramarla?",
+                    message = "Este paciente ya tiene una cita programada para el $fecha a las $hora. ¿Quieres reprogramarla?",
                     positiveButtonText = "Reprogramar",
                     onPositiveClick = {
                         findNavController().navigate(
@@ -127,14 +121,12 @@ class SeleccionarPacienteCitaFragment : Fragment() {
             }
         }
 
-        // Mensajes
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             mensaje?.let {
                 mostrarSnackbar(binding.root, it)
             }
         }
 
-        // Loading
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.swipeRefreshLayout.isRefreshing = isLoading
         }
