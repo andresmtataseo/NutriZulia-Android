@@ -64,11 +64,8 @@ class RegistrarCitaFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupObservers()
-
         viewModel.onCreate(args.idPaciente, args.idConsulta, args.isEditable)
-
         if (!args.isEditable) {
             deshabilitarCampos()
         } else {

@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.PacienteEntity
 
 @Dao
@@ -24,10 +25,10 @@ interface PacienteDao {
     @Query("SELECT * FROM pacientes WHERE usuario_institucion_id = :usuarioInstitucionId AND cedula = :cedula")
     suspend fun findByCedula( usuarioInstitucionId: Int, cedula: String): PacienteEntity?
 
-    @Query("SELECT * FROM pacientes WHERE id = :id")
-    suspend fun findById(id: String): PacienteEntity?
-    @Insert
-    suspend fun insert(paciente: PacienteEntity): Long
+    @Query("SELECT * FROM pacientes WHERE id = :id AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findById(usuarioInstitucionId: Int, id: String): PacienteEntity?
+    @Upsert
+    suspend fun upsert(paciente: PacienteEntity): Long
 
     @Insert
     suspend fun insertAll(pacientes: List<PacienteEntity>): List<Long>

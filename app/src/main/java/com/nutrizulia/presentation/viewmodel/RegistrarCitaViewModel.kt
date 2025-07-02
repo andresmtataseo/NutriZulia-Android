@@ -40,6 +40,8 @@ class RegistrarCitaViewModel @Inject constructor(
     val paciente: LiveData<Paciente> = _paciente
     private val _consulta = MutableLiveData<Consulta>()
     val consulta: LiveData<Consulta> = _consulta
+    private var _idUsuarioInstitucion = MutableLiveData<Int>()
+    val idUsuarioInstitucion: LiveData<Int> get() = _idUsuarioInstitucion
 
     private val _tipoActividad = MutableLiveData<TipoActividad>()
     val tipoActividad: LiveData<TipoActividad> = _tipoActividad
@@ -65,16 +67,7 @@ class RegistrarCitaViewModel @Inject constructor(
     val salir: LiveData<Boolean> = _salir
 
     fun onCreate(idPaciente: String, idConsulta: String?, isEditable: Boolean) {
-//        obtenerPaciente(idPaciente)
-//        if (isEditable) {
-//            cargarTiposActividades()
-//            cargarEspecialidades()
-//            cargarTiposConsultas()
-//        }
-//        if (idConsulta != null) {
-//            obtenerConsulta(idConsulta)
-//        }
-        _isLoading.value = true // Inicia la carga
+        _isLoading.value = true
         viewModelScope.launch {
             try {
                 val pacienteJob = launch { obtenerPaciente(idPaciente) }
@@ -97,7 +90,16 @@ class RegistrarCitaViewModel @Inject constructor(
     fun obtenerPaciente(idPaciente: String) {
         viewModelScope.launch {
             _isLoading.postValue(true)
-            val paciente = getPaciente(idPaciente)
+
+            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
+                _idUsuarioInstitucion.value = institutionId
+            } ?: run {
+                _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
+                _isLoading.value = false
+                _salir.value = true
+            }
+
+            val paciente = getPaciente(idUsuarioInstitucion.value ?: 0 ,idPaciente)
             if (paciente == null) {
                 _mensaje.postValue("No se encontró el paciente")
                 _salir.postValue(true)

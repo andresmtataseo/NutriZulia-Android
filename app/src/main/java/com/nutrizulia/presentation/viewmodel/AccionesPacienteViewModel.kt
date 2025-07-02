@@ -1,42 +1,70 @@
 package com.nutrizulia.presentation.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.domain.usecase.collection.GetPacienteById
+import com.nutrizulia.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AccionesPacienteViewModel @Inject constructor(
-    private val getPaciente: GetPacienteById
-) : ViewModel() {
+    private val getPaciente: GetPacienteById,
+    private val sessionManager: SessionManager,
+    ) : ViewModel() {
 
     private val _paciente = MutableLiveData<Paciente>()
-    val paciente: MutableLiveData<Paciente> = _paciente
+    val paciente: LiveData<Paciente> = _paciente
+    private var _idUsuarioInstitucion = MutableLiveData<Int>()
+    val idUsuarioInstitucion: LiveData<Int> get() = _idUsuarioInstitucion
 
     private val _mensaje = MutableLiveData<String>()
-    val mensaje: MutableLiveData<String> = _mensaje
-
+    val mensaje: LiveData<String> get() = _mensaje
     private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: MutableLiveData<Boolean> = _isLoading
-
+    val isLoading: LiveData<Boolean> get() = _isLoading
     private val _salir = MutableLiveData<Boolean>()
-    val salir: MutableLiveData<Boolean> = _salir
+    val salir: LiveData<Boolean> get() = _salir
 
-    fun obtenerPaciente(idPaciente: String) {
+    fun onCreate(id: String) {
+        _isLoading.value = true
         viewModelScope.launch {
-            isLoading.postValue(true)
-            val paciente = getPaciente(idPaciente)
-            if (paciente == null) {
-                mensaje.postValue("No se encontró el paciente")
-                salir.postValue(true)
-                return@launch
+            try {
+                val pacienteJob = launch { obtenerPaciente(id) }
+                pacienteJob.join()
+            } finally {
+                _isLoading.value = false
             }
-            _paciente.value = paciente
-            isLoading.postValue(false)
         }
     }
+
+    fun obtenerPaciente(id: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
+                _idUsuarioInstitucion.value = institutionId
+            } ?: run {
+                _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
+                _isLoading.value = false
+                _salir.value = true
+            }
+
+            val result = getPaciente(idUsuarioInstitucion.value ?: 0, id)
+            if (result != null) {
+                _paciente.value = result
+            } else {
+                _mensaje.value = "No se encontraron datos."
+                _isLoading.value = false
+                _salir.value = true
+                return@launch
+            }
+            _isLoading.value = false
+        }
+    }
+
 }

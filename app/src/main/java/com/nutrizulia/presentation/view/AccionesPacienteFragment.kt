@@ -38,8 +38,25 @@ class AccionesPacienteFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupObservers()
+        viewModel.onCreate(args.idPaciente)
+        setupListeners()
+    }
 
-        viewModel.obtenerPaciente(args.idPaciente)
+    @SuppressLint("SetTextI18n")
+    private fun setupObservers() {
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
+        }
+
+        viewModel.mensaje.observe(viewLifecycleOwner) {
+            mostrarSnackbar(requireView(), it)
+        }
+
+        viewModel.salir.observe(viewLifecycleOwner) {
+            if (it) findNavController().popBackStack()
+        }
 
         viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
             binding.tvNombreCompleto.text = "${paciente.nombres} ${paciente.apellidos}"
@@ -49,24 +66,20 @@ class AccionesPacienteFragment : Fragment() {
             val edad = calcularEdadDetallada(paciente.fechaNacimiento)
             binding.tvEdad.text = "Edad: ${edad.anios} años, ${edad.meses} meses y ${edad.dias} días"
         }
+    }
 
-        viewModel.isLoading.observe(viewLifecycleOwner) { binding.progress.visibility = if (it) View.VISIBLE else View.INVISIBLE }
-
-        viewModel.salir.observe(viewLifecycleOwner) { if (it) requireActivity().onBackPressedDispatcher.onBackPressed() }
-
-        viewModel.mensaje.observe(viewLifecycleOwner) { mostrarSnackbar(binding.root, it) }
-
+    private fun setupListeners() {
         binding.cardViewInformacionPersonal.setOnClickListener {
             findNavController().navigate(
-                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToVerPacienteFragment(
-                    args.idPaciente
+                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToRegistrarPacienteFragment(
+                    args.idPaciente, false
                 )
             )
         }
 
         binding.cardViewEditarInformacionPersonal.setOnClickListener {
             findNavController().navigate(
-                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToEditarPacienteFragment(
+                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToRegistrarPacienteFragment(
                     args.idPaciente
                 )
             )
@@ -80,7 +93,9 @@ class AccionesPacienteFragment : Fragment() {
             )
         }
 
-//        binding.cardViewResumenMedico.setOnClickListener { findNavController().navigate(AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentTo(args.idPaciente)) }
+//        binding.cardViewResumenMedico.setOnClickListener {
+//            findNavController().navigate(AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentTo(args.idPaciente))
+//        }
 
     }
 

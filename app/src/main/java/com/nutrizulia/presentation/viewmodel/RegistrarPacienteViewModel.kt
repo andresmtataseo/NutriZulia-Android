@@ -11,13 +11,20 @@ import com.nutrizulia.domain.model.catalog.Etnia
 import com.nutrizulia.domain.model.catalog.Municipio
 import com.nutrizulia.domain.model.catalog.Nacionalidad
 import com.nutrizulia.domain.model.catalog.Parroquia
+import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.domain.model.collection.Paciente
+import com.nutrizulia.domain.usecase.catalog.GetEstadoById
 import com.nutrizulia.domain.usecase.catalog.GetEstados
+import com.nutrizulia.domain.usecase.catalog.GetEtniaById
 import com.nutrizulia.domain.usecase.catalog.GetEtnias
+import com.nutrizulia.domain.usecase.catalog.GetMunicipioById
 import com.nutrizulia.domain.usecase.catalog.GetMunicipios
+import com.nutrizulia.domain.usecase.catalog.GetNacionalidadById
 import com.nutrizulia.domain.usecase.catalog.GetNacionalidades
+import com.nutrizulia.domain.usecase.catalog.GetParroquiaById
 import com.nutrizulia.domain.usecase.catalog.GetParroquias
 import com.nutrizulia.domain.usecase.collection.GetPacienteByCedula
+import com.nutrizulia.domain.usecase.collection.GetPacienteById
 import com.nutrizulia.domain.usecase.collection.SavePaciente
 import com.nutrizulia.util.CheckData.esCedulaValida
 import com.nutrizulia.util.CheckData.esCorreoValido
@@ -33,8 +40,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegistrarPacienteViewModel @Inject constructor(
-    private val insertPacienteUseCase: SavePaciente,
+    private val savePaciente: SavePaciente,
     private val getPacienteByCedula: GetPacienteByCedula,
+    private val getPacienteById: GetPacienteById,
+    private val getEtnia: GetEtniaById,
+    private val getNacionalidad: GetNacionalidadById,
+    private val getEstado: GetEstadoById,
+    private val getMunicipio: GetMunicipioById,
+    private val getParroquia: GetParroquiaById,
     private val getEtnias: GetEtnias,
     private val getNacionalidades: GetNacionalidades,
     private val getEstados: GetEstados,
@@ -43,9 +56,21 @@ class RegistrarPacienteViewModel @Inject constructor(
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
-    val mensaje = MutableLiveData<String>()
-    val errores = MutableLiveData<Map<String, String>>()
-    val salir = MutableLiveData<Boolean>()
+    private val _paciente = MutableLiveData<Paciente>()
+    val paciente: LiveData<Paciente> = _paciente
+    private val _idUsuarioInstitucion = MutableLiveData<Int>()
+    val idUsuarioInstitucion: LiveData<Int> get() = _idUsuarioInstitucion
+
+    private val _etnia = MutableLiveData<Etnia>()
+    val etnia: LiveData<Etnia> get() = _etnia
+    private val _nacionalidad = MutableLiveData<Nacionalidad>()
+    val nacionalidad: LiveData<Nacionalidad> get() = _nacionalidad
+    private val _estado = MutableLiveData<Estado>()
+    val estado: LiveData<Estado> get() = _estado
+    private val _municipio = MutableLiveData<Municipio>()
+    val municipio: LiveData<Municipio> get() = _municipio
+    private val _parroquia = MutableLiveData<Parroquia>()
+    val parroquia: LiveData<Parroquia> get() = _parroquia
 
     private val _etnias = MutableLiveData<List<Etnia>>()
     val etnias: LiveData<List<Etnia>> get() = _etnias
@@ -58,21 +83,84 @@ class RegistrarPacienteViewModel @Inject constructor(
     private val _parroquias = MutableLiveData<List<Parroquia>>()
     val parroquias: LiveData<List<Parroquia>> get() = _parroquias
 
-    fun cargarEtnias() {
+    private val _errores = MutableLiveData<Map<String, String>>()
+    val errores: LiveData<Map<String, String>> = _errores
+    private val _mensaje = MutableLiveData<String>()
+    val mensaje: LiveData<String> = _mensaje
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+    private val _salir = MutableLiveData<Boolean>()
+    val salir: LiveData<Boolean> = _salir
+
+    fun onCreate(idPaciente: String?, isEditable: Boolean) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                if (isEditable) {
+                    val catalogosJob = launch { cargarCatalogos() }
+                    catalogosJob.join()
+                }
+                if (idPaciente != null && idPaciente.isNotEmpty() && idPaciente.isNotBlank()) {
+                    val pacienteJob = launch { obtenerPaciente(idPaciente) }
+                    pacienteJob.join()
+                }
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun obtenerPaciente(idPaciente: String) {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+
+            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
+                _idUsuarioInstitucion.value = institutionId
+            } ?: run {
+                _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
+                _isLoading.value = false
+                _salir.value = true
+                return@launch
+            }
+
+            val paciente = getPacienteById(idUsuarioInstitucion.value ?: 0, idPaciente)
+            if (paciente == null) {
+                _mensaje.postValue("No se encontró el paciente")
+                _salir.postValue(true)
+                return@launch
+            }
+            _paciente.value = paciente
+            _etnia.value = getEtnia(paciente.etniaId)
+            _nacionalidad.value = getNacionalidad(paciente.nacionalidadId)
+            _parroquia.value = getParroquia(paciente.parroquiaId)
+            _municipio.value = getMunicipio(parroquia.value?.municipioId!!)
+            _estado.value = getEstado(municipio.value?.estadoId!!)
+
+            _isLoading.postValue(false)
+        }
+    }
+
+    private fun cargarCatalogos() {
+        cargarEtnias()
+        cargarNacionalidades()
+        cargarEstados()
+    }
+
+    private fun cargarEtnias() {
         viewModelScope.launch {
             val lista = getEtnias()
             _etnias.value = lista
         }
     }
 
-    fun cargarNacionalidades() {
+    private fun cargarNacionalidades() {
         viewModelScope.launch {
             val lista = getNacionalidades()
             _nacionalidades.value = lista
         }
     }
 
-    fun cargarEstados() {
+    private fun cargarEstados() {
         viewModelScope.launch {
             val lista = getEstados()
             _estados.value = lista
@@ -93,101 +181,98 @@ class RegistrarPacienteViewModel @Inject constructor(
         }
     }
 
-    fun registrarPaciente(paciente: Paciente) {
+    fun guardarPaciente(paciente: Paciente) {
         val erroresMap = validarDatosPaciente(paciente)
         if (erroresMap.isNotEmpty()) {
-            errores.value = erroresMap
-            mensaje.value = "Corrige los campos en rojo."
+            _mensaje.value = "Corrige los campos en rojo."
             return
         }
 
         formatearDatosPaciente(paciente)
 
         viewModelScope.launch {
+            _isLoading.value = true
 
             sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
                 val id = institutionId
                 paciente.usuarioInstitucionId = id
             } ?: run {
-                mensaje.postValue("Error al actualizar el paciente. No se ha seleccionado una institución.")
-                salir.postValue(false)
+                _mensaje.postValue("Error al guardar el paciente. No se ha seleccionado una institución.")
+                _salir.postValue(false)
                 return@launch
             }
 
             val exitsCedula = getPacienteByCedula(paciente.usuarioInstitucionId, paciente.cedula)
             if (exitsCedula != null && exitsCedula.id != paciente.id) {
-                mensaje.postValue("Ya existe un paciente con la cédula ${paciente.cedula}.")
-                salir.postValue(false)
+                _mensaje.postValue("Ya existe un paciente con la cédula ${paciente.cedula}.")
+                _salir.postValue(false)
                 return@launch
             }
 
             try {
-                val result = insertPacienteUseCase(paciente)
-                if (result > 0) {
-                    mensaje.postValue("Paciente registrado correctamente.")
-                    salir.postValue(true)
-                } else {
-                    mensaje.postValue("Error desconocido al registrar paciente (código: $result).")
-                    salir.postValue(false)
-                }
+                savePaciente(paciente)
+                _mensaje.postValue("Paciente guardado correctamente.")
+                _salir.postValue(true)
+
             } catch (e: DomainException) {
-                mensaje.postValue(e.message)
-                salir.postValue(false)
+                _mensaje.postValue(e.message)
             } catch (e: Exception) {
-                mensaje.postValue("Ocurrió un error inesperado al registrar paciente: ${e.message}")
-                salir.postValue(false)
-                Log.e("RegistrarPacienteViewModel", "Error al registrar paciente", e)
+                _mensaje.postValue("Ocurrió un error inesperado: ${e.message}")
+            } finally {
+                _isLoading.postValue(false)
             }
 
         }
     }
 
-    private fun validarDatosPaciente(p: Paciente): Map<String, String> {
-        val errores = mutableMapOf<String, String>()
+    private fun validarDatosPaciente(paciente: Paciente): Map<String, String> {
+        val erroresActuales = _errores.value?.toMutableMap() ?: mutableMapOf()
+        erroresActuales.clear()
 
-        if (p.cedula.isBlank()) {
-            errores["cedula"] = "La cédula es obligatoria."
-        } else if (!esCedulaValida(p.cedula)) {
-            errores["cedula"] = "La cédula no es válida."
+        if (paciente.cedula.isBlank()) {
+            erroresActuales["cedula"] = "La cédula es obligatoria."
+        } else if (!esCedulaValida(paciente.cedula)) {
+            erroresActuales["cedula"] = "La cédula no es válida."
         }
 
-        if (p.nombres.isBlank()) {
-            errores["nombres"] = "El nombre es obligatorio."
+        if (paciente.nombres.isBlank()) {
+            erroresActuales["nombres"] = "El nombre es obligatorio."
         }
 
-        if (p.apellidos.isBlank()) {
-            errores["apellidos"] = "El apellido es obligatorio."
+        if (paciente.apellidos.isBlank()) {
+            erroresActuales["apellidos"] = "El apellido es obligatorio."
         }
 
-        if (p.fechaNacimiento.isAfter(LocalDate.now())) {
-            errores["fechaNacimiento"] = "La fecha no puede ser futura."
+        if (paciente.fechaNacimiento.isAfter(LocalDate.now())) {
+            erroresActuales["fechaNacimiento"] = "La fecha no puede ser futura."
         }
 
-        if (p.genero.isBlank()) {
-            errores["genero"] = "El género es obligatorio."
+        if (paciente.genero.isBlank()) {
+            erroresActuales["genero"] = "El género es obligatorio."
         }
 
-        if (p.etniaId == 0) {
-            errores["etnia"] = "La etnia es obligatoria."
+        if (paciente.etniaId == 0) {
+            erroresActuales["etnia"] = "La etnia es obligatoria."
         }
 
-        if (p.nacionalidadId == 0) {
-            errores["nacionalidad"] = "La nacionalidad es obligatoria."
+        if (paciente.nacionalidadId == 0) {
+            erroresActuales["nacionalidad"] = "La nacionalidad es obligatoria."
         }
 
-        if (p.parroquiaId == 0) {
-            errores["parroquia"] = "La parroquia es obligatoria."
+        if (paciente.parroquiaId == 0) {
+            erroresActuales["parroquia"] = "La parroquia es obligatoria."
         }
 
-        if (!p.telefono.isNullOrBlank() && !esNumeroTelefonoValido(p.telefono)) {
-            errores["telefono"] = "El teléfono no es válido."
+        if (!paciente.telefono.isNullOrBlank() && !esNumeroTelefonoValido(paciente.telefono)) {
+            erroresActuales["telefono"] = "El teléfono no es válido."
         }
 
-        if (!p.correo.isNullOrBlank() && !esCorreoValido(p.correo)) {
-            errores["correo"] = "El correo no es válido."
+        if (!paciente.correo.isNullOrBlank() && !esCorreoValido(paciente.correo)) {
+            erroresActuales["correo"] = "El correo no es válido."
         }
 
-        return errores
+        _errores.value = erroresActuales
+        return erroresActuales
     }
 
     private fun formatearDatosPaciente(p: Paciente) {

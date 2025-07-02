@@ -13,12 +13,12 @@ class PacienteRepository @Inject constructor(
     private val pacienteConCitaDao: PacienteConCitaDao
 ) {
 
-    suspend fun insertPaciente(paciente: Paciente): Long {
-        return pacienteDao.insert(paciente.toEntity())
+    suspend fun upsert(paciente: Paciente): Long {
+        return pacienteDao.upsert(paciente.toEntity())
     }
 
-    suspend fun findById(idPaciente: String): Paciente? {
-        return pacienteDao.findById(idPaciente)?.toDomain()
+    suspend fun findById(usuarioInstitucionId: Int, idPaciente: String): Paciente? {
+        return pacienteDao.findById(usuarioInstitucionId, idPaciente)?.toDomain()
     }
 
     suspend fun findByCedula( usuarioInstitucionId: Int, cedula: String): Paciente? {

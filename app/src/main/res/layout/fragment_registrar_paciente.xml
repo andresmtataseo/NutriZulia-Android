@@ -16,9 +16,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            android:visibility="invisible" />
+            android:visibility="visible" />
 
         <LinearLayout
+            android:id="@+id/content"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="12dp"
@@ -485,7 +487,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
-                    android:text="@string/registrar"
+                    android:text="@string/guardar"
                     app:icon="@drawable/ic_guardar"
                     app:iconGravity="textStart" />
             </LinearLayout>

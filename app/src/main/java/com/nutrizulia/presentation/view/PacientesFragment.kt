@@ -78,7 +78,11 @@ class PacientesFragment : Fragment() {
         }
 
         binding.btnRegistrarPaciente.setOnClickListener {
-            findNavController().navigate(R.id.action_pacientesFragment_to_registrarPacienteFragment)
+            findNavController().navigate(
+                PacientesFragmentDirections.actionPacientesFragmentToRegistrarPacienteFragment(
+                    null, true
+                )
+            )
         }
     }
 

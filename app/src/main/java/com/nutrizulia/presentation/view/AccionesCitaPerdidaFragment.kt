@@ -69,7 +69,8 @@ class AccionesCitaPerdidaFragment : Fragment() {
             val colorResId = when (it.estadoConsulta) {
                 Estado.PENDIENTE,
                 Estado.REPROGRAMADA -> R.color.color_cita_pendiente
-                Estado.COMPLETADA -> R.color.color_cita_completada
+                Estado.COMPLETADA,
+                Estado.SIN_PREVIA_CITA -> R.color.color_cita_completada
                 Estado.CANCELADA,
                 Estado.NO_ASISTIO -> R.color.color_cita_cancelada
             }
