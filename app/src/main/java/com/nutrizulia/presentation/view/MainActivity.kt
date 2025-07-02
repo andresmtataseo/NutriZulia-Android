@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.nutrizulia.R
 import com.nutrizulia.databinding.ActivityMainBinding
 import com.nutrizulia.presentation.viewmodel.MainViewModel
+import com.nutrizulia.util.Utils.mostrarAlerta
 import com.nutrizulia.util.Utils.mostrarDialog
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,10 +28,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        viewModel.onCreated()
         viewModel.isInstitutionSelected.observe(this) { isInstitutionSelected ->
             if (!isInstitutionSelected) {
-                navigateToPreCarga()
+                mostrar()
             }
         }
 
@@ -45,8 +46,13 @@ class MainActivity : AppCompatActivity() {
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.inicioFragment, R.id.consultasFragment, R.id.pacientesFragment,
-                R.id.reportesFragment, R.id.cuentaFragment, R.id.ayudaFragment, R.id.seleccionarInstitucionFragment
+                R.id.inicioFragment,
+                R.id.consultasFragment,
+                R.id.pacientesFragment,
+                R.id.reportesFragment,
+                R.id.cuentaFragment,
+                R.id.ayudaFragment,
+                R.id.seleccionarInstitucionFragment
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -69,6 +75,7 @@ class MainActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
+
                 R.id.salir -> {
                     mostrarDialog(
                         context = this,
@@ -82,8 +89,12 @@ class MainActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
+
                 else -> {
-                    val handled = androidx.navigation.ui.NavigationUI.onNavDestinationSelected(menuItem, navController)
+                    val handled = androidx.navigation.ui.NavigationUI.onNavDestinationSelected(
+                        menuItem,
+                        navController
+                    )
                     if (handled) drawerLayout.closeDrawers()
                     handled
                 }
@@ -91,12 +102,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigateToPreCarga() {
-        val intent = Intent(this, PreCargarActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        startActivity(intent)
-        finish()
+    private fun mostrar() {
+        mostrarAlerta(
+            context = this,
+            title = "Error de autenticación",
+            message = "No hay datos del usuario o la institución. Por favor, inicie sesión nuevamente.",
+            positiveButtonText = "Cerrar sesión",
+            onAcknowledge = {
+                viewModel.logout()
+            },
+            isCancelable = false
+        )
     }
 
     /**

@@ -129,17 +129,32 @@ object Utils {
         MaterialAlertDialogBuilder(context)
             .setTitle(title)
             .setMessage(message)
-            .setCancelable(isCancelable) // Establecer si se puede cancelar o no
+            .setCancelable(isCancelable)
             .setNegativeButton(negativeButtonText) { dialog, which ->
-                // Ejecutar la acción negativa si se proporcionó
                 onNegativeClick?.invoke()
-                // El diálogo se cierra automáticamente por defecto al hacer clic en un botón
             }
             .setPositiveButton(positiveButtonText) { dialog, which ->
-                // Ejecutar la acción positiva si se proporcionó
                 onPositiveClick?.invoke()
-                // El diálogo se cierra automáticamente
             }
-            .show() // Mostrar el diálogo
+            .show()
+    }
+
+    fun mostrarAlerta(
+        context: Context,
+        title: String,
+        message: String,
+        positiveButtonText: String = "Aceptar",
+        onAcknowledge: (() -> Unit)? = null,
+        isCancelable: Boolean = true
+    ) {
+        MaterialAlertDialogBuilder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setCancelable(isCancelable)
+            .setPositiveButton(positiveButtonText) { dialog, _ ->
+                onAcknowledge?.invoke()
+                dialog.dismiss() // Cierra el diálogo al presionar el botón
+            }
+            .show()
     }
 }
