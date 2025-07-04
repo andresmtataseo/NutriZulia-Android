@@ -8,8 +8,8 @@ import com.nutrizulia.data.local.entity.catalog.RiesgoBiologicoEntity
 @Dao
 interface RiesgoBiologicoDao {
 
-    @Query("SELECT * FROM riesgos_biologicos")
-    suspend fun findAll(): List<RiesgoBiologicoEntity>
+    @Query("SELECT * FROM riesgos_biologicos WHERE genero = :genero")
+    suspend fun findAllByGenero(genero: String): List<RiesgoBiologicoEntity>
 
     @Insert
     suspend fun insertAll(riesgosBiologicos: List<RiesgoBiologicoEntity>): List<Long>

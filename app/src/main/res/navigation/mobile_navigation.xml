@@ -153,6 +153,14 @@
         tools:layout="@layout/fragment_registrar_consulta">
         <argument
             android:name="idConsulta"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="isEditable"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <argument
+            android:name="idPaciente"
             app:argType="string" />
     </fragment>
     <fragment

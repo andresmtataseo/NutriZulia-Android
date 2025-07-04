@@ -87,7 +87,7 @@ class RegistrarCitaViewModel @Inject constructor(
         }
     }
 
-    fun obtenerPaciente(idPaciente: String) {
+    private fun obtenerPaciente(idPaciente: String) {
         viewModelScope.launch {
             _isLoading.postValue(true)
 
@@ -110,7 +110,7 @@ class RegistrarCitaViewModel @Inject constructor(
         }
     }
 
-    fun obtenerConsulta(idConsulta: String) {
+    private fun obtenerConsulta(idConsulta: String) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             val consulta = getConsulta(idConsulta)
@@ -127,27 +127,27 @@ class RegistrarCitaViewModel @Inject constructor(
         }
     }
 
-     fun cargarCatalogos() {
-         cargarTiposActividades()
-         cargarEspecialidades()
-         cargarTiposConsultas()
-     }
+    private fun cargarCatalogos() {
+        cargarTiposActividades()
+        cargarEspecialidades()
+        cargarTiposConsultas()
+    }
 
-    fun cargarTiposActividades() {
+    private fun cargarTiposActividades() {
         viewModelScope.launch {
             val lista = getTiposActividades()
             _tiposActividades.value = lista
         }
     }
 
-    fun cargarEspecialidades() {
+    private fun cargarEspecialidades() {
         viewModelScope.launch {
             val lista = getEspecialidades()
             _especialidades.value = lista
         }
     }
 
-    fun cargarTiposConsultas() {
+    private fun cargarTiposConsultas() {
         _tiposConsultas.value = TipoConsulta.entries
     }
 

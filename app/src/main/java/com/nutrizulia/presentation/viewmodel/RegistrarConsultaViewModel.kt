@@ -1,130 +1,246 @@
 package com.nutrizulia.presentation.viewmodel
 
-//import android.util.Log
-//import androidx.lifecycle.LiveData
-//import androidx.lifecycle.MutableLiveData
-//import androidx.lifecycle.ViewModel
-//import androidx.lifecycle.viewModelScope
-//import com.nutrizulia.domain.model.CitaConPaciente
-//import com.nutrizulia.domain.model.Consulta
-//import com.nutrizulia.domain.model.SignosVitales
-//import dagger.hilt.android.lifecycle.HiltViewModel
-//import kotlinx.coroutines.launch
-//import javax.inject.Inject
-//
-//@HiltViewModel
-//class RegistrarConsultaViewModel @Inject constructor(
-//    private val insertConsultaUseCase: InsertConsultaUseCase,
-//    private val insertSignosVitalesUseCase: InsertSignosVitalesUseCase,
-//    private val getCitaConPacienteUseCase: GetCitaConPacienteUseCase,
-//    private val updateEstadoCitaUseCase: UpdateEstadoCitaUseCase
-//): ViewModel() {
-//
-//    private val _citaConPaciente = MutableLiveData<CitaConPaciente?>()
-//    val citaConPaciente: LiveData<CitaConPaciente?> get() = _citaConPaciente
-//
-//    private val _mensaje = MutableLiveData<String>()
-//    val mensaje: LiveData<String> get() = _mensaje
-//
-//    private val _errores = MutableLiveData<Map<String, String>>()
-//    val errores: LiveData<Map<String, String>> get() = _errores
-//
-//    private val _salir = MutableLiveData<Boolean>()
-//    val salir: LiveData<Boolean> get() = _salir
-//
-//    fun cargarCitaConPaciente(idCita: Int) {
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.nutrizulia.data.local.enum.TipoConsulta
+import com.nutrizulia.domain.model.catalog.Enfermedad
+import com.nutrizulia.domain.model.catalog.Especialidad
+import com.nutrizulia.domain.model.catalog.RiesgoBiologico
+import com.nutrizulia.domain.model.catalog.TipoActividad
+import com.nutrizulia.domain.model.collection.Consulta
+import com.nutrizulia.domain.model.collection.DetalleAntropometrico
+import com.nutrizulia.domain.model.collection.DetalleMetabolico
+import com.nutrizulia.domain.model.collection.DetalleObstetricia
+import com.nutrizulia.domain.model.collection.DetallePediatrico
+import com.nutrizulia.domain.model.collection.DetalleVital
+import com.nutrizulia.domain.model.collection.Diagnostico
+import com.nutrizulia.domain.model.collection.Paciente
+import com.nutrizulia.domain.usecase.catalog.GetEnfermedades
+import com.nutrizulia.domain.usecase.catalog.GetEspecialidadById
+import com.nutrizulia.domain.usecase.catalog.GetEspecialidades
+import com.nutrizulia.domain.usecase.catalog.GetRiesgosBiologicos
+import com.nutrizulia.domain.usecase.catalog.GetTipoActividadById
+import com.nutrizulia.domain.usecase.catalog.GetTiposActividades
+import com.nutrizulia.domain.usecase.collection.GetConsultaProgramadaById
+import com.nutrizulia.domain.usecase.collection.GetPacienteById
+import com.nutrizulia.domain.usecase.collection.SaveConsulta
+import com.nutrizulia.util.SessionManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class RegistrarConsultaViewModel @Inject constructor(
+    private val saveConsulta: SaveConsulta,
+    private val getPaciente: GetPacienteById,
+    private val getConsulta: GetConsultaProgramadaById,
+
+    private val getTipoActividad: GetTipoActividadById,
+    private val getEspecialidad: GetEspecialidadById,
+
+    private val getTiposActividades: GetTiposActividades,
+    private val getEspecialidades: GetEspecialidades,
+    private val getRiegosBiologicos: GetRiesgosBiologicos,
+    private val getEndermedades: GetEnfermedades,
+
+    private val sessionManager: SessionManager
+): ViewModel() {
+
+    private val _consulta = MutableLiveData<Consulta>()
+    val consulta: LiveData<Consulta> = _consulta
+    private var _idUsuarioInstitucion = MutableLiveData<Int>()
+    val idUsuarioInstitucion: LiveData<Int> = _idUsuarioInstitucion
+    private val _paciente = MutableLiveData<Paciente>()
+    val paciente: LiveData<Paciente> = _paciente
+
+
+    // Datos Individuales
+    private val _tipoActividad = MutableLiveData<TipoActividad>()
+    val tipoActividad: LiveData<TipoActividad> = _tipoActividad
+    private val _especialidad = MutableLiveData<Especialidad>()
+    val especialidad: LiveData<Especialidad> = _especialidad
+    private val _tipoConsulta = MutableLiveData<TipoConsulta>()
+    val tipoConsulta: LiveData<TipoConsulta> = _tipoConsulta
+
+    private val _diagnostico = MutableLiveData<Diagnostico>()
+    val diagnostico: LiveData<Diagnostico> = _diagnostico
+    private val _riesgoBiologico = MutableLiveData<RiesgoBiologico>()
+    val riesgoBiologico: LiveData<RiesgoBiologico> = _riesgoBiologico
+    private val _enfermedad = MutableLiveData<Enfermedad>()
+    val enfermedad: LiveData<Enfermedad> = _enfermedad
+
+    private  val _detalleVital = MutableLiveData<DetalleVital>()
+    val detalleVital: LiveData<DetalleVital> = _detalleVital
+    private val _detalleMetabolico = MutableLiveData<DetalleMetabolico>()
+    val detalleMetabolico: LiveData<DetalleMetabolico> = _detalleMetabolico
+    private val _detalleAntropometrico = MutableLiveData<DetalleAntropometrico>()
+    val detalleAntropometrico: LiveData<DetalleAntropometrico> = _detalleAntropometrico
+    private val _detallePediatrico = MutableLiveData<DetallePediatrico>()
+    val detallePediatrico: LiveData<DetallePediatrico> = _detallePediatrico
+    private val _detalleObstetricia = MutableLiveData<DetalleObstetricia>()
+    val detalleObstetricia: LiveData<DetalleObstetricia> = _detalleObstetricia
+
+    // Datos colectivos
+    private val _tiposActividades = MutableLiveData<List<TipoActividad>>()
+    val tiposActividades: LiveData<List<TipoActividad>> = _tiposActividades
+    private val _especialidades = MutableLiveData<List<Especialidad>>()
+    val especialidades: LiveData<List<Especialidad>> = _especialidades
+    private val _tiposConsultas = MutableLiveData<List<TipoConsulta>>()
+    val tiposConsultas: LiveData<List<TipoConsulta>> = _tiposConsultas
+
+    private val _diagnosticos = MutableLiveData<List<Diagnostico>>()
+    val diagnosticos: LiveData<List<Diagnostico>> = _diagnosticos
+    private val _riesgosBiologicos = MutableLiveData<List<RiesgoBiologico>>()
+    val riesgosBiologicos: LiveData<List<RiesgoBiologico>> = _riesgosBiologicos
+    private val _enfermedades = MutableLiveData<List<Enfermedad>>()
+    val enfermedades: LiveData<List<Enfermedad>> = _enfermedades
+
+    // Datos informativos
+    private val _errores = MutableLiveData<Map<String, String>>()
+    val errores: LiveData<Map<String, String>> = _errores
+    private val _mensaje = MutableLiveData<String>()
+    val mensaje: LiveData<String> = _mensaje
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+    private val _salir = MutableLiveData<Boolean>()
+    val salir: LiveData<Boolean> = _salir
+
+    fun onCreate(idPaciente: String, idConsulta: String?, isEditable: Boolean) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val pacienteJob = launch { obtenerPaciente(idPaciente) }
+
+                if (idConsulta != null) {
+                    val consultaJob = launch { obtenerConsulta(idConsulta) }
+                    consultaJob.join()
+                } else {
+                    val catalogosCitaJob = launch { cargarCatalogosCita() }
+                    catalogosCitaJob.join()
+                }
+
+                pacienteJob.join()
+
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    private fun obtenerPaciente(idPaciente: String) {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+
+            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
+                _idUsuarioInstitucion.value = institutionId
+            } ?: run {
+                _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
+                _isLoading.value = false
+                _salir.value = true
+            }
+
+            val paciente = getPaciente(idUsuarioInstitucion.value ?: 0 ,idPaciente)
+            if (paciente == null) {
+                _mensaje.postValue("No se encontró el paciente")
+                _salir.postValue(true)
+                return@launch
+            }
+            _paciente.value = paciente
+            _isLoading.postValue(false)
+        }
+    }
+
+    private fun obtenerConsulta(idConsulta: String) {
+        viewModelScope.launch {
+            _isLoading.postValue(true)
+            val consulta = getConsulta(idConsulta)
+            if (consulta == null) {
+                _mensaje.postValue("No se encontró la consulta")
+                _salir.postValue(true)
+                return@launch
+            }
+            _consulta.value = consulta
+            _tipoActividad.value = getTipoActividad(consulta.tipoActividadId)
+            _especialidad.value = getEspecialidad(consulta.especialidadRemitenteId)
+            _tipoConsulta.value = TipoConsulta.valueOf(consulta.tipoConsulta?.name ?: TipoConsulta.CONSULTA_SUCESIVA.name)
+            _isLoading.postValue(false)
+        }
+    }
+
+    private fun cargarCatalogosCita() {
+        cargarTiposActividades()
+        cargarEspecialidades()
+        cargarTiposConsultas()
+    }
+
+    private fun cargarTiposActividades() {
+        viewModelScope.launch {
+            val lista = getTiposActividades()
+            _tiposActividades.value = lista
+        }
+    }
+
+    private fun cargarEspecialidades() {
+        viewModelScope.launch {
+            val lista = getEspecialidades()
+            _especialidades.value = lista
+        }
+    }
+
+    private fun cargarTiposConsultas() {
+        _tiposConsultas.value = TipoConsulta.entries
+    }
+
+    private fun validarConsulta(consulta: Consulta): Map<String, String> {
+        val erroresActuales = _errores.value?.toMutableMap() ?: mutableMapOf()
+        erroresActuales.clear()
+
+        if (consulta.tipoActividadId <= 0) {
+            erroresActuales["tipoActividad"] = "El tipo de actividad es obligatorio."
+        }
+        if (consulta.especialidadRemitenteId <= 0) {
+            erroresActuales["especialidad"] = "La especialidad es obligatoria."
+        }
+        if (consulta.tipoConsulta == null) {
+            erroresActuales["tipoConsulta"] = "El tipo de consulta es obligatorio."
+        }
+
+        _errores.value = erroresActuales
+        return erroresActuales
+    }
+
+
+    fun guardarConsulta(consulta: Consulta, detalleVital: DetalleVital, detalleMetabolico: DetalleMetabolico, detalleAntropometrico: DetalleAntropometrico) {
+        val erroresMap = validarConsulta(consulta)
+        if (erroresMap.isNotEmpty()) {
+            _mensaje.value = "Corrige los campos en rojo."
+            return
+        }
+
 //        viewModelScope.launch {
-//            val encontrado = getCitaConPacienteUseCase(idCita)
-//            _citaConPaciente.value = encontrado
-//        }
+//            _isLoading.value = true
 //
-//    }
-//
-//    private fun validarConsulta(consulta: Consulta, signosVitales: SignosVitales): Map<String, String> {
-//        val erroresActuales = _errores.value?.toMutableMap() ?: mutableMapOf()
-//        erroresActuales.clear()
-//
-//        if (signosVitales.peso <= 0) erroresActuales["peso"] = "El peso es obligatorio."
-//        if (signosVitales.altura <= 0) erroresActuales["altura"] = "La altura es obligatoria."
-//
-//        _errores.value = erroresActuales
-//        return erroresActuales
-//    }
-//
-//// Asegúrate de que _mensaje y _salir son MutableLiveData en tu ViewModel
-//// Asegúrate de que validarConsulta, insertConsultaUseCase, insertSignosVitalesUseCase,
-//// y updateEstadoCitaUseCase están definidos/inyectados y son suspend functions.
-//// MUY IMPORTANTE: insertSignosVitalesUseCase DEBE devolver Long (el ID insertado).
-//
-//    fun registrarConsulta(consulta: Consulta, signosVitales: SignosVitales) {
-//        val erroresMap = validarConsulta(consulta, signosVitales)
-//        if (erroresMap.isNotEmpty()) {
-//            // Asumiendo que 'errores' es otro MutableLiveData en tu ViewModel
-//            // errores.value = erroresMap // Si quieres mostrar errores específicos en campos
-//            _mensaje.value = "Error de validación: Corrige los campos con errores."
-//            // Puedes añadir lógica aquí para mostrar los errores específicos en la UI si usas 'errores'
-//            return
-//        }
-//
-//        viewModelScope.launch {
 //            try {
-//                // --- Paso 1: Registrar la Consulta ---
-//                val consultaId = insertConsultaUseCase(consulta)
+//                val institutionId = sessionManager.currentInstitutionIdFlow.firstOrNull()
+//                    ?: throw IllegalStateException("El ID de la institución no puede ser nulo.")
 //
-//                if (consultaId > 0) {
-//                    // Consulta registrada exitosamente, ahora registrar signos vitales
+//                consulta.usuarioInstitucionId = institutionId
 //
-//                    // Asigna el ID de la consulta recién creada a los signos vitales
-//                    signosVitales.consultaId = consultaId.toInt()
+//                saveConsulta(consulta)
 //
-//                    // --- Paso 2: Registrar los Signos Vitales ---
-//                    // *** NECESITA DEVOLVER LONG ***
-//                    val signosVitalesId = insertSignosVitalesUseCase(signosVitales)
-//
-//                    if (signosVitalesId > 0) {
-//                        // Signos Vitales registrados exitosamente
-//
-//                        // --- Paso 3: Actualizar estado de la cita (si aplica) ---
-//                        if (consulta.citaId != null) {
-//                            // updateEstadoCitaUseCase también debería ser suspend fun y manejar errores si es necesario
-//                            // Si updateEstadoCitaUseCase puede fallar, también podrías verificar su resultado o atrapar sus excepciones específicas
-//                            updateEstadoCitaUseCase(consulta.citaId, "COMPLETADA")
-//                            // Podrías verificar el resultado de la actualización si la función lo devuelve
-//                        }
-//
-//                        // --- ÉXITO TOTAL ---
-//                        _mensaje.postValue("La consulta y los signos vitales se registraron correctamente.")
-//                        _salir.postValue(true)
-//
-//                    } else {
-//                        // Falló la inserción de los Signos Vitales (pero la consulta sí se insertó)
-//                        // Considera cómo manejar esto: ¿borras la consulta o dejas que quede incompleta?
-//                        // Por ahora, mostramos un error.
-//                        _mensaje.postValue("Error: Se registró la consulta pero falló el registro de los signos vitales.")
-//                        _salir.postValue(false) // No salimos
-//                        // Opcional: Añadir lógica para borrar la consulta recién insertada si fallan los signos vitales
-//                        // deleteConsultaUseCase(consultaId) // Necesitarías un Use Case para esto
-//                    }
-//
-//                } else {
-//                    // Falló la inserción de la Consulta
-//                    _mensaje.postValue("Error al registrar la consulta (no se obtuvo ID válido).")
-//                    _salir.postValue(false) // No salimos
-//                }
+//                _mensaje.value = "Consulta guardada correctamente."
+//                _salir.value = true
 //
 //            } catch (e: Exception) {
-//                // --- Manejo de CUALQUIER EXCEPCIÓN que ocurra ---
-//                // Esto atrapará errores de base de datos, de red (si los use cases acceden a la red), etc.
-//                _mensaje.postValue("Ocurrió un error inesperado durante el registro: ${e.message}")
-//                _salir.postValue(false) // No salimos
+//                _mensaje.value = "Ocurrió un error inesperado al guardar la consulta."
 //
-//                // MUY importante loguear el error completo para debugging
-//                Log.e("ViewModel", "Error en registrarConsulta", e)
-//
-//                // Si usas excepciones personalizadas (como DuplicateCédulaException),
-//                // podrías tener catch específicos antes de este catch(e: Exception) genérico.
+//            } finally {
+//                _isLoading.value = false
 //            }
 //        }
-//    }
-//
-//}
+    }
+
+}

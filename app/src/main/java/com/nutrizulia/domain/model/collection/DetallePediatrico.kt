@@ -4,7 +4,7 @@ import com.nutrizulia.data.local.entity.collection.DetallePediatricoEntity
 import com.nutrizulia.data.local.enum.TipoLactancia
 import java.time.LocalDateTime
 
-data class DetallePedriatico(
+data class DetallePediatrico(
     val id: String,
     val consultaId: String,
     val usaBiberon: Boolean?,
@@ -12,7 +12,7 @@ data class DetallePedriatico(
     val updatedAt: LocalDateTime
 )
 
-fun DetallePediatricoEntity.toDomain() = DetallePedriatico(
+fun DetallePediatricoEntity.toDomain() = DetallePediatrico(
     id = id,
     consultaId = consultaId,
     usaBiberon = usaBiberon,

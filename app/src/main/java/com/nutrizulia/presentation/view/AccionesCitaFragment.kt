@@ -81,7 +81,18 @@ class AccionesCitaFragment : Fragment() {
     }
 
     fun setupListeners() {
-        binding.cardViewRealizarConsulta.setOnClickListener { findNavController().navigate(AccionesCitaFragmentDirections.actionAccionesCitaFragmentToRegistrarConsultaFragment(args.idConsulta)) }
+        binding.cardViewRealizarConsulta.setOnClickListener {
+            pacienteId?.let { id ->
+                val action = AccionesCitaFragmentDirections.actionAccionesCitaFragmentToRegistrarConsultaFragment(
+                    idPaciente = id,
+                    idConsulta = args.idConsulta,
+                    isEditable = true
+                )
+                findNavController().navigate(action)
+            } ?: run {
+                mostrarSnackbar(requireView(), "Cargando datos, por favor espere...")
+            }
+        }
 
         binding.cardViewDetallesCita.setOnClickListener {
             pacienteId?.let { id ->
@@ -100,7 +111,8 @@ class AccionesCitaFragment : Fragment() {
                 pacienteId?.let { id ->
                 val action = AccionesCitaFragmentDirections.actionAccionesCitaFragmentToRegistrarCitaFragment(
                     idPaciente = id,
-                    idConsulta = args.idConsulta
+                    idConsulta = args.idConsulta,
+                    isEditable = true
                 )
                 findNavController().navigate(action)
             } ?: run {

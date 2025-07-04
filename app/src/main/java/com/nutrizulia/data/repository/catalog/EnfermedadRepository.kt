@@ -7,11 +7,10 @@ import com.nutrizulia.domain.model.catalog.toDomain
 import javax.inject.Inject
 
 class EnfermedadRepository @Inject constructor(
-    private val dao: EnfermedadDao,
-    private val api: CatalogService
+    private val dao: EnfermedadDao
 ) {
 
-    suspend fun getEnfermedadesFromDB(genero: String, nombre: String): List<Enfermedad> {
+    suspend fun findAllByGeneroAndNombreLike(genero: String, nombre: String): List<Enfermedad> {
         return dao.findAllByGeneroAndNombreLike(genero, nombre).map { it.toDomain() }
     }
 

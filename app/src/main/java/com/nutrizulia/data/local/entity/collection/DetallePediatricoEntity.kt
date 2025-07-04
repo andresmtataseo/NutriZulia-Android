@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nutrizulia.data.local.enum.TipoLactancia
-import com.nutrizulia.domain.model.collection.DetallePedriatico
+import com.nutrizulia.domain.model.collection.DetallePediatrico
 import java.time.LocalDateTime
 
 @Entity(
@@ -32,7 +32,7 @@ data class DetallePediatricoEntity(
     @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime
 )
 
-fun DetallePedriatico.toEntity() = DetallePediatricoEntity(
+fun DetallePediatrico.toEntity() = DetallePediatricoEntity(
     id = id,
     consultaId = consultaId,
     usaBiberon = usaBiberon,
