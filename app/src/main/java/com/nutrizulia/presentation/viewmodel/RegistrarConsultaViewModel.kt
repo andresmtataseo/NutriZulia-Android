@@ -26,8 +26,15 @@ import com.nutrizulia.domain.usecase.catalog.GetTiposActividades
 import com.nutrizulia.domain.usecase.collection.GetConsultaProgramadaById
 import com.nutrizulia.domain.usecase.collection.GetPacienteById
 import com.nutrizulia.domain.usecase.collection.SaveConsulta
+import com.nutrizulia.domain.usecase.collection.SaveDetalleAntropometrico
+import com.nutrizulia.domain.usecase.collection.SaveDetalleMetabolico
+import com.nutrizulia.domain.usecase.collection.SaveDetalleObstetricia
+import com.nutrizulia.domain.usecase.collection.SaveDetallePediatrico
+import com.nutrizulia.domain.usecase.collection.SaveDetalleVital
 import com.nutrizulia.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,6 +42,11 @@ import javax.inject.Inject
 @HiltViewModel
 class RegistrarConsultaViewModel @Inject constructor(
     private val saveConsulta: SaveConsulta,
+    private val saveDetalleVital: SaveDetalleVital,
+    private val saveDetalleAntropometrico: SaveDetalleAntropometrico,
+    private val saveDetalleMetabolico: SaveDetalleMetabolico,
+    private val saveDetallePediatrico: SaveDetallePediatrico,
+    private val saveDetalleObstetricia: SaveDetalleObstetricia,
     private val getPaciente: GetPacienteById,
     private val getConsulta: GetConsultaProgramadaById,
 
@@ -55,7 +67,6 @@ class RegistrarConsultaViewModel @Inject constructor(
     val idUsuarioInstitucion: LiveData<Int> = _idUsuarioInstitucion
     private val _paciente = MutableLiveData<Paciente>()
     val paciente: LiveData<Paciente> = _paciente
-
 
     // Datos Individuales
     private val _tipoActividad = MutableLiveData<TipoActividad>()
@@ -108,26 +119,41 @@ class RegistrarConsultaViewModel @Inject constructor(
     private val _salir = MutableLiveData<Boolean>()
     val salir: LiveData<Boolean> = _salir
 
-    fun onCreate(idPaciente: String, idConsulta: String?, isEditable: Boolean) {
+    fun onCreate(idPaciente: String, idConsulta: String?) {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val pacienteJob = launch { obtenerPaciente(idPaciente) }
+                val idUsuarioInstitucion = obtenerIdUsuarioInstitucion()
+                val pacienteDeferred = async { getPaciente(idUsuarioInstitucion, idPaciente) }
 
                 if (idConsulta != null) {
-                    val consultaJob = launch { obtenerConsulta(idConsulta) }
-                    consultaJob.join()
+                    val consultaExistente = getConsulta(idConsulta)
+                        ?: throw IllegalStateException("La consulta a editar no fue encontrada.")
+                    _consulta.postValue(consultaExistente)
+                    async { _tipoActividad.postValue(getTipoActividad(consultaExistente.tipoActividadId)) }
+                    async { _especialidad.postValue(getEspecialidad(consultaExistente.especialidadRemitenteId)) }
                 } else {
-                    val catalogosCitaJob = launch { cargarCatalogosCita() }
-                    catalogosCitaJob.join()
+                    async { _tiposActividades.postValue(getTiposActividades()) }
+                    async { _especialidades.postValue(getEspecialidades()) }
+                    async { _tiposConsultas.postValue(TipoConsulta.entries) }
                 }
 
-                pacienteJob.join()
+                val pacienteCargado = pacienteDeferred.await()
+                    ?: throw IllegalStateException("El paciente no fue encontrado.")
+                _paciente.postValue(pacienteCargado)
 
+            } catch (e: Exception) {
+                _mensaje.postValue(e.message ?: "Error desconocido al cargar datos.")
+                _salir.postValue(true)
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
+    }
+
+    private suspend fun obtenerIdUsuarioInstitucion(): Int {
+        return sessionManager.currentInstitutionIdFlow.firstOrNull()
+            ?: throw IllegalStateException("ID de institución no encontrado en la sesión. No se puede continuar.")
     }
 
     private fun obtenerPaciente(idPaciente: String) {
@@ -213,34 +239,43 @@ class RegistrarConsultaViewModel @Inject constructor(
     }
 
 
-    fun guardarConsulta(consulta: Consulta, detalleVital: DetalleVital, detalleMetabolico: DetalleMetabolico, detalleAntropometrico: DetalleAntropometrico) {
-        val erroresMap = validarConsulta(consulta)
-        if (erroresMap.isNotEmpty()) {
-            _mensaje.value = "Corrige los campos en rojo."
+    fun guardarConsulta(
+        consulta: Consulta,
+        detalleVital: DetalleVital,
+        detalleMetabolico: DetalleMetabolico,
+        detalleAntropometrico: DetalleAntropometrico,
+        detallePediatrico: DetallePediatrico?,
+        detalleObstetricia: DetalleObstetricia?
+    ) {
+        if (validarConsulta(consulta).isNotEmpty()) {
+            _mensaje.value = "Por favor, corrige los campos obligatorios."
             return
         }
 
-//        viewModelScope.launch {
-//            _isLoading.value = true
-//
-//            try {
-//                val institutionId = sessionManager.currentInstitutionIdFlow.firstOrNull()
-//                    ?: throw IllegalStateException("El ID de la institución no puede ser nulo.")
-//
-//                consulta.usuarioInstitucionId = institutionId
-//
-//                saveConsulta(consulta)
-//
-//                _mensaje.value = "Consulta guardada correctamente."
-//                _salir.value = true
-//
-//            } catch (e: Exception) {
-//                _mensaje.value = "Ocurrió un error inesperado al guardar la consulta."
-//
-//            } finally {
-//                _isLoading.value = false
-//            }
-//        }
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val idUsuarioInstitucion = obtenerIdUsuarioInstitucion()
+                val consultaConId = consulta.copy(usuarioInstitucionId = idUsuarioInstitucion)
+
+                coroutineScope {
+                    saveConsulta(consultaConId)
+                    launch { saveDetalleVital(detalleVital) }
+                    launch { saveDetalleMetabolico(detalleMetabolico) }
+                    launch { saveDetalleAntropometrico(detalleAntropometrico) }
+                    detallePediatrico?.let { launch { saveDetallePediatrico(it) } }
+                    detalleObstetricia?.let { launch { saveDetalleObstetricia(it) } }
+                }
+
+                _mensaje.postValue("Consulta guardada con éxito.")
+                _salir.postValue(true)
+
+            } catch (e: Exception) {
+                _mensaje.postValue(e.message ?: "Ocurrió un error inesperado al guardar.")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
     }
 
 }

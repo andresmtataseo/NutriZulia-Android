@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.DetalleAntropometricoEntity
 
 @Dao
@@ -17,6 +18,9 @@ interface DetalleAntropometricoDao {
 
     @Insert
     suspend fun insertAll(detallesAntropometricos: List<DetalleAntropometricoEntity>): List<Long>
+
+    @Upsert
+    suspend fun upsert(detalleAntropometrico: DetalleAntropometricoEntity)
 
     @Delete
     suspend fun delete(detalleAntropometrico: DetalleAntropometricoEntity): Int

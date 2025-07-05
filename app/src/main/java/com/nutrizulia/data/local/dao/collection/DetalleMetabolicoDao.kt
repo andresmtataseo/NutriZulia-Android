@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.DetalleMetabolicoEntity
 
 @Dao
@@ -17,6 +18,9 @@ interface DetalleMetabolicoDao {
 
     @Insert
     suspend fun insertAll(detallesMetabolicos: List<DetalleMetabolicoEntity>): List<Long>
+
+    @Upsert
+    suspend fun upsert(detalleMetabolico: DetalleMetabolicoEntity)
 
     @Delete
     suspend fun delete(detalleMetabolico: DetalleMetabolicoEntity): Int

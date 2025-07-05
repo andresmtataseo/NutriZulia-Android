@@ -15,7 +15,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.nutrizulia.R
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.enum.TipoConsulta
 import com.nutrizulia.databinding.FragmentRegistrarConsultaBinding
@@ -24,8 +29,11 @@ import com.nutrizulia.domain.model.catalog.TipoActividad
 import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.domain.model.collection.DetalleAntropometrico
 import com.nutrizulia.domain.model.collection.DetalleMetabolico
+import com.nutrizulia.domain.model.collection.DetalleObstetricia
+import com.nutrizulia.domain.model.collection.DetallePediatrico
 import com.nutrizulia.domain.model.collection.DetalleVital
 import com.nutrizulia.presentation.viewmodel.RegistrarConsultaViewModel
+import com.nutrizulia.util.Utils.calcularEdad
 import com.nutrizulia.util.Utils.calcularEdadDetallada
 import com.nutrizulia.util.Utils.generarUUID
 import com.nutrizulia.util.Utils.mostrarDialog
@@ -33,7 +41,12 @@ import com.nutrizulia.util.Utils.mostrarErrorEnCampo
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import com.nutrizulia.util.Utils.obtenerTexto
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 @AndroidEntryPoint
 class RegistrarConsultaFragment : Fragment() {
@@ -41,6 +54,7 @@ class RegistrarConsultaFragment : Fragment() {
     private val viewModel: RegistrarConsultaViewModel by viewModels()
     private lateinit var binding: FragmentRegistrarConsultaBinding
     private val args: RegistrarConsultaFragmentArgs by navArgs()
+    private var ultimaFechaSeleccionada: Long? = null
     private var tipoActividadSel: TipoActividad? = null
     private var especialidadSel: Especialidad? = null
     private var tipoConsultaSel: TipoConsulta? = null
@@ -57,7 +71,7 @@ class RegistrarConsultaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
-        viewModel.onCreate(args.idPaciente, args.idConsulta, args.isEditable)
+        viewModel.onCreate(args.idPaciente, args.idConsulta)
         if (args.idConsulta != null) {
             deshabilitarCamposCita()
         } else if (!args.isEditable) {
@@ -81,7 +95,7 @@ class RegistrarConsultaFragment : Fragment() {
         }
 
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
-            if (salir) findNavController().popBackStack()
+            if (salir) findNavController().popBackStack(R.id.consultasFragment, false)
         }
 
         viewModel.errores.observe(viewLifecycleOwner) { errores ->
@@ -97,10 +111,24 @@ class RegistrarConsultaFragment : Fragment() {
 
         viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
             if (paciente != null) {
+                // Mostrar datos
                 binding.tfNombreCompletoPaciente.editText?.setText("${paciente.nombres} ${paciente.apellidos}")
                 binding.tfGeneroPaciente.editText?.setText(paciente.genero)
                 val edad = calcularEdadDetallada(paciente.fechaNacimiento)
                 binding.tfEdadPaciente.editText?.setText("${edad.anios} años, ${edad.meses} meses y ${edad.dias} días")
+                // Mostrar layout embarazada si es mujer
+                if (paciente.genero == "FEMENINO" || paciente.genero == "F") {
+                    binding.layoutDetallesEmbarazo.visibility = View.VISIBLE
+                } else {
+                    binding.layoutDetallesEmbarazo.visibility = View.GONE
+                }
+                // Mostrar Signos Pediatricos
+                val edadCalculada = calcularEdad(paciente.fechaNacimiento)
+                if (edadCalculada < 5) {
+                    binding.layoutSignosPediatricos.visibility = View.VISIBLE
+                } else {
+                    binding.layoutSignosPediatricos.visibility = View.GONE
+                }
             }
         }
         viewModel.consulta.observe(viewLifecycleOwner) { consulta ->
@@ -132,8 +160,10 @@ class RegistrarConsultaFragment : Fragment() {
 
         configurarDropdownEmbarazada()
 
-        binding.btnRegistrarConsulta.setOnClickListener {
+        mostrarSelectorFecha(binding.tfFechaUltimaMenstruacion.editText as TextInputEditText)
 
+        binding.btnRegistrarConsulta.setOnClickListener {
+            registrarConsulta()
         }
 
         binding.btnLimpiar.setOnClickListener {
@@ -157,7 +187,7 @@ class RegistrarConsultaFragment : Fragment() {
                     "No",
                     {
                         limpiarCampos()
-                        viewModel.onCreate(args.idPaciente, args.idConsulta, args.isEditable)
+                        viewModel.onCreate(args.idPaciente, args.idConsulta)
                     },
                     { },
                     true
@@ -209,32 +239,152 @@ class RegistrarConsultaFragment : Fragment() {
         )
 
         // Signos Vitales
-        configurarRemoverCampo(binding.btnRemoverTensionArterialSistolica, binding.layoutTensionArterialSistolica, binding.tfTensionArterialSistolica.editText, "Tensión Arterial Sistólica")
-        configurarRemoverCampo(binding.btnRemoverTensionArterialDiastolica, binding.layoutTensionArterialDiastolica, binding.tfTensionArterialDiastolica.editText, "Tensión Arterial Diastólica")
-        configurarRemoverCampo(binding.btnRemoverFrecuenciaCardiaca, binding.layoutFrecuenciaCardiaca, binding.tfFrecuenciaCardiaca.editText, "Frecuencia Cardíaca")
-        configurarRemoverCampo(binding.btnRemoverFrecuenciaRespiratoria, binding.layoutFrecuenciaRespiratoria, binding.tfFrecuenciaRespiratoria.editText, "Frecuencia Respiratoria")
-        configurarRemoverCampo(binding.btnRemoverTemperatura, binding.layoutTemperatura, binding.tfTemperatura.editText, "Temperatura")
-        configurarRemoverCampo(binding.btnRemoverSTO2, binding.layoutSTO2, binding.tfSTO2.editText, "Saturación de Oxígeno")
-        configurarRemoverCampo(binding.btnRemoverPulso, binding.layoutPulso, binding.tfPulso.editText, "Pulso")
+        configurarRemoverCampo(
+            binding.btnRemoverTensionArterialSistolica,
+            binding.layoutTensionArterialSistolica,
+            binding.tfTensionArterialSistolica.editText,
+            "Tensión Arterial Sistólica"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverTensionArterialDiastolica,
+            binding.layoutTensionArterialDiastolica,
+            binding.tfTensionArterialDiastolica.editText,
+            "Tensión Arterial Diastólica"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverFrecuenciaCardiaca,
+            binding.layoutFrecuenciaCardiaca,
+            binding.tfFrecuenciaCardiaca.editText,
+            "Frecuencia Cardíaca"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverFrecuenciaRespiratoria,
+            binding.layoutFrecuenciaRespiratoria,
+            binding.tfFrecuenciaRespiratoria.editText,
+            "Frecuencia Respiratoria"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverTemperatura,
+            binding.layoutTemperatura,
+            binding.tfTemperatura.editText,
+            "Temperatura"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverSTO2,
+            binding.layoutSTO2,
+            binding.tfSTO2.editText,
+            "Saturación de Oxígeno"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverPulso,
+            binding.layoutPulso,
+            binding.tfPulso.editText,
+            "Pulso"
+        )
         // Signos metabolicos
-        configurarRemoverCampo(binding.btnRemoverGlicemiaBasal, binding.layoutGlicemiaBasal, binding.tiGlicemiaBasal, "Glicemia Basal")
-        configurarRemoverCampo(binding.btnRemoverGlicemiaPostprandial, binding.layoutGlicemiaPostprandial, binding.tiGlicemiaPostprandial, "Glicemia Postprandial")
-        configurarRemoverCampo(binding.btnRemoverGlicemiaAleatoria, binding.layoutGlicemiaAleatoria, binding.tiGlicemiaAleatoria, "Glicemia Aleatoria")
-        configurarRemoverCampo(binding.btnRemoverHemoglobinaGlicosilada, binding.layoutHemoglobinaGlicosilada, binding.tiHemoglobinaGlicosilada, "Hemoglobina Glicosilada")
-        configurarRemoverCampo(binding.btnRemoverTrigliceridos, binding.layoutTrigliceridos, binding.tiTrigliceridos, "Triglicéridos")
-        configurarRemoverCampo(binding.btnRemoverColesterolTotal, binding.layoutColesterolTotal, binding.tiColesterolTotal, "Colesterol Total")
-        configurarRemoverCampo(binding.btnRemoverColesterolHdl, binding.layoutColesterolHdl, binding.tiColesterolHdl, "Colesterol HDL")
-        configurarRemoverCampo(binding.btnRemoverColesterolLdl, binding.layoutColesterolLdl, binding.tiColesterolLdl, "Colesterol LDL")
+        configurarRemoverCampo(
+            binding.btnRemoverGlicemiaBasal,
+            binding.layoutGlicemiaBasal,
+            binding.tiGlicemiaBasal,
+            "Glicemia Basal"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverGlicemiaPostprandial,
+            binding.layoutGlicemiaPostprandial,
+            binding.tiGlicemiaPostprandial,
+            "Glicemia Postprandial"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverGlicemiaAleatoria,
+            binding.layoutGlicemiaAleatoria,
+            binding.tiGlicemiaAleatoria,
+            "Glicemia Aleatoria"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverHemoglobinaGlicosilada,
+            binding.layoutHemoglobinaGlicosilada,
+            binding.tiHemoglobinaGlicosilada,
+            "Hemoglobina Glicosilada"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverTrigliceridos,
+            binding.layoutTrigliceridos,
+            binding.tiTrigliceridos,
+            "Triglicéridos"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverColesterolTotal,
+            binding.layoutColesterolTotal,
+            binding.tiColesterolTotal,
+            "Colesterol Total"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverColesterolHdl,
+            binding.layoutColesterolHdl,
+            binding.tiColesterolHdl,
+            "Colesterol HDL"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverColesterolLdl,
+            binding.layoutColesterolLdl,
+            binding.tiColesterolLdl,
+            "Colesterol LDL"
+        )
         // Signos antropométricos
-        configurarRemoverCampo(binding.btnRemoverPeso, binding.layoutPeso, binding.tfPeso.editText, "Peso")
-        configurarRemoverCampo(binding.btnRemoverAltura, binding.layoutAltura, binding.tfAltura.editText, "Altura (de pie)")
-        configurarRemoverCampo(binding.btnRemoverTalla, binding.layoutTalla, binding.tfTalla.editText, "Talla (acostado)")
-        configurarRemoverCampo(binding.btnRemoverCircuferenciaBraquial, binding.layoutCircuferenciaBraquial, binding.tfCircuferenciaBraquial.editText, "Circunferencia Braquial")
-        configurarRemoverCampo(binding.btnRemoverCircuferenciaCadera, binding.layoutCircuferenciaCadera, binding.tfCircuferenciaCadera.editText, "Circunferencia Cadera")
-        configurarRemoverCampo(binding.btnRemoverCircuferenciaCintura, binding.layoutCircuferenciaCintura, binding.tfCircuferenciaCintura.editText, "Circunferencia Cintura")
-        configurarRemoverCampo(binding.btnRemoverPerimetroCefalico, binding.layoutPerimetroCefalico, binding.tfPerimetroCefalico.editText, "Perímetro Cefálico")
-        configurarRemoverCampo(binding.btnRemoverPliegueTricipital, binding.layoutPliegueTricipital, binding.tfPliegueTricipital.editText, "Pliegue Tricipital")
-        configurarRemoverCampo(binding.btnRemoverPliegueSubescapular, binding.layoutPliegueSubescapular, binding.tfPliegueSubescapular.editText, "Pliegue Subescapular")
+        configurarRemoverCampo(
+            binding.btnRemoverPeso,
+            binding.layoutPeso,
+            binding.tfPeso.editText,
+            "Peso"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverAltura,
+            binding.layoutAltura,
+            binding.tfAltura.editText,
+            "Altura (de pie)"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverTalla,
+            binding.layoutTalla,
+            binding.tfTalla.editText,
+            "Talla (acostado)"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverCircuferenciaBraquial,
+            binding.layoutCircuferenciaBraquial,
+            binding.tfCircuferenciaBraquial.editText,
+            "Circunferencia Braquial"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverCircuferenciaCadera,
+            binding.layoutCircuferenciaCadera,
+            binding.tfCircuferenciaCadera.editText,
+            "Circunferencia Cadera"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverCircuferenciaCintura,
+            binding.layoutCircuferenciaCintura,
+            binding.tfCircuferenciaCintura.editText,
+            "Circunferencia Cintura"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverPerimetroCefalico,
+            binding.layoutPerimetroCefalico,
+            binding.tfPerimetroCefalico.editText,
+            "Perímetro Cefálico"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverPliegueTricipital,
+            binding.layoutPliegueTricipital,
+            binding.tfPliegueTricipital.editText,
+            "Pliegue Tricipital"
+        )
+        configurarRemoverCampo(
+            binding.btnRemoverPliegueSubescapular,
+            binding.layoutPliegueSubescapular,
+            binding.tfPliegueSubescapular.editText,
+            "Pliegue Subescapular"
+        )
 
     }
 
@@ -242,6 +392,7 @@ class RegistrarConsultaFragment : Fragment() {
         binding.tfTipoActividad.isEnabled = false
         binding.tfEspecialidad.isEnabled = false
         binding.tfTipoConsulta.isEnabled = false
+        binding.tfMotivoConsulta.visibility = View.VISIBLE
         binding.tfMotivoConsulta.isEnabled = false
     }
 
@@ -393,30 +544,78 @@ class RegistrarConsultaFragment : Fragment() {
     }
 
     private fun registrarConsulta() {
-        val consultaExistente = viewModel.consulta.value
+        val ahora = LocalDateTime.now()
 
-        val nuevaConsulta = Consulta(
-            id = args.idConsulta ?: generarUUID(),
-            usuarioInstitucionId = viewModel.idUsuarioInstitucion.value ?: 0,
-            pacienteId = args.idPaciente,
-            tipoActividadId = tipoActividadSel?.id ?: consultaExistente?.tipoActividadId ?: 0,
-            especialidadRemitenteId = especialidadSel?.id ?: consultaExistente?.especialidadRemitenteId ?: 0,
-            tipoConsulta = tipoConsultaSel ?: consultaExistente?.tipoConsulta ?: TipoConsulta.CONSULTA_SUCESIVA,
-            motivoConsulta = binding.tfMotivoConsulta.editText?.text?.toString() ?: consultaExistente?.motivoConsulta,
-            fechaHoraProgramada = consultaExistente?.fechaHoraProgramada,
-            observaciones = binding.tfObservaciones.editText?.text.toString(),
-            planes = binding.tfPlanes.editText?.text.toString(),
-            fechaHoraReal = LocalDateTime.now(),
-            estado = when {
-                args.idConsulta == null -> Estado.SIN_PREVIA_CITA
-                else -> Estado.COMPLETADA
-            },
-            updatedAt = LocalDateTime.now()
+        val consulta = crearOActualizarConsulta(ahora)
+
+        if (consulta == null) {
+            // Utils.mostrarAlerta(requireContext(), "Error", "No se pudo cargar la consulta existente.")
+            return
+        }
+
+        val detalleVital = crearDetalleVital(consulta.id, ahora)
+        val detalleMetabolico = crearDetalleMetabolico(consulta.id, ahora)
+        val detalleAntropometrico = crearDetalleAntropometrico(consulta.id, ahora)
+
+        val esEmbarazo = binding.tfIsEmbarazo.editText?.text.toString().equals("Si", ignoreCase = true)
+        val detalleObstetricia = if (esEmbarazo) crearDetalleObstetricia(consulta.id, ahora) else null
+
+        val edadEnAnios = calcularEdad(viewModel.paciente.value?.fechaNacimiento ?: LocalDate.now())
+        val esPediatrico = edadEnAnios < 5
+        val detallePediatrico = if (esPediatrico) crearDetallePediatrico(consulta.id, ahora) else null
+
+        viewModel.guardarConsulta(
+            consulta,
+            detalleVital,
+            detalleMetabolico,
+            detalleAntropometrico,
+            detallePediatrico,
+            detalleObstetricia
         )
+    }
 
-        val signosVitales = DetalleVital(
+    /**
+     * Crea una nueva consulta o actualiza una existente de forma segura.
+     * Devuelve null si se intenta actualizar una consulta que no existe en el ViewModel.
+     */
+    private fun crearOActualizarConsulta(ahora: LocalDateTime): Consulta? {
+        val observaciones = obtenerTexto(binding.tfObservaciones)
+        val planes = obtenerTexto(binding.tfPlanes)
+
+        return if (args.idConsulta.isNullOrEmpty()) {
+            Consulta(
+                id = generarUUID(),
+                usuarioInstitucionId = viewModel.idUsuarioInstitucion.value ?: 0,
+                pacienteId = args.idPaciente,
+                tipoActividadId = tipoActividadSel?.id ?: 0,
+                especialidadRemitenteId = especialidadSel?.id ?: 0,
+                tipoConsulta = tipoConsultaSel,
+                motivoConsulta = null,
+                fechaHoraProgramada = null,
+                observaciones = observaciones,
+                planes = planes,
+                fechaHoraReal = ahora,
+                estado = Estado.SIN_PREVIA_CITA,
+                updatedAt = ahora
+            )
+        } else {
+            val consultaExistente = viewModel.consulta.value ?: return null
+            consultaExistente.copy(
+                observaciones = observaciones,
+                planes = planes,
+                fechaHoraReal = ahora,
+                estado = Estado.COMPLETADA,
+                updatedAt = ahora
+            )
+        }
+    }
+
+// --- FUNCIONES AUXILIARES PARA CREAR DETALLES ---
+
+    private fun crearDetalleVital(consultaId: String, ahora: LocalDateTime): DetalleVital {
+        return DetalleVital(
             id = generarUUID(),
-            consultaId = nuevaConsulta.id,
+            consultaId = consultaId,
             tensionArterialSistolica = obtenerTexto(binding.tfTensionArterialSistolica).toIntOrNull(),
             tensionArterialDiastolica = obtenerTexto(binding.tfTensionArterialDiastolica).toIntOrNull(),
             frecuenciaCardiaca = obtenerTexto(binding.tfFrecuenciaCardiaca).toIntOrNull(),
@@ -424,12 +623,14 @@ class RegistrarConsultaFragment : Fragment() {
             temperatura = obtenerTexto(binding.tfTemperatura).toDoubleOrNull(),
             saturacionOxigeno = obtenerTexto(binding.tfSTO2).toIntOrNull(),
             pulso = obtenerTexto(binding.tfPulso).toIntOrNull(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = ahora
         )
+    }
 
-        val signosMetabolicos = DetalleMetabolico(
+    private fun crearDetalleMetabolico(consultaId: String, ahora: LocalDateTime): DetalleMetabolico {
+        return DetalleMetabolico(
             id = generarUUID(),
-            consultaId = nuevaConsulta.id,
+            consultaId = consultaId,
             glicemiaBasal = obtenerTexto(binding.tfGlicemiaBasal).toIntOrNull(),
             glicemiaPostprandial = obtenerTexto(binding.tfGlicemiaPostprandial).toIntOrNull(),
             glicemiaAleatoria = obtenerTexto(binding.tfGlicemiaAleatoria).toIntOrNull(),
@@ -438,12 +639,14 @@ class RegistrarConsultaFragment : Fragment() {
             colesterolTotal = obtenerTexto(binding.tfColesterolTotal).toIntOrNull(),
             colesterolHdl = obtenerTexto(binding.tfColesterolHdl).toIntOrNull(),
             colesterolLdl = obtenerTexto(binding.tfColesterolLdl).toIntOrNull(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = ahora
         )
+    }
 
-        val signosAntropometricos = DetalleAntropometrico(
+    private fun crearDetalleAntropometrico(consultaId: String, ahora: LocalDateTime): DetalleAntropometrico {
+        return DetalleAntropometrico(
             id = generarUUID(),
-            consultaId = nuevaConsulta.id,
+            consultaId = consultaId,
             peso = obtenerTexto(binding.tfPeso).toDoubleOrNull(),
             altura = obtenerTexto(binding.tfAltura).toDoubleOrNull(),
             talla = obtenerTexto(binding.tfTalla).toDoubleOrNull(),
@@ -453,15 +656,77 @@ class RegistrarConsultaFragment : Fragment() {
             perimetroCefalico = obtenerTexto(binding.tfPerimetroCefalico).toDoubleOrNull(),
             pliegueTricipital = obtenerTexto(binding.tfPliegueTricipital).toDoubleOrNull(),
             pliegueSubescapular = obtenerTexto(binding.tfPliegueSubescapular).toDoubleOrNull(),
-            updatedAt = LocalDateTime.now()
+            updatedAt = ahora
         )
+    }
 
-        viewModel.guardarConsulta(
-            nuevaConsulta,
-            signosVitales,
-            signosMetabolicos,
-            signosAntropometricos
+    private fun crearDetalleObstetricia(consultaId: String, ahora: LocalDateTime): DetalleObstetricia {
+        val fechaTexto = obtenerTexto(binding.tfFechaUltimaMenstruacion)
+        val fechaUltimaMenstruacion = try {
+            if (fechaTexto.isNotBlank()) LocalDate.parse(fechaTexto) else null
+        } catch (e: DateTimeParseException) {
+            null
+        }
+
+        return DetalleObstetricia(
+            id = generarUUID(),
+            consultaId = consultaId,
+            estaEmbarazada = true,
+            fechaUltimaMenstruacion = fechaUltimaMenstruacion,
+            semanasGestacion = obtenerTexto(binding.tfSemanasGestacion).toIntOrNull(),
+            pesoPreEmbarazo = obtenerTexto(binding.tfPesoPreEmbarazo).toDoubleOrNull(),
+            updatedAt = ahora
         )
+    }
+
+    private fun crearDetallePediatrico(consultaId: String, ahora: LocalDateTime): DetallePediatrico {
+        return DetallePediatrico(
+            id = generarUUID(),
+            consultaId = consultaId,
+            usaBiberon = null,
+            tipoLactancia = null,
+            updatedAt = ahora
+        )
+    }
+
+    private fun mostrarSelectorFecha(editText: TextInputEditText) {
+        val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+
+        fun abrirPicker() {
+            val fragmentManager = parentFragmentManager
+            val existingPicker = fragmentManager.findFragmentByTag("MaterialDatePicker")
+            if (existingPicker != null) {
+                fragmentManager.beginTransaction().remove(existingPicker).commit()
+            }
+
+            val constraints = CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointBackward.now())
+                .build()
+
+            val seleccionInicial =
+                ultimaFechaSeleccionada ?: MaterialDatePicker.todayInUtcMilliseconds()
+
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Selecciona la fecha")
+                .setSelection(seleccionInicial)
+                .setCalendarConstraints(constraints)
+                .build()
+
+            datePicker.addOnPositiveButtonClickListener { utcDateMillis ->
+                ultimaFechaSeleccionada = utcDateMillis
+
+                val localDate = Instant.ofEpochMilli(utcDateMillis)
+                    .atZone(ZoneId.of("UTC"))
+                    .toLocalDate()
+
+                editText.setText(localDate.format(dateFormatter))
+            }
+
+            datePicker.show(fragmentManager, "MaterialDatePicker")
+        }
+
+        editText.setOnClickListener { abrirPicker() }
+        binding.tfFechaUltimaMenstruacion.setStartIconOnClickListener { abrirPicker() }
     }
 
     private fun configurarDropdownEmbarazada() {
@@ -525,7 +790,12 @@ class RegistrarConsultaFragment : Fragment() {
         binding.tfPesoPreEmbarazo.editText?.text = null
     }
 
-    private fun configurarRemoverCampo(boton: View, layout: View, campoTexto: EditText?, nombreCampo: String) {
+    private fun configurarRemoverCampo(
+        boton: View,
+        layout: View,
+        campoTexto: EditText?,
+        nombreCampo: String
+    ) {
         boton.setOnClickListener {
             mostrarDialog(
                 requireContext(),
@@ -543,7 +813,12 @@ class RegistrarConsultaFragment : Fragment() {
         }
     }
 
-    private fun <T> AutoCompleteTextView.bind(lifecycleOwner: LifecycleOwner, itemsLive: LiveData<List<T>>, toText: (T) -> String, onItemSelected: (T) -> Unit) {
+    private fun <T> AutoCompleteTextView.bind(
+        lifecycleOwner: LifecycleOwner,
+        itemsLive: LiveData<List<T>>,
+        toText: (T) -> String,
+        onItemSelected: (T) -> Unit
+    ) {
         var currentItems: List<T> = emptyList()
 
         itemsLive.observe(lifecycleOwner) { items ->
