@@ -74,7 +74,7 @@
     <string name="hora_de_la_cita">Hora de la cita *</string>
     <string name="datos_de_la_cita">Datos de la cita</string>
 
-    <string name="programacion_de_la_cita">Programación de la cita</string>
+    <string name="programacion_de_la_cita">Programación de la consulta</string>
     <string name="glicemia">Glicemia</string>
     <string name="revomer_signo_vital">Revomer signo vital</string>
     <string name="tesion_arterial">Tesión arterial</string>
@@ -106,7 +106,7 @@
     <string name="no_puedes_recuperar_tu_contrase_a">¿No puedes recuperar tu contraseña?</string>
     <string name="recuperar">Recuperar</string>
     <string name="volver">Volver</string>
-    <string name="informacion_de_la_cita">Información de la cita</string>
+    <string name="informacion_de_la_cita">Información de la consulta</string>
     <string name="nombres">Nombres</string>
     <string name="nombresR">Nombres *</string>
     <string name="apellidos">Apellidos</string>
@@ -115,4 +115,5 @@
     <string name="seleccionar">Seleccionar</string>
     <string name="aceptar">Aceptar</string>
     <string name="guardar">Guardar</string>
+    <string name="siguiente">Siguiente</string>
 </resources>

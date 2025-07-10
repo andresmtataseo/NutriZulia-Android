@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.view
+package com.nutrizulia.presentation.view.consulta
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -64,8 +64,8 @@ class AccionesCitaFragment : Fragment() {
             binding.tvCedulaPaciente.text = "Cédula: ${it.cedulaPaciente}"
             val edad = calcularEdadDetallada(it.fechaNacimientoPaciente)
             binding.tvEdad.text = "Edad: ${edad.anios} años, ${edad.meses} meses y ${edad.dias} días"
-            binding.tvFechaProgramada.text = "Fecha programada: ${it.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
-            binding.tvHoraProgramda.text = "Hora programada: ${it.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
+            binding.tvFechaProgramada.text = "Fecha programada: ${it.fechaHoraProgramadaConsulta?.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+            binding.tvHoraProgramda.text = "Hora programada: ${it.fechaHoraProgramadaConsulta?.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
             binding.tvEstado.text = it.estadoConsulta.displayValue
 
             val colorResId = when (it.estadoConsulta) { // Compara con el enum directamente
@@ -83,10 +83,10 @@ class AccionesCitaFragment : Fragment() {
     fun setupListeners() {
         binding.cardViewRealizarConsulta.setOnClickListener {
             pacienteId?.let { id ->
-                val action = AccionesCitaFragmentDirections.actionAccionesCitaFragmentToRegistrarConsultaFragment(
+                val action = AccionesCitaFragmentDirections.actionSeleccionarPacienteCitaFragmentToRegistrarConsultaGraph(
                     idPaciente = id,
                     idConsulta = args.idConsulta,
-                    isEditable = true
+                    isEditable = false
                 )
                 findNavController().navigate(action)
             } ?: run {

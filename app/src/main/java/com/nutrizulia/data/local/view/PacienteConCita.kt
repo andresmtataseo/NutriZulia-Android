@@ -17,6 +17,7 @@ import java.time.LocalDateTime
             c.usuario_institucion_id AS usuarioInstitucionId,
             c.id AS consultaId,
             c.fecha_hora_programada AS fechaHoraProgramadaConsulta,
+            c.fecha_hora_real AS fechaHoraRealConsulta,
             c.estado AS estadoConsulta
         FROM pacientes AS p
         INNER JOIN consultas AS c ON p.id = c.paciente_id
@@ -30,6 +31,7 @@ data class PacienteConCita(
     @ColumnInfo(name = "fechaNacimientoPaciente") val fechaNacimientoPaciente: LocalDate,
     @ColumnInfo(name = "usuarioInstitucionId") val usuarioInstitucionId: Int,
     @ColumnInfo(name = "consultaId") val consultaId: String,
-    @ColumnInfo(name = "fechaHoraProgramadaConsulta") val fechaHoraProgramadaConsulta: LocalDateTime,
+    @ColumnInfo(name = "fechaHoraProgramadaConsulta") val fechaHoraProgramadaConsulta: LocalDateTime?,
+    @ColumnInfo(name = "fechaHoraRealConsulta") val fechaHoraRealConsulta: LocalDateTime?,
     @ColumnInfo(name = "estadoConsulta") val estadoConsulta: Estado
 )

@@ -1,14 +1,14 @@
-package com.nutrizulia.presentation.view
+package com.nutrizulia.presentation.view.consulta
 
 import android.annotation.SuppressLint
-import androidx.fragment.app.viewModels
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
@@ -27,12 +27,7 @@ import com.nutrizulia.domain.model.catalog.Especialidad
 import com.nutrizulia.domain.model.catalog.TipoActividad
 import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.presentation.viewmodel.RegistrarCitaViewModel
-import com.nutrizulia.util.Utils.calcularEdadDetallada
-import com.nutrizulia.util.Utils.generarUUID
-import com.nutrizulia.util.Utils.mostrarDialog
-import com.nutrizulia.util.Utils.mostrarErrorEnCampo
-import com.nutrizulia.util.Utils.mostrarSnackbar
-import com.nutrizulia.util.Utils.obtenerTexto
+import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import java.time.LocalDate
@@ -105,7 +100,7 @@ class RegistrarCitaFragment : Fragment() {
         }
 
         binding.btnLimpiar.setOnClickListener {
-            mostrarDialog(
+            Utils.mostrarDialog(
                 requireContext(),
                 "Advertencia",
                 "¿Desea limpiar todos los campos?",
@@ -126,7 +121,7 @@ class RegistrarCitaFragment : Fragment() {
         }
 
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
-            mostrarSnackbar(binding.root, mensaje)
+            Utils.mostrarSnackbar(binding.root, mensaje)
         }
 
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
@@ -137,11 +132,11 @@ class RegistrarCitaFragment : Fragment() {
             quitarErrores()
             errores.forEach { (key, message) ->
                 when (key) {
-                    "tipoActividad" -> mostrarErrorEnCampo(binding.tfTipoActividad, message)
-                    "tipoConsulta" -> mostrarErrorEnCampo(binding.tfTipoConsulta, message)
-                    "especialidad" -> mostrarErrorEnCampo(binding.tfEspecialidad, message)
-                    "fechaProgramada" -> mostrarErrorEnCampo(binding.tfFechaCita, message)
-                    "horaProgramada" -> mostrarErrorEnCampo(binding.tfHoraCita, message)
+                    "tipoActividad" -> Utils.mostrarErrorEnCampo(binding.tfTipoActividad, message)
+                    "tipoConsulta" -> Utils.mostrarErrorEnCampo(binding.tfTipoConsulta, message)
+                    "especialidad" -> Utils.mostrarErrorEnCampo(binding.tfEspecialidad, message)
+                    "fechaProgramada" -> Utils.mostrarErrorEnCampo(binding.tfFechaCita, message)
+                    "horaProgramada" -> Utils.mostrarErrorEnCampo(binding.tfHoraCita, message)
                 }
             }
         }
@@ -150,7 +145,7 @@ class RegistrarCitaFragment : Fragment() {
             if (paciente != null) {
                 binding.tfNombreCompletoPaciente.editText?.setText("${paciente.nombres} ${paciente.apellidos}")
                 binding.tfGeneroPaciente.editText?.setText(paciente.genero)
-                val edad = calcularEdadDetallada(paciente.fechaNacimiento)
+                val edad = Utils.calcularEdadDetallada(paciente.fechaNacimiento)
                 binding.tfEdadPaciente.editText?.setText("${edad.anios} años, ${edad.meses} meses y ${edad.dias} días")
             }
         }
@@ -158,8 +153,10 @@ class RegistrarCitaFragment : Fragment() {
         viewModel.consulta.observe(viewLifecycleOwner) { consulta ->
             if (consulta != null) {
                 binding.tfMotivoConsulta.editText?.setText(consulta.motivoConsulta.orEmpty())
-                binding.tfFechaCita.editText?.setText(consulta.fechaHoraProgramada?.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                binding.tfHoraCita.editText?.setText(consulta.fechaHoraProgramada?.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US)))
+                binding.tfFechaCita.editText?.setText(consulta.fechaHoraProgramada?.format(
+                    DateTimeFormatter.ISO_LOCAL_DATE))
+                binding.tfHoraCita.editText?.setText(consulta.fechaHoraProgramada?.format(
+                    DateTimeFormatter.ofPattern("h:mm a", Locale.US)))
                 binding.btnRegistrarCita.text = "Reprogramar"
             }
         }
@@ -186,7 +183,7 @@ class RegistrarCitaFragment : Fragment() {
     private fun registrarCita(pacienteId: String, consultaId: String?, tipoActividadId: Int, especialidadRemitenteId: Int, tipoConsulta: TipoConsulta?) {
         quitarErrores()
 
-        val fechaStr = obtenerTexto(binding.tfFechaCita)
+        val fechaStr = Utils.obtenerTexto(binding.tfFechaCita)
         if (fechaStr.isBlank()) {
             binding.tfFechaCita.error = "La fecha de la cita es obligatoria"
             return
@@ -200,7 +197,7 @@ class RegistrarCitaFragment : Fragment() {
             return
         }
 
-        val horaStr = obtenerTexto(binding.tfHoraCita)
+        val horaStr = Utils.obtenerTexto(binding.tfHoraCita)
         if (horaStr.isBlank()) {
             binding.tfHoraCita.error = "La hora de la cita es obligatoria"
             return
@@ -218,13 +215,13 @@ class RegistrarCitaFragment : Fragment() {
         val fechaHoraProgramada: LocalDateTime = fechaCita.atTime(horaCita)
 
         val citaNueva = Consulta(
-            id = consultaId ?: generarUUID(),
+            id = consultaId ?: Utils.generarUUID(),
             usuarioInstitucionId = 0,
             pacienteId = pacienteId,
             tipoActividadId = tipoActividadId,
             especialidadRemitenteId = especialidadRemitenteId,
             tipoConsulta = tipoConsulta,
-            motivoConsulta = obtenerTexto(binding.tfMotivoConsulta),
+            motivoConsulta = Utils.obtenerTexto(binding.tfMotivoConsulta),
             fechaHoraProgramada = fechaHoraProgramada,
             observaciones = null,
             planes = null,

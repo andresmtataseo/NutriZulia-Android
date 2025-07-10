@@ -1,281 +1,360 @@
-package com.nutrizulia.presentation.viewmodel
+    package com.nutrizulia.presentation.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.nutrizulia.data.local.enum.TipoConsulta
-import com.nutrizulia.domain.model.catalog.Enfermedad
-import com.nutrizulia.domain.model.catalog.Especialidad
-import com.nutrizulia.domain.model.catalog.RiesgoBiologico
-import com.nutrizulia.domain.model.catalog.TipoActividad
-import com.nutrizulia.domain.model.collection.Consulta
-import com.nutrizulia.domain.model.collection.DetalleAntropometrico
-import com.nutrizulia.domain.model.collection.DetalleMetabolico
-import com.nutrizulia.domain.model.collection.DetalleObstetricia
-import com.nutrizulia.domain.model.collection.DetallePediatrico
-import com.nutrizulia.domain.model.collection.DetalleVital
-import com.nutrizulia.domain.model.collection.Diagnostico
-import com.nutrizulia.domain.model.collection.Paciente
-import com.nutrizulia.domain.usecase.catalog.GetEnfermedades
-import com.nutrizulia.domain.usecase.catalog.GetEspecialidadById
-import com.nutrizulia.domain.usecase.catalog.GetEspecialidades
-import com.nutrizulia.domain.usecase.catalog.GetRiesgosBiologicos
-import com.nutrizulia.domain.usecase.catalog.GetTipoActividadById
-import com.nutrizulia.domain.usecase.catalog.GetTiposActividades
-import com.nutrizulia.domain.usecase.collection.GetConsultaProgramadaById
-import com.nutrizulia.domain.usecase.collection.GetPacienteById
-import com.nutrizulia.domain.usecase.collection.SaveConsulta
-import com.nutrizulia.domain.usecase.collection.SaveDetalleAntropometrico
-import com.nutrizulia.domain.usecase.collection.SaveDetalleMetabolico
-import com.nutrizulia.domain.usecase.collection.SaveDetalleObstetricia
-import com.nutrizulia.domain.usecase.collection.SaveDetallePediatrico
-import com.nutrizulia.domain.usecase.collection.SaveDetalleVital
-import com.nutrizulia.util.SessionManager
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+    import androidx.lifecycle.*
+    import com.nutrizulia.data.local.enum.Estado
+    import com.nutrizulia.data.local.enum.TipoConsulta
+    import com.nutrizulia.data.local.enum.TipoLactancia
+    import com.nutrizulia.domain.model.catalog.*
+    import com.nutrizulia.domain.model.collection.*
+    import com.nutrizulia.domain.usecase.catalog.*
+    import com.nutrizulia.domain.usecase.collection.*
+    import com.nutrizulia.util.SessionManager
+    import com.nutrizulia.util.Utils
+    import com.nutrizulia.util.Utils.generarUUID
+    import dagger.hilt.android.lifecycle.HiltViewModel
+    import kotlinx.coroutines.*
+    import kotlinx.coroutines.flow.firstOrNull
+    import java.time.LocalDate
+    import java.time.LocalDateTime
+    import java.time.LocalTime
+    import javax.inject.Inject
 
-@HiltViewModel
-class RegistrarConsultaViewModel @Inject constructor(
-    private val saveConsulta: SaveConsulta,
-    private val saveDetalleVital: SaveDetalleVital,
-    private val saveDetalleAntropometrico: SaveDetalleAntropometrico,
-    private val saveDetalleMetabolico: SaveDetalleMetabolico,
-    private val saveDetallePediatrico: SaveDetallePediatrico,
-    private val saveDetalleObstetricia: SaveDetalleObstetricia,
-    private val getPaciente: GetPacienteById,
-    private val getConsulta: GetConsultaProgramadaById,
+    @HiltViewModel
+    class RegistrarConsultaViewModel @Inject constructor(
+        private val getPaciente: GetPacienteById,
+        private val getConsulta: GetConsultaProgramadaById,
+        private val getTipoActividad: GetTipoActividadById,
+        private val getEspecialidad: GetEspecialidadById,
+        private val getTiposActividades: GetTiposActividades,
+        private val getEspecialidades: GetEspecialidades,
 
-    private val getTipoActividad: GetTipoActividadById,
-    private val getEspecialidad: GetEspecialidadById,
+        private val getDetalleVital: GetDetalleVitalByConsultaId,
+        private val getDetalleAntropometrico: GetDetalleAntropometricoByConsultaId,
+        private val getDetalleMetabolico: GetDetalleMetabolicoByConsultaId,
+        private val getDetallePediatrico: GetDetallePediatricoByConsultaId,
+        private val getDetalleObstetricia: GetDetalleObstetriciaByConsultaId,
 
-    private val getTiposActividades: GetTiposActividades,
-    private val getEspecialidades: GetEspecialidades,
-    private val getRiegosBiologicos: GetRiesgosBiologicos,
-    private val getEndermedades: GetEnfermedades,
+        private val saveConsulta: SaveConsulta,
+        private val saveDetalleVital: SaveDetalleVital,
+        private val saveDetalleAntropometrico: SaveDetalleAntropometrico,
+        private val saveDetalleMetabolico: SaveDetalleMetabolico,
+        private val saveDetalleObstetricia: SaveDetalleObstetricia,
+        private val saveDetallePediatrico: SaveDetallePediatrico,
 
-    private val sessionManager: SessionManager
-): ViewModel() {
+        private val sessionManager: SessionManager
+    ) : ViewModel() {
 
-    private val _consulta = MutableLiveData<Consulta>()
-    val consulta: LiveData<Consulta> = _consulta
-    private var _idUsuarioInstitucion = MutableLiveData<Int>()
-    val idUsuarioInstitucion: LiveData<Int> = _idUsuarioInstitucion
-    private val _paciente = MutableLiveData<Paciente>()
-    val paciente: LiveData<Paciente> = _paciente
+        private val _paciente = MutableLiveData<Paciente>()
+        val paciente: LiveData<Paciente> = _paciente
+        private val _consulta = MutableLiveData<Consulta>()
+        val consulta: LiveData<Consulta> = _consulta
+        private var _idUsuarioInstitucion = MutableLiveData<Int>()
+        val idUsuarioInstitucion: LiveData<Int> = _idUsuarioInstitucion
 
-    // Datos Individuales
-    private val _tipoActividad = MutableLiveData<TipoActividad>()
-    val tipoActividad: LiveData<TipoActividad> = _tipoActividad
-    private val _especialidad = MutableLiveData<Especialidad>()
-    val especialidad: LiveData<Especialidad> = _especialidad
-    private val _tipoConsulta = MutableLiveData<TipoConsulta>()
-    val tipoConsulta: LiveData<TipoConsulta> = _tipoConsulta
+        private val _consultaEditando = MutableLiveData<Consulta>()
+        val consultaEditando: LiveData<Consulta> = _consultaEditando
 
-    private val _diagnostico = MutableLiveData<Diagnostico>()
-    val diagnostico: LiveData<Diagnostico> = _diagnostico
-    private val _riesgoBiologico = MutableLiveData<RiesgoBiologico>()
-    val riesgoBiologico: LiveData<RiesgoBiologico> = _riesgoBiologico
-    private val _enfermedad = MutableLiveData<Enfermedad>()
-    val enfermedad: LiveData<Enfermedad> = _enfermedad
+        private val _tipoActividad = MutableLiveData<TipoActividad>()
+        val tipoActividad: LiveData<TipoActividad> = _tipoActividad
+        private val _especialidad = MutableLiveData<Especialidad>()
+        val especialidad: LiveData<Especialidad> = _especialidad
+        private val _tipoConsulta = MutableLiveData<TipoConsulta>()
+        val tipoConsulta: LiveData<TipoConsulta> = _tipoConsulta
+        private val _tiposActividades = MutableLiveData<List<TipoActividad>>()
+        val tiposActividades: LiveData<List<TipoActividad>> = _tiposActividades
+        private val _especialidades = MutableLiveData<List<Especialidad>>()
+        val especialidades: LiveData<List<Especialidad>> = _especialidades
+        private val _tiposConsultas = MutableLiveData<List<TipoConsulta>>()
+        val tiposConsultas: LiveData<List<TipoConsulta>> = _tiposConsultas
 
-    private  val _detalleVital = MutableLiveData<DetalleVital>()
-    val detalleVital: LiveData<DetalleVital> = _detalleVital
-    private val _detalleMetabolico = MutableLiveData<DetalleMetabolico>()
-    val detalleMetabolico: LiveData<DetalleMetabolico> = _detalleMetabolico
-    private val _detalleAntropometrico = MutableLiveData<DetalleAntropometrico>()
-    val detalleAntropometrico: LiveData<DetalleAntropometrico> = _detalleAntropometrico
-    private val _detallePediatrico = MutableLiveData<DetallePediatrico>()
-    val detallePediatrico: LiveData<DetallePediatrico> = _detallePediatrico
-    private val _detalleObstetricia = MutableLiveData<DetalleObstetricia>()
-    val detalleObstetricia: LiveData<DetalleObstetricia> = _detalleObstetricia
+        private val _errores = MutableLiveData<Map<String, String>>()
+        val errores: LiveData<Map<String, String>> = _errores
+        private val _mensaje = MutableLiveData<String>()
+        val mensaje: LiveData<String> = _mensaje
+        private val _isLoading = MutableLiveData<Boolean>()
+        val isLoading: LiveData<Boolean> = _isLoading
+        private val _salir = MutableLiveData<Boolean>()
+        val salir: LiveData<Boolean> = _salir
 
-    // Datos colectivos
-    private val _tiposActividades = MutableLiveData<List<TipoActividad>>()
-    val tiposActividades: LiveData<List<TipoActividad>> = _tiposActividades
-    private val _especialidades = MutableLiveData<List<Especialidad>>()
-    val especialidades: LiveData<List<Especialidad>> = _especialidades
-    private val _tiposConsultas = MutableLiveData<List<TipoConsulta>>()
-    val tiposConsultas: LiveData<List<TipoConsulta>> = _tiposConsultas
+        fun onCreate(idPaciente: String, idConsulta: String?, isEditable: Boolean) {
+            viewModelScope.launch {
+                _isLoading.value = true
 
-    private val _diagnosticos = MutableLiveData<List<Diagnostico>>()
-    val diagnosticos: LiveData<List<Diagnostico>> = _diagnosticos
-    private val _riesgosBiologicos = MutableLiveData<List<RiesgoBiologico>>()
-    val riesgosBiologicos: LiveData<List<RiesgoBiologico>> = _riesgosBiologicos
-    private val _enfermedades = MutableLiveData<List<Enfermedad>>()
-    val enfermedades: LiveData<List<Enfermedad>> = _enfermedades
+                try {
+                    val institutionId = sessionManager.currentInstitutionIdFlow.firstOrNull()
+                    if (institutionId == null) {
+                        _mensaje.value = "No se ha seleccionado una institución."
+                        _salir.value = true
+                        return@launch
+                    }
+                    _idUsuarioInstitucion.value = institutionId
 
-    // Datos informativos
-    private val _errores = MutableLiveData<Map<String, String>>()
-    val errores: LiveData<Map<String, String>> = _errores
-    private val _mensaje = MutableLiveData<String>()
-    val mensaje: LiveData<String> = _mensaje
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-    private val _salir = MutableLiveData<Boolean>()
-    val salir: LiveData<Boolean> = _salir
+                    // Obtener paciente en paralelo
+                    val pacienteDeferred = async { getPaciente(institutionId, idPaciente) }
 
-    fun onCreate(idPaciente: String, idConsulta: String?) {
-        _isLoading.value = true
-        viewModelScope.launch {
-            try {
-                val idUsuarioInstitucion = obtenerIdUsuarioInstitucion()
-                val pacienteDeferred = async { getPaciente(idUsuarioInstitucion, idPaciente) }
+                    if (idConsulta != null) {
+                        // Obtener consulta
+                        val consultaResult = withContext(Dispatchers.IO) { getConsulta(idConsulta) }
+                        if (consultaResult == null) {
+                            _mensaje.value = "No se encontró la consulta."
+                            _salir.value = true
+                            return@launch
+                        }
+                        _consulta.value = consultaResult
 
-                if (idConsulta != null) {
-                    val consultaExistente = getConsulta(idConsulta)
-                        ?: throw IllegalStateException("La consulta a editar no fue encontrada.")
-                    _consulta.postValue(consultaExistente)
-                    async { _tipoActividad.postValue(getTipoActividad(consultaExistente.tipoActividadId)) }
-                    async { _especialidad.postValue(getEspecialidad(consultaExistente.especialidadRemitenteId)) }
-                } else {
-                    async { _tiposActividades.postValue(getTiposActividades()) }
-                    async { _especialidades.postValue(getEspecialidades()) }
-                    async { _tiposConsultas.postValue(TipoConsulta.entries) }
+                        // Obtener datos seleccionados
+                        val tipoActividadDeferred = async { getTipoActividad(consultaResult.tipoActividadId) }
+                        val especialidadDeferred = async { getEspecialidad(consultaResult.especialidadRemitenteId) }
+
+                        _tipoActividad.value = tipoActividadDeferred.await()
+                        _especialidad.value = especialidadDeferred.await()
+                        _tipoConsulta.value = TipoConsulta.valueOf(
+                            consultaResult.tipoConsulta?.name ?: TipoConsulta.CONSULTA_SUCESIVA.name
+                        )
+
+                        // Si es editable, cargar catálogos también
+                        if (isEditable) {
+                            val actividadesDeferred = async { getTiposActividades() }
+                            val especialidadesDeferred = async { getEspecialidades() }
+
+                            _tiposActividades.value = actividadesDeferred.await()
+                            _especialidades.value = especialidadesDeferred.await()
+                            _tiposConsultas.value = TipoConsulta.entries
+                        }
+
+                    } else {
+                        // No hay consulta (registro sin cita previa) ⇒ cargar catálogos completos
+                        val actividadesDeferred = async { getTiposActividades() }
+                        val especialidadesDeferred = async { getEspecialidades() }
+
+                        _tiposActividades.value = actividadesDeferred.await()
+                        _especialidades.value = especialidadesDeferred.await()
+                        _tiposConsultas.value = TipoConsulta.entries
+                    }
+
+                    // Esperar el paciente
+                    _paciente.value = pacienteDeferred.await() ?: run {
+                        _mensaje.value = "No se encontró el paciente."
+                        _salir.value = true
+                        return@launch
+                    }
+
+                } catch (e: Exception) {
+                    _mensaje.value = "Error al cargar datos: ${e.localizedMessage ?: "desconocido"}"
+                    _salir.value = true
+                } finally {
+                    _isLoading.value = false
                 }
-
-                val pacienteCargado = pacienteDeferred.await()
-                    ?: throw IllegalStateException("El paciente no fue encontrado.")
-                _paciente.postValue(pacienteCargado)
-
-            } catch (e: Exception) {
-                _mensaje.postValue(e.message ?: "Error desconocido al cargar datos.")
-                _salir.postValue(true)
-            } finally {
-                _isLoading.postValue(false)
             }
         }
-    }
 
-    private suspend fun obtenerIdUsuarioInstitucion(): Int {
-        return sessionManager.currentInstitutionIdFlow.firstOrNull()
-            ?: throw IllegalStateException("ID de institución no encontrado en la sesión. No se puede continuar.")
-    }
+        fun validarConsulta(tipoActividad: TipoActividad?, especialidad: Especialidad?, tipoConsulta: TipoConsulta?): Boolean {
+            val errores = mutableMapOf<String, String>()
 
-    private fun obtenerPaciente(idPaciente: String) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
+            if (tipoActividad == null) errores["tipoActividad"] = "Selecciona un tipo de actividad"
+            if (especialidad == null) errores["especialidad"] = "Selecciona una especialidad"
+            if (tipoConsulta == null) errores["tipoConsulta"] = "Selecciona un tipo de consulta"
 
-            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
-                _idUsuarioInstitucion.value = institutionId
-            } ?: run {
-                _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
-                _isLoading.value = false
-                _salir.value = true
-            }
-
-            val paciente = getPaciente(idUsuarioInstitucion.value ?: 0 ,idPaciente)
-            if (paciente == null) {
-                _mensaje.postValue("No se encontró el paciente")
-                _salir.postValue(true)
-                return@launch
-            }
-            _paciente.value = paciente
-            _isLoading.postValue(false)
-        }
-    }
-
-    private fun obtenerConsulta(idConsulta: String) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
-            val consulta = getConsulta(idConsulta)
-            if (consulta == null) {
-                _mensaje.postValue("No se encontró la consulta")
-                _salir.postValue(true)
-                return@launch
-            }
-            _consulta.value = consulta
-            _tipoActividad.value = getTipoActividad(consulta.tipoActividadId)
-            _especialidad.value = getEspecialidad(consulta.especialidadRemitenteId)
-            _tipoConsulta.value = TipoConsulta.valueOf(consulta.tipoConsulta?.name ?: TipoConsulta.CONSULTA_SUCESIVA.name)
-            _isLoading.postValue(false)
-        }
-    }
-
-    private fun cargarCatalogosCita() {
-        cargarTiposActividades()
-        cargarEspecialidades()
-        cargarTiposConsultas()
-    }
-
-    private fun cargarTiposActividades() {
-        viewModelScope.launch {
-            val lista = getTiposActividades()
-            _tiposActividades.value = lista
-        }
-    }
-
-    private fun cargarEspecialidades() {
-        viewModelScope.launch {
-            val lista = getEspecialidades()
-            _especialidades.value = lista
-        }
-    }
-
-    private fun cargarTiposConsultas() {
-        _tiposConsultas.value = TipoConsulta.entries
-    }
-
-    private fun validarConsulta(consulta: Consulta): Map<String, String> {
-        val erroresActuales = _errores.value?.toMutableMap() ?: mutableMapOf()
-        erroresActuales.clear()
-
-        if (consulta.tipoActividadId <= 0) {
-            erroresActuales["tipoActividad"] = "El tipo de actividad es obligatorio."
-        }
-        if (consulta.especialidadRemitenteId <= 0) {
-            erroresActuales["especialidad"] = "La especialidad es obligatoria."
-        }
-        if (consulta.tipoConsulta == null) {
-            erroresActuales["tipoConsulta"] = "El tipo de consulta es obligatorio."
+            _errores.value = errores
+            return errores.isEmpty()
         }
 
-        _errores.value = erroresActuales
-        return erroresActuales
-    }
+        fun guardarConsultaParcial(tipoActividad: TipoActividad, especialidad: Especialidad, tipoConsulta: TipoConsulta, motivo: String?) {
+            val consultaExistente = consulta.value
+            val idConsulta = consultaExistente?.id ?: Utils.generarUUID()
+            val idUsuarioInst = idUsuarioInstitucion.value ?: 0
 
-
-    fun guardarConsulta(
-        consulta: Consulta,
-        detalleVital: DetalleVital,
-        detalleMetabolico: DetalleMetabolico,
-        detalleAntropometrico: DetalleAntropometrico,
-        detallePediatrico: DetallePediatrico?,
-        detalleObstetricia: DetalleObstetricia?
-    ) {
-        if (validarConsulta(consulta).isNotEmpty()) {
-            _mensaje.value = "Por favor, corrige los campos obligatorios."
-            return
+            val nuevaConsulta = Consulta(
+                id = idConsulta,
+                usuarioInstitucionId = idUsuarioInst,
+                pacienteId = paciente.value?.id ?: "",
+                tipoActividadId = tipoActividad.id,
+                especialidadRemitenteId = especialidad.id,
+                tipoConsulta = tipoConsulta,
+                motivoConsulta = motivo?.takeIf { it.isNotBlank() },
+                fechaHoraProgramada = consultaExistente?.fechaHoraProgramada,
+                observaciones = consultaExistente?.observaciones,
+                planes = consultaExistente?.planes,
+                fechaHoraReal = consultaExistente?.fechaHoraReal,
+                estado = consultaExistente?.estado ?: Estado.SIN_PREVIA_CITA,
+                updatedAt = LocalDateTime.now()
+            )
+            _consultaEditando.value = nuevaConsulta
         }
 
-        _isLoading.value = true
-        viewModelScope.launch {
-            try {
-                val idUsuarioInstitucion = obtenerIdUsuarioInstitucion()
-                val consultaConId = consulta.copy(usuarioInstitucionId = idUsuarioInstitucion)
+        // Fragment 2
 
-                coroutineScope {
-                    saveConsulta(consultaConId)
-                    launch { saveDetalleVital(detalleVital) }
-                    launch { saveDetalleMetabolico(detalleMetabolico) }
-                    launch { saveDetalleAntropometrico(detalleAntropometrico) }
-                    detallePediatrico?.let { launch { saveDetallePediatrico(it) } }
-                    detalleObstetricia?.let { launch { saveDetalleObstetricia(it) } }
+        private val _detalleVital = MutableLiveData<DetalleVital?>()
+        val detalleVital: LiveData<DetalleVital?> = _detalleVital
+        private val _detalleAntropometrico = MutableLiveData<DetalleAntropometrico?>()
+        val detalleAntropometrico: LiveData<DetalleAntropometrico?> = _detalleAntropometrico
+        private val _detalleMetabolico = MutableLiveData<DetalleMetabolico?>()
+        val detalleMetabolico: LiveData<DetalleMetabolico?> = _detalleMetabolico
+        private val _detallePediatrico = MutableLiveData<DetallePediatrico?>()
+        val detallePediatrico: LiveData<DetallePediatrico?> = _detallePediatrico
+        private val _detalleObstetricia = MutableLiveData<DetalleObstetricia?>()
+        val detalleObstetricia: LiveData<DetalleObstetricia?> = _detalleObstetricia
+
+        fun cargarDatosClinicos() {
+            val idConsulta = consulta.value?.id ?: return
+
+            viewModelScope.launch {
+                _isLoading.value = true
+                try {
+                    val vitalDeferred = async { getDetalleVital(idConsulta) }
+                    val antropDeferred = async { getDetalleAntropometrico(idConsulta) }
+                    val metabDeferred = async { getDetalleMetabolico(idConsulta) }
+                    val pedDeferred = async { getDetallePediatrico(idConsulta) }
+                    val obstDeferred = async { getDetalleObstetricia(idConsulta) }
+
+                    _detalleVital.value = vitalDeferred.await()
+                    _detalleAntropometrico.value = antropDeferred.await()
+                    _detalleMetabolico.value = metabDeferred.await()
+                    _detallePediatrico.value = pedDeferred.await()
+                    _detalleObstetricia.value = obstDeferred.await()
+
+                } catch (e: Exception) {
+                    _mensaje.value = "Error al cargar datos clínicos: ${e.localizedMessage}"
+                } finally {
+                    _isLoading.value = false
                 }
-
-                _mensaje.postValue("Consulta guardada con éxito.")
-                _salir.postValue(true)
-
-            } catch (e: Exception) {
-                _mensaje.postValue(e.message ?: "Ocurrió un error inesperado al guardar.")
-            } finally {
-                _isLoading.postValue(false)
             }
         }
-    }
 
-}
+        fun guardarSignosVitales(frecuenciaCardiaca: Int?, presionSistolica: Int?, presionDiastolica: Int?, frecuenciaRespiratoria: Int?, temperatura: Double?, saturacionOxigeno: Int?, pulso: Int?) {
+            val idConsulta = consulta.value?.id ?: return
+            val idExistente = detalleVital.value?.id
+            val detalle = DetalleVital(
+                id = idExistente ?: generarUUID(),
+                consultaId = idConsulta,
+                tensionArterialSistolica = presionSistolica,
+                tensionArterialDiastolica = presionDiastolica,
+                frecuenciaCardiaca = frecuenciaCardiaca,
+                frecuenciaRespiratoria = frecuenciaRespiratoria,
+                temperatura = temperatura,
+                saturacionOxigeno = saturacionOxigeno,
+                pulso = pulso,
+                updatedAt = LocalDateTime.now()
+            )
+
+            _detalleVital.value = detalle
+        }
+
+        fun guardarDatosAntropometricos(peso: Double?, altura: Double?, talla: Double?, circunferenciaBraquial: Double?, circunferenciaCadera: Double?, circunferenciaCintura: Double?, perimetroCefalico: Double?, pliegueTricipital: Double?, pliegueSubescapular: Double?) {
+            val idConsulta = consulta.value?.id ?: return
+            val idExistente = detalleAntropometrico.value?.id
+            val detalle = DetalleAntropometrico(
+                id = idExistente ?: generarUUID(),
+                consultaId = idConsulta,
+                peso = peso,
+                altura = altura,
+                talla = talla,
+                circunferenciaBraquial = circunferenciaBraquial,
+                circunferenciaCadera = circunferenciaCadera,
+                circunferenciaCintura = circunferenciaCintura,
+                perimetroCefalico = perimetroCefalico,
+                pliegueTricipital = pliegueTricipital,
+                pliegueSubescapular = pliegueSubescapular,
+                updatedAt = LocalDateTime.now()
+            )
+
+            _detalleAntropometrico.value = detalle
+        }
+
+        fun guardarDatosMetabolicos(glicemiaBasal: Int?, glicemiaPostprandial: Int?, glicemiaAleatoria: Int?, hemoglobinaGlicosilada: Double?, trigliceridos: Int?, colesterolTotal: Int?, colesterolHdl: Int?, colesterolLdl: Int?) {
+            val idConsulta = consulta.value?.id ?: return
+            val idExistente = detalleMetabolico.value?.id
+            val detalle = DetalleMetabolico(
+                id = idExistente ?: generarUUID(),
+                consultaId = idConsulta,
+                glicemiaBasal = glicemiaBasal,
+                glicemiaPostprandial = glicemiaPostprandial,
+                glicemiaAleatoria = glicemiaAleatoria,
+                hemoglobinaGlicosilada = hemoglobinaGlicosilada,
+                trigliceridos = trigliceridos,
+                colesterolTotal = colesterolTotal,
+                colesterolHdl = colesterolHdl,
+                colesterolLdl = colesterolLdl,
+                updatedAt = LocalDateTime.now()
+            )
+
+            _detalleMetabolico.value = detalle
+        }
+
+        fun guardarDatosPediatricos(usaBiberon: Boolean?, tipoLactancia: TipoLactancia?) {
+            val idConsulta = consulta.value?.id ?: return
+            val idExistente = detallePediatrico.value?.id
+            val detalle = DetallePediatrico(
+                id = idExistente ?: generarUUID(),
+                consultaId = idConsulta,
+                usaBiberon = usaBiberon,
+                tipoLactancia = tipoLactancia,
+                updatedAt = LocalDateTime.now()
+            )
+
+            _detallePediatrico.value = detalle
+        }
+
+        fun guardarDatosObstetricos(estaEmbarazada: Boolean?, fechaUltimaMenstruacion: LocalDate?, semanasGestacion: Int?, pesoPreEmbarazo: Double?) {
+            val idConsulta = consulta.value?.id ?: return
+            val idExistente = detalleObstetricia.value?.id
+            val detalle = DetalleObstetricia(
+                id = idExistente ?: generarUUID(),
+                consultaId = idConsulta,
+                estaEmbarazada = estaEmbarazada,
+                fechaUltimaMenstruacion = fechaUltimaMenstruacion,
+                semanasGestacion = semanasGestacion,
+                pesoPreEmbarazo = pesoPreEmbarazo,
+                updatedAt = LocalDateTime.now()
+            )
+
+            _detalleObstetricia.value = detalle
+        }
+
+        // Fragment 3
+
+        fun guardarConsultaCompleta(observaciones: String?, planes: String?) {
+            viewModelScope.launch {
+                _isLoading.value = true
+
+                try {
+                    val consultaActual = consultaEditando.value
+                        ?: run {
+                            _mensaje.value = "Consulta no válida para guardar"
+                            return@launch
+                        }
+
+                    // Crear una copia actualizada con observaciones, planes y fechaHoraReal
+                    val consultaActualizada = consultaActual.copy(
+                        estado = if (consultaActual.estado != Estado.SIN_PREVIA_CITA) Estado.COMPLETADA else consultaActual.estado,
+                        observaciones = observaciones?.takeIf { it.isNotBlank() },
+                        planes = planes?.takeIf { it.isNotBlank() },
+                        fechaHoraReal = consultaActual.fechaHoraReal ?: LocalDateTime.now(),
+                        updatedAt = LocalDateTime.now()
+                    )
+
+                    // Actualizar el LiveData con la consulta actualizada
+                    _consultaEditando.value = consultaActualizada
+
+                    // Guardar consulta principal
+                    saveConsulta(consultaActualizada)
+
+                    // Guardar detalles si están disponibles
+                    detalleVital.value?.let { saveDetalleVital(it) }
+                    detalleAntropometrico.value?.let { saveDetalleAntropometrico(it) }
+                    detalleMetabolico.value?.let { saveDetalleMetabolico(it) }
+                    detalleObstetricia.value?.let { saveDetalleObstetricia(it) }
+                    detallePediatrico.value?.let { saveDetallePediatrico(it) }
+
+                    _mensaje.value = "Consulta registrada correctamente"
+                    _salir.value = true
+
+                } catch (e: Exception) {
+                    _mensaje.value = "Error al guardar consulta: ${e.localizedMessage}"
+                } finally {
+                    _isLoading.value = false
+                }
+            }
+        }
+
+    }

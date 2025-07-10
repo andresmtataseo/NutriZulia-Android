@@ -1,19 +1,19 @@
-package com.nutrizulia.presentation.view
+package com.nutrizulia.presentation.view.consulta
 
-import androidx.fragment.app.viewModels
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentConsultasBinding
 import com.nutrizulia.presentation.adapter.PacienteConCitaAdapter
 import com.nutrizulia.presentation.viewmodel.ConsultasViewModel
-import com.nutrizulia.util.Utils.mostrarSnackbar
+import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -132,7 +132,7 @@ class ConsultasFragment : Fragment() {
 
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             mensaje?.let {
-                mostrarSnackbar(binding.root, it)
+                Utils.mostrarSnackbar(binding.root, it)
             }
         }
 

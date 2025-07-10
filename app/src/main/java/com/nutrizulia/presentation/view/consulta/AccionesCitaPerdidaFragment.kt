@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.view
+package com.nutrizulia.presentation.view.consulta
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -62,8 +62,8 @@ class AccionesCitaPerdidaFragment : Fragment() {
             binding.tvCedulaPaciente.text = "Cédula: ${it.cedulaPaciente}"
             val edad = calcularEdadDetallada(it.fechaNacimientoPaciente)
             binding.tvEdad.text = "Edad: ${edad.anios} años, ${edad.meses} meses y ${edad.dias} días"
-            binding.tvFechaProgramada.text = "Fecha programada: ${it.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
-            binding.tvHoraProgramda.text = "Hora programada: ${it.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
+            binding.tvFechaProgramada.text = "Fecha programada: ${it.fechaHoraProgramadaConsulta?.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+            binding.tvHoraProgramda.text = "Hora programada: ${it.fechaHoraProgramadaConsulta?.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
             binding.tvEstado.text = it.estadoConsulta.displayValue
 
             val colorResId = when (it.estadoConsulta) {

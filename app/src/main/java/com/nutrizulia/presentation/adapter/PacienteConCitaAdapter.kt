@@ -61,8 +61,8 @@ class PacienteConCitaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         tvNombreCompletoPaciente.text = pacienteConCita.nombreCompleto
         tvCedulaPaciente.text = "Cédula: ${pacienteConCita.cedulaPaciente}"
         tvEdad.text = "Edad: ${calcularEdad(pacienteConCita.fechaNacimientoPaciente)} años"
-        tvFechaProgramada.text = "Fecha: ${pacienteConCita.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
-        tvHoraProgramda.text = "Hora: ${pacienteConCita.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
+        tvFechaProgramada.text = "Fecha: ${pacienteConCita.fechaHoraProgramadaConsulta?.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+        tvHoraProgramda.text = "Hora: ${pacienteConCita.fechaHoraProgramadaConsulta?.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
         tvEstado.text = pacienteConCita.estadoConsulta.displayValue
 
         val colorResId = when (pacienteConCita.estadoConsulta.displayValue) {
