@@ -19,6 +19,7 @@ import com.nutrizulia.databinding.FragmentRegistrarConsultaBinding
 import com.nutrizulia.domain.model.catalog.Especialidad
 import com.nutrizulia.domain.model.catalog.TipoActividad
 import com.nutrizulia.presentation.viewmodel.RegistrarConsultaViewModel
+import com.nutrizulia.util.ModoConsulta
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.format.DateTimeFormatter
@@ -136,6 +137,15 @@ class RegistrarConsultaFragment : Fragment() {
             Utils.mostrarSnackbar(binding.root, mensaje)
         }
 
+        viewModel.modoConsulta.observe(viewLifecycleOwner) { modo ->
+            when (modo) {
+                ModoConsulta.CREAR_SIN_CITA,
+                ModoConsulta.EDITAR_CONSULTA -> habilitarCampos()
+                ModoConsulta.VER_CONSULTA,
+                ModoConsulta.CULMINAR_CITA -> deshabilitarCampos()
+            }
+        }
+
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
             if (salir) findNavController().popBackStack(R.id.consultasFragment, false)
         }
@@ -212,6 +222,10 @@ class RegistrarConsultaFragment : Fragment() {
         binding.tfTipoActividad.error = null
         binding.tfEspecialidad.error = null
         binding.tfTipoConsulta.error = null
+    }
+
+    private fun habilitarCampos() {
+
     }
 
     private fun deshabilitarCampos() {

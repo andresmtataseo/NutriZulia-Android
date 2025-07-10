@@ -10,11 +10,11 @@ import android.widget.AutoCompleteTextView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentRegistrarConsulta3Binding
 import com.nutrizulia.presentation.viewmodel.RegistrarConsultaViewModel
+import com.nutrizulia.util.ModoConsulta
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.getValue
@@ -26,7 +26,6 @@ class RegistrarConsulta3Fragment : Fragment() {
         defaultViewModelProviderFactory
     }
     private lateinit var binding: FragmentRegistrarConsulta3Binding
-    private val args: RegistrarConsulta3FragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +52,16 @@ class RegistrarConsulta3Fragment : Fragment() {
             Utils.mostrarSnackbar(binding.root, it)
         }
 
+        viewModel.modoConsulta.observe(viewLifecycleOwner) { modo ->
+            when (modo) {
+                ModoConsulta.CREAR_SIN_CITA,
+                ModoConsulta.CULMINAR_CITA,
+                ModoConsulta.EDITAR_CONSULTA -> habilitarCampos()
+
+                ModoConsulta.VER_CONSULTA -> deshabilitarCampos()
+            }
+        }
+
         viewModel.consulta.observe(viewLifecycleOwner) { consulta ->
             if (consulta != null) {
                 binding.tfObservaciones.editText?.setText(consulta.observaciones.orEmpty())
@@ -69,6 +78,11 @@ class RegistrarConsulta3Fragment : Fragment() {
     private fun setupListeners() {
 
         binding.btnRegistrarConsulta.setOnClickListener {
+            if (viewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
+                findNavController().popBackStack(R.id.consultasFragment, false)
+                return@setOnClickListener
+            }
+
             viewModel.guardarConsultaCompleta(
                 observaciones = binding.tfObservaciones.editText?.text.toString(),
                 planes = binding.tfPlanes.editText?.text.toString()
@@ -88,6 +102,18 @@ class RegistrarConsulta3Fragment : Fragment() {
             )
         }
 
+    }
+
+    private fun habilitarCampos() {
+        binding.btnRegistrarConsulta.isEnabled = true
+        binding.btnLimpiar.isEnabled = true
+    }
+
+    private fun deshabilitarCampos() {
+        binding.tfObservaciones.editText?.isEnabled = false
+        binding.tfPlanes.editText?.isEnabled = false
+        binding.btnLimpiar.visibility = View.GONE
+        binding.btnRegistrarConsulta.text = "Salir"
     }
 
     private fun quitarErrores() {

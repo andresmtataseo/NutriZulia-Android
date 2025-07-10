@@ -22,6 +22,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentRegistrarConsulta2Binding
 import com.nutrizulia.presentation.viewmodel.RegistrarConsultaViewModel
+import com.nutrizulia.util.ModoConsulta
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
@@ -41,11 +42,7 @@ class RegistrarConsulta2Fragment : Fragment() {
     private val args: RegistrarConsulta2FragmentArgs by navArgs()
     private var ultimaFechaSeleccionada: Long? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentRegistrarConsulta2Binding.inflate(inflater, container, false)
         return binding.root
     }
@@ -55,9 +52,7 @@ class RegistrarConsulta2Fragment : Fragment() {
         viewModel.cargarDatosClinicos()
         setupObservers()
         setupListeners()
-        if (args.idConsulta != null && args.isEditable) {
-            deshabilitarCamposConsulta()
-        }
+
     }
 
     private fun setupObservers() {
@@ -68,6 +63,16 @@ class RegistrarConsulta2Fragment : Fragment() {
 
         viewModel.mensaje.observe(viewLifecycleOwner) {
             Utils.mostrarSnackbar(binding.root, it)
+        }
+
+        viewModel.modoConsulta.observe(viewLifecycleOwner) { modo ->
+            when (modo) {
+                ModoConsulta.CREAR_SIN_CITA,
+                ModoConsulta.CULMINAR_CITA,
+                ModoConsulta.EDITAR_CONSULTA -> habilitarCampos()
+
+                ModoConsulta.VER_CONSULTA -> deshabilitarCamposConsulta()
+            }
         }
 
         viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
@@ -441,6 +446,10 @@ class RegistrarConsulta2Fragment : Fragment() {
             binding.tfPliegueSubescapular.editText,
             "Pliegue Subescapular"
         )
+
+    }
+
+    private fun habilitarCampos() {
 
     }
 
