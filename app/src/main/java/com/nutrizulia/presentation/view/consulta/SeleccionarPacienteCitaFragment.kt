@@ -8,6 +8,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.databinding.FragmentSeleccionarPacienteCitaBinding
 import com.nutrizulia.domain.model.collection.Paciente
@@ -22,15 +23,12 @@ import java.util.Locale
 class SeleccionarPacienteCitaFragment : Fragment() {
 
     private val viewModel: SeleccionarPacienteCitaViewModel by viewModels()
+    private val args: SeleccionarPacienteCitaFragmentArgs by navArgs()
     private lateinit var binding: FragmentSeleccionarPacienteCitaBinding
     private lateinit var pacienteAdapter: PacienteAdapter
     private lateinit var pacienteFiltradoAdapter: PacienteAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSeleccionarPacienteCitaBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -132,6 +130,18 @@ class SeleccionarPacienteCitaFragment : Fragment() {
     }
 
     private fun onPacienteClick(paciente: Paciente) {
-        viewModel.verificarCita(paciente)
+        if (args.isAgendar) {
+            viewModel.verificarCita(paciente)
+        } else {
+            // Navegar directo a consulta sin cita
+            findNavController().navigate(
+                SeleccionarPacienteCitaFragmentDirections.actionSeleccionarPacienteCitaFragmentToRegistrarConsultaGraph2(
+                    idConsulta = null,
+                    isEditable = true,
+                    idPaciente = paciente.id,
+                )
+            )
+        }
     }
+
 }

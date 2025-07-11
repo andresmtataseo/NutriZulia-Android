@@ -21,7 +21,6 @@ import java.time.LocalDateTime
             c.estado AS estadoConsulta
         FROM pacientes AS p
         INNER JOIN consultas AS c ON p.id = c.paciente_id
-        WHERE c.fecha_hora_programada IS NOT NULL
     """
 )
 data class PacienteConCita(

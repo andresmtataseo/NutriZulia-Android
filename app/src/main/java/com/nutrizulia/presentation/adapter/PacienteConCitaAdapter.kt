@@ -68,7 +68,8 @@ class PacienteConCitaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         val colorResId = when (pacienteConCita.estadoConsulta.displayValue) {
             Estado.PENDIENTE.displayValue,
             Estado.REPROGRAMADA.displayValue -> R.color.color_cita_pendiente
-            Estado.COMPLETADA.displayValue -> R.color.color_cita_completada
+            Estado.COMPLETADA.displayValue,
+            Estado.SIN_PREVIA_CITA.displayValue -> R.color.color_cita_completada
             Estado.CANCELADA.displayValue,
             Estado.NO_ASISTIO.displayValue -> R.color.color_cita_cancelada
             else -> R.color.color_cita_pendiente
@@ -81,7 +82,7 @@ class PacienteConCitaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
             Estado.PENDIENTE.displayValue, Estado.REPROGRAMADA.displayValue -> {
                 cardCita.setOnClickListener { onCardCitaClick(pacienteConCita) }
             }
-            Estado.COMPLETADA.displayValue -> {
+            Estado.COMPLETADA.displayValue, Estado.SIN_PREVIA_CITA.displayValue -> {
                 cardCita.setOnClickListener{ onCardConsultaClick(pacienteConCita) }
             }
             Estado.CANCELADA.displayValue, Estado.NO_ASISTIO.displayValue -> {

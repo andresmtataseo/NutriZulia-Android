@@ -2,6 +2,7 @@ package com.nutrizulia.presentation.view.consulta
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -57,10 +58,6 @@ class RegistrarConsultaFragment : Fragment() {
                 args.idConsulta,
                 args.isEditable
             )
-        }
-
-        if (args.idConsulta != null && !args.isEditable) {
-            deshabilitarCampos()
         }
 
         setupListeners()
@@ -138,6 +135,7 @@ class RegistrarConsultaFragment : Fragment() {
         }
 
         viewModel.modoConsulta.observe(viewLifecycleOwner) { modo ->
+            Log.d("ModoConsulta", "Modo de consulta: $modo")
             when (modo) {
                 ModoConsulta.CREAR_SIN_CITA,
                 ModoConsulta.EDITAR_CONSULTA -> habilitarCampos()

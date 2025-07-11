@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentConsultasBinding
 import com.nutrizulia.presentation.adapter.PacienteConCitaAdapter
@@ -116,9 +117,42 @@ class ConsultasFragment : Fragment() {
             viewModel.buscarConsultas(query)
         }
 
-        binding.btnAgendar.setOnClickListener {
-            findNavController().navigate(R.id.action_consultasFragment_to_seleccionarPacienteCitaFragment)
+        binding.btnAgendar.apply {
+            // Agrega los ítems del FAB expandible
+            addActionItem(
+                SpeedDialActionItem.Builder(R.id.fab_agendar_cita, R.drawable.ic_cita)
+                    .setLabel("Agendar cita")
+                    .create()
+            )
+            addActionItem(
+                SpeedDialActionItem.Builder(R.id.fab_consulta_directa, R.drawable.ic_agregar_consulta)
+                    .setLabel("Consulta sin cita")
+                    .create()
+            )
+
+            // Listener para manejar las acciones seleccionadas
+            setOnActionSelectedListener { actionItem ->
+                when (actionItem.id) {
+                    R.id.fab_agendar_cita -> {
+                        findNavController().navigate(
+                            ConsultasFragmentDirections.actionConsultasFragmentToSeleccionarPacienteCitaFragment(isAgendar = true)
+                        )
+                        false
+                    }
+
+                    R.id.fab_consulta_directa -> {
+                        findNavController().navigate(
+                            ConsultasFragmentDirections.actionConsultasFragmentToSeleccionarPacienteCitaFragment(isAgendar = false)
+                        )
+                        false
+                    }
+
+                    else -> false
+                }
+            }
         }
+
+
     }
 
     private fun setupObservers() {

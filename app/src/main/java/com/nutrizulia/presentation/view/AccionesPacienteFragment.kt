@@ -26,11 +26,7 @@ class AccionesPacienteFragment : Fragment() {
     private lateinit var binding: FragmentAccionesPacienteBinding
     private val args: AccionesPacienteFragmentArgs by navArgs()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAccionesPacienteBinding.inflate(inflater, container, false)
         return binding.root
     }

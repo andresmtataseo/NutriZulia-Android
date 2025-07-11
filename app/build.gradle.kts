@@ -94,4 +94,6 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     // lottie
     implementation(libs.lottie)
+    //
+    implementation("com.leinardi.android:speed-dial:3.3.0")
 }

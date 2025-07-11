@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="fab_agendar_cita" type="id"/>
+    <item name="fab_consulta_directa" type="id"/>
+</resources>

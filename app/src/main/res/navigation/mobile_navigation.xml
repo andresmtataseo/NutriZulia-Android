@@ -158,6 +158,28 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_seleccionarPacienteCitaFragment_to_registrarConsultaGraph2"
+            app:destination="@id/registrarConsultaGraph"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim">
+            <argument
+                android:name="idPaciente"
+                app:argType="string" />
+            <argument
+                android:name="idConsulta"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="isEditable"
+                app:argType="boolean"
+                android:defaultValue="true" />
+        </action>
+        <argument
+            android:name="isAgendar"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/accionesPacienteFragment"

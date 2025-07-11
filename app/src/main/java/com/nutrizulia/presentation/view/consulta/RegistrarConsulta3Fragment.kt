@@ -1,6 +1,7 @@
 package com.nutrizulia.presentation.view.consulta
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -53,6 +54,7 @@ class RegistrarConsulta3Fragment : Fragment() {
         }
 
         viewModel.modoConsulta.observe(viewLifecycleOwner) { modo ->
+            Log.d("ModoConsulta", "Modo de consulta: $modo")
             when (modo) {
                 ModoConsulta.CREAR_SIN_CITA,
                 ModoConsulta.CULMINAR_CITA,
@@ -67,12 +69,12 @@ class RegistrarConsulta3Fragment : Fragment() {
                 binding.tfObservaciones.editText?.setText(consulta.observaciones.orEmpty())
                 binding.tfPlanes.editText?.setText(consulta.planes.orEmpty())
             }
-
-            viewModel.salir.observe(viewLifecycleOwner) { salir ->
-                if (salir) findNavController().popBackStack(R.id.consultasFragment, false)
-            }
-
         }
+
+        viewModel.salir.observe(viewLifecycleOwner) { salir ->
+            if (salir) findNavController().popBackStack(R.id.consultasFragment, false)
+        }
+
     }
 
     private fun setupListeners() {

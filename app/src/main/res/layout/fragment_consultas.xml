@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.view.consulta.ConsultasFragment">
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -23,8 +23,8 @@
             android:id="@+id/recyclerViewConsultas"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingHorizontal="12dp"
             android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/item_paciente" />
@@ -86,22 +86,25 @@
             android:id="@+id/recyclerViewCitasFiltradas"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingHorizontal="12dp"
             android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/item_cita" />
 
     </com.google.android.material.search.SearchView>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+    <com.leinardi.android.speeddial.SpeedDialView
         android:id="@+id/btnAgendar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:layout_gravity="bottom|end"
-        android:contentDescription=""
-        android:text="@string/agendar"
-        app:icon="@drawable/ic_agregar_consulta"/>
+        app:fabCustomSize="72dp"
+        android:layout_margin="16dp"
+        app:sdMainFabClosedSrc="@drawable/ic_mas"
+        app:sdMainFabOpenedSrc="@drawable/ic_cerrar"
+        app:sdMainFabClosedBackgroundColor="@color/md_theme_primary"
+        app:sdMainFabOpenedBackgroundColor="@color/md_theme_primaryContainer"
+        android:contentDescription="" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -696,6 +696,15 @@
                         tools:ignore="TouchTargetSizeCheck" />
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/tvSinDatosVitales"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No hay registros de signos vitales"
+                    android:gravity="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:visibility="gone"
+                    android:textColor="?android:attr/textColorSecondary" />
 
                 <Button
                     android:id="@+id/btnAgregarVital"
@@ -714,6 +723,7 @@
                     android:layout_marginTop="4dp" />
 
             </LinearLayout>
+
 
             <!--            Signos Metabolicos-->
 

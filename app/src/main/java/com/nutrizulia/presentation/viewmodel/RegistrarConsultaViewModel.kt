@@ -1,5 +1,6 @@
 package com.nutrizulia.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.enum.TipoConsulta
@@ -104,14 +105,18 @@ class RegistrarConsultaViewModel @Inject constructor(
 
                     // Determinar el modo según estado y editable
                     _modoConsulta.value = when {
-                        !isEditable -> ModoConsulta.VER_CONSULTA
-                        consultaResult.estado == Estado.COMPLETADA -> ModoConsulta.EDITAR_CONSULTA
-                        else -> ModoConsulta.CULMINAR_CITA
+                        consultaResult.estado == Estado.COMPLETADA -> {
+                            if (isEditable) ModoConsulta.EDITAR_CONSULTA else ModoConsulta.VER_CONSULTA
+                        }
+                        consultaResult.estado == Estado.PENDIENTE -> ModoConsulta.CULMINAR_CITA
+                        else -> ModoConsulta.VER_CONSULTA
                     }
 
                     // Obtener datos seleccionados
-                    val tipoActividadDeferred = async { getTipoActividad(consultaResult.tipoActividadId) }
-                    val especialidadDeferred = async { getEspecialidad(consultaResult.especialidadRemitenteId) }
+                    val tipoActividadDeferred =
+                        async { getTipoActividad(consultaResult.tipoActividadId) }
+                    val especialidadDeferred =
+                        async { getEspecialidad(consultaResult.especialidadRemitenteId) }
 
                     _tipoActividad.value = tipoActividadDeferred.await()
                     _especialidad.value = especialidadDeferred.await()
@@ -156,7 +161,11 @@ class RegistrarConsultaViewModel @Inject constructor(
         }
     }
 
-    fun validarConsulta(tipoActividad: TipoActividad?, especialidad: Especialidad?, tipoConsulta: TipoConsulta?): Boolean {
+    fun validarConsulta(
+        tipoActividad: TipoActividad?,
+        especialidad: Especialidad?,
+        tipoConsulta: TipoConsulta?
+    ): Boolean {
         val errores = mutableMapOf<String, String>()
 
         if (tipoActividad == null) errores["tipoActividad"] = "Selecciona un tipo de actividad"
@@ -167,7 +176,12 @@ class RegistrarConsultaViewModel @Inject constructor(
         return errores.isEmpty()
     }
 
-    fun guardarConsultaParcial(tipoActividad: TipoActividad, especialidad: Especialidad, tipoConsulta: TipoConsulta, motivo: String?) {
+    fun guardarConsultaParcial(
+        tipoActividad: TipoActividad,
+        especialidad: Especialidad,
+        tipoConsulta: TipoConsulta,
+        motivo: String?
+    ) {
         val consultaExistente = consulta.value
         val idConsulta = consultaExistente?.id ?: generarUUID()
         val idUsuarioInst = idUsuarioInstitucion.value ?: 0
@@ -188,6 +202,7 @@ class RegistrarConsultaViewModel @Inject constructor(
             updatedAt = LocalDateTime.now()
         )
         _consultaEditando.value = nuevaConsulta
+        Log.d("RegistrarConsultaViewModel", "Nueva consulta guardada: $nuevaConsulta")
     }
 
     // Fragment 2
@@ -375,7 +390,7 @@ class RegistrarConsultaViewModel @Inject constructor(
 
                 // Actualizar el LiveData con la consulta actualizada
                 _consultaEditando.value = consultaActualizada
-
+                Log.d("RegistrarConsultaViewModel", "Consulta actualizada: $consultaActualizada")
                 // Guardar consulta principal
                 saveConsulta(consultaActualizada)
 
@@ -386,7 +401,7 @@ class RegistrarConsultaViewModel @Inject constructor(
                 detalleObstetricia.value?.let { saveDetalleObstetricia(it) }
                 detallePediatrico.value?.let { saveDetallePediatrico(it) }
 
-                _mensaje.value = "Consulta registrada correctamente"
+                _mensaje.value = "Consulta guardada correctamente"
                 _salir.value = true
 
             } catch (e: Exception) {
