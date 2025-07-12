@@ -395,6 +395,16 @@
 
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/tvSinDatosAntropometricos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No hay registros de datos antropométricos"
+                    android:gravity="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:visibility="gone"
+                    android:textColor="?android:attr/textColorSecondary" />
+
                 <Button
                     android:id="@+id/btnAgregarAntropometrico"
                     android:visibility="visible"
@@ -1046,6 +1056,16 @@
                         tools:ignore="TouchTargetSizeCheck" />
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/tvSinDatosMetabolicos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No hay registros de datos metabólicos"
+                    android:gravity="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:visibility="gone"
+                    android:textColor="?android:attr/textColorSecondary" />
+
                 <Button
                     android:id="@+id/btnAgregarMetabolico"
                     style="@style/Widget.Material3.Button.TextButton"
@@ -1080,6 +1100,16 @@
                     android:text="Detalles pediatricos"
                     android:textSize="16sp"
                     android:textStyle="normal|bold" />
+
+                <TextView
+                    android:id="@+id/tvSinDatosPediatricos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No hay registros de datos pediátricos"
+                    android:gravity="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:visibility="gone"
+                    android:textColor="?android:attr/textColorSecondary" />
 
                 <Button
                     android:id="@+id/btnAgregarPediatrico"
@@ -1126,6 +1156,7 @@
                     android:hint="¿Pacienta embarazada? *">
 
                     <AutoCompleteTextView
+                        android:id="@+id/dropdownIsEmbarazo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none"
@@ -1177,7 +1208,7 @@
                             app:suffixText="semanas">
 
                             <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/tiCedula"
+                                android:id="@+id/tiSemanasGestacion"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="number"
@@ -1205,6 +1236,16 @@
 
                     </LinearLayout>
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvSinDatosObstetricos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No hay registros de datos obstétricos"
+                    android:gravity="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:visibility="gone"
+                    android:textColor="?android:attr/textColorSecondary" />
 
             </LinearLayout>
 

@@ -71,7 +71,10 @@ class RegistrarConsulta2Fragment : Fragment() {
                 ModoConsulta.CULMINAR_CITA,
                 ModoConsulta.EDITAR_CONSULTA -> habilitarCampos()
 
-                ModoConsulta.VER_CONSULTA -> deshabilitarCamposConsulta()
+                ModoConsulta.VER_CONSULTA -> {
+                    deshabilitarCamposConsulta()
+                    verificarYMostrarMensajesSinDatos()
+                }
             }
         }
 
@@ -115,6 +118,11 @@ class RegistrarConsulta2Fragment : Fragment() {
                     layoutPulso.isVisible = it.pulso != null
                 }
             }
+            
+            // Verificar mensajes si estamos en modo solo ver
+            if (viewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
+                verificarYMostrarMensajesSinDatos()
+            }
         }
 
         viewModel.detalleAntropometrico.observe(viewLifecycleOwner) { detalle ->
@@ -148,6 +156,11 @@ class RegistrarConsulta2Fragment : Fragment() {
                     layoutPliegueSubescapular.isVisible = it.pliegueSubescapular != null
                 }
             }
+            
+            // Verificar mensajes si estamos en modo solo ver
+            if (viewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
+                verificarYMostrarMensajesSinDatos()
+            }
         }
 
         viewModel.detalleMetabolico.observe(viewLifecycleOwner) { detalle ->
@@ -178,6 +191,11 @@ class RegistrarConsulta2Fragment : Fragment() {
                     layoutColesterolLdl.isVisible = it.colesterolLdl != null
                 }
             }
+            
+            // Verificar mensajes si estamos en modo solo ver
+            if (viewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
+                verificarYMostrarMensajesSinDatos()
+            }
         }
 
         viewModel.detalleObstetricia.observe(viewLifecycleOwner) { detalle ->
@@ -193,6 +211,11 @@ class RegistrarConsulta2Fragment : Fragment() {
                     binding.tfPesoPreEmbarazo.editText?.setText(it.pesoPreEmbarazo?.toString() ?: "")
                 }
             }
+            
+            // Verificar mensajes si estamos en modo solo ver
+            if (viewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
+                verificarYMostrarMensajesSinDatos()
+            }
         }
 
         viewModel.detallePediatrico.observe(viewLifecycleOwner) { detalle ->
@@ -204,6 +227,11 @@ class RegistrarConsulta2Fragment : Fragment() {
 //                    (binding.tfTipoLactancia.editText as? AutoCompleteTextView)?.setText(it.tipoLactancia.nombre, false)
 //                }
 //            }
+            
+            // Verificar mensajes si estamos en modo solo ver
+            if (viewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
+                verificarYMostrarMensajesSinDatos()
+            }
         }
 
         viewModel.salir.observe(viewLifecycleOwner) {
@@ -450,49 +478,56 @@ class RegistrarConsulta2Fragment : Fragment() {
     }
 
     private fun habilitarCampos() {
-
+        // Mostrar botones de remover campo cuando es modo de edición
+        mostrarBotonesRemoverCampo()
+        
+        // Ocultar mensajes de "sin datos" cuando se habilita la edición
+        ocultarMensajesSinDatos()
     }
 
     private fun deshabilitarCamposConsulta() {
         // antropométricos
-        binding.tfPeso.isEnabled = false
-        binding.tfAltura.isEnabled = false
-        binding.tfTalla.isEnabled = false
-        binding.tfCircuferenciaBraquial.isEnabled = false
-        binding.tfCircuferenciaCadera.isEnabled = false
-        binding.tfCircuferenciaCintura.isEnabled = false
-        binding.tfPerimetroCefalico.isEnabled = false
-        binding.tfPliegueTricipital.isEnabled = false
-        binding.tfPliegueSubescapular.isEnabled = false
+        binding.tiPeso.isEnabled = false
+        binding.tiAltura.isEnabled = false
+        binding.tiTalla.isEnabled = false
+        binding.tiCircuferenciaBraquial.isEnabled = false
+        binding.tiCircuferenciaCadera.isEnabled = false
+        binding.tiCircuferenciaCintura.isEnabled = false
+        binding.tiPerimetroCefalico.isEnabled = false
+        binding.tiPliegueTricipital.isEnabled = false
+        binding.tiPliegueSubescapular.isEnabled = false
         binding.btnAgregarAntropometrico.visibility = View.GONE
         // vitales
-        binding.tfTensionArterialSistolica.isEnabled = false
-        binding.tfTensionArterialDiastolica.isEnabled = false
-        binding.tfFrecuenciaCardiaca.isEnabled = false
-        binding.tfFrecuenciaRespiratoria.isEnabled = false
-        binding.tfTemperatura.isEnabled = false
-        binding.tfSTO2.isEnabled = false
-        binding.tfPulso.isEnabled = false
+        binding.tiTensionArterialSistolica.isEnabled = false
+        binding.tiTensionArterialDiastolica.isEnabled = false
+        binding.tiFrecuenciaCardiaca.isEnabled = false
+        binding.tiFrecuenciaRespiratoria.isEnabled = false
+        binding.tiTemperatura.isEnabled = false
+        binding.tiSTO2.isEnabled = false
+        binding.tiPulso.isEnabled = false
         binding.btnAgregarVital.visibility = View.GONE
         // metabolicos
-        binding.tfGlicemiaBasal.isEnabled = false
-        binding.tfGlicemiaPostprandial.isEnabled = false
-        binding.tfGlicemiaAleatoria.isEnabled = false
-        binding.tfHemoglobinaGlicosilada.isEnabled = false
-        binding.tfTrigliceridos.isEnabled = false
-        binding.tfColesterolTotal.isEnabled = false
-        binding.tfColesterolHdl.isEnabled = false
-        binding.tfColesterolLdl.isEnabled = false
+        binding.tiGlicemiaBasal.isEnabled = false
+        binding.tiGlicemiaPostprandial.isEnabled = false
+        binding.tiGlicemiaAleatoria.isEnabled = false
+        binding.tiHemoglobinaGlicosilada.isEnabled = false
+        binding.tiTrigliceridos.isEnabled = false
+        binding.tiColesterolTotal.isEnabled = false
+        binding.tiColesterolHdl.isEnabled = false
+        binding.tiColesterolLdl.isEnabled = false
         binding.btnAgregarMetabolico.visibility = View.GONE
         // pediatrico
         binding.btnAgregarPediatrico.visibility = View.GONE
         // obstetricia
-        binding.tfIsEmbarazo.isEnabled = false
-        binding.tfFechaUltimaMenstruacion.isEnabled = false
-        binding.tfSemanasGestacion.isEnabled = false
-        binding.tfPesoPreEmbarazo.isEnabled = false
+        binding.dropdownIsEmbarazo.isEnabled = false
+        binding.tiFechaUltimaMenstruacion.isEnabled = false
+        binding.tiSemanasGestacion.isEnabled = false
+        binding.tiPesoPreEmbarazo.isEnabled = false
 
         binding.btnLimpiar.visibility = View.GONE
+        
+        // Ocultar todos los botones de remover campo cuando es modo solo ver
+        ocultarBotonesRemoverCampo()
     }
 
     private fun showMetabolicoDialog() {
@@ -764,6 +799,155 @@ class RegistrarConsulta2Fragment : Fragment() {
         binding.tfPesoPreEmbarazo.editText?.text = null
         // Pediatrico
 
+    }
+
+    /**
+     * Oculta todos los botones de remover campo cuando el modo es VER_CONSULTA.
+     * Esto evita que el usuario pueda eliminar campos en modo de solo lectura.
+     */
+    private fun ocultarBotonesRemoverCampo() {
+        // Botones de remover signos vitales
+        binding.btnRemoverTensionArterialSistolica.visibility = View.GONE
+        binding.btnRemoverTensionArterialDiastolica.visibility = View.GONE
+        binding.btnRemoverFrecuenciaCardiaca.visibility = View.GONE
+        binding.btnRemoverFrecuenciaRespiratoria.visibility = View.GONE
+        binding.btnRemoverTemperatura.visibility = View.GONE
+        binding.btnRemoverSTO2.visibility = View.GONE
+        binding.btnRemoverPulso.visibility = View.GONE
+        
+        // Botones de remover datos metabólicos
+        binding.btnRemoverGlicemiaBasal.visibility = View.GONE
+        binding.btnRemoverGlicemiaPostprandial.visibility = View.GONE
+        binding.btnRemoverGlicemiaAleatoria.visibility = View.GONE
+        binding.btnRemoverHemoglobinaGlicosilada.visibility = View.GONE
+        binding.btnRemoverTrigliceridos.visibility = View.GONE
+        binding.btnRemoverColesterolTotal.visibility = View.GONE
+        binding.btnRemoverColesterolHdl.visibility = View.GONE
+        binding.btnRemoverColesterolLdl.visibility = View.GONE
+        
+        // Botones de remover datos antropométricos
+        binding.btnRemoverPeso.visibility = View.GONE
+        binding.btnRemoverAltura.visibility = View.GONE
+        binding.btnRemoverTalla.visibility = View.GONE
+        binding.btnRemoverCircuferenciaBraquial.visibility = View.GONE
+        binding.btnRemoverCircuferenciaCadera.visibility = View.GONE
+        binding.btnRemoverCircuferenciaCintura.visibility = View.GONE
+        binding.btnRemoverPerimetroCefalico.visibility = View.GONE
+        binding.btnRemoverPliegueTricipital.visibility = View.GONE
+        binding.btnRemoverPliegueSubescapular.visibility = View.GONE
+    }
+
+    /**
+     * Verifica si los grupos de datos están vacíos y muestra mensajes informativos
+     * cuando el modo es VER_CONSULTA y no hay datos disponibles.
+     */
+    private fun verificarYMostrarMensajesSinDatos() {
+        // Verificar signos vitales
+        val haySignosVitales = viewModel.detalleVital.value?.let { vital ->
+            vital.tensionArterialSistolica != null ||
+            vital.tensionArterialDiastolica != null ||
+            vital.frecuenciaCardiaca != null ||
+            vital.frecuenciaRespiratoria != null ||
+            vital.temperatura != null ||
+            vital.saturacionOxigeno != null ||
+            vital.pulso != null
+        } ?: false
+        
+        binding.tvSinDatosVitales.visibility = if (haySignosVitales) View.GONE else View.VISIBLE
+        
+        // Verificar datos metabólicos
+        val hayDatosMetabolicos = viewModel.detalleMetabolico.value?.let { metabolico ->
+            metabolico.glicemiaBasal != null ||
+            metabolico.glicemiaPostprandial != null ||
+            metabolico.glicemiaAleatoria != null ||
+            metabolico.hemoglobinaGlicosilada != null ||
+            metabolico.trigliceridos != null ||
+            metabolico.colesterolTotal != null ||
+            metabolico.colesterolHdl != null ||
+            metabolico.colesterolLdl != null
+        } ?: false
+        
+        binding.tvSinDatosMetabolicos.visibility = if (hayDatosMetabolicos) View.GONE else View.VISIBLE
+        
+        // Verificar datos antropométricos
+        val hayDatosAntropometricos = viewModel.detalleAntropometrico.value?.let { antropometrico ->
+            antropometrico.peso != null ||
+            antropometrico.altura != null ||
+            antropometrico.talla != null ||
+            antropometrico.circunferenciaBraquial != null ||
+            antropometrico.circunferenciaCadera != null ||
+            antropometrico.circunferenciaCintura != null ||
+            antropometrico.perimetroCefalico != null ||
+            antropometrico.pliegueTricipital != null ||
+            antropometrico.pliegueSubescapular != null
+        } ?: false
+        
+        binding.tvSinDatosAntropometricos.visibility = if (hayDatosAntropometricos) View.GONE else View.VISIBLE
+        
+        // Verificar datos obstétricos
+        val hayDatosObstetricos = viewModel.detalleObstetricia.value?.let { obstetricia ->
+            obstetricia.estaEmbarazada != null ||
+            obstetricia.fechaUltimaMenstruacion != null ||
+            obstetricia.semanasGestacion != null ||
+            obstetricia.pesoPreEmbarazo != null
+        } ?: false
+        
+        binding.tvSinDatosObstetricos.visibility = if (hayDatosObstetricos) View.GONE else View.VISIBLE
+        
+        // Verificar datos pediátricos
+        val hayDatosPediatricos = viewModel.detallePediatrico.value?.let { pediatrico ->
+            pediatrico.usaBiberon != null ||
+            pediatrico.tipoLactancia != null
+        } ?: false
+        
+        binding.tvSinDatosPediatricos.visibility = if (hayDatosPediatricos) View.GONE else View.VISIBLE
+    }
+
+    /**
+     * Oculta todos los mensajes de "sin datos" cuando se habilita la edición.
+     */
+    private fun ocultarMensajesSinDatos() {
+        binding.tvSinDatosVitales.visibility = View.GONE
+        binding.tvSinDatosMetabolicos.visibility = View.GONE
+        binding.tvSinDatosAntropometricos.visibility = View.GONE
+        binding.tvSinDatosObstetricos.visibility = View.GONE
+        binding.tvSinDatosPediatricos.visibility = View.GONE
+    }
+
+    /**
+     * Muestra todos los botones de remover campo cuando el modo permite edición.
+     * Esto permite que el usuario pueda eliminar campos en modos de edición.
+     */
+    private fun mostrarBotonesRemoverCampo() {
+        // Botones de remover signos vitales
+        binding.btnRemoverTensionArterialSistolica.visibility = View.VISIBLE
+        binding.btnRemoverTensionArterialDiastolica.visibility = View.VISIBLE
+        binding.btnRemoverFrecuenciaCardiaca.visibility = View.VISIBLE
+        binding.btnRemoverFrecuenciaRespiratoria.visibility = View.VISIBLE
+        binding.btnRemoverTemperatura.visibility = View.VISIBLE
+        binding.btnRemoverSTO2.visibility = View.VISIBLE
+        binding.btnRemoverPulso.visibility = View.VISIBLE
+        
+        // Botones de remover datos metabólicos
+        binding.btnRemoverGlicemiaBasal.visibility = View.VISIBLE
+        binding.btnRemoverGlicemiaPostprandial.visibility = View.VISIBLE
+        binding.btnRemoverGlicemiaAleatoria.visibility = View.VISIBLE
+        binding.btnRemoverHemoglobinaGlicosilada.visibility = View.VISIBLE
+        binding.btnRemoverTrigliceridos.visibility = View.VISIBLE
+        binding.btnRemoverColesterolTotal.visibility = View.VISIBLE
+        binding.btnRemoverColesterolHdl.visibility = View.VISIBLE
+        binding.btnRemoverColesterolLdl.visibility = View.VISIBLE
+        
+        // Botones de remover datos antropométricos
+        binding.btnRemoverPeso.visibility = View.VISIBLE
+        binding.btnRemoverAltura.visibility = View.VISIBLE
+        binding.btnRemoverTalla.visibility = View.VISIBLE
+        binding.btnRemoverCircuferenciaBraquial.visibility = View.VISIBLE
+        binding.btnRemoverCircuferenciaCadera.visibility = View.VISIBLE
+        binding.btnRemoverCircuferenciaCintura.visibility = View.VISIBLE
+        binding.btnRemoverPerimetroCefalico.visibility = View.VISIBLE
+        binding.btnRemoverPliegueTricipital.visibility = View.VISIBLE
+        binding.btnRemoverPliegueSubescapular.visibility = View.VISIBLE
     }
 
     private fun configurarRemoverCampo(

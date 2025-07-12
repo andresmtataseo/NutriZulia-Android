@@ -76,6 +76,28 @@ class RegistrarConsultaViewModel @Inject constructor(
     val isLoading: LiveData<Boolean> = _isLoading
     private val _salir = MutableLiveData<Boolean>()
     val salir: LiveData<Boolean> = _salir
+    
+    /**
+     * Determina si los campos de información general (tipo de actividad, especialidad, tipo de consulta)
+     * son editables según el estado de la consulta.
+     * 
+     * Reglas:
+     * - Sin consulta previa: Editables
+     * - Cita PENDIENTE: No editables (información establecida en programación)
+     * - Cita REPROGRAMADA: No editables (información establecida en programación)
+     * - Consulta COMPLETADA: Editables (se puede modificar)
+     * - Otros estados: Editables
+     */
+    fun sonCamposInformacionGeneralEditables(): Boolean {
+        val consultaActual = consulta.value
+        return when {
+            consultaActual == null -> true // Sin consulta previa, se puede editar
+            consultaActual.estado == Estado.PENDIENTE -> false // Cita programada, no editable
+            consultaActual.estado == Estado.REPROGRAMADA -> false // Cita reprogramada, no editable
+            consultaActual.estado == Estado.COMPLETADA -> true // Consulta completada, se puede editar
+            else -> true // Otros estados, se puede editar
+        }
+    }
 
     fun onCreate(idPaciente: String, idConsulta: String?, isEditable: Boolean) {
         viewModelScope.launch {
@@ -109,6 +131,9 @@ class RegistrarConsultaViewModel @Inject constructor(
                             if (isEditable) ModoConsulta.EDITAR_CONSULTA else ModoConsulta.VER_CONSULTA
                         }
                         consultaResult.estado == Estado.PENDIENTE -> {
+                            if (isEditable) ModoConsulta.CULMINAR_CITA else ModoConsulta.VER_CONSULTA
+                        }
+                        consultaResult.estado == Estado.REPROGRAMADA -> {
                             if (isEditable) ModoConsulta.CULMINAR_CITA else ModoConsulta.VER_CONSULTA
                         }
                         else -> {
@@ -173,9 +198,17 @@ class RegistrarConsultaViewModel @Inject constructor(
     ): Boolean {
         val errores = mutableMapOf<String, String>()
 
-        if (tipoActividad == null) errores["tipoActividad"] = "Selecciona un tipo de actividad"
-        if (especialidad == null) errores["especialidad"] = "Selecciona una especialidad"
-        if (tipoConsulta == null) errores["tipoConsulta"] = "Selecciona un tipo de consulta"
+        // Solo validar si los campos son editables
+        if (sonCamposInformacionGeneralEditables()) {
+            if (tipoActividad == null) errores["tipoActividad"] = "Selecciona un tipo de actividad"
+            if (especialidad == null) errores["especialidad"] = "Selecciona una especialidad"
+            if (tipoConsulta == null) errores["tipoConsulta"] = "Selecciona un tipo de consulta"
+        } else {
+            // Si no son editables, verificar que los valores existentes estén disponibles
+            if (tipoActividad == null) errores["tipoActividad"] = "Falta información del tipo de actividad"
+            if (especialidad == null) errores["especialidad"] = "Falta información de la especialidad"
+            if (tipoConsulta == null) errores["tipoConsulta"] = "Falta información del tipo de consulta"
+        }
 
         _errores.value = errores
         return errores.isEmpty()

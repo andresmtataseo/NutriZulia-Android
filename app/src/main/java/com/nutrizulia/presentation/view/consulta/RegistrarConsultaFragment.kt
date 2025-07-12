@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
 import com.nutrizulia.R
+import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.enum.TipoConsulta
 import com.nutrizulia.databinding.FragmentRegistrarConsultaBinding
 import com.nutrizulia.domain.model.catalog.Especialidad
@@ -91,13 +92,27 @@ class RegistrarConsultaFragment : Fragment() {
         )
 
         binding.btnSiguiente.setOnClickListener {
-            val esValido = viewModel.validarConsulta(tipoActividadSel, especialidadSel, tipoConsultaSel)
+            // Solo validar si los campos son editables
+            val sonEditables = viewModel.sonCamposInformacionGeneralEditables()
+            val esValido = if (sonEditables) {
+                viewModel.validarConsulta(tipoActividadSel, especialidadSel, tipoConsultaSel)
+            } else {
+                // Si no son editables, usar los valores existentes
+                true
+            }
+            
             if (!esValido) return@setOnClickListener
-            // Siempre guardar la consulta parcial para que consultaEditando esté inicializada
+            
+            // Obtener los valores a guardar (editables o existentes)
+            val tipoActividadAGuardar = if (sonEditables) tipoActividadSel!! else viewModel.tipoActividad.value!!
+            val especialidadAGuardar = if (sonEditables) especialidadSel!! else viewModel.especialidad.value!!
+            val tipoConsultaAGuardar = if (sonEditables) tipoConsultaSel!! else viewModel.tipoConsulta.value!!
+            
+            // Guardar la consulta parcial
             viewModel.guardarConsultaParcial(
-                tipoActividadSel!!,
-                especialidadSel!!,
-                tipoConsultaSel!!,
+                tipoActividadAGuardar,
+                especialidadAGuardar,
+                tipoConsultaAGuardar,
                 binding.tfMotivoConsulta.editText?.text?.toString()
             )
             findNavController().navigate(
@@ -110,10 +125,17 @@ class RegistrarConsultaFragment : Fragment() {
         }
 
         binding.btnLimpiar.setOnClickListener {
+            val sonEditables = viewModel.sonCamposInformacionGeneralEditables()
+            val mensaje = if (sonEditables) {
+                "¿Desea limpiar todos los campos?"
+            } else {
+                "¿Desea limpiar el motivo de consulta? (La información general no se puede modificar en citas programadas)"
+            }
+            
             Utils.mostrarDialog(
                 requireContext(),
                 "Advertencia",
-                "¿Desea limpiar todos los campos?",
+                mensaje,
                 "Sí",
                 "No",
                 { limpiarCampos() },
@@ -141,6 +163,14 @@ class RegistrarConsultaFragment : Fragment() {
                 ModoConsulta.EDITAR_CONSULTA -> habilitarCampos()
                 ModoConsulta.VER_CONSULTA,
                 ModoConsulta.CULMINAR_CITA -> deshabilitarCampos()
+            }
+            
+            // Mostrar mensaje informativo si los campos no son editables
+            if (modo == ModoConsulta.CULMINAR_CITA) {
+                val consulta = viewModel.consulta.value
+                if (consulta?.estado == Estado.PENDIENTE || consulta?.estado == Estado.REPROGRAMADA) {
+                    Utils.mostrarSnackbar(binding.root, "La información general no se puede modificar en citas programadas")
+                }
             }
         }
 
@@ -210,9 +240,17 @@ class RegistrarConsultaFragment : Fragment() {
 
     private fun limpiarCampos() {
         quitarErrores()
-        binding.tfTipoActividad.editText?.text?.clear()
-        binding.tfEspecialidad.editText?.text?.clear()
-        binding.tfTipoConsulta.editText?.text?.clear()
+        
+        // Solo limpiar campos editables
+        val sonEditables = viewModel.sonCamposInformacionGeneralEditables()
+        
+        if (sonEditables) {
+            binding.tfTipoActividad.editText?.text?.clear()
+            binding.tfEspecialidad.editText?.text?.clear()
+            binding.tfTipoConsulta.editText?.text?.clear()
+        }
+        
+        // El motivo de consulta siempre se puede limpiar
         binding.tfMotivoConsulta.editText?.text?.clear()
     }
 
@@ -223,13 +261,28 @@ class RegistrarConsultaFragment : Fragment() {
     }
 
     private fun habilitarCampos() {
-        val campos = listOf(
+        // Determinar si los campos de información general son editables
+        val sonEditables = viewModel.sonCamposInformacionGeneralEditables()
+        
+        // Restaurar hints originales primero
+        restaurarHintsOriginales()
+        
+        // Campos de información general
+        val camposInformacionGeneral = listOf(
             binding.tfTipoActividad,
             binding.tfEspecialidad,
-            binding.tfTipoConsulta,
-            binding.tfMotivoConsulta
+            binding.tfTipoConsulta
         )
-        campos.forEach { it.isEnabled = true }
+        camposInformacionGeneral.forEach { 
+            it.isEnabled = sonEditables
+            // Agregar indicador visual si no es editable
+            if (!sonEditables) {
+                it.hint = "${it.hint} (No editable en citas programadas)"
+            }
+        }
+        
+        // El motivo de consulta siempre es editable
+        binding.tfMotivoConsulta.isEnabled = true
 
         // Los campos de fecha y hora solo se habilitan si no hay una cita programada
         val consulta = viewModel.consulta.value
@@ -244,17 +297,23 @@ class RegistrarConsultaFragment : Fragment() {
 
     private fun deshabilitarCampos() {
         val campos = listOf(
-            binding.tfTipoActividad,
-            binding.tfEspecialidad,
-            binding.tfTipoConsulta,
-            binding.tfMotivoConsulta,
-            binding.tfFechaCita,
-            binding.tfHoraCita
+            binding.dropdownTipoActividad,
+            binding.dropdownEspecialidades,
+            binding.dropdownTipoConsulta,
+            binding.tiMotivoConsulta,
+            binding.tiFechaCita,
+            binding.tiHoraCita
         )
         campos.forEach { it.isEnabled = false }
 
         binding.btnLimpiar.visibility = View.GONE
         binding.btnSiguiente.visibility = View.VISIBLE
+    }
+    
+    private fun restaurarHintsOriginales() {
+        binding.tfTipoActividad.hint = "Tipo de Actividad"
+        binding.tfEspecialidad.hint = "Especialidad"
+        binding.tfTipoConsulta.hint = "Tipo de Consulta"
     }
 
     private fun <T> AutoCompleteTextView.bind(

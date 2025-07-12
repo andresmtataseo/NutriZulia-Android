@@ -236,10 +236,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:hint="Fecha de la cita"
-                    app:startIconDrawable="@drawable/ic_calendario"
-                    android:enabled="false">
+                    app:startIconDrawable="@drawable/ic_calendario">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiFechaCita"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true"
@@ -254,10 +254,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:hint="Hora de la cita"
-                    app:startIconDrawable="@drawable/ic_reloj"
-                    android:enabled="false">
+                    app:startIconDrawable="@drawable/ic_reloj">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiHoraCita"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true"
