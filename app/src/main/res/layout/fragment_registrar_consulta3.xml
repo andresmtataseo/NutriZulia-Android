@@ -44,43 +44,82 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
-                android:text="@string/diagnostico"
+                android:text="Riesgos biológicos"
                 android:textSize="16sp"
                 android:textStyle="normal|bold" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tfDiagnosticoPrincipal"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            <LinearLayout
+                android:id="@+id/layoutRiesgoBiologico"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:hint="@string/dignostico_principal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
-                <AutoCompleteTextView
-                    android:layout_width="match_parent"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tfRiesgoBiologico"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:inputType="none"
-                    app:simpleItems="@array/especialidades"
-                    tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="1"
+                    android:hint="Riesgo biológico">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiRiesgoBiologico"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:maxLength="5" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tfDiagnosticoSecundario"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/btnRemoverRiesgoBiologico"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="?attr/actionBarItemBackground"
+                    android:contentDescription="Remover riesgo biológico"
+                    android:src="@drawable/ic_remover" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvSinDatos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="No hay registros de riesgos biológicos"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:visibility="gone"
+                android:textColor="?android:attr/textColorSecondary" />
+
+            <Button
+                android:id="@+id/btnAgregarRiesgoBiologico"
+                android:visibility="visible"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="8dp"
-                android:hint="@string/dignostico_secundario">
+                android:text="Añadir"
+                app:icon="@drawable/ic_agregar_datos"
+                app:iconGravity="textStart" />
 
-                <AutoCompleteTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    app:simpleItems="@array/especialidades"
-                    tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:text="Conclusiones"
+                android:textSize="16sp"
+                android:textStyle="normal|bold" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tfObservaciones"
