@@ -223,7 +223,23 @@ class RegistrarConsultaFragment : Fragment() {
     }
 
     private fun habilitarCampos() {
+        val campos = listOf(
+            binding.tfTipoActividad,
+            binding.tfEspecialidad,
+            binding.tfTipoConsulta,
+            binding.tfMotivoConsulta
+        )
+        campos.forEach { it.isEnabled = true }
 
+        // Los campos de fecha y hora solo se habilitan si no hay una cita programada
+        val consulta = viewModel.consulta.value
+        if (consulta?.fechaHoraProgramada == null) {
+            binding.tfFechaCita.isEnabled = true
+            binding.tfHoraCita.isEnabled = true
+        }
+
+        binding.btnLimpiar.visibility = View.VISIBLE
+        binding.btnSiguiente.visibility = View.VISIBLE
     }
 
     private fun deshabilitarCampos() {

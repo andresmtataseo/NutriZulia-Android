@@ -83,10 +83,10 @@ class AccionesCitaFragment : Fragment() {
     fun setupListeners() {
         binding.cardViewRealizarConsulta.setOnClickListener {
             pacienteId?.let { id ->
-                val action = AccionesCitaFragmentDirections.actionSeleccionarPacienteCitaFragmentToRegistrarConsultaGraph(
+                val action = AccionesCitaFragmentDirections.actionAccionesCitaFragmentToRegistrarConsultaGraph(
                     idPaciente = id,
                     idConsulta = args.idConsulta,
-                    isEditable = false
+                    isEditable = true  // Cambiado a true para permitir edición
                 )
                 findNavController().navigate(action)
             } ?: run {

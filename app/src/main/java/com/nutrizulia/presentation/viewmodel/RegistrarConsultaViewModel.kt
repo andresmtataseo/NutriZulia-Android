@@ -108,8 +108,12 @@ class RegistrarConsultaViewModel @Inject constructor(
                         consultaResult.estado == Estado.COMPLETADA -> {
                             if (isEditable) ModoConsulta.EDITAR_CONSULTA else ModoConsulta.VER_CONSULTA
                         }
-                        consultaResult.estado == Estado.PENDIENTE -> ModoConsulta.CULMINAR_CITA
-                        else -> ModoConsulta.VER_CONSULTA
+                        consultaResult.estado == Estado.PENDIENTE -> {
+                            if (isEditable) ModoConsulta.CULMINAR_CITA else ModoConsulta.VER_CONSULTA
+                        }
+                        else -> {
+                            if (isEditable) ModoConsulta.EDITAR_CONSULTA else ModoConsulta.VER_CONSULTA
+                        }
                     }
 
                     // Obtener datos seleccionados
@@ -124,7 +128,8 @@ class RegistrarConsultaViewModel @Inject constructor(
                         consultaResult.tipoConsulta?.name ?: TipoConsulta.CONSULTA_SUCESIVA.name
                     )
 
-                    if (isEditable) {
+                    // Cargar catálogos si es editable o si no hay datos seleccionados
+                    if (isEditable || consultaResult.tipoActividadId == null) {
                         val actividadesDeferred = async { getTiposActividades() }
                         val especialidadesDeferred = async { getEspecialidades() }
 

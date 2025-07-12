@@ -225,7 +225,7 @@
             android:id="@+id/action_accionesCitaFragment_to_registrarCitaFragment"
             app:destination="@id/registrarCitaFragment" />
         <action
-            android:id="@+id/action_seleccionarPacienteCitaFragment_to_registrarConsultaGraph"
+            android:id="@+id/action_accionesCitaFragment_to_registrarConsultaGraph"
             app:destination="@id/registrarConsultaGraph"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
