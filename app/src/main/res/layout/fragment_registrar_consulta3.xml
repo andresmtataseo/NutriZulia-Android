@@ -48,42 +48,13 @@
                 android:textSize="16sp"
                 android:textStyle="normal|bold" />
 
-            <LinearLayout
-                android:id="@+id/layoutRiesgoBiologico"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewRiesgosBiologicos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tfRiesgoBiologico"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_weight="1"
-                    android:hint="Riesgo biológico">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/tiRiesgoBiologico"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:maxLength="5" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <ImageButton
-                    android:id="@+id/btnRemoverRiesgoBiologico"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="?attr/actionBarItemBackground"
-                    android:contentDescription="Remover riesgo biológico"
-                    android:src="@drawable/ic_remover" />
-
-            </LinearLayout>
+                android:clipToPadding="false"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:listitem="@layout/item_riesgo_biologico" />
 
             <TextView
                 android:id="@+id/tvSinDatos"

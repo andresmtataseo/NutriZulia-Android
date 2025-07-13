@@ -8,8 +8,13 @@ import com.nutrizulia.data.local.entity.catalog.RiesgoBiologicoEntity
 @Dao
 interface RiesgoBiologicoDao {
 
-    @Query("SELECT * FROM riesgos_biologicos WHERE genero = :genero")
-    suspend fun findAllByGenero(genero: String): List<RiesgoBiologicoEntity>
+    @Query("SELECT * FROM riesgos_biologicos\n" +
+            "WHERE genero = :genero\n" +
+            "  AND (:edadMeses BETWEEN edad_mes_minima AND edad_mes_maxima\n" +
+            "       OR (edad_mes_minima IS NULL AND :edadMeses <= edad_mes_maxima)\n" +
+            "       OR (edad_mes_maxima IS NULL AND :edadMeses >= edad_mes_minima)\n" +
+            "       OR (edad_mes_minima IS NULL AND edad_mes_maxima IS NULL))")
+    suspend fun findAllByGeneroAndMeses(genero: String, edadMeses: Int): List<RiesgoBiologicoEntity>
 
     @Insert
     suspend fun insertAll(riesgosBiologicos: List<RiesgoBiologicoEntity>): List<Long>

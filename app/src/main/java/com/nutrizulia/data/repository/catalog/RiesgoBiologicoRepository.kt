@@ -8,7 +8,7 @@ import javax.inject.Inject
 class RiesgoBiologicoRepository @Inject constructor(
     private val dao: RiesgoBiologicoDao
 ) {
-    suspend fun findAllByGenero(genero: String): List<RiesgoBiologico> {
-        return dao.findAllByGenero(genero).map { it.toDomain() }
+    suspend fun findAllByGeneroAndMeses(genero: String, edadMeses: Int): List<RiesgoBiologico> {
+        return dao.findAllByGeneroAndMeses(genero, edadMeses).map { it.toDomain() }
     }
 }

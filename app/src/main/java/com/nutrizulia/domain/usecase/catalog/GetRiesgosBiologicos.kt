@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetRiesgosBiologicos @Inject constructor(
     private val repository: RiesgoBiologicoRepository
 ) {
-    suspend operator fun invoke(genero: String): List<RiesgoBiologico> {
-        return repository.findAllByGenero(genero)
+    suspend operator fun invoke(genero: String, edadMeses: Int): List<RiesgoBiologico> {
+        return repository.findAllByGeneroAndMeses(genero, edadMeses)
     }
 }

@@ -34,6 +34,8 @@ class RegistrarConsultaViewModel @Inject constructor(
     private val getDetallePediatrico: GetDetallePediatricoByConsultaId,
     private val getDetalleObstetricia: GetDetalleObstetriciaByConsultaId,
 
+    private val getRiesgosbiologicos: GetRiesgosBiologicos,
+    private val getEnfermedades: GetEnfermedades,
     private val saveConsulta: SaveConsulta,
     private val saveDetalleVital: SaveDetalleVital,
     private val saveDetalleAntropometrico: SaveDetalleAntropometrico,
@@ -405,6 +407,16 @@ class RegistrarConsultaViewModel @Inject constructor(
     }
 
     // Fragment 3
+
+    private val _riesgosBiologicos = MutableLiveData<List<RiesgoBiologico>>()
+    val riesgosBiologicos: LiveData<List<RiesgoBiologico>> = _riesgosBiologicos
+    private val _enfermedades = MutableLiveData<List<Enfermedad>>()
+    val enfermedades: LiveData<List<Enfermedad>> = _enfermedades
+
+    private val _riesgoBiologico = MutableLiveData<RiesgoBiologico>()
+    val riesgoBiologico: LiveData<RiesgoBiologico> = _riesgoBiologico
+    private val _enfermedad = MutableLiveData<Enfermedad>()
+    val enfermedad: LiveData<Enfermedad> = _enfermedad
 
     fun guardarConsultaCompleta(observaciones: String?, planes: String?) {
         viewModelScope.launch {
