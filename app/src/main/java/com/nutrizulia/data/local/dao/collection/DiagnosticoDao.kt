@@ -10,7 +10,7 @@ import com.nutrizulia.data.local.entity.collection.DiagnosticoEntity
 interface DiagnosticoDao {
 
     @Query("SELECT * FROM diagnosticos WHERE consulta_id = :consultaId")
-    suspend fun findByConsultaId(consultaId: String): DiagnosticoEntity?
+    suspend fun findByConsultaId(consultaId: String): List<DiagnosticoEntity>
 
     @Insert
     suspend fun insert(diagnostico: DiagnosticoEntity): Long
@@ -23,5 +23,8 @@ interface DiagnosticoDao {
 
     @Query("DELETE FROM diagnosticos")
     suspend fun deleteAll(): Int
+
+    @Query("DELETE FROM diagnosticos WHERE consulta_id = :consultaId")
+    suspend fun deleteByConsultaId(consultaId: String): Int
 
 }

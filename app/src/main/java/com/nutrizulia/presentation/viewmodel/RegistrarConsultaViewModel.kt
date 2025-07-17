@@ -11,7 +11,9 @@ import com.nutrizulia.domain.usecase.catalog.*
 import com.nutrizulia.domain.usecase.collection.*
 import com.nutrizulia.util.ModoConsulta
 import com.nutrizulia.util.SessionManager
-import com.nutrizulia.util.Utils.generarUUID
+import com.nutrizulia.util.Utils
+import com.nutrizulia.data.local.entity.collection.DiagnosticoEntity
+import com.nutrizulia.domain.usecase.collection.GetDiagnosticosByConsultaId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
@@ -36,12 +38,14 @@ class RegistrarConsultaViewModel @Inject constructor(
 
     private val getRiesgosbiologicos: GetRiesgosBiologicos,
     private val getEnfermedades: GetEnfermedades,
+    private val getDiagnosticosByConsultaId: GetDiagnosticosByConsultaId,
     private val saveConsulta: SaveConsulta,
     private val saveDetalleVital: SaveDetalleVital,
     private val saveDetalleAntropometrico: SaveDetalleAntropometrico,
     private val saveDetalleMetabolico: SaveDetalleMetabolico,
     private val saveDetalleObstetricia: SaveDetalleObstetricia,
     private val saveDetallePediatrico: SaveDetallePediatrico,
+    private val saveDiagnosticos: SaveDiagnosticos,
 
     private val sessionManager: SessionManager
 ) : ViewModel() {
@@ -223,7 +227,7 @@ class RegistrarConsultaViewModel @Inject constructor(
         motivo: String?
     ) {
         val consultaExistente = consulta.value
-        val idConsulta = consultaExistente?.id ?: generarUUID()
+        val idConsulta = consultaExistente?.id ?: Utils.generarUUID()
         val idUsuarioInst = idUsuarioInstitucion.value ?: 0
 
         val nuevaConsulta = Consulta(
@@ -296,7 +300,7 @@ class RegistrarConsultaViewModel @Inject constructor(
         val idConsulta = consulta.value?.id ?: return
         val idExistente = detalleVital.value?.id
         val detalle = DetalleVital(
-            id = idExistente ?: generarUUID(),
+            id = idExistente ?: Utils.generarUUID(),
             consultaId = idConsulta,
             tensionArterialSistolica = presionSistolica,
             tensionArterialDiastolica = presionDiastolica,
@@ -325,7 +329,7 @@ class RegistrarConsultaViewModel @Inject constructor(
         val idConsulta = consulta.value?.id ?: return
         val idExistente = detalleAntropometrico.value?.id
         val detalle = DetalleAntropometrico(
-            id = idExistente ?: generarUUID(),
+            id = idExistente ?: Utils.generarUUID(),
             consultaId = idConsulta,
             peso = peso,
             altura = altura,
@@ -355,7 +359,7 @@ class RegistrarConsultaViewModel @Inject constructor(
         val idConsulta = consulta.value?.id ?: return
         val idExistente = detalleMetabolico.value?.id
         val detalle = DetalleMetabolico(
-            id = idExistente ?: generarUUID(),
+            id = idExistente ?: Utils.generarUUID(),
             consultaId = idConsulta,
             glicemiaBasal = glicemiaBasal,
             glicemiaPostprandial = glicemiaPostprandial,
@@ -375,7 +379,7 @@ class RegistrarConsultaViewModel @Inject constructor(
         val idConsulta = consulta.value?.id ?: return
         val idExistente = detallePediatrico.value?.id
         val detalle = DetallePediatrico(
-            id = idExistente ?: generarUUID(),
+            id = idExistente ?: Utils.generarUUID(),
             consultaId = idConsulta,
             usaBiberon = usaBiberon,
             tipoLactancia = tipoLactancia,
@@ -394,7 +398,7 @@ class RegistrarConsultaViewModel @Inject constructor(
         val idConsulta = consulta.value?.id ?: return
         val idExistente = detalleObstetricia.value?.id
         val detalle = DetalleObstetricia(
-            id = idExistente ?: generarUUID(),
+            id = idExistente ?: Utils.generarUUID(),
             consultaId = idConsulta,
             estaEmbarazada = estaEmbarazada,
             fechaUltimaMenstruacion = fechaUltimaMenstruacion,
@@ -408,8 +412,10 @@ class RegistrarConsultaViewModel @Inject constructor(
 
     // Fragment 3
 
-    private val _riesgosBiologicos = MutableLiveData<List<RiesgoBiologico>>()
-    val riesgosBiologicos: LiveData<List<RiesgoBiologico>> = _riesgosBiologicos
+    private val _riesgosBiologicosDisponibles = MutableLiveData<List<RiesgoBiologico>>()
+    val riesgosBiologicosDisponibles: LiveData<List<RiesgoBiologico>> = _riesgosBiologicosDisponibles
+    private val _riesgosBiologicosSeleccionados = MediatorLiveData<List<RiesgoBiologico>>()
+    val riesgosBiologicosSeleccionados: LiveData<List<RiesgoBiologico>> = _riesgosBiologicosSeleccionados
     private val _enfermedades = MutableLiveData<List<Enfermedad>>()
     val enfermedades: LiveData<List<Enfermedad>> = _enfermedades
 
@@ -417,6 +423,22 @@ class RegistrarConsultaViewModel @Inject constructor(
     val riesgoBiologico: LiveData<RiesgoBiologico> = _riesgoBiologico
     private val _enfermedad = MutableLiveData<Enfermedad>()
     val enfermedad: LiveData<Enfermedad> = _enfermedad
+
+    private val _diagnosticosConsulta = MutableLiveData<List<DiagnosticoEntity>>()
+
+    init {
+        _riesgosBiologicosSeleccionados.addSource(_diagnosticosConsulta) { mapearDiagnosticosYRiesgos() }
+        _riesgosBiologicosSeleccionados.addSource(_riesgosBiologicosDisponibles) { mapearDiagnosticosYRiesgos() }
+    }
+
+    private fun mapearDiagnosticosYRiesgos() {
+        val diagnosticos = _diagnosticosConsulta.value.orEmpty()
+        val catalogo = _riesgosBiologicosDisponibles.value.orEmpty()
+        val riesgosSeleccionados = diagnosticos
+            .filter { it.riesgoBiologicoId != null }
+            .mapNotNull { diag -> catalogo.find { it.id == diag.riesgoBiologicoId } }
+        _riesgosBiologicosSeleccionados.value = riesgosSeleccionados
+    }
 
     fun guardarConsultaCompleta(observaciones: String?, planes: String?) {
         viewModelScope.launch {
@@ -451,6 +473,19 @@ class RegistrarConsultaViewModel @Inject constructor(
                 detalleObstetricia.value?.let { saveDetalleObstetricia(it) }
                 detallePediatrico.value?.let { saveDetallePediatrico(it) }
 
+                // Guardar diagnósticos (riesgos biológicos)
+                val diagnosticos = riesgosBiologicosSeleccionados.value.orEmpty().map { riesgo ->
+                    DiagnosticoEntity(
+                        id = Utils.generarUUID(),
+                        consultaId = consultaActualizada.id,
+                            riesgoBiologicoId = riesgo.id,
+                        enfermedadId = null,
+                        isPrincipal = false,
+                        updatedAt = LocalDateTime.now()
+                    )
+                }
+                saveDiagnosticos(consultaActualizada.id, diagnosticos)
+
                 _mensaje.value = "Consulta guardada correctamente"
                 _salir.value = true
 
@@ -460,6 +495,63 @@ class RegistrarConsultaViewModel @Inject constructor(
                 _isLoading.value = false
             }
         }
+    }
+
+    fun cargarRiesgosBiologicosDisponibles() {
+        // Evitar cargar si ya están cargados, excepto en modo editar
+        if (_riesgosBiologicosDisponibles.value != null && modoConsulta.value != ModoConsulta.EDITAR_CONSULTA) {
+            return
+        }
+        
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val pacienteActual = paciente.value
+                if (pacienteActual != null) {
+                    val edadMeses = Utils.calcularEdadEnMeses(pacienteActual.fechaNacimiento)
+                    val riesgosDisponibles =
+                        getRiesgosbiologicos(pacienteActual.genero.first().uppercaseChar().toString(), edadMeses)
+                    _riesgosBiologicosDisponibles.value = riesgosDisponibles
+                }
+            } catch (e: Exception) {
+                _mensaje.value = "Error al cargar riesgos biológicos: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun cargarRiesgosBiologicosExistentes() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val idConsulta = consulta.value?.id
+                if (idConsulta != null) {
+                    val diagnosticos = getDiagnosticosByConsultaId(idConsulta)
+                    _diagnosticosConsulta.value = diagnosticos
+                    // Siempre cargar los riesgos disponibles para poder mapear correctamente
+                    cargarRiesgosBiologicosDisponibles()
+                }
+            } catch (e: Exception) {
+                _mensaje.value = "Error al cargar riesgos biológicos existentes: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun agregarRiesgoBiologico(riesgoBiologico: RiesgoBiologico) {
+        val riesgosActuales = _riesgosBiologicosSeleccionados.value.orEmpty().toMutableList()
+        if (!riesgosActuales.any { it.id == riesgoBiologico.id }) {
+            riesgosActuales.add(riesgoBiologico)
+            _riesgosBiologicosSeleccionados.value = riesgosActuales
+        }
+    }
+
+    fun eliminarRiesgoBiologico(riesgoBiologico: RiesgoBiologico) {
+        val riesgosActuales = _riesgosBiologicosSeleccionados.value.orEmpty().toMutableList()
+        riesgosActuales.removeAll { it.id == riesgoBiologico.id }
+        _riesgosBiologicosSeleccionados.value = riesgosActuales
     }
 
 }

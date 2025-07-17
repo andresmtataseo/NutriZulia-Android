@@ -105,6 +105,20 @@ object Utils {
     }
 
     /**
+     * Calcula la edad en meses a partir de un objeto LocalDate.
+     * @param fechaNacimiento La fecha de nacimiento como un objeto LocalDate.
+     * @return La edad en meses completos. Devuelve 0 si la fecha es en el futuro.
+     */
+    fun calcularEdadEnMeses(fechaNacimiento: LocalDate): Int {
+        val hoy = LocalDate.now()
+        if (fechaNacimiento.isAfter(hoy)) {
+            return 0
+        }
+        val periodo = Period.between(fechaNacimiento, hoy)
+        return (periodo.years * 12) + periodo.months
+    }
+
+    /**
      * Muestra un diálogo de alerta genérico de Material Design 3 con dos botones (positivo y negativo).
      *
      * @param context El Context necesario para crear el diálogo.

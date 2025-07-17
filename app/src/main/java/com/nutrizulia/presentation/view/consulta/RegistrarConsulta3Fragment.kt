@@ -12,11 +12,17 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentRegistrarConsulta3Binding
+import com.nutrizulia.domain.model.catalog.RiesgoBiologico
+import com.nutrizulia.presentation.adapter.PacienteAdapter
+import com.nutrizulia.presentation.adapter.RiesgoBiologicoAdapter
 import com.nutrizulia.presentation.viewmodel.RegistrarConsultaViewModel
 import com.nutrizulia.util.ModoConsulta
 import com.nutrizulia.util.Utils
+import com.nutrizulia.util.Utils.mostrarDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.getValue
 
@@ -27,6 +33,7 @@ class RegistrarConsulta3Fragment : Fragment() {
         defaultViewModelProviderFactory
     }
     private lateinit var binding: FragmentRegistrarConsulta3Binding
+    private lateinit var riesgoBiologicoAdapter: RiesgoBiologicoAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,6 +48,7 @@ class RegistrarConsulta3Fragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
         setupListeners()
+        setupRecyclerView()
     }
 
     private fun setupObservers() {
@@ -58,9 +66,16 @@ class RegistrarConsulta3Fragment : Fragment() {
             when (modo) {
                 ModoConsulta.CREAR_SIN_CITA,
                 ModoConsulta.CULMINAR_CITA,
-                ModoConsulta.EDITAR_CONSULTA -> habilitarCampos()
+                ModoConsulta.EDITAR_CONSULTA -> {
+                    habilitarCampos()
+                    riesgoBiologicoAdapter.setReadOnly(false)
+                }
 
-                ModoConsulta.VER_CONSULTA -> deshabilitarCampos()
+                ModoConsulta.VER_CONSULTA -> {
+                    deshabilitarCampos()
+                    cargarRiesgosExistentes()
+                    riesgoBiologicoAdapter.setReadOnly(true)
+                }
             }
         }
 
@@ -68,8 +83,50 @@ class RegistrarConsulta3Fragment : Fragment() {
             if (consulta != null) {
                 binding.tfObservaciones.editText?.setText(consulta.observaciones.orEmpty())
                 binding.tfPlanes.editText?.setText(consulta.planes.orEmpty())
+                
+                // Si es modo editar, cargar riesgos existentes
+                if (viewModel.modoConsulta.value == ModoConsulta.EDITAR_CONSULTA) {
+                    cargarRiesgosExistentes()
+                }
             }
         }
+
+        viewModel.riesgosBiologicosSeleccionados.observe(viewLifecycleOwner) { riesgos ->
+            riesgoBiologicoAdapter.updateRiesgosBiologicos(riesgos)
+            binding.tvSinDatos.visibility = if (riesgos.isEmpty()) View.VISIBLE else View.GONE
+        }
+
+//        viewModel.riesgosBiologicosDisponibles.observe(viewLifecycleOwner) { riesgosDisponibles ->
+//            if (riesgosDisponibles.isNotEmpty()) {
+//                val nombresRiesgos = riesgosDisponibles.map { it.nombre }.toTypedArray()
+//                val riesgosSeleccionados = mutableSetOf<Int>()
+//
+//                MaterialAlertDialogBuilder(requireContext())
+//                    .setTitle("Seleccionar Riesgos Biológicos")
+//                    .setMultiChoiceItems(
+//                        nombresRiesgos,
+//                        null
+//                    ) { dialog, which, isChecked ->
+//                        if (isChecked) {
+//                            riesgosSeleccionados.add(which)
+//                        } else {
+//                            riesgosSeleccionados.remove(which)
+//                        }
+//                    }
+//                    .setPositiveButton("Agregar") { dialog, which ->
+//                        riesgosSeleccionados.forEach { index ->
+//                            val riesgoSeleccionado = riesgosDisponibles[index]
+//                            viewModel.agregarRiesgoBiologico(riesgoSeleccionado)
+//                        }
+//                    }
+//                    .setNegativeButton("Cancelar") { dialog, which ->
+//                        dialog.dismiss()
+//                    }
+//                    .show()
+//            } else {
+//                Utils.mostrarSnackbar(binding.root, "No hay riesgos biológicos disponibles para este paciente")
+//            }
+//        }
 
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
             if (salir) findNavController().popBackStack(R.id.consultasFragment, false)
@@ -78,6 +135,10 @@ class RegistrarConsulta3Fragment : Fragment() {
     }
 
     private fun setupListeners() {
+
+        binding.btnAgregarRiesgoBiologico.setOnClickListener {
+            mostrarDialogoRiesgosBiologicos()
+        }
 
         binding.btnRegistrarConsulta.setOnClickListener {
             if (viewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
@@ -92,7 +153,7 @@ class RegistrarConsulta3Fragment : Fragment() {
         }
 
         binding.btnLimpiar.setOnClickListener {
-            Utils.mostrarDialog(
+            mostrarDialog(
                 requireContext(),
                 "Advertencia",
                 "¿Desea limpiar todos los campos?",
@@ -106,15 +167,46 @@ class RegistrarConsulta3Fragment : Fragment() {
 
     }
 
+    private fun setupRecyclerView() {
+        riesgoBiologicoAdapter = RiesgoBiologicoAdapter(
+            emptyList(),
+            onClickListener = { riesgoBiologico -> onRiesgoBiologicoClick(riesgoBiologico) })
+
+        binding.recyclerViewRiesgosBiologicos.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = riesgoBiologicoAdapter
+        }
+
+        // Inicializar con datos del ViewModel si están disponibles
+        viewModel.riesgosBiologicosSeleccionados.value?.let { riesgos ->
+            riesgoBiologicoAdapter.updateRiesgosBiologicos(riesgos)
+        }
+    }
+
+    private fun onRiesgoBiologicoClick(riesgoBiologico: RiesgoBiologico) {
+        mostrarDialog(
+            requireContext(),
+            "Eliminar Riesgo Biológico",
+            "¿Desea eliminar el Riesgo Biológico ${riesgoBiologico.nombre}?",
+            "Sí",
+            "No",
+            { viewModel.eliminarRiesgoBiologico(riesgoBiologico) },
+            { },
+            true
+        )
+    }
+
     private fun habilitarCampos() {
         binding.btnRegistrarConsulta.isEnabled = true
         binding.btnLimpiar.isEnabled = true
+        binding.btnAgregarRiesgoBiologico.visibility = View.VISIBLE
     }
 
     private fun deshabilitarCampos() {
         binding.tfObservaciones.editText?.isEnabled = false
         binding.tfPlanes.editText?.isEnabled = false
         binding.btnLimpiar.visibility = View.GONE
+        binding.btnAgregarRiesgoBiologico.visibility = View.GONE
         binding.btnRegistrarConsulta.text = "Salir"
     }
 
@@ -150,6 +242,58 @@ class RegistrarConsulta3Fragment : Fragment() {
         setOnItemClickListener { _, _, position, _ ->
             onItemSelected(currentItems[position])
         }
+    }
+
+    private fun mostrarDialogoRiesgosBiologicos() {
+        // Verificar si ya hay riesgos disponibles cargados
+        val riesgosActuales = viewModel.riesgosBiologicosDisponibles.value
+        if (riesgosActuales != null) {
+            mostrarDialogoConRiesgos(riesgosActuales)
+        } else {
+            // Solo cargar si no están disponibles
+            viewModel.cargarRiesgosBiologicosDisponibles()
+            
+            // Observar una sola vez
+            viewModel.riesgosBiologicosDisponibles.observe(viewLifecycleOwner) { riesgosDisponibles ->
+                if (riesgosDisponibles.isNotEmpty()) {
+                    mostrarDialogoConRiesgos(riesgosDisponibles)
+                } else {
+                    Utils.mostrarSnackbar(binding.root, "No hay riesgos biológicos disponibles para este paciente")
+                }
+            }
+        }
+    }
+
+    private fun mostrarDialogoConRiesgos(riesgosDisponibles: List<RiesgoBiologico>) {
+        val nombresRiesgos = riesgosDisponibles.map { it.nombre }.toTypedArray()
+        val riesgosSeleccionados = mutableSetOf<Int>()
+        
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Seleccionar Riesgos Biológicos")
+            .setMultiChoiceItems(
+                nombresRiesgos,
+                null
+            ) { dialog, which, isChecked ->
+                if (isChecked) {
+                    riesgosSeleccionados.add(which)
+                } else {
+                    riesgosSeleccionados.remove(which)
+                }
+            }
+            .setPositiveButton("Agregar") { dialog, which ->
+                riesgosSeleccionados.forEach { index ->
+                    val riesgoSeleccionado = riesgosDisponibles[index]
+                    viewModel.agregarRiesgoBiologico(riesgoSeleccionado)
+                }
+            }
+            .setNegativeButton("Cancelar") { dialog, which ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun cargarRiesgosExistentes() {
+        viewModel.cargarRiesgosBiologicosExistentes()
     }
 
 }
