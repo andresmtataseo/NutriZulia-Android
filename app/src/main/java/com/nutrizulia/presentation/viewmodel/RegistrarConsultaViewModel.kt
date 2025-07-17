@@ -47,6 +47,10 @@ class RegistrarConsultaViewModel @Inject constructor(
     private val saveDetallePediatrico: SaveDetallePediatrico,
     private val saveDiagnosticos: SaveDiagnosticos,
 
+    private val getParametroCrecimientoNinoEdad: GetParametroCrecimientoNinoEdad,
+    private val getParametroCrecimientoPediatricoEdad: GetParametroCrecimientoPediatricoEdad,
+    private val getParametroCrecimientoPediatricoLongitud: GetParametroCrecimientoPediatricoLongitud,
+
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
