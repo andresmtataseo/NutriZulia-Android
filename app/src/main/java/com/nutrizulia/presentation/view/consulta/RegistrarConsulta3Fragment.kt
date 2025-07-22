@@ -120,8 +120,8 @@ class RegistrarConsulta3Fragment : Fragment() {
 
         viewModel.resultadoPesoEdad.observe(viewLifecycleOwner) { resultado ->
             binding.contentPesoEdad.visibility = View.VISIBLE
-            binding.tiPesoEdadZscore.setText(resultado.zScore.toString())
-            binding.tiPesoEdadPercentil.setText(resultado.percentil.toString())
+            binding.tiPesoEdadZscore.setText(resultado?.zScore.toString())
+            binding.tiPesoEdadPercentil.setText(resultado?.percentil.toString())
 //            binding.tiPesoEdadDiagnostico.setText(resultado.diagnostico)
         }
 
@@ -141,8 +141,8 @@ class RegistrarConsulta3Fragment : Fragment() {
 
         viewModel.resultadoAlturaEdad.observe(viewLifecycleOwner) { resultado ->
             binding.contentAlturaEdad.visibility = View.VISIBLE
-            binding.tiAlturaEdadZscore.setText(resultado.zScore.toString())
-            binding.tiAlturaEdadPercentil.setText(resultado.percentil.toString())
+            binding.tiAlturaEdadZscore.setText(resultado?.zScore.toString())
+            binding.tiAlturaEdadPercentil.setText(resultado?.percentil.toString())
 //            binding.tiAlturaEdadDiagnostico.setText(resultado.diagnostico)
         }
 

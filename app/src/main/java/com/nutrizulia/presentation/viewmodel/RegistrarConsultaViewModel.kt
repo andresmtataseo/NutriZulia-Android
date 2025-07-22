@@ -390,14 +390,14 @@ class RegistrarConsultaViewModel @Inject constructor(
     val resultadoCircunferenciaCefalicaEdad: MutableLiveData<ZScoreResult?> = _resultadoCircunferenciaCefalicaEdad
     private val _resultadoPesoAltura = MutableLiveData<ZScoreResult?>()
     val resultadoPesoAltura: MutableLiveData<ZScoreResult?> = _resultadoPesoAltura
-    private val _resultadoPesoEdad = MutableLiveData<ZScoreResult>()
-    val resultadoPesoEdad: LiveData<ZScoreResult> = _resultadoPesoEdad
+    private val _resultadoPesoEdad = MutableLiveData<ZScoreResult?>()
+    val resultadoPesoEdad: MutableLiveData<ZScoreResult?> = _resultadoPesoEdad
     private val _resultadoPesoTalla = MutableLiveData<ZScoreResult??>()
     val resultadoPesoTalla: MutableLiveData<ZScoreResult?> = _resultadoPesoTalla
     private val _resultadoTallaEdad = MutableLiveData<ZScoreResult?>()
     val resultadoTallaEdad: MutableLiveData<ZScoreResult?> = _resultadoTallaEdad
-    private val _resultadoAlturaEdad = MutableLiveData<ZScoreResult>()
-    val resultadoAlturaEdad: LiveData<ZScoreResult> = _resultadoAlturaEdad
+    private val _resultadoAlturaEdad = MutableLiveData<ZScoreResult?>()
+    val resultadoAlturaEdad: MutableLiveData<ZScoreResult?> = _resultadoAlturaEdad
     private val _resultadoImc = MutableLiveData<ZScoreResult>()
     val resultadoImc: LiveData<ZScoreResult> = _resultadoImc
 
@@ -582,7 +582,7 @@ class RegistrarConsultaViewModel @Inject constructor(
                             edadDia = edadDias
                         )
 
-                        val paramLongitudCercano = getParametroCrecimientoPediatricoLongitud(
+                        val listaPorLongitud = getParametroCrecimientoPediatricoLongitud(
                             grupoEtarioId = grupoEtario.id,
                             genero = genero,
                             longitudCm = longitud,
@@ -604,7 +604,7 @@ class RegistrarConsultaViewModel @Inject constructor(
                                     logZScore("CC-Edad", perimetroCefalico, param.lambda, param.mu, param.sigma)
                                 }
                                 4 -> {
-                                    _resultadoPesoAltura.value = calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
+                                    _resultadoPesoEdad.value = calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
                                     logZScore("Peso-Edad", peso, param.lambda, param.mu, param.sigma)
                                 }
                                 6 -> {
@@ -612,14 +612,14 @@ class RegistrarConsultaViewModel @Inject constructor(
                                     logZScore("Talla-Edad", talla, param.lambda, param.mu, param.sigma)
                                 }
                                 7 -> {
-                                    _resultadoPesoTalla.value = calcularZScoreOMS(altura, param.lambda, param.mu, param.sigma)
+                                    _resultadoAlturaEdad.value = calcularZScoreOMS(altura, param.lambda, param.mu, param.sigma)
                                     logZScore("Altura-Edad", altura, param.lambda, param.mu, param.sigma)
                                 }
                             }
                         }
 
                         // Evaluación por longitud más cercana
-                        paramLongitudCercano.forEach { param ->
+                        listaPorLongitud.forEach { param ->
                             when {
                                 tipoMedicion == "T" && param.tipoIndicadorId == 5 -> {
                                     _resultadoPesoTalla.value = calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
@@ -634,14 +634,41 @@ class RegistrarConsultaViewModel @Inject constructor(
                     }
 
                     // Puedes agregar más lógica aquí para grupos etarios adicionales
-                    2 -> {
-                        // TODO: Implementar lógica para grupo etario 2
-                        throw Exception("Grupo etario 2 no implementado aún")
-                    }
+                    2, 3 -> {
+                        val listaPorEdadNino = getParametroCrecimientoNinoEdad(
+                            grupoEtarioId = 2,
+                            genero = genero,
+                            edadMes = edadMeses
+                        )
+                        listaPorEdadNino.forEach { param ->
+                            when (param.tipoIndicadorId) {
+                                1 -> {
+                                    if (peso != null && longitud > 0.0) {
+                                        val imc = calcularIMC(peso, longitud)
+                                        _resultadoImcEdad.value = calcularZScoreOMS(imc, param.lambda, param.mu, param.sigma)
+                                        logZScore("IMC-Edad", imc, param.lambda, param.mu, param.sigma)
+                                    }
+                                }
+                                7 -> {
+                                    _resultadoAlturaEdad.value = calcularZScoreOMS(altura, param.lambda, param.mu, param.sigma)
+                                    logZScore("Altura-Edad", altura, param.lambda, param.mu, param.sigma)
+                                }
+                            }
+                        }
+                        val listaPorEdadNino2 = getParametroCrecimientoNinoEdad(
+                            grupoEtarioId = 3,
+                            genero = genero,
+                            edadMes = edadMeses
+                        )
 
-                    3 -> {
-                        // TODO: Implementar lógica para grupo etario 3
-                        throw Exception("Grupo etario 3 no implementado aún")
+                        listaPorEdadNino2.forEach { param ->
+                            when (param.tipoIndicadorId) {
+                                4 -> {
+                                    _resultadoPesoAltura.value = calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
+                                    logZScore("Peso-Altura", peso, param.lambda, param.mu, param.sigma)
+                                }
+                            }
+                        }
                     }
 
                     else -> throw Exception("Grupo etario no manejado: ${grupoEtario.id}")
