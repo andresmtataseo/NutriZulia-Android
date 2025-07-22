@@ -148,8 +148,7 @@ class RegistrarConsulta3Fragment : Fragment() {
 
         viewModel.resultadoImc.observe(viewLifecycleOwner) { resultado ->
             binding.contentImc.visibility = View.VISIBLE
-            binding.tiImcZscore.setText(resultado.zScore.toString())
-            binding.tiImcPercentil.setText(resultado.percentil.toString())
+            binding.tiImc.setText(resultado.toString())
 //            binding.tiImcDiagnostico.setText(resultado.diagnostico)
         }
 

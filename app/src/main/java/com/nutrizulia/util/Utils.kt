@@ -60,8 +60,8 @@ object Utils {
      * @param tallaM La estatura de la persona en metros.
      * @return El valor del IMC calculado. Devuelve 0.0 si la talla es cero para evitar errores de división.
      */
-    fun calcularIMC(pesoKg: Double, tallaCm: Double): Double {
-        if (tallaCm <= 0) {
+    fun calcularIMC(pesoKg: Double?, tallaCm: Double?): Double {
+        if (pesoKg == null || pesoKg <= 0.0 || tallaCm == null || tallaCm <= 0.0) {
             return 0.0
         }
         val tallaM = tallaCm / 100.0

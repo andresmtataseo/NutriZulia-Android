@@ -398,8 +398,8 @@ class RegistrarConsultaViewModel @Inject constructor(
     val resultadoTallaEdad: MutableLiveData<ZScoreResult?> = _resultadoTallaEdad
     private val _resultadoAlturaEdad = MutableLiveData<ZScoreResult?>()
     val resultadoAlturaEdad: MutableLiveData<ZScoreResult?> = _resultadoAlturaEdad
-    private val _resultadoImc = MutableLiveData<ZScoreResult>()
-    val resultadoImc: LiveData<ZScoreResult> = _resultadoImc
+    private val _resultadoImc = MutableLiveData<Double>()
+    val resultadoImc: LiveData<Double> = _resultadoImc
 
 
     init {
@@ -671,7 +671,9 @@ class RegistrarConsultaViewModel @Inject constructor(
                         }
                     }
 
-                    else -> throw Exception("Grupo etario no manejado: ${grupoEtario.id}")
+                    else -> {
+                        _resultadoImc.value = calcularIMC(peso, longitud)
+                    }
                 }
 
             }.onFailure { e ->
