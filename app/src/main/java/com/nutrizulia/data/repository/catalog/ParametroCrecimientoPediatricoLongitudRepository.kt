@@ -4,23 +4,26 @@ import com.nutrizulia.data.local.dao.catalog.ParametroCrecimientoPediatricoLongi
 import com.nutrizulia.domain.model.catalog.ParametroCrecimientoPediatricoLongitud
 import com.nutrizulia.domain.model.catalog.toDomain
 import javax.inject.Inject
+import kotlin.math.abs
 
 class ParametroCrecimientoPediatricoLongitudRepository @Inject constructor(
     private val dao: ParametroCrecimientoPediatricoLongitudDao
 ) {
-    suspend fun findByTipoIndicadorIdAndGrupoEtarioIdAndGeneroAndLongitud(
-        tipoIndicadorId: Int,
+    suspend fun findAllByGrupoEtarioIdAndGeneroAndLongitud(
         grupoEtarioId: Int,
         genero: String,
-        longitudCm: Int,
+        longitudCm: Double,
         tipoMedicion: String
     ): ParametroCrecimientoPediatricoLongitud? {
-        return dao.findByTipoIndicadorIdAndGrupoEtarioIdAndGeneroAndLongitudCmAndTipoMedicion(
-            tipoIndicadorId,
-            grupoEtarioId,
-            genero,
-            longitudCm,
-            tipoMedicion
-        )?.toDomain()
+        val delta = 0.11  // un poco más de 0.1 para asegurar coincidencia
+        val parametros = dao.findAllByGrupoEtarioIdAndGeneroAndLongitudCmAndTipoMedicion(
+            grupoEtarioId = grupoEtarioId,
+            genero = genero,
+            minLongitud = longitudCm - delta,
+            maxLongitud = longitudCm + delta,
+            tipoMedicion = tipoMedicion
+        )
+        return parametros.minByOrNull { abs(it.longitudCm - longitudCm) }?.toDomain()
     }
+
 }

@@ -69,6 +69,7 @@ class RegistrarConsulta3Fragment : Fragment() {
                 ModoConsulta.EDITAR_CONSULTA -> {
                     habilitarCampos()
                     riesgoBiologicoAdapter.setReadOnly(false)
+                    viewModel.realizarEvaluacionAntropometrica()
                 }
 
                 ModoConsulta.VER_CONSULTA -> {
@@ -96,37 +97,62 @@ class RegistrarConsulta3Fragment : Fragment() {
             binding.tvSinDatos.visibility = if (riesgos.isEmpty()) View.VISIBLE else View.GONE
         }
 
-//        viewModel.riesgosBiologicosDisponibles.observe(viewLifecycleOwner) { riesgosDisponibles ->
-//            if (riesgosDisponibles.isNotEmpty()) {
-//                val nombresRiesgos = riesgosDisponibles.map { it.nombre }.toTypedArray()
-//                val riesgosSeleccionados = mutableSetOf<Int>()
-//
-//                MaterialAlertDialogBuilder(requireContext())
-//                    .setTitle("Seleccionar Riesgos Biológicos")
-//                    .setMultiChoiceItems(
-//                        nombresRiesgos,
-//                        null
-//                    ) { dialog, which, isChecked ->
-//                        if (isChecked) {
-//                            riesgosSeleccionados.add(which)
-//                        } else {
-//                            riesgosSeleccionados.remove(which)
-//                        }
-//                    }
-//                    .setPositiveButton("Agregar") { dialog, which ->
-//                        riesgosSeleccionados.forEach { index ->
-//                            val riesgoSeleccionado = riesgosDisponibles[index]
-//                            viewModel.agregarRiesgoBiologico(riesgoSeleccionado)
-//                        }
-//                    }
-//                    .setNegativeButton("Cancelar") { dialog, which ->
-//                        dialog.dismiss()
-//                    }
-//                    .show()
-//            } else {
-//                Utils.mostrarSnackbar(binding.root, "No hay riesgos biológicos disponibles para este paciente")
-//            }
-//        }
+        viewModel.resultadoImcEdad.observe(viewLifecycleOwner) { resultado ->
+            binding.contentImcEdad.visibility = View.VISIBLE
+            binding.tiImcEdadZscore.setText(resultado?.zScore.toString())
+            binding.tiImcEdadPercentil.setText(resultado?.percentil.toString())
+//            binding.tiImcEdadDiagnostico.setText(resultado.diagnostico)
+        }
+
+        viewModel.resultadoCircunferenciaCefalicaEdad.observe(viewLifecycleOwner) { resultado ->
+            binding.contentCircunferenciaCefalicaEdad.visibility = View.VISIBLE
+            binding.tiCircunferenciaCefalicaEdadZscore.setText(resultado?.zScore.toString())
+            binding.tiCircunferenciaCefalicaEdadPercentil.setText(resultado?.percentil.toString())
+//            binding.tiCircunferenciaCefalicaEdadDiagnostico.setText(resultado.diagnostico)
+        }
+
+        viewModel.resultadoPesoAltura.observe(viewLifecycleOwner) { resultado ->
+            binding.contentPesoAltura.visibility = View.VISIBLE
+            binding.tiPesoAlturaZscore.setText(resultado?.zScore.toString())
+            binding.tiPesoAlturaPercentil.setText(resultado?.percentil.toString())
+//            binding.tiPesoAlturaDiagnostico.setText(resultado.diagnostico)
+        }
+
+        viewModel.resultadoPesoEdad.observe(viewLifecycleOwner) { resultado ->
+            binding.contentPesoEdad.visibility = View.VISIBLE
+            binding.tiPesoEdadZscore.setText(resultado.zScore.toString())
+            binding.tiPesoEdadPercentil.setText(resultado.percentil.toString())
+//            binding.tiPesoEdadDiagnostico.setText(resultado.diagnostico)
+        }
+
+        viewModel.resultadoPesoTalla.observe(viewLifecycleOwner) { resultado ->
+            binding.contentPesoTalla.visibility = View.VISIBLE
+            binding.tiPesoTallaZscore.setText(resultado?.zScore.toString())
+            binding.tiPesoTallaPercentil.setText(resultado?.percentil.toString())
+//            binding.tiPesoTallaDiagnostico.setText(resultado.diagnostico)
+        }
+
+        viewModel.resultadoTallaEdad.observe(viewLifecycleOwner) { resultado ->
+            binding.contentTallaEdad.visibility = View.VISIBLE
+            binding.tiTallaEdadZscore.setText(resultado?.zScore.toString())
+            binding.tiTallaEdadPercentil.setText(resultado?.percentil.toString())
+//            binding.tiTallaEdadDiagnostico.setText(resultado.diagnostico)
+        }
+
+        viewModel.resultadoAlturaEdad.observe(viewLifecycleOwner) { resultado ->
+            binding.contentAlturaEdad.visibility = View.VISIBLE
+            binding.tiAlturaEdadZscore.setText(resultado.zScore.toString())
+            binding.tiAlturaEdadPercentil.setText(resultado.percentil.toString())
+//            binding.tiAlturaEdadDiagnostico.setText(resultado.diagnostico)
+        }
+
+        viewModel.resultadoImc.observe(viewLifecycleOwner) { resultado ->
+            binding.contentImc.visibility = View.VISIBLE
+            binding.tiImcZscore.setText(resultado.zScore.toString())
+            binding.tiImcPercentil.setText(resultado.percentil.toString())
+//            binding.tiImcDiagnostico.setText(resultado.diagnostico)
+        }
+
 
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
             if (salir) findNavController().popBackStack(R.id.consultasFragment, false)

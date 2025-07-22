@@ -16,6 +16,13 @@ interface ParametroCrecimientoNinoEdadDao {
         edadMes: Int
     ): ParametroCrecimientoNinoEdadEntity?
 
+    @Query("SELECT * FROM parametros_crecimientos_ninos_edad WHERE grupo_etario_id = :grupoEtarioId AND genero = :genero AND edad_mes = :edadMes")
+    suspend fun findAllByGrupoEtarioIdAndGeneroAndEdadMes(
+        grupoEtarioId: Int,
+        genero: String,
+        edadMes: Int
+    ): List<ParametroCrecimientoNinoEdadEntity>
+
     @Insert
     suspend fun insertAll(parametros: List<ParametroCrecimientoNinoEdadEntity>): List<Long>
 

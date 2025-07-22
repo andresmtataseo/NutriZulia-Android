@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetParametroCrecimientoNinoEdad @Inject constructor(
     private val repository: ParametroCrecimientoNinoEdadRepository
 ){
-    suspend operator fun invoke(tipoIndicadorId: Int, grupoEtarioId: Int, genero: String, edadMes: Int) : ParametroCrecimientoNinoEdad? {
-        return repository.findByTipoIndicadorIdAndGrupoEtarioIdAndGeneroAndEdadMes(tipoIndicadorId, grupoEtarioId, genero, edadMes)
+    suspend operator fun invoke(grupoEtarioId: Int, genero: String, edadMes: Int) : List<ParametroCrecimientoNinoEdad> {
+        return repository.findAllByGrupoEtarioIdAndGeneroAndEdadMes(grupoEtarioId, genero, edadMes)
     }
 }

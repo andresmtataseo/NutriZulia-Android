@@ -24,15 +24,20 @@ object Utils {
      * @param S Desviación estándar
      * @return Resultado con zScore y percentil
      */
-    fun calcularZScoreOMS(medida: Double, L: Double, M: Double, S: Double): ZScoreResult {
-        val zScore = if (L == 0.0) {
+    fun calcularZScoreOMS(medida: Double?, L: Double?, M: Double?, S: Double?): ZScoreResult? {
+        if (medida == null || L == null || M == null || S == null || M == 0.0 || S == 0.0) {
+            return null // Retornar nulo si cualquier parámetro es inválido
+        }
+
+        val zScoreRaw = if (L == 0.0) {
             ln(medida / M) / S
         } else {
             ((medida / M).pow(L) - 1) / (L * S)
         }
 
-        // Cálculo del percentil a partir del z-score usando la función de distribución normal estándar (CDF)
-        val percentil = zToPercentil(zScore)
+        val zScore = String.format("%.2f", zScoreRaw).toDouble()
+        val percentilRaw = zToPercentil(zScoreRaw)
+        val percentil = String.format("%.2f", percentilRaw).toDouble()
 
         return ZScoreResult(zScore, percentil)
     }
@@ -45,6 +50,22 @@ object Utils {
         val prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))))
         val p = if (z >= 0) 1.0 - prob else prob
         return p * 100  // convertir a percentil
+    }
+
+    /**
+     * Calcula el Índice de Masa Corporal (IMC).
+     * La fórmula es peso (kg) / [estatura (m)]^2.
+     *
+     * @param pesoKg El peso de la persona en kilogramos.
+     * @param tallaM La estatura de la persona en metros.
+     * @return El valor del IMC calculado. Devuelve 0.0 si la talla es cero para evitar errores de división.
+     */
+    fun calcularIMC(pesoKg: Double, tallaCm: Double): Double {
+        if (tallaCm <= 0) {
+            return 0.0
+        }
+        val tallaM = tallaCm / 100.0
+        return pesoKg / (tallaM * tallaM)
     }
 
     fun generarUUID(): String {
@@ -91,6 +112,15 @@ object Utils {
         }
         val periodo = Period.between(fechaNacimiento, hoy)
         return (periodo.years * 12) + periodo.months
+    }
+
+    fun calcularEdadEnDias(fechaNacimiento: LocalDate): Int {
+        val hoy = LocalDate.now()
+        if (fechaNacimiento.isAfter(hoy)) {
+            return 0
+        }
+        val periodo = Period.between(fechaNacimiento, hoy)
+        return (periodo.years * 365) + (periodo.months * 30) + periodo.days
     }
 
     fun mostrarDialog(

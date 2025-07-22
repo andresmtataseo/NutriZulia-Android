@@ -14,6 +14,9 @@ import com.nutrizulia.util.SessionManager
 import com.nutrizulia.util.Utils
 import com.nutrizulia.data.local.entity.collection.DiagnosticoEntity
 import com.nutrizulia.domain.usecase.collection.GetDiagnosticosByConsultaId
+import com.nutrizulia.util.Utils.calcularIMC
+import com.nutrizulia.util.Utils.calcularZScoreOMS
+import com.nutrizulia.util.Utils.ZScoreResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
@@ -47,6 +50,7 @@ class RegistrarConsultaViewModel @Inject constructor(
     private val saveDetallePediatrico: SaveDetallePediatrico,
     private val saveDiagnosticos: SaveDiagnosticos,
 
+    private val getGrupoEtario: GetGrupoEtario,
     private val getParametroCrecimientoNinoEdad: GetParametroCrecimientoNinoEdad,
     private val getParametroCrecimientoPediatricoEdad: GetParametroCrecimientoPediatricoEdad,
     private val getParametroCrecimientoPediatricoLongitud: GetParametroCrecimientoPediatricoLongitud,
@@ -86,18 +90,8 @@ class RegistrarConsultaViewModel @Inject constructor(
     val isLoading: LiveData<Boolean> = _isLoading
     private val _salir = MutableLiveData<Boolean>()
     val salir: LiveData<Boolean> = _salir
-    
-    /**
-     * Determina si los campos de información general (tipo de actividad, especialidad, tipo de consulta)
-     * son editables según el estado de la consulta.
-     * 
-     * Reglas:
-     * - Sin consulta previa: Editables
-     * - Cita PENDIENTE: No editables (información establecida en programación)
-     * - Cita REPROGRAMADA: No editables (información establecida en programación)
-     * - Consulta COMPLETADA: Editables (se puede modificar)
-     * - Otros estados: Editables
-     */
+
+    // Fragment 1
     fun sonCamposInformacionGeneralEditables(): Boolean {
         val consultaActual = consulta.value
         return when {
@@ -140,12 +134,15 @@ class RegistrarConsultaViewModel @Inject constructor(
                         consultaResult.estado == Estado.COMPLETADA -> {
                             if (isEditable) ModoConsulta.EDITAR_CONSULTA else ModoConsulta.VER_CONSULTA
                         }
+
                         consultaResult.estado == Estado.PENDIENTE -> {
                             if (isEditable) ModoConsulta.CULMINAR_CITA else ModoConsulta.VER_CONSULTA
                         }
+
                         consultaResult.estado == Estado.REPROGRAMADA -> {
                             if (isEditable) ModoConsulta.CULMINAR_CITA else ModoConsulta.VER_CONSULTA
                         }
+
                         else -> {
                             if (isEditable) ModoConsulta.EDITAR_CONSULTA else ModoConsulta.VER_CONSULTA
                         }
@@ -201,35 +198,27 @@ class RegistrarConsultaViewModel @Inject constructor(
         }
     }
 
-    fun validarConsulta(
-        tipoActividad: TipoActividad?,
-        especialidad: Especialidad?,
-        tipoConsulta: TipoConsulta?
-    ): Boolean {
+    fun validarConsulta(tipoActividad: TipoActividad?, especialidad: Especialidad?, tipoConsulta: TipoConsulta?): Boolean {
         val errores = mutableMapOf<String, String>()
 
-        // Solo validar si los campos son editables
         if (sonCamposInformacionGeneralEditables()) {
             if (tipoActividad == null) errores["tipoActividad"] = "Selecciona un tipo de actividad"
             if (especialidad == null) errores["especialidad"] = "Selecciona una especialidad"
             if (tipoConsulta == null) errores["tipoConsulta"] = "Selecciona un tipo de consulta"
         } else {
-            // Si no son editables, verificar que los valores existentes estén disponibles
-            if (tipoActividad == null) errores["tipoActividad"] = "Falta información del tipo de actividad"
-            if (especialidad == null) errores["especialidad"] = "Falta información de la especialidad"
-            if (tipoConsulta == null) errores["tipoConsulta"] = "Falta información del tipo de consulta"
+            if (tipoActividad == null) errores["tipoActividad"] =
+                "Falta información del tipo de actividad"
+            if (especialidad == null) errores["especialidad"] =
+                "Falta información de la especialidad"
+            if (tipoConsulta == null) errores["tipoConsulta"] =
+                "Falta información del tipo de consulta"
         }
 
         _errores.value = errores
         return errores.isEmpty()
     }
 
-    fun guardarConsultaParcial(
-        tipoActividad: TipoActividad,
-        especialidad: Especialidad,
-        tipoConsulta: TipoConsulta,
-        motivo: String?
-    ) {
+    fun guardarConsultaParcial(tipoActividad: TipoActividad, especialidad: Especialidad, tipoConsulta: TipoConsulta, motivo: String?) {
         val consultaExistente = consulta.value
         val idConsulta = consultaExistente?.id ?: Utils.generarUUID()
         val idUsuarioInst = idUsuarioInstitucion.value ?: 0
@@ -250,11 +239,9 @@ class RegistrarConsultaViewModel @Inject constructor(
             updatedAt = LocalDateTime.now()
         )
         _consultaEditando.value = nuevaConsulta
-        Log.d("RegistrarConsultaViewModel", "Nueva consulta guardada: $nuevaConsulta")
     }
 
     // Fragment 2
-
     private val _detalleVital = MutableLiveData<DetalleVital?>()
     val detalleVital: LiveData<DetalleVital?> = _detalleVital
     private val _detalleAntropometrico = MutableLiveData<DetalleAntropometrico?>()
@@ -292,19 +279,11 @@ class RegistrarConsultaViewModel @Inject constructor(
         }
     }
 
-    fun guardarSignosVitales(
-        frecuenciaCardiaca: Int?,
-        presionSistolica: Int?,
-        presionDiastolica: Int?,
-        frecuenciaRespiratoria: Int?,
-        temperatura: Double?,
-        saturacionOxigeno: Int?,
-        pulso: Int?
-    ) {
-        val idConsulta = consulta.value?.id ?: return
-        val idExistente = detalleVital.value?.id
+    fun guardarSignosVitales(frecuenciaCardiaca: Int?, presionSistolica: Int?, presionDiastolica: Int?, frecuenciaRespiratoria: Int?, temperatura: Double?, saturacionOxigeno: Int?, pulso: Int?) {
+        val idConsulta = consultaEditando.value?.id ?: return
+        val idExistente = detalleVital.value?.id ?: Utils.generarUUID()
         val detalle = DetalleVital(
-            id = idExistente ?: Utils.generarUUID(),
+            id = idExistente,
             consultaId = idConsulta,
             tensionArterialSistolica = presionSistolica,
             tensionArterialDiastolica = presionDiastolica,
@@ -319,21 +298,11 @@ class RegistrarConsultaViewModel @Inject constructor(
         _detalleVital.value = detalle
     }
 
-    fun guardarDatosAntropometricos(
-        peso: Double?,
-        altura: Double?,
-        talla: Double?,
-        circunferenciaBraquial: Double?,
-        circunferenciaCadera: Double?,
-        circunferenciaCintura: Double?,
-        perimetroCefalico: Double?,
-        pliegueTricipital: Double?,
-        pliegueSubescapular: Double?
-    ) {
-        val idConsulta = consulta.value?.id ?: return
-        val idExistente = detalleAntropometrico.value?.id
+    fun guardarDatosAntropometricos(peso: Double?, altura: Double?, talla: Double?, circunferenciaBraquial: Double?, circunferenciaCadera: Double?, circunferenciaCintura: Double?, perimetroCefalico: Double?, pliegueTricipital: Double?, pliegueSubescapular: Double?) {
+        val idConsulta = consultaEditando.value?.id ?: return
+        val idExistente = detalleAntropometrico.value?.id ?: Utils.generarUUID()
         val detalle = DetalleAntropometrico(
-            id = idExistente ?: Utils.generarUUID(),
+            id = idExistente,
             consultaId = idConsulta,
             peso = peso,
             altura = altura,
@@ -350,20 +319,11 @@ class RegistrarConsultaViewModel @Inject constructor(
         _detalleAntropometrico.value = detalle
     }
 
-    fun guardarDatosMetabolicos(
-        glicemiaBasal: Int?,
-        glicemiaPostprandial: Int?,
-        glicemiaAleatoria: Int?,
-        hemoglobinaGlicosilada: Double?,
-        trigliceridos: Int?,
-        colesterolTotal: Int?,
-        colesterolHdl: Int?,
-        colesterolLdl: Int?
-    ) {
-        val idConsulta = consulta.value?.id ?: return
-        val idExistente = detalleMetabolico.value?.id
+    fun guardarDatosMetabolicos(glicemiaBasal: Int?, glicemiaPostprandial: Int?, glicemiaAleatoria: Int?, hemoglobinaGlicosilada: Double?, trigliceridos: Int?, colesterolTotal: Int?, colesterolHdl: Int?, colesterolLdl: Int?) {
+        val idConsulta = consultaEditando.value?.id ?: return
+        val idExistente = detalleMetabolico.value?.id ?: Utils.generarUUID()
         val detalle = DetalleMetabolico(
-            id = idExistente ?: Utils.generarUUID(),
+            id = idExistente,
             consultaId = idConsulta,
             glicemiaBasal = glicemiaBasal,
             glicemiaPostprandial = glicemiaPostprandial,
@@ -380,10 +340,10 @@ class RegistrarConsultaViewModel @Inject constructor(
     }
 
     fun guardarDatosPediatricos(usaBiberon: Boolean?, tipoLactancia: TipoLactancia?) {
-        val idConsulta = consulta.value?.id ?: return
-        val idExistente = detallePediatrico.value?.id
+        val idConsulta = consultaEditando.value?.id ?: return
+        val idExistente = detallePediatrico.value?.id ?: Utils.generarUUID()
         val detalle = DetallePediatrico(
-            id = idExistente ?: Utils.generarUUID(),
+            id = idExistente,
             consultaId = idConsulta,
             usaBiberon = usaBiberon,
             tipoLactancia = tipoLactancia,
@@ -393,13 +353,8 @@ class RegistrarConsultaViewModel @Inject constructor(
         _detallePediatrico.value = detalle
     }
 
-    fun guardarDatosObstetricos(
-        estaEmbarazada: Boolean?,
-        fechaUltimaMenstruacion: LocalDate?,
-        semanasGestacion: Int?,
-        pesoPreEmbarazo: Double?
-    ) {
-        val idConsulta = consulta.value?.id ?: return
+    fun guardarDatosObstetricos(estaEmbarazada: Boolean?, fechaUltimaMenstruacion: LocalDate?, semanasGestacion: Int?, pesoPreEmbarazo: Double?) {
+        val idConsulta = consultaEditando.value?.id ?: return
         val idExistente = detalleObstetricia.value?.id
         val detalle = DetalleObstetricia(
             id = idExistente ?: Utils.generarUUID(),
@@ -415,7 +370,6 @@ class RegistrarConsultaViewModel @Inject constructor(
     }
 
     // Fragment 3
-
     private val _riesgosBiologicosDisponibles = MutableLiveData<List<RiesgoBiologico>>()
     val riesgosBiologicosDisponibles: LiveData<List<RiesgoBiologico>> = _riesgosBiologicosDisponibles
     private val _riesgosBiologicosSeleccionados = MediatorLiveData<List<RiesgoBiologico>>()
@@ -429,6 +383,24 @@ class RegistrarConsultaViewModel @Inject constructor(
     val enfermedad: LiveData<Enfermedad> = _enfermedad
 
     private val _diagnosticosConsulta = MutableLiveData<List<DiagnosticoEntity>>()
+
+    private val _resultadoImcEdad = MutableLiveData<ZScoreResult?>()
+    val resultadoImcEdad: MutableLiveData<ZScoreResult?> = _resultadoImcEdad
+    private val _resultadoCircunferenciaCefalicaEdad = MutableLiveData<ZScoreResult?>()
+    val resultadoCircunferenciaCefalicaEdad: MutableLiveData<ZScoreResult?> = _resultadoCircunferenciaCefalicaEdad
+    private val _resultadoPesoAltura = MutableLiveData<ZScoreResult?>()
+    val resultadoPesoAltura: MutableLiveData<ZScoreResult?> = _resultadoPesoAltura
+    private val _resultadoPesoEdad = MutableLiveData<ZScoreResult>()
+    val resultadoPesoEdad: LiveData<ZScoreResult> = _resultadoPesoEdad
+    private val _resultadoPesoTalla = MutableLiveData<ZScoreResult??>()
+    val resultadoPesoTalla: MutableLiveData<ZScoreResult?> = _resultadoPesoTalla
+    private val _resultadoTallaEdad = MutableLiveData<ZScoreResult?>()
+    val resultadoTallaEdad: MutableLiveData<ZScoreResult?> = _resultadoTallaEdad
+    private val _resultadoAlturaEdad = MutableLiveData<ZScoreResult>()
+    val resultadoAlturaEdad: LiveData<ZScoreResult> = _resultadoAlturaEdad
+    private val _resultadoImc = MutableLiveData<ZScoreResult>()
+    val resultadoImc: LiveData<ZScoreResult> = _resultadoImc
+
 
     init {
         _riesgosBiologicosSeleccionados.addSource(_diagnosticosConsulta) { mapearDiagnosticosYRiesgos() }
@@ -482,7 +454,7 @@ class RegistrarConsultaViewModel @Inject constructor(
                     DiagnosticoEntity(
                         id = Utils.generarUUID(),
                         consultaId = consultaActualizada.id,
-                            riesgoBiologicoId = riesgo.id,
+                        riesgoBiologicoId = riesgo.id,
                         enfermedadId = null,
                         isPrincipal = false,
                         updatedAt = LocalDateTime.now()
@@ -506,7 +478,7 @@ class RegistrarConsultaViewModel @Inject constructor(
         if (_riesgosBiologicosDisponibles.value != null && modoConsulta.value != ModoConsulta.EDITAR_CONSULTA) {
             return
         }
-        
+
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -514,7 +486,9 @@ class RegistrarConsultaViewModel @Inject constructor(
                 if (pacienteActual != null) {
                     val edadMeses = Utils.calcularEdadEnMeses(pacienteActual.fechaNacimiento)
                     val riesgosDisponibles =
-                        getRiesgosbiologicos(pacienteActual.genero.first().uppercaseChar().toString(), edadMeses)
+                        getRiesgosbiologicos(
+                            pacienteActual.genero.first().uppercaseChar().toString(), edadMeses
+                        )
                     _riesgosBiologicosDisponibles.value = riesgosDisponibles
                 }
             } catch (e: Exception) {
@@ -537,7 +511,8 @@ class RegistrarConsultaViewModel @Inject constructor(
                     cargarRiesgosBiologicosDisponibles()
                 }
             } catch (e: Exception) {
-                _mensaje.value = "Error al cargar riesgos biológicos existentes: ${e.localizedMessage}"
+                _mensaje.value =
+                    "Error al cargar riesgos biológicos existentes: ${e.localizedMessage}"
             } finally {
                 _isLoading.value = false
             }
@@ -556,6 +531,126 @@ class RegistrarConsultaViewModel @Inject constructor(
         val riesgosActuales = _riesgosBiologicosSeleccionados.value.orEmpty().toMutableList()
         riesgosActuales.removeAll { it.id == riesgoBiologico.id }
         _riesgosBiologicosSeleccionados.value = riesgosActuales
+    }
+
+    fun realizarEvaluacionAntropometrica() {
+        viewModelScope.launch {
+            runCatching {
+                val pacienteActual = paciente.value ?: throw Exception("Paciente no disponible")
+                val genero = pacienteActual.genero.first().uppercaseChar().toString()
+                val fechaNacimiento = pacienteActual.fechaNacimiento
+                val edadMeses = Utils.calcularEdadEnMeses(fechaNacimiento)
+                val edadDias = Utils.calcularEdadEnDias(fechaNacimiento)
+
+                val grupoEtario = getGrupoEtario(edadMeses)
+                    ?: throw Exception("Grupo etario no encontrado")
+
+                val detalle = _detalleAntropometrico.value
+                if (
+                    detalle == null ||
+                    (detalle.peso == null && detalle.talla == null && detalle.altura == null && detalle.perimetroCefalico == null)
+                ) {
+                    throw Exception("Datos antropométricos incompletos")
+                }
+
+                val altura: Double? = detalle.altura
+                val talla: Double? = detalle.talla
+                val peso: Double? = detalle.peso
+                val perimetroCefalico: Double? = detalle.perimetroCefalico
+
+                val longitud = when {
+                    talla != null && talla > 0.0 -> talla
+                    altura != null && altura > 0.0 -> altura
+                    else -> throw Exception("Debe registrar al menos talla o altura")
+                }
+
+                val tipoMedicion = if (altura != null && altura > 0.0) "A" else "T"
+
+                // Logging auxiliar
+                fun logZScore(indicador: String, valor: Double?, lambda: Double, mu: Double, sigma: Double) {
+                    if (valor != null && valor > 0.0) {
+                        val resultado = calcularZScoreOMS(valor, lambda, mu, sigma)
+                        Log.d("ZScore", "$indicador: Z=${resultado?.zScore}, P=${resultado?.percentil}")
+                    }
+                }
+
+                when (grupoEtario.id) {
+                    1 -> {
+                        val listaPorEdad = getParametroCrecimientoPediatricoEdad(
+                            grupoEtarioId = grupoEtario.id,
+                            genero = genero,
+                            edadDia = edadDias
+                        )
+
+                        val paramLongitudCercano = getParametroCrecimientoPediatricoLongitud(
+                            grupoEtarioId = grupoEtario.id,
+                            genero = genero,
+                            longitudCm = longitud,
+                            tipoMedicion = tipoMedicion
+                        )?.let { listOf(it) } ?: emptyList()
+
+                        // Evaluación por edad
+                        listaPorEdad.forEach { param ->
+                            when (param.tipoIndicadorId) {
+                                1 -> { // IMC-Edad
+                                    if (peso != null && longitud > 0.0) {
+                                        val imc = calcularIMC(peso, longitud)
+                                        _resultadoImcEdad.value = calcularZScoreOMS(imc, param.lambda, param.mu, param.sigma)
+                                        logZScore("IMC-Edad", imc, param.lambda, param.mu, param.sigma)
+                                    }
+                                }
+                                2 -> {
+                                    _resultadoCircunferenciaCefalicaEdad.value = calcularZScoreOMS(perimetroCefalico, param.lambda, param.mu, param.sigma)
+                                    logZScore("CC-Edad", perimetroCefalico, param.lambda, param.mu, param.sigma)
+                                }
+                                4 -> {
+                                    _resultadoPesoAltura.value = calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
+                                    logZScore("Peso-Edad", peso, param.lambda, param.mu, param.sigma)
+                                }
+                                6 -> {
+                                    _resultadoTallaEdad.value = calcularZScoreOMS(talla, param.lambda, param.mu, param.sigma)
+                                    logZScore("Talla-Edad", talla, param.lambda, param.mu, param.sigma)
+                                }
+                                7 -> {
+                                    _resultadoPesoTalla.value = calcularZScoreOMS(altura, param.lambda, param.mu, param.sigma)
+                                    logZScore("Altura-Edad", altura, param.lambda, param.mu, param.sigma)
+                                }
+                            }
+                        }
+
+                        // Evaluación por longitud más cercana
+                        paramLongitudCercano.forEach { param ->
+                            when {
+                                tipoMedicion == "T" && param.tipoIndicadorId == 5 -> {
+                                    _resultadoPesoTalla.value = calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
+                                    logZScore("Peso-Talla", peso, param.lambda, param.mu, param.sigma)
+                                }
+                                tipoMedicion == "A" && param.tipoIndicadorId == 3 -> {
+                                    _resultadoPesoAltura.value = calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
+                                    logZScore("Peso-Altura", peso, param.lambda, param.mu, param.sigma)
+                                }
+                            }
+                        }
+                    }
+
+                    // Puedes agregar más lógica aquí para grupos etarios adicionales
+                    2 -> {
+                        // TODO: Implementar lógica para grupo etario 2
+                        throw Exception("Grupo etario 2 no implementado aún")
+                    }
+
+                    3 -> {
+                        // TODO: Implementar lógica para grupo etario 3
+                        throw Exception("Grupo etario 3 no implementado aún")
+                    }
+
+                    else -> throw Exception("Grupo etario no manejado: ${grupoEtario.id}")
+                }
+
+            }.onFailure { e ->
+                _mensaje.value = "Error en evaluación antropométrica: ${e.localizedMessage}"
+            }
+        }
     }
 
 }

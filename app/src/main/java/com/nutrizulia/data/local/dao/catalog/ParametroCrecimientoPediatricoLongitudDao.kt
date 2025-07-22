@@ -13,9 +13,25 @@ interface ParametroCrecimientoPediatricoLongitudDao {
         tipoIndicadorId: Int,
         grupoEtarioId: Int,
         genero: String,
-        longitudCm: Int,
+        longitudCm: Double,
         tipoMedicion: String
     ): ParametroCrecimientoPediatricoLongitudEntity?
+
+    @Query("""
+    SELECT * 
+    FROM parametros_crecimientos_pediatricos_longitud 
+    WHERE grupo_etario_id = :grupoEtarioId 
+        AND genero = :genero 
+        AND longitud_cm BETWEEN :minLongitud AND :maxLongitud
+        AND tipo_medicion = :tipoMedicion
+    """)
+    suspend fun findAllByGrupoEtarioIdAndGeneroAndLongitudCmAndTipoMedicion(
+        grupoEtarioId: Int,
+        genero: String,
+        minLongitud: Double,
+        maxLongitud: Double,
+        tipoMedicion: String
+    ): List<ParametroCrecimientoPediatricoLongitudEntity>
 
     @Insert
     suspend fun insertAll(parametros: List<ParametroCrecimientoPediatricoLongitudEntity>): List<Long>

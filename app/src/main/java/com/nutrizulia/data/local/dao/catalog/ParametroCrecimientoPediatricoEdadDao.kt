@@ -8,14 +8,19 @@ import com.nutrizulia.data.local.entity.catalog.ParametroCrecimientoPediatricoEd
 @Dao
 interface ParametroCrecimientoPediatricoEdadDao {
 
-    @Query("SELECT * FROM parametros_crecimientos_pediatricos_edad WHERE tipo_indicador_id = :tipoIndicadorId AND grupo_etario_id = :grupoEtarioId AND genero = :genero AND edad_dia = :edadDia")
+    @Query("SELECT * FROM parametros_crecimientos_pediatricos_edad WHERE grupo_etario_id = :grupoEtarioId AND genero = :genero AND edad_dia = :edadDia")
     suspend fun findByTipoIndicadorIdAndGrupoEtarioIdAndGeneroAndEdadMes(
-        tipoIndicadorId: Int,
         grupoEtarioId: Int,
         genero: String,
         edadDia: Int
     ): ParametroCrecimientoPediatricoEdadEntity?
 
+    @Query("SELECT * FROM parametros_crecimientos_pediatricos_edad WHERE grupo_etario_id = :grupoEtarioId AND genero = :genero AND edad_dia = :edadDia")
+    suspend fun findAllByGrupoEtarioIdAndGeneroAndEdadMes(
+        grupoEtarioId: Int,
+        genero: String,
+        edadDia: Int
+    ): List<ParametroCrecimientoPediatricoEdadEntity>
     @Insert
     suspend fun insertAll(parametros: List<ParametroCrecimientoPediatricoEdadEntity>): List<Long>
 

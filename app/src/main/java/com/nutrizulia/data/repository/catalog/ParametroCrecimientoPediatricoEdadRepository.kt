@@ -8,7 +8,7 @@ import javax.inject.Inject
 class ParametroCrecimientoPediatricoEdadRepository @Inject constructor(
     private val dao: ParametroCrecimientoPediatricoEdadDao
 ) {
-    suspend fun findByTipoIndicadorIdAndGrupoEtarioIdAndGeneroAndEdadMes(tipoIndicadorId: Int, grupoEtarioId: Int, genero: String, edadDia: Int): ParametroCrecimientoPediatricoEdad? {
-        return dao.findByTipoIndicadorIdAndGrupoEtarioIdAndGeneroAndEdadMes(tipoIndicadorId, grupoEtarioId, genero, edadDia)?.toDomain()
+    suspend fun findAllByGrupoEtarioIdAndGeneroAndEdadMes(grupoEtarioId: Int, genero: String, edadDia: Int): List<ParametroCrecimientoPediatricoEdad> {
+        return dao.findAllByGrupoEtarioIdAndGeneroAndEdadMes(grupoEtarioId, genero, edadDia).map {it.toDomain()}
     }
 }
