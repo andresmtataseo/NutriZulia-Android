@@ -7,9 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nutrizulia.data.local.view.PerfilInstitucional
 import com.nutrizulia.domain.usecase.catalog.SyncCatalog
+import com.nutrizulia.domain.usecase.catalog.SyncCatalogsResult
 import com.nutrizulia.domain.usecase.user.GetPerfilesInstitucionales
-import com.nutrizulia.domain.usecase.user.syncUsuarioIntituciones
-import com.nutrizulia.util.JwtUtils
+import com.nutrizulia.domain.usecase.user.GetPerfilesResult
+import com.nutrizulia.domain.usecase.user.SyncResult
+import com.nutrizulia.domain.usecase.user.SyncUsuarioInstituciones
 import com.nutrizulia.util.SessionManager
 import com.nutrizulia.util.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,22 +24,19 @@ class PreCargarViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val getPerfilesInstitucionales: GetPerfilesInstitucionales,
     private val tokenManager: TokenManager,
-    private val syncUsuarioIntituciones: syncUsuarioIntituciones
+    private val syncUsuarioInstituciones: SyncUsuarioInstituciones
 ) : ViewModel() {
 
     private val _mensaje = MutableLiveData<String>()
     val mensaje: LiveData<String> get() = _mensaje
-
     private val _continuar = MutableLiveData<Boolean>()
     val continuar: LiveData<Boolean> get() = _continuar
-
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> get() = _isLoading
-
+    private val _salir = MutableLiveData<Boolean>()
+    val salir: LiveData<Boolean> get() = _salir
     private val _profiles = MutableLiveData<List<PerfilInstitucional>>()
     val profiles: LiveData<List<PerfilInstitucional>> get() = _profiles
-
-    // ✅ 1. Nuevo LiveData para notificar errores de autenticación/sesión
     private val _authError = MutableLiveData<Boolean>()
     val authError: LiveData<Boolean> get() = _authError
 
@@ -47,40 +46,47 @@ class PreCargarViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.postValue(true)
             try {
-                // ✅ 2. Principio Fail-Fast: Validar el token y el usuario primero
-                val token = tokenManager.getToken()
-                if (token.isNullOrEmpty()) {
-                    handleAuthError("Error: Sesión no encontrada. Por favor, inicie sesión de nuevo.")
-                    return@launch
-                }
-
-                val usuarioId = JwtUtils.extractIdUsuario(token)
-                if (usuarioId == null || usuarioId == 0) {
-                    handleAuthError("Error: Token de sesión inválido.")
-                    return@launch
-                }
-
-                // --- Si las validaciones pasan, continuamos con la carga ---
                 _mensaje.postValue("Sincronizando catálogos...")
-                syncCatalog()
+                when (val catalogResult = syncCatalog()) {
+                    is SyncCatalogsResult.Success -> {
+                        _mensaje.postValue("Sincronizando perfil de usuario...")
+                        when (val userSyncResult = syncUsuarioInstituciones()) {
+                            is SyncResult.Success -> {
+                                when (val perfilesResult = getPerfilesInstitucionales()) {
+                                    is GetPerfilesResult.Success -> {
+                                        val perfiles = perfilesResult.perfiles
+                                        _profiles.postValue(perfiles)
 
-                _mensaje.postValue("Sincronizando perfil de usuario...")
-                syncUsuarioIntituciones(usuarioId)
-
-                val perfiles = getPerfilesInstitucionales(usuarioId)
-                _profiles.postValue(perfiles)
-
-                if (perfiles.isEmpty()) {
-                    _mensaje.postValue("No tiene instituciones asignadas. Contacte al administrador.")
-                    // Nota: No consideramos esto un error crítico, así que no cerramos la sesión.
-                } else {
-                    _mensaje.postValue("Por favor, seleccione una institución para continuar.")
+                                        if (perfiles.isEmpty()) {
+                                            _mensaje.postValue("No tiene instituciones asignadas. Contacte al administrador.")
+                                            _salir.postValue(true)
+                                        } else {
+                                            _mensaje.postValue("Por favor, seleccione una institución para continuar.")
+                                        }
+                                    }
+                                    is GetPerfilesResult.Failure -> {
+                                        handleFailure(perfilesResult.message, isAuthError = true)
+                                    }
+                                }
+                            }
+                            is SyncResult.Failure.NotAuthenticated,
+                            is SyncResult.Failure.InvalidToken -> {
+                                handleFailure(userSyncResult.message, isAuthError = true)
+                            }
+                            is SyncResult.Failure.ApiError -> {
+                                Log.e("PreCargarViewModel", "User sync API error: ${userSyncResult.message}")
+                                handleFailure(userSyncResult.message)
+                            }
+                        }
+                    }
+                    is SyncCatalogsResult.Failure -> {
+                        Log.e("PreCargarViewModel", "Catalog sync failed. Details: ${catalogResult.details}")
+                        handleFailure(catalogResult.message)
+                    }
                 }
-
             } catch (e: Exception) {
-                Log.e("PreCargarViewModel", "Error al cargar datos: ${e.message}")
-                // ✅ 3. Cualquier excepción en la carga se considera un error crítico
-                handleAuthError("Error al sincronizar datos: ${e.message}")
+                Log.e("PreCargarViewModel", "Error crítico al cargar datos: ${e.message}", e)
+                handleFailure("Error inesperado al sincronizar datos.", isAuthError = true)
             } finally {
                 _isLoading.postValue(false)
             }
@@ -94,15 +100,21 @@ class PreCargarViewModel @Inject constructor(
         }
     }
 
-    // ✅ 4. Nueva función centralizada para manejar errores críticos
-    private fun handleAuthError(errorMessage: String) {
+    /**
+     * Centraliza el manejo de todos los errores que deben detener el flujo.
+     * @param errorMessage El mensaje a mostrar al usuario.
+     * @param isAuthError Indica si el error invalida la sesión actual.
+     */
+    private fun handleFailure(errorMessage: String, isAuthError: Boolean = false) {
         viewModelScope.launch {
             _mensaje.postValue(errorMessage)
-            // Limpiamos la sesión y el token
-            tokenManager.clearToken()
-            sessionManager.clearCurrentInstitution()
-            // Notificamos a la Activity que debe cerrarse
-            _authError.postValue(true)
+            _salir.postValue(true) // ✅ Siempre activa la salida en caso de error
+
+            if (isAuthError) {
+                tokenManager.clearToken()
+                sessionManager.clearCurrentInstitution()
+                _authError.postValue(true)
+            }
         }
     }
 }

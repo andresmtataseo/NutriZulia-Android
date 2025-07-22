@@ -26,7 +26,7 @@ class PreCargarActivity : AppCompatActivity() {
         binding = ActivityPreCargarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnContinuar.visibility = View.INVISIBLE
+        binding.btnContinuar.visibility = View.GONE
 
         setupWindowInsets()
         setupRecyclerView()
@@ -56,7 +56,7 @@ class PreCargarActivity : AppCompatActivity() {
 
     private fun setupObservers() {
         viewModel.isLoading.observe(this) { isLoading ->
-            binding.progress.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
+            binding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
         viewModel.mensaje.observe(this) { mensaje ->
@@ -65,13 +65,16 @@ class PreCargarActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.continuar.observe(this) { isReadyToContinue ->
-            // Mostrar u ocultar el botón según el estado de isReadyToContinue
-            binding.btnContinuar.visibility = if (isReadyToContinue) View.VISIBLE else View.INVISIBLE
+        viewModel.profiles.observe(this) { perfiles ->
+            binding.recyclerViewInstituciones.visibility =
+                if (perfiles.isNotEmpty()) View.VISIBLE else View.GONE
+            institucionAdapter.updatePerfilesInstitucionales(perfiles)
         }
 
-        viewModel.profiles.observe(this) { perfiles ->
-            institucionAdapter.updatePerfilesInstitucionales(perfiles)
+        viewModel.continuar.observe(this) { isReadyToContinue ->
+            if (isReadyToContinue) {
+                navigateToMain()
+            }
         }
 
         viewModel.authError.observe(this) { hasError ->
@@ -80,19 +83,26 @@ class PreCargarActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnContinuar.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        viewModel.salir.observe(this) { shouldExit ->
+            if (shouldExit) {
+                navigateToLogin()
             }
-            startActivity(intent)
         }
     }
+
 
     private fun navigateToLogin() {
         val intent = Intent(this, LoginActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
-        finish() // Cierra esta PreCargarActivity
+        finish()
+    }
+
+    private fun navigateToMain() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
     }
 }

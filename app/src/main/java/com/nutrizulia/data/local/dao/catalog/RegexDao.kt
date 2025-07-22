@@ -3,6 +3,7 @@ package com.nutrizulia.data.local.dao.catalog
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.catalog.RegexEntity
 
 @Dao
@@ -13,6 +14,9 @@ interface RegexDao {
 
     @Insert
     suspend fun insertAll(regex: List<RegexEntity>): List<Long>
+
+    @Upsert
+    suspend fun upsertAll(regex: List<RegexEntity>): List<Long>
 
     @Query("DELETE FROM regex")
     suspend fun deleteAll(): Int

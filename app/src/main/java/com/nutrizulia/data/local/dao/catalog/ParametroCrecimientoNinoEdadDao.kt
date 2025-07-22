@@ -3,6 +3,7 @@ package com.nutrizulia.data.local.dao.catalog
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.catalog.ParametroCrecimientoNinoEdadEntity
 
 @Dao
@@ -25,6 +26,9 @@ interface ParametroCrecimientoNinoEdadDao {
 
     @Insert
     suspend fun insertAll(parametros: List<ParametroCrecimientoNinoEdadEntity>): List<Long>
+
+    @Upsert
+    suspend fun upsertAll(parametros: List<ParametroCrecimientoNinoEdadEntity>): List<Long>
 
     @Query("DELETE FROM parametros_crecimientos_ninos_edad")
     suspend fun deleteAll(): Int

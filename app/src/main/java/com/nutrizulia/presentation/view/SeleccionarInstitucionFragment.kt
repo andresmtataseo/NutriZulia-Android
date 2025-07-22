@@ -1,5 +1,6 @@
 package com.nutrizulia.presentation.view
 
+import android.content.Intent
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -74,8 +75,16 @@ class SeleccionarInstitucionFragment : Fragment() {
         }
 
         binding.btnAceptar.setOnClickListener {
-            findNavController().popBackStack()
+            navigateToMainAndClearStack()
         }
+    }
+
+    private fun navigateToMainAndClearStack() {
+        val intent = Intent(requireActivity(), MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        requireActivity().finish()
     }
 
 }

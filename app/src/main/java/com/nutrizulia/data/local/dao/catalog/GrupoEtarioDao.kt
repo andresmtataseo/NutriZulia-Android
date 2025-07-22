@@ -3,6 +3,7 @@ package com.nutrizulia.data.local.dao.catalog
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.catalog.GrupoEtarioEntity
 
 @Dao
@@ -21,6 +22,9 @@ interface GrupoEtarioDao {
 
     @Insert
     suspend fun insertAll(gruposEtarios: List<GrupoEtarioEntity>): List<Long>
+
+    @Upsert
+    suspend fun upsertAll(gruposEtarios: List<GrupoEtarioEntity>): List<Long>
 
     @Query("DELETE FROM grupos_etarios")
     suspend fun deleteAll(): Int

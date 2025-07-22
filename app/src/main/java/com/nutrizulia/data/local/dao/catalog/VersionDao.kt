@@ -17,6 +17,8 @@ interface VersionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(version: VersionEntity)
 
+    @Upsert
+    suspend fun upsertAll(version: List<VersionEntity>)
     @Query("DELETE FROM version")
     suspend fun deleteAll()
 

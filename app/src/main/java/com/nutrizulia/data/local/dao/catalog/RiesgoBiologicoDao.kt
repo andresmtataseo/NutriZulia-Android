@@ -3,6 +3,7 @@ package com.nutrizulia.data.local.dao.catalog
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.catalog.RiesgoBiologicoEntity
 
 @Dao
@@ -25,6 +26,9 @@ interface RiesgoBiologicoDao {
 
     @Insert
     suspend fun insertAll(riesgosBiologicos: List<RiesgoBiologicoEntity>): List<Long>
+
+    @Upsert
+    suspend fun upsertAll(riesgosBiologicos: List<RiesgoBiologicoEntity>): List<Long>
 
     @Query("DELETE FROM riesgos_biologicos")
     suspend fun deleteAll(): Int
