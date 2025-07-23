@@ -74,8 +74,6 @@ class ConsultasViewModel @Inject constructor(
             val result = getPacientesConCitasByFiltro(idUsuarioInstitucion.value ?: 0, filtro.value ?: "")
             if (result.isNotEmpty()) {
                 _pacientesConCitasFiltrados.value = result
-            } else {
-                _mensaje.value = "No se encontraron consultas."
             }
             _isLoading.value = false
         }

@@ -8,23 +8,15 @@ import javax.inject.Inject
 
 class GetPerfilesInstitucionales @Inject constructor(
     private val repository: UsuarioInstitucionRepository,
-    // ✅ 1. Inyectar TokenManager para que sea autónomo
     private val tokenManager: TokenManager
 ) {
-    // ✅ 2. El método invoke ya no recibe parámetros
     suspend operator fun invoke(): GetPerfilesResult {
-        // 3. Obtener el token de forma segura
         val token: String = tokenManager.getToken() ?: return GetPerfilesResult.Failure.NotAuthenticated()
-
-        // 4. Extraer el ID del usuario del token
         val usuarioId: Int = JwtUtils.extractIdUsuario(token) ?: return GetPerfilesResult.Failure.InvalidToken()
-
-        // 5. Llamar al repositorio con el ID y devolver el resultado encapsulado
         return try {
             val perfiles: List<PerfilInstitucional> = repository.getPerfilInstitucionalByUsuarioId(usuarioId)
             GetPerfilesResult.Success(perfiles)
         } catch (e: Exception) {
-            // Aunque es raro en una lectura de BD, es buena práctica capturar excepciones
             GetPerfilesResult.Failure.InvalidToken("Error al leer perfiles: ${e.message}")
         }
     }

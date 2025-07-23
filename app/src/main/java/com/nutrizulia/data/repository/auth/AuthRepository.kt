@@ -12,8 +12,7 @@ import javax.inject.Inject
 class AuthRepository @Inject constructor(
     private val api: AuthService,
     private val tokenManager: TokenManager,
-    private val usuarioDao: UsuarioDao,
-    private val usuarioInstitucionDao: UsuarioInstitucionDao
+    private val usuarioDao: UsuarioDao
 ) {
 
     suspend fun authenticate(cedula: String, clave: String): SignIn {

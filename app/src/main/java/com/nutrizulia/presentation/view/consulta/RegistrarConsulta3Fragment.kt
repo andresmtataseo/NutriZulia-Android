@@ -2,29 +2,27 @@ package com.nutrizulia.presentation.view.consulta
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.nutrizulia.R
+import com.nutrizulia.data.local.enum.TipoValorCalculado
 import com.nutrizulia.databinding.FragmentRegistrarConsulta3Binding
 import com.nutrizulia.domain.model.catalog.RiesgoBiologico
-import com.nutrizulia.presentation.adapter.PacienteAdapter
+import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import com.nutrizulia.presentation.adapter.RiesgoBiologicoAdapter
 import com.nutrizulia.presentation.viewmodel.RegistrarConsultaViewModel
 import com.nutrizulia.util.ModoConsulta
 import com.nutrizulia.util.Utils
-import com.nutrizulia.util.Utils.mostrarDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.getValue
+import java.text.DecimalFormat
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 @AndroidEntryPoint
 class RegistrarConsulta3Fragment : Fragment() {
@@ -34,6 +32,7 @@ class RegistrarConsulta3Fragment : Fragment() {
     }
     private lateinit var binding: FragmentRegistrarConsulta3Binding
     private lateinit var riesgoBiologicoAdapter: RiesgoBiologicoAdapter
+    private val decimalFormat = DecimalFormat("#.##")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,9 +45,10 @@ class RegistrarConsulta3Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupObservers()
-        setupListeners()
         setupRecyclerView()
+        setupListeners()
+        setupObservers()
+        viewModel.cargarDatosDiagnostico()
     }
 
     private fun setupObservers() {
@@ -62,21 +62,12 @@ class RegistrarConsulta3Fragment : Fragment() {
         }
 
         viewModel.modoConsulta.observe(viewLifecycleOwner) { modo ->
-            Log.d("ModoConsulta", "Modo de consulta: $modo")
-            when (modo) {
-                ModoConsulta.CREAR_SIN_CITA,
-                ModoConsulta.CULMINAR_CITA,
-                ModoConsulta.EDITAR_CONSULTA -> {
-                    habilitarCampos()
-                    riesgoBiologicoAdapter.setReadOnly(false)
-                    viewModel.realizarEvaluacionAntropometrica()
-                }
-
-                ModoConsulta.VER_CONSULTA -> {
-                    deshabilitarCampos()
-                    cargarRiesgosExistentes()
-                    riesgoBiologicoAdapter.setReadOnly(true)
-                }
+            if (modo == ModoConsulta.VER_CONSULTA) {
+                deshabilitarCampos()
+                riesgoBiologicoAdapter.setReadOnly(true)
+            } else {
+                habilitarCampos()
+                riesgoBiologicoAdapter.setReadOnly(false)
             }
         }
 
@@ -84,11 +75,6 @@ class RegistrarConsulta3Fragment : Fragment() {
             if (consulta != null) {
                 binding.tfObservaciones.editText?.setText(consulta.observaciones.orEmpty())
                 binding.tfPlanes.editText?.setText(consulta.planes.orEmpty())
-                
-                // Si es modo editar, cargar riesgos existentes
-                if (viewModel.modoConsulta.value == ModoConsulta.EDITAR_CONSULTA) {
-                    cargarRiesgosExistentes()
-                }
             }
         }
 
@@ -97,72 +83,160 @@ class RegistrarConsulta3Fragment : Fragment() {
             binding.tvSinDatos.visibility = if (riesgos.isEmpty()) View.VISIBLE else View.GONE
         }
 
-        viewModel.resultadoImcEdad.observe(viewLifecycleOwner) { resultado ->
-            binding.contentImcEdad.visibility = View.VISIBLE
-            binding.tiImcEdadZscore.setText(resultado?.zScore.toString())
-            binding.tiImcEdadPercentil.setText(resultado?.percentil.toString())
-//            binding.tiImcEdadDiagnostico.setText(resultado.diagnostico)
-        }
+        viewModel.evaluacionesAntropometricas.observe(viewLifecycleOwner) { evaluaciones ->
+            Log.d("RegistrarConsulta3Fragment", "Evaluaciones: $evaluaciones")
+            Log.d("RegistrarConsulta3Fragment", "Evaluaciones: ${evaluaciones.size}")
 
-        viewModel.resultadoCircunferenciaCefalicaEdad.observe(viewLifecycleOwner) { resultado ->
-            binding.contentCircunferenciaCefalicaEdad.visibility = View.VISIBLE
-            binding.tiCircunferenciaCefalicaEdadZscore.setText(resultado?.zScore.toString())
-            binding.tiCircunferenciaCefalicaEdadPercentil.setText(resultado?.percentil.toString())
-//            binding.tiCircunferenciaCefalicaEdadDiagnostico.setText(resultado.diagnostico)
-        }
+            // Ocultar todas las vistas para un estado limpio
+            binding.contentImcEdad.visibility = View.GONE
+            binding.contentCircunferenciaCefalicaEdad.visibility = View.GONE
+            binding.contentPesoAltura.visibility = View.GONE
+            binding.contentPesoEdad.visibility = View.GONE
+            binding.contentPesoTalla.visibility = View.GONE
+            binding.contentTallaEdad.visibility = View.GONE
+            binding.contentAlturaEdad.visibility = View.GONE
+            binding.contentImc.visibility = View.GONE
 
-        viewModel.resultadoPesoAltura.observe(viewLifecycleOwner) { resultado ->
-            binding.contentPesoAltura.visibility = View.VISIBLE
-            binding.tiPesoAlturaZscore.setText(resultado?.zScore.toString())
-            binding.tiPesoAlturaPercentil.setText(resultado?.percentil.toString())
-//            binding.tiPesoAlturaDiagnostico.setText(resultado.diagnostico)
-        }
+            // Iterar sobre cada evaluación individual para pintarla en su lugar
+            for (evaluacion in evaluaciones) {
+                val formattedValue = decimalFormat.format(evaluacion.valorCalculado)
 
-        viewModel.resultadoPesoEdad.observe(viewLifecycleOwner) { resultado ->
-            binding.contentPesoEdad.visibility = View.VISIBLE
-            binding.tiPesoEdadZscore.setText(resultado?.zScore.toString())
-            binding.tiPesoEdadPercentil.setText(resultado?.percentil.toString())
-//            binding.tiPesoEdadDiagnostico.setText(resultado.diagnostico)
+                when (evaluacion.tipoIndicadorId) {
+                    1 -> { // IMC/Edad
+                        binding.contentImcEdad.visibility = View.VISIBLE
+                        if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
+                            binding.tiImcEdadZscore.setText(formattedValue)
+                        } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
+                            binding.tiImcEdadPercentil.setText(formattedValue)
+                        }
+                    }
+                    2 -> { // Circunferencia Cefálica/Edad
+                        binding.contentCircunferenciaCefalicaEdad.visibility = View.VISIBLE
+                        if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
+                            binding.tiCircunferenciaCefalicaEdadZscore.setText(formattedValue)
+                        } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
+                            binding.tiCircunferenciaCefalicaEdadPercentil.setText(formattedValue)
+                        }
+                    }
+                    3 -> { // Peso/Altura
+                        binding.contentPesoAltura.visibility = View.VISIBLE
+                        if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
+                            binding.tiPesoAlturaZscore.setText(formattedValue)
+                        } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
+                            binding.tiPesoAlturaPercentil.setText(formattedValue)
+                        }
+                    }
+                    4 -> { // Peso/Edad
+                        binding.contentPesoEdad.visibility = View.VISIBLE
+                        if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
+                            binding.tiPesoEdadZscore.setText(formattedValue)
+                        } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
+                            binding.tiPesoEdadPercentil.setText(formattedValue)
+                        }
+                    }
+                    5 -> { // Peso/Talla
+                        binding.contentPesoTalla.visibility = View.VISIBLE
+                        if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
+                            binding.tiPesoTallaZscore.setText(formattedValue)
+                        } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
+                            binding.tiPesoTallaPercentil.setText(formattedValue)
+                        }
+                    }
+                    6 -> { // Talla/Edad
+                        binding.contentTallaEdad.visibility = View.VISIBLE
+                        if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
+                            binding.tiTallaEdadZscore.setText(formattedValue)
+                        } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
+                            binding.tiTallaEdadPercentil.setText(formattedValue)
+                        }
+                    }
+                    7 -> { // Altura/Edad
+                        binding.contentAlturaEdad.visibility = View.VISIBLE
+                        if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
+                            binding.tiAlturaEdadZscore.setText(formattedValue)
+                        } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
+                            binding.tiAlturaEdadPercentil.setText(formattedValue)
+                        }
+                    }
+                    8 -> { // IMC Adulto
+                        binding.contentImc.visibility = View.VISIBLE
+                        // Para IMC, no hay distinción Z-Score/Percentil
+                        binding.tiImc.setText(formattedValue)
+                    }
+                }
+            }
         }
-
-        viewModel.resultadoPesoTalla.observe(viewLifecycleOwner) { resultado ->
-            binding.contentPesoTalla.visibility = View.VISIBLE
-            binding.tiPesoTallaZscore.setText(resultado?.zScore.toString())
-            binding.tiPesoTallaPercentil.setText(resultado?.percentil.toString())
-//            binding.tiPesoTallaDiagnostico.setText(resultado.diagnostico)
-        }
-
-        viewModel.resultadoTallaEdad.observe(viewLifecycleOwner) { resultado ->
-            binding.contentTallaEdad.visibility = View.VISIBLE
-            binding.tiTallaEdadZscore.setText(resultado?.zScore.toString())
-            binding.tiTallaEdadPercentil.setText(resultado?.percentil.toString())
-//            binding.tiTallaEdadDiagnostico.setText(resultado.diagnostico)
-        }
-
-        viewModel.resultadoAlturaEdad.observe(viewLifecycleOwner) { resultado ->
-            binding.contentAlturaEdad.visibility = View.VISIBLE
-            binding.tiAlturaEdadZscore.setText(resultado?.zScore.toString())
-            binding.tiAlturaEdadPercentil.setText(resultado?.percentil.toString())
-//            binding.tiAlturaEdadDiagnostico.setText(resultado.diagnostico)
-        }
-
-        viewModel.resultadoImc.observe(viewLifecycleOwner) { resultado ->
-            binding.contentImc.visibility = View.VISIBLE
-            binding.tiImc.setText(resultado.toString())
-//            binding.tiImcDiagnostico.setText(resultado.diagnostico)
-        }
-
 
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
             if (salir) findNavController().popBackStack(R.id.consultasFragment, false)
         }
-
     }
 
-    private fun setupListeners() {
+    // Pintamos la UI basado en el tipo de indicador
+//            evaluaciones.groupBy { it.tipoIndicadorId }.forEach { (indicatorId, evals) ->
+//                val zScoreEval = evals.find { it.tipoValorCalculado == TipoValorCalculado.Z_SCORE }
+//                val percentileEval = evals.find { it.tipoValorCalculado == TipoValorCalculado.PERCENTIL }
+//                val imcEval = evals.find { it.tipoValorCalculado == TipoValorCalculado.IMC }
+//
+//                when (indicatorId) {
+//                    1 -> { // IMC/Edad
+//                        binding.contentImcEdad.visibility = View.VISIBLE
+//                        binding.tiImcEdadZscore.setText(zScoreEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        binding.tiImcEdadPercentil.setText(percentileEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        // binding.tiImcEdadDiagnostico.setText(zScoreEval?.diagnosticoAntropometrico ?: "")
+//                    }
+//                    2 -> { // Circunferencia Cefálica/Edad
+//                        binding.contentCircunferenciaCefalicaEdad.visibility = View.VISIBLE
+//                        binding.tiCircunferenciaCefalicaEdadZscore.setText(zScoreEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        binding.tiCircunferenciaCefalicaEdadPercentil.setText(percentileEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        // binding.tiCircunferenciaCefalicaEdadDiagnostico.setText(zScoreEval?.diagnosticoAntropometrico ?: "")
+//                    }
+//                    3 -> { // Peso/Altura
+//                        binding.contentPesoAltura.visibility = View.VISIBLE
+//                        binding.tiPesoAlturaZscore.setText(zScoreEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        binding.tiPesoAlturaPercentil.setText(percentileEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        // binding.tiPesoAlturaDiagnostico.setText(zScoreEval?.diagnosticoAntropometrico ?: "")
+//                    }
+//                    4 -> { // Peso/Edad
+//                        binding.contentPesoEdad.visibility = View.VISIBLE
+//                        binding.tiPesoEdadZscore.setText(zScoreEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        binding.tiPesoEdadPercentil.setText(percentileEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        // binding.tiPesoEdadDiagnostico.setText(zScoreEval?.diagnosticoAntropometrico ?: "")
+//                    }
+//                    5 -> { // Peso/Talla
+//                        binding.contentPesoTalla.visibility = View.VISIBLE
+//                        binding.tiPesoTallaZscore.setText(zScoreEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        binding.tiPesoTallaPercentil.setText(percentileEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        // binding.tiPesoTallaDiagnostico.setText(zScoreEval?.diagnosticoAntropometrico ?: "")
+//                    }
+//                    6 -> { // Talla/Edad
+//                        binding.contentTallaEdad.visibility = View.VISIBLE
+//                        binding.tiTallaEdadZscore.setText(zScoreEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        binding.tiTallaEdadPercentil.setText(percentileEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        // binding.tiTallaEdadDiagnostico.setText(zScoreEval?.diagnosticoAntropometrico ?: "")
+//                    }
+//                    7 -> { // Altura/Edad
+//                        binding.contentAlturaEdad.visibility = View.VISIBLE
+//                        binding.tiAlturaEdadZscore.setText(zScoreEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        binding.tiAlturaEdadPercentil.setText(percentileEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        // binding.tiAlturaEdadDiagnostico.setText(zScoreEval?.diagnosticoAntropometrico ?: "")
+//                    }
+//                    8 -> { // IMC Adulto
+//                        binding.contentImc.visibility = View.VISIBLE
+//                        binding.tiImc.setText(imcEval?.valorCalculado?.let { decimalFormat.format(it) } ?: "")
+//                        // binding.tiImcDiagnostico.setText(imcEval?.diagnosticoAntropometrico ?: "")
+//                    }
+//                }
+//            }
 
+    private fun setupListeners() {
         binding.btnAgregarRiesgoBiologico.setOnClickListener {
-            mostrarDialogoRiesgosBiologicos()
+            val riesgosDisponibles = viewModel.riesgosBiologicosDisponibles.value
+            if (!riesgosDisponibles.isNullOrEmpty()) {
+                mostrarDialogoConRiesgos(riesgosDisponibles)
+            } else {
+                Utils.mostrarSnackbar(binding.root, "No hay riesgos biológicos disponibles para este paciente.")
+            }
         }
 
         binding.btnRegistrarConsulta.setOnClickListener {
@@ -178,7 +252,7 @@ class RegistrarConsulta3Fragment : Fragment() {
         }
 
         binding.btnLimpiar.setOnClickListener {
-            mostrarDialog(
+            Utils.mostrarDialog(
                 requireContext(),
                 "Advertencia",
                 "¿Desea limpiar todos los campos?",
@@ -189,7 +263,6 @@ class RegistrarConsulta3Fragment : Fragment() {
                 true
             )
         }
-
     }
 
     private fun setupRecyclerView() {
@@ -202,14 +275,13 @@ class RegistrarConsulta3Fragment : Fragment() {
             adapter = riesgoBiologicoAdapter
         }
 
-        // Inicializar con datos del ViewModel si están disponibles
         viewModel.riesgosBiologicosSeleccionados.value?.let { riesgos ->
             riesgoBiologicoAdapter.updateRiesgosBiologicos(riesgos)
         }
     }
 
     private fun onRiesgoBiologicoClick(riesgoBiologico: RiesgoBiologico) {
-        mostrarDialog(
+        Utils.mostrarDialog(
             requireContext(),
             "Eliminar Riesgo Biológico",
             "¿Desea eliminar el Riesgo Biológico ${riesgoBiologico.nombre}?",
@@ -232,93 +304,39 @@ class RegistrarConsulta3Fragment : Fragment() {
         binding.tfPlanes.editText?.isEnabled = false
         binding.btnLimpiar.visibility = View.GONE
         binding.btnAgregarRiesgoBiologico.visibility = View.GONE
-        binding.btnRegistrarConsulta.text = "Salir"
-    }
-
-    private fun quitarErrores() {
-
+        binding.btnRegistrarConsulta.setText("Salir")
     }
 
     private fun limpiarCampos() {
-        quitarErrores()
         binding.tfObservaciones.editText?.text = null
         binding.tfPlanes.editText?.text = null
-    }
-
-    private fun <T> AutoCompleteTextView.bind(
-        lifecycleOwner: LifecycleOwner,
-        itemsLive: LiveData<List<T>>,
-        toText: (T) -> String,
-        onItemSelected: (T) -> Unit
-    ) {
-        var currentItems: List<T> = emptyList()
-
-        itemsLive.observe(lifecycleOwner) { items ->
-            currentItems = items
-            val names = items.map(toText)
-            val adapter =
-                ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, names)
-            setAdapter(adapter)
-            if (text.toString() !in names) {
-                setText("", false)
-            }
-        }
-
-        setOnItemClickListener { _, _, position, _ ->
-            onItemSelected(currentItems[position])
-        }
-    }
-
-    private fun mostrarDialogoRiesgosBiologicos() {
-        // Verificar si ya hay riesgos disponibles cargados
-        val riesgosActuales = viewModel.riesgosBiologicosDisponibles.value
-        if (riesgosActuales != null) {
-            mostrarDialogoConRiesgos(riesgosActuales)
-        } else {
-            // Solo cargar si no están disponibles
-            viewModel.cargarRiesgosBiologicosDisponibles()
-            
-            // Observar una sola vez
-            viewModel.riesgosBiologicosDisponibles.observe(viewLifecycleOwner) { riesgosDisponibles ->
-                if (riesgosDisponibles.isNotEmpty()) {
-                    mostrarDialogoConRiesgos(riesgosDisponibles)
-                } else {
-                    Utils.mostrarSnackbar(binding.root, "No hay riesgos biológicos disponibles para este paciente")
-                }
-            }
-        }
     }
 
     private fun mostrarDialogoConRiesgos(riesgosDisponibles: List<RiesgoBiologico>) {
         val nombresRiesgos = riesgosDisponibles.map { it.nombre }.toTypedArray()
         val riesgosSeleccionados = mutableSetOf<Int>()
-        
+
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Seleccionar Riesgos Biológicos")
             .setMultiChoiceItems(
                 nombresRiesgos,
                 null
-            ) { dialog, which, isChecked ->
+            ) { _, which, isChecked ->
                 if (isChecked) {
                     riesgosSeleccionados.add(which)
                 } else {
                     riesgosSeleccionados.remove(which)
                 }
             }
-            .setPositiveButton("Agregar") { dialog, which ->
+            .setPositiveButton("Agregar") { _, _ ->
                 riesgosSeleccionados.forEach { index ->
                     val riesgoSeleccionado = riesgosDisponibles[index]
                     viewModel.agregarRiesgoBiologico(riesgoSeleccionado)
                 }
             }
-            .setNegativeButton("Cancelar") { dialog, which ->
+            .setNegativeButton("Cancelar") { dialog, _ ->
                 dialog.dismiss()
             }
             .show()
     }
-
-    private fun cargarRiesgosExistentes() {
-        viewModel.cargarRiesgosBiologicosExistentes()
-    }
-
 }

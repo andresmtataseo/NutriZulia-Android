@@ -100,15 +100,10 @@ class PreCargarViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Centraliza el manejo de todos los errores que deben detener el flujo.
-     * @param errorMessage El mensaje a mostrar al usuario.
-     * @param isAuthError Indica si el error invalida la sesión actual.
-     */
     private fun handleFailure(errorMessage: String, isAuthError: Boolean = false) {
         viewModelScope.launch {
             _mensaje.postValue(errorMessage)
-            _salir.postValue(true) // ✅ Siempre activa la salida en caso de error
+            _salir.postValue(true)
 
             if (isAuthError) {
                 tokenManager.clearToken()

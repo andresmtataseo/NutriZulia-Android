@@ -71,9 +71,6 @@ object SyncModule {
     @Provides @Singleton @IntoMap @StringKey("tipos_instituciones")
     fun provideTipoInstitucionSyncer(s: CatalogService, v: VersionDao, d: TipoInstitucionDao) = createBaseSyncer("tipos_instituciones", v, { s.getTiposInstituciones().body().orEmpty() }, { d.upsertAll(it) }, { it.toEntity() })
 
-    @Provides @Singleton @IntoMap @StringKey("instituciones")
-    fun provideInstitucionSyncer(s: CatalogService, v: VersionDao, d: InstitucionDao) = createBaseSyncer("instituciones", v, { s.getInstituciones().body().orEmpty() }, { d.upsertAll(it) }, { it.toEntity() })
-
     // --- Catalogs with dependencies or special parameters ---
     @Provides @Singleton @IntoMap @StringKey("parametros_crecimientos_ninos_edad")
     fun provideParamCrecimientoNinoEdadSyncer(s: CatalogService, v: VersionDao, d: ParametroCrecimientoNinoEdadDao) = createBaseSyncer("parametros_crecimientos_ninos_edad", v, { s.getParametrosCrecimientosNinosEdad().body().orEmpty() }, { d.upsertAll(it) }, { it.toEntity() })
@@ -107,4 +104,9 @@ object SyncModule {
 
     @Provides @Singleton @IntoMap @StringKey("parroquias")
     fun provideParroquiaSyncer(syncer: ParroquiaSyncer): CatalogSyncer = syncer
+
+    // -- Institucion
+    @Provides @Singleton @IntoMap @StringKey("instituciones")
+    fun provideInstitucionSyncer(s: CatalogService, v: VersionDao, d: InstitucionDao) = createBaseSyncer("instituciones", v, { s.getInstituciones().body().orEmpty() }, { d.upsertAll(it) }, { it.toEntity() })
+
 }

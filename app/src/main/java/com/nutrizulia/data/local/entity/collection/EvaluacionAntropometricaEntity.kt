@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 @Entity(
     tableName = "evaluaciones_antropometricas",
     indices = [
-        Index(value = ["consulta_id"], unique = true),
+        Index(value = ["consulta_id"]),
         Index(value = ["detalle_antropometrico_id"]),
         Index(value = ["tipo_indicador_id"])
     ],
