@@ -437,24 +437,6 @@ class RegistrarConsultaViewModel @Inject constructor(
 
     private val _diagnosticosConsulta = MutableLiveData<List<DiagnosticoEntity>>()
 
-    private val _resultadoImcEdad = MutableLiveData<ZScoreResult?>()
-    val resultadoImcEdad: MutableLiveData<ZScoreResult?> = _resultadoImcEdad
-    private val _resultadoCircunferenciaCefalicaEdad = MutableLiveData<ZScoreResult?>()
-    val resultadoCircunferenciaCefalicaEdad: MutableLiveData<ZScoreResult?> =
-        _resultadoCircunferenciaCefalicaEdad
-    private val _resultadoPesoAltura = MutableLiveData<ZScoreResult?>()
-    val resultadoPesoAltura: MutableLiveData<ZScoreResult?> = _resultadoPesoAltura
-    private val _resultadoPesoEdad = MutableLiveData<ZScoreResult?>()
-    val resultadoPesoEdad: MutableLiveData<ZScoreResult?> = _resultadoPesoEdad
-    private val _resultadoPesoTalla = MutableLiveData<ZScoreResult?>()
-    val resultadoPesoTalla: MutableLiveData<ZScoreResult?> = _resultadoPesoTalla
-    private val _resultadoTallaEdad = MutableLiveData<ZScoreResult?>()
-    val resultadoTallaEdad: MutableLiveData<ZScoreResult?> = _resultadoTallaEdad
-    private val _resultadoAlturaEdad = MutableLiveData<ZScoreResult?>()
-    val resultadoAlturaEdad: MutableLiveData<ZScoreResult?> = _resultadoAlturaEdad
-    private val _resultadoImc = MutableLiveData<ImcResult?>()
-    val resultadoImc: LiveData<ImcResult?> = _resultadoImc
-
     private val _evaluacionesAntropometricas = MutableLiveData<List<EvaluacionAntropometrica>>()
     val evaluacionesAntropometricas: LiveData<List<EvaluacionAntropometrica>> =
         _evaluacionesAntropometricas
@@ -488,8 +470,11 @@ class RegistrarConsultaViewModel @Inject constructor(
                 } else if (currentMode == ModoConsulta.EDITAR_CONSULTA) {
                     coroutineScope {
                         val riesgosDisponiblesDeferred = async {
-                            val edadMeses = Utils.calcularEdadEnMeses(pacienteActual.fechaNacimiento)
-                            getRiesgosbiologicos(pacienteActual.genero.first().uppercaseChar().toString(), edadMeses)
+                            val edadMeses =
+                                Utils.calcularEdadEnMeses(pacienteActual.fechaNacimiento)
+                            getRiesgosbiologicos(
+                                pacienteActual.genero.first().uppercaseChar().toString(), edadMeses
+                            )
                         }
 
                         val idConsulta = consulta.value?.id
@@ -603,50 +588,50 @@ class RegistrarConsultaViewModel @Inject constructor(
         }
     }
 
-    fun cargarRiesgosBiologicosDisponibles() {
-        if (_riesgosBiologicosDisponibles.value != null && modoConsulta.value != ModoConsulta.EDITAR_CONSULTA) {
-            return
-        }
-
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val pacienteActual = paciente.value
-                if (pacienteActual != null) {
-                    val edadMeses = Utils.calcularEdadEnMeses(pacienteActual.fechaNacimiento)
-                    val riesgosDisponibles =
-                        getRiesgosbiologicos(
-                            pacienteActual.genero.first().uppercaseChar().toString(), edadMeses
-                        )
-                    _riesgosBiologicosDisponibles.value = riesgosDisponibles
-                }
-            } catch (e: Exception) {
-                _mensaje.value = "Error al cargar riesgos biológicos: ${e.localizedMessage}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun cargarRiesgosBiologicosExistentes() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val idConsulta = consulta.value?.id
-                if (idConsulta != null) {
-                    val diagnosticos = getDiagnosticosByConsultaId(idConsulta)
-                    _diagnosticosConsulta.value = diagnosticos
-                    // Siempre cargar los riesgos disponibles para poder mapear correctamente
-                    cargarRiesgosBiologicosDisponibles()
-                }
-            } catch (e: Exception) {
-                _mensaje.value =
-                    "Error al cargar riesgos biológicos existentes: ${e.localizedMessage}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
+//    fun cargarRiesgosBiologicosDisponibles() {
+//        if (_riesgosBiologicosDisponibles.value != null && modoConsulta.value != ModoConsulta.EDITAR_CONSULTA) {
+//            return
+//        }
+//
+//        viewModelScope.launch {
+//            _isLoading.value = true
+//            try {
+//                val pacienteActual = paciente.value
+//                if (pacienteActual != null) {
+//                    val edadMeses = Utils.calcularEdadEnMeses(pacienteActual.fechaNacimiento)
+//                    val riesgosDisponibles =
+//                        getRiesgosbiologicos(
+//                            pacienteActual.genero.first().uppercaseChar().toString(), edadMeses
+//                        )
+//                    _riesgosBiologicosDisponibles.value = riesgosDisponibles
+//                }
+//            } catch (e: Exception) {
+//                _mensaje.value = "Error al cargar riesgos biológicos: ${e.localizedMessage}"
+//            } finally {
+//                _isLoading.value = false
+//            }
+//        }
+//    }
+//
+//    fun cargarRiesgosBiologicosExistentes() {
+//        viewModelScope.launch {
+//            _isLoading.value = true
+//            try {
+//                val idConsulta = consulta.value?.id
+//                if (idConsulta != null) {
+//                    val diagnosticos = getDiagnosticosByConsultaId(idConsulta)
+//                    _diagnosticosConsulta.value = diagnosticos
+//                    // Siempre cargar los riesgos disponibles para poder mapear correctamente
+//                    cargarRiesgosBiologicosDisponibles()
+//                }
+//            } catch (e: Exception) {
+//                _mensaje.value =
+//                    "Error al cargar riesgos biológicos existentes: ${e.localizedMessage}"
+//            } finally {
+//                _isLoading.value = false
+//            }
+//        }
+//    }
 
     fun agregarRiesgoBiologico(riesgoBiologico: RiesgoBiologico) {
         val riesgosActuales = _riesgosBiologicosSeleccionados.value.orEmpty().toMutableList()
@@ -665,225 +650,231 @@ class RegistrarConsultaViewModel @Inject constructor(
     fun realizarEvaluacionAntropometrica() {
         viewModelScope.launch {
             runCatching {
-                val pacienteActual = paciente.value ?: throw Exception("Paciente no disponible")
-                val detalle = _detalleAntropometrico.value
-                    ?: throw Exception("Datos antropométricos no disponibles")
-                val consultaActual =
-                    consultaEditando.value ?: throw Exception("Consulta no disponible")
-                val evaluacionesActuales =
-                    _evaluacionesAntropometricas.value.orEmpty().toMutableList()
+                val pacienteActual = paciente.value ?: throw IllegalStateException("Paciente no disponible")
 
-                val genero = pacienteActual.genero.first().uppercaseChar().toString()
-                val fechaNacimiento = pacienteActual.fechaNacimiento
-                val edadMeses = Utils.calcularEdadEnMeses(fechaNacimiento)
-                val edadDias = Utils.calcularEdadEnDias(fechaNacimiento)
-                val grupoEtario =
-                    getGrupoEtario(edadMeses) ?: throw Exception("Grupo etario no encontrado")
+                val detalleAntropometrico = _detalleAntropometrico.value ?: throw IllegalStateException("Datos antropométricos no disponibles")
 
-                val fechaEvaluacion = LocalDate.now()
-                val updatedAt = LocalDateTime.now()
+                val consultaActual = consultaEditando.value ?: throw IllegalStateException("Consulta no disponible")
 
-                val peso: Double? = detalle.peso
-                val talla: Double? = detalle.talla
-                val altura: Double? = detalle.altura
-                val longitud = talla ?: altura
+                val edadMeses = Utils.calcularEdadEnMeses(pacienteActual.fechaNacimiento)
 
-                fun upsertInList(
-                    indicadorId: Int,
-                    tipoValor: TipoValorCalculado,
-                    valorCalculado: Double,
-                    diagnostico: String
-                ) {
-                    val evaluacionExistente = evaluacionesActuales.find {
-                        it.tipoIndicadorId == indicadorId && it.tipoValorCalculado == tipoValor
-                    }
-                    if (evaluacionExistente != null) {
-                        val index = evaluacionesActuales.indexOf(evaluacionExistente)
-                        evaluacionesActuales[index] = evaluacionExistente.copy(
-                            valorCalculado = valorCalculado,
-                            diagnosticoAntropometrico = diagnostico ?: "Desconocido",
-                            updatedAt = updatedAt
-                        )
-                    } else {
-                        evaluacionesActuales.add(
-                            EvaluacionAntropometrica(
-                                id = Utils.generarUUID(),
-                                consultaId = consultaActual.id,
-                                detalleAntropometricoId = detalle.id,
-                                tipoIndicadorId = indicadorId,
-                                valorCalculado = valorCalculado,
-                                tipoValorCalculado = tipoValor,
-                                diagnosticoAntropometrico = diagnostico,
-                                fechaEvaluacion = fechaEvaluacion,
-                                updatedAt = updatedAt
-                            )
-                        )
-                    }
-                }
+                val grupoEtario = getGrupoEtario(edadMeses) ?: throw IllegalStateException("Grupo etario no encontrado para la edad de $edadMeses meses")
+
+                val evaluacionesActuales = _evaluacionesAntropometricas.value.orEmpty().toMutableList()
 
                 when (grupoEtario.id) {
-                    1 -> { // 0 a 5 años
-                        val tipoMedicion = if (altura != null) "A" else "T"
-                        if (longitud == null) throw Exception("Debe registrar talla o altura para la evaluacion antropométrica")
+                    1 -> evaluateInfant(
+                        pacienteActual,
+                        detalleAntropometrico,
+                        consultaActual,
+                        grupoEtario,
+                        evaluacionesActuales
+                    )
 
-                        val paramsPorEdad =
-                            getParametroCrecimientoPediatricoEdad(grupoEtario.id, genero, edadDias)
-                        paramsPorEdad.forEach { param ->
-                            val valorParaEvaluar: Double? = when (param.tipoIndicadorId) {
-                                1 -> if (peso != null) calcularIMC(peso, longitud).imc else null
-                                2 -> detalle.perimetroCefalico
-                                4 -> peso
-                                6 -> talla
-                                7 -> altura
-                                else -> null
-                            }
-                            val liveData = when (param.tipoIndicadorId) {
-                                1 -> _resultadoImcEdad
-                                2 -> _resultadoCircunferenciaCefalicaEdad
-                                4 -> _resultadoPesoEdad
-                                6 -> _resultadoTallaEdad
-                                7 -> _resultadoAlturaEdad
-                                else -> null
-                            }
+                    2, 3 -> evaluateChildAndAdolescent(
+                        pacienteActual,
+                        detalleAntropometrico,
+                        consultaActual,
+                        grupoEtario,
+                        evaluacionesActuales
+                    )
 
-                            if (valorParaEvaluar != null && liveData != null) {
-                                val resultado = calcularZScoreOMS(
-                                    valorParaEvaluar,
-                                    param.lambda,
-                                    param.mu,
-                                    param.sigma
-                                )
-                                resultado?.diagnostico = getReglaInterpretacionZScore(
-                                    param.tipoIndicadorId,
-                                    resultado.zScore
-                                )
-                                liveData.postValue(resultado)
-                                resultado?.let {
-                                    upsertInList(
-                                        param.tipoIndicadorId,
-                                        TipoValorCalculado.Z_SCORE,
-                                        it.zScore,
-                                        it.diagnostico.toString()
-                                    )
-                                    upsertInList(
-                                        param.tipoIndicadorId,
-                                        TipoValorCalculado.PERCENTIL,
-                                        it.percentil,
-                                        it.diagnostico.toString()
-                                    )
-                                }
-                            }
-                        }
-
-                        val paramPorLongitud = getParametroCrecimientoPediatricoLongitud(
-                            grupoEtario.id,
-                            genero,
-                            longitud,
-                            tipoMedicion
-                        )
-                        paramPorLongitud?.let { param ->
-                            val liveData = when {
-                                tipoMedicion == "T" && param.tipoIndicadorId == 5 -> _resultadoPesoTalla
-                                tipoMedicion == "A" && param.tipoIndicadorId == 3 -> _resultadoPesoAltura
-                                else -> null
-                            }
-                            if (peso != null && liveData != null) {
-                                val resultado =
-                                    calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
-                                resultado?.diagnostico = getReglaInterpretacionZScore(
-                                    param.tipoIndicadorId,
-                                    resultado.zScore
-                                )
-                                liveData.postValue(resultado)
-                                resultado?.let {
-                                    upsertInList(
-                                        param.tipoIndicadorId,
-                                        TipoValorCalculado.Z_SCORE,
-                                        it.zScore,
-                                        it.diagnostico.toString()
-                                    )
-                                    upsertInList(
-                                        param.tipoIndicadorId,
-                                        TipoValorCalculado.PERCENTIL,
-                                        it.percentil,
-                                        it.diagnostico.toString()
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    2, 3 -> { // 5 a 19 años y 5 a 10
-                        if (altura == null) throw Exception("Debe registrar la altura para la evaluacion antropométrica")
-
-                        val todosLosParametros =
-                            getParametroCrecimientoNinoEdad(2, genero, edadMeses) +
-                                    getParametroCrecimientoNinoEdad(3, genero, edadMeses)
-
-                        todosLosParametros.forEach { param ->
-                            val valorParaEvaluar: Double? = when (param.tipoIndicadorId) {
-                                1 -> if (peso != null) calcularIMC(peso, altura).imc else null
-                                4 -> peso // P/E
-                                7 -> altura // A/E
-                                else -> null
-                            }
-                            val liveData = when (param.tipoIndicadorId) {
-                                1 -> _resultadoImcEdad
-                                4 -> _resultadoPesoEdad
-                                7 -> _resultadoAlturaEdad
-                                else -> null
-                            }
-
-                            if (valorParaEvaluar != null && liveData != null) {
-                                val resultado = calcularZScoreOMS(
-                                    valorParaEvaluar,
-                                    param.lambda,
-                                    param.mu,
-                                    param.sigma
-                                )
-                                resultado?.diagnostico = getReglaInterpretacionZScore(
-                                    param.tipoIndicadorId,
-                                    resultado.zScore
-                                )
-                                liveData.postValue(resultado)
-                                resultado?.let {
-                                    upsertInList(
-                                        param.tipoIndicadorId,
-                                        TipoValorCalculado.Z_SCORE,
-                                        it.zScore,
-                                        it.diagnostico.toString()
-                                    )
-                                    upsertInList(
-                                        param.tipoIndicadorId,
-                                        TipoValorCalculado.PERCENTIL,
-                                        it.percentil,
-                                        it.diagnostico.toString()
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    else -> { // Adultos
-                        if (peso != null && altura != null) {
-                            val imc = calcularIMC(peso, altura)
-                            imc.diagnostico = getReglaInterpretacionImc(8, imc.imc)
-                            _resultadoImc.postValue(imc)
-                            upsertInList(
-                                8,
-                                TipoValorCalculado.IMC,
-                                imc.imc,
-                                imc.diagnostico.toString()
-                            )
-                        }
-                    }
+                    else -> evaluateAdult(
+                        detalleAntropometrico,
+                        consultaActual,
+                        evaluacionesActuales
+                    )
                 }
 
                 _evaluacionesAntropometricas.postValue(evaluacionesActuales)
 
             }.onFailure { e ->
                 _mensaje.postValue("Error en evaluación antropométrica: ${e.localizedMessage}")
+                Log.e("EvaluacionAntro", "Error en evaluación", e)
             }
+        }
+    }
+
+    private suspend fun evaluateInfant(
+        paciente: Paciente,
+        detalle: DetalleAntropometrico,
+        consulta: Consulta,
+        grupoEtario: GrupoEtario,
+        evaluaciones: MutableList<EvaluacionAntropometrica>
+    ) {
+        val genero = paciente.genero.first().uppercaseChar().toString()
+        val edadDias = Utils.calcularEdadEnDias(paciente.fechaNacimiento)
+        val longitud = detalle.talla ?: detalle.altura
+        ?: throw IllegalStateException("Debe registrar talla o altura para la evaluación antropométrica")
+        val tipoMedicion = if (detalle.altura != null) "A" else "T"
+
+        getParametroCrecimientoPediatricoEdad(grupoEtario.id, genero, edadDias).forEach { param ->
+            val valorParaEvaluar: Double? = when (param.tipoIndicadorId) {
+                1 -> if (detalle.peso != null) calcularIMC(detalle.peso, longitud).imc else null
+                2 -> detalle.perimetroCefalico
+                4 -> detalle.peso
+                6 -> detalle.talla
+                7 -> detalle.altura
+                else -> null
+            }
+            if (valorParaEvaluar != null) {
+                processZScoreEvaluation(
+                    value = valorParaEvaluar,
+                    tipoIndicadorId = param.tipoIndicadorId,
+                    lambda = param.lambda,
+                    mu = param.mu,
+                    sigma = param.sigma,
+                    consultaId = consulta.id,
+                    detalleId = detalle.id,
+                    evaluations = evaluaciones
+                )
+            }
+        }
+
+        getParametroCrecimientoPediatricoLongitud(grupoEtario.id, genero, longitud, tipoMedicion)?.let { param ->
+            if (detalle.peso != null) {
+                processZScoreEvaluation(
+                    value = detalle.peso,
+                    tipoIndicadorId = param.tipoIndicadorId,
+                    lambda = param.lambda,
+                    mu = param.mu,
+                    sigma = param.sigma,
+                    consultaId = consulta.id,
+                    detalleId = detalle.id,
+                    evaluations = evaluaciones
+                )
+            }
+        }
+    }
+
+    private suspend fun evaluateChildAndAdolescent(
+        paciente: Paciente,
+        detalle: DetalleAntropometrico,
+        consulta: Consulta,
+        grupoEtario: GrupoEtario,
+        evaluaciones: MutableList<EvaluacionAntropometrica>
+    ) {
+        val genero = paciente.genero.first().uppercaseChar().toString()
+        val edadMeses = Utils.calcularEdadEnMeses(paciente.fechaNacimiento)
+        val altura = detalle.altura
+            ?: throw IllegalStateException("Debe registrar la altura para la evaluación antropométrica")
+
+        val todosLosParametros = getParametroCrecimientoNinoEdad(2, genero, edadMeses) +
+                getParametroCrecimientoNinoEdad(3, genero, edadMeses)
+
+        todosLosParametros.forEach { param ->
+            val valorParaEvaluar: Double? = when (param.tipoIndicadorId) {
+                1 -> if (detalle.peso != null) calcularIMC(detalle.peso, altura).imc else null
+                4 -> detalle.peso
+                7 -> altura
+                else -> null
+            }
+            if (valorParaEvaluar != null) {
+                processZScoreEvaluation(
+                    value = valorParaEvaluar,
+                    tipoIndicadorId = param.tipoIndicadorId,
+                    lambda = param.lambda,
+                    mu = param.mu,
+                    sigma = param.sigma,
+                    consultaId = consulta.id,
+                    detalleId = detalle.id,
+                    evaluations = evaluaciones
+                )
+            }
+        }
+    }
+
+    private suspend fun evaluateAdult(
+        detalle: DetalleAntropometrico,
+        consulta: Consulta,
+        evaluations: MutableList<EvaluacionAntropometrica>
+    ) {
+        if (detalle.peso != null && detalle.altura != null) {
+            val imcResult = calcularIMC(detalle.peso, detalle.altura)
+            val diagnostico = getReglaInterpretacionImc(8, imcResult.imc) ?: "Sin diagnóstico"
+            upsertEvaluationInList(
+                evaluations,
+                8,
+                TipoValorCalculado.IMC,
+                imcResult.imc,
+                diagnostico,
+                consulta.id,
+                detalle.id
+            )
+        }
+    }
+
+    private suspend fun processZScoreEvaluation(
+        value: Double,
+        tipoIndicadorId: Int,
+        lambda: Double,
+        mu: Double,
+        sigma: Double,
+        consultaId: String,
+        detalleId: String,
+        evaluations: MutableList<EvaluacionAntropometrica>
+    ) {
+        val zScoreResult = calcularZScoreOMS(value, lambda, mu, sigma)
+        zScoreResult?.let { result ->
+            val diagnostic = getReglaInterpretacionZScore(tipoIndicadorId, result.zScore)
+                ?: "Sin diagnóstico"
+
+            upsertEvaluationInList(
+                evaluations = evaluations,
+                indicatorId = tipoIndicadorId,
+                valueType = TipoValorCalculado.Z_SCORE,
+                calculatedValue = result.zScore,
+                diagnostic = diagnostic,
+                consultaId = consultaId,
+                detalleId = detalleId
+            )
+            upsertEvaluationInList(
+                evaluations = evaluations,
+                indicatorId = tipoIndicadorId,
+                valueType = TipoValorCalculado.PERCENTIL,
+                calculatedValue = result.percentil,
+                diagnostic = diagnostic,
+                consultaId = consultaId,
+                detalleId = detalleId
+            )
+        }
+    }
+
+    private fun upsertEvaluationInList(
+        evaluations: MutableList<EvaluacionAntropometrica>,
+        indicatorId: Int,
+        valueType: TipoValorCalculado,
+        calculatedValue: Double,
+        diagnostic: String,
+        consultaId: String,
+        detalleId: String
+    ) {
+        val updatedAt = LocalDateTime.now()
+        val existingEvaluation = evaluations.find {
+            it.tipoIndicadorId == indicatorId && it.tipoValorCalculado == valueType
+        }
+
+        if (existingEvaluation != null) {
+            val index = evaluations.indexOf(existingEvaluation)
+            evaluations[index] = existingEvaluation.copy(
+                valorCalculado = calculatedValue,
+                diagnosticoAntropometrico = diagnostic,
+                updatedAt = updatedAt
+            )
+        } else {
+            evaluations.add(
+                EvaluacionAntropometrica(
+                    id = Utils.generarUUID(),
+                    consultaId = consultaId,
+                    detalleAntropometricoId = detalleId,
+                    tipoIndicadorId = indicatorId,
+                    valorCalculado = calculatedValue,
+                    tipoValorCalculado = valueType,
+                    diagnosticoAntropometrico = diagnostic,
+                    fechaEvaluacion = LocalDate.now(),
+                    updatedAt = updatedAt
+                )
+            )
         }
     }
 

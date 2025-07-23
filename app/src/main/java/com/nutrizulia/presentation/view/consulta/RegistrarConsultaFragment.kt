@@ -14,6 +14,7 @@ import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
+import com.google.android.material.textfield.TextInputLayout
 import com.nutrizulia.R
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.enum.TipoConsulta
@@ -164,14 +165,6 @@ class RegistrarConsultaFragment : Fragment() {
                 ModoConsulta.VER_CONSULTA,
                 ModoConsulta.CULMINAR_CITA -> deshabilitarCampos()
             }
-            
-            // Mostrar mensaje informativo si los campos no son editables
-            if (modo == ModoConsulta.CULMINAR_CITA) {
-                val consulta = viewModel.consulta.value
-                if (consulta?.estado == Estado.PENDIENTE || consulta?.estado == Estado.REPROGRAMADA) {
-                    Utils.mostrarSnackbar(binding.root, "La información general no se puede modificar en citas programadas")
-                }
-            }
         }
 
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
@@ -297,14 +290,23 @@ class RegistrarConsultaFragment : Fragment() {
 
     private fun deshabilitarCampos() {
         val campos = listOf(
-            binding.dropdownTipoActividad,
-            binding.dropdownEspecialidades,
-            binding.dropdownTipoConsulta,
             binding.tiMotivoConsulta,
             binding.tiFechaCita,
             binding.tiHoraCita
         )
-        campos.forEach { it.isEnabled = false }
+        campos.forEach {
+            it.isEnabled = false
+        }
+
+        val dropdowns = listOf(
+            binding.dropdownTipoActividad,
+            binding.dropdownEspecialidades,
+            binding.dropdownTipoConsulta
+        )
+        dropdowns.forEach {
+            it.isEnabled = false
+            (it.parent.parent as? TextInputLayout)?.endIconMode = TextInputLayout.END_ICON_NONE
+        }
 
         binding.btnLimpiar.visibility = View.GONE
         binding.btnSiguiente.visibility = View.VISIBLE
