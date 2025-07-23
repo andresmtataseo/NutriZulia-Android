@@ -6,9 +6,9 @@ import com.nutrizulia.data.local.entity.catalog.ReglaInterpretacionZScoreEntity
 data class ReglaInterpretacionZScoreResponseDto(
     @SerializedName("id") val id: Int,
     @SerializedName("tipo_indicador_id") val tipoIndicadorId: Int,
-    @SerializedName("z_score_minimo") val zScoreMinimo: Double,
-    @SerializedName("z_score_maximo") val zScoreMaximo: Double,
-    @SerializedName("diagnostico") val diagnostico: String
+    @SerializedName("z_score_minimo") val zScoreMinimo: Double?,
+    @SerializedName("z_score_maximo") val zScoreMaximo: Double?,
+    @SerializedName("descripcion") val diagnostico: String
 )
 
 fun ReglaInterpretacionZScoreResponseDto.toEntity() = ReglaInterpretacionZScoreEntity(

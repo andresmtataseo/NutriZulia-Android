@@ -14,7 +14,8 @@ import kotlin.math.pow
 
 object Utils {
 
-    data class ZScoreResult(val zScore: Double, val percentil: Double)
+    data class ZScoreResult(val zScore: Double, val percentil: Double, var diagnostico: String? = null)
+    data class ImcResult(val imc: Double, var diagnostico: String? = null)
 
     /**
      * Calcula el Z-Score y el percentil de un valor infantil según los parámetros LMS de la OMS.
@@ -60,12 +61,13 @@ object Utils {
      * @param tallaM La estatura de la persona en metros.
      * @return El valor del IMC calculado. Devuelve 0.0 si la talla es cero para evitar errores de división.
      */
-    fun calcularIMC(pesoKg: Double?, tallaCm: Double?): Double {
+    fun calcularIMC(pesoKg: Double?, tallaCm: Double?): ImcResult {
         if (pesoKg == null || pesoKg <= 0.0 || tallaCm == null || tallaCm <= 0.0) {
-            return 0.0
+            return ImcResult(0.0)
         }
         val tallaM = tallaCm / 100.0
-        return pesoKg / (tallaM * tallaM)
+        val imc = pesoKg / (tallaM * tallaM)
+        return ImcResult(imc)
     }
 
     fun generarUUID(): String {

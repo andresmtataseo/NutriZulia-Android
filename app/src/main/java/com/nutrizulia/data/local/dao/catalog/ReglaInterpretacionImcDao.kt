@@ -9,8 +9,8 @@ import com.nutrizulia.data.local.entity.catalog.ReglaInterpretacionImcEntity
 @Dao
 interface ReglaInterpretacionImcDao {
 
-    @Query("SELECT * FROM reglas_interpretaciones_imc WHERE tipo_indicador_id = :tipoIndicadorId")
-    suspend fun findAllByTipoIndicadorId(tipoIndicadorId: Int): List<ReglaInterpretacionImcEntity>
+    @Query("SELECT diagnostico FROM reglas_interpretaciones_imc WHERE tipo_indicador_id = :tipoIndicadorId AND :imc BETWEEN imc_minimo AND imc_maximo")
+    suspend fun findInterpretacionByTipoIndicadorIdAndImc(tipoIndicadorId: Int, imc: Double): String?
 
     @Insert
     suspend fun insertAll(reglas: List<ReglaInterpretacionImcEntity>): List<Long>

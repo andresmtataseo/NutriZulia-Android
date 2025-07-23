@@ -106,6 +106,7 @@ class RegistrarConsulta3Fragment : Fragment() {
                         binding.contentImcEdad.visibility = View.VISIBLE
                         if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
                             binding.tiImcEdadZscore.setText(formattedValue)
+                            binding.tiDiagnosticoAntropometricoImcEdad.setText(evaluacion.diagnosticoAntropometrico)
                         } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
                             binding.tiImcEdadPercentil.setText(formattedValue)
                         }
@@ -114,6 +115,7 @@ class RegistrarConsulta3Fragment : Fragment() {
                         binding.contentCircunferenciaCefalicaEdad.visibility = View.VISIBLE
                         if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
                             binding.tiCircunferenciaCefalicaEdadZscore.setText(formattedValue)
+                            binding.tiDiagnosticoAntropometricoCircunferenciaCefalicaEdad.setText(evaluacion.diagnosticoAntropometrico)
                         } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
                             binding.tiCircunferenciaCefalicaEdadPercentil.setText(formattedValue)
                         }
@@ -122,6 +124,7 @@ class RegistrarConsulta3Fragment : Fragment() {
                         binding.contentPesoAltura.visibility = View.VISIBLE
                         if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
                             binding.tiPesoAlturaZscore.setText(formattedValue)
+                            binding.tiDiagnosticoAntropometricoPesoAltura.setText(evaluacion.diagnosticoAntropometrico)
                         } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
                             binding.tiPesoAlturaPercentil.setText(formattedValue)
                         }
@@ -130,6 +133,7 @@ class RegistrarConsulta3Fragment : Fragment() {
                         binding.contentPesoEdad.visibility = View.VISIBLE
                         if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
                             binding.tiPesoEdadZscore.setText(formattedValue)
+                            binding.tiDiagnosticoAntropometricoPesoEdad.setText(evaluacion.diagnosticoAntropometrico)
                         } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
                             binding.tiPesoEdadPercentil.setText(formattedValue)
                         }
@@ -138,6 +142,7 @@ class RegistrarConsulta3Fragment : Fragment() {
                         binding.contentPesoTalla.visibility = View.VISIBLE
                         if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
                             binding.tiPesoTallaZscore.setText(formattedValue)
+                            binding.tiDiagnosticoAntropometricoPesoTalla.setText(evaluacion.diagnosticoAntropometrico)
                         } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
                             binding.tiPesoTallaPercentil.setText(formattedValue)
                         }
@@ -146,6 +151,7 @@ class RegistrarConsulta3Fragment : Fragment() {
                         binding.contentTallaEdad.visibility = View.VISIBLE
                         if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
                             binding.tiTallaEdadZscore.setText(formattedValue)
+                            binding.tiDiagnosticoAntropometricoTallaEdad.setText(evaluacion.diagnosticoAntropometrico)
                         } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
                             binding.tiTallaEdadPercentil.setText(formattedValue)
                         }
@@ -154,14 +160,15 @@ class RegistrarConsulta3Fragment : Fragment() {
                         binding.contentAlturaEdad.visibility = View.VISIBLE
                         if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
                             binding.tiAlturaEdadZscore.setText(formattedValue)
+                            binding.tiDiagnosticoAntropometricoAlturaEdad.setText(evaluacion.diagnosticoAntropometrico)
                         } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
                             binding.tiAlturaEdadPercentil.setText(formattedValue)
                         }
                     }
                     8 -> { // IMC Adulto
                         binding.contentImc.visibility = View.VISIBLE
-                        // Para IMC, no hay distinción Z-Score/Percentil
                         binding.tiImc.setText(formattedValue)
+                        binding.tiDiagnosticoAntropometricoImc.setText(evaluacion.diagnosticoAntropometrico)
                     }
                 }
             }

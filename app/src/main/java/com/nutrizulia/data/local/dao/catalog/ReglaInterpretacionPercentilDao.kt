@@ -9,8 +9,8 @@ import com.nutrizulia.data.local.entity.catalog.ReglaInterpretacionPercentilEnti
 @Dao
 interface ReglaInterpretacionPercentilDao {
 
-    @Query("SELECT * FROM reglas_interpretaciones_percentil WHERE tipo_indicador_id = :tipoIndicadorId")
-    suspend fun findAllByTipoIndicadorId(tipoIndicadorId: Int): List<ReglaInterpretacionPercentilEntity>
+    @Query("SELECT diagnostico FROM reglas_interpretaciones_percentil WHERE tipo_indicador_id = :tipoIndicadorId AND :percentil BETWEEN percentil_minimo AND percentil_maximo")
+    suspend fun findInterpretacionByTipoIndicadorIdAndPercentil(tipoIndicadorId: Int, percentil: Double): String?
 
     @Insert
     suspend fun insertAll(reglas: List<ReglaInterpretacionPercentilEntity>): List<Long>

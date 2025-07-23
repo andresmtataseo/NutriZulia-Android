@@ -6,9 +6,9 @@ import com.nutrizulia.data.local.entity.catalog.ReglaInterpretacionPercentilEnti
 data class ReglaInterpretacionPercentilResponseDto(
     @SerializedName("id") val id: Int,
     @SerializedName("tipo_indicador_id") val tipoIndicadorId: Int,
-    @SerializedName("percentil_minimo") val percentilMinimo: Double,
-    @SerializedName("percentil_maximo") val percentilMaximo: Double,
-    @SerializedName("diagnostico") val diagnostico: String
+    @SerializedName("percentil_minimo") val percentilMinimo: Double?,
+    @SerializedName("percentil_maximo") val percentilMaximo: Double?,
+    @SerializedName("descripcion") val diagnostico: String
 )
 
 fun ReglaInterpretacionPercentilResponseDto.toEntity() = ReglaInterpretacionPercentilEntity(

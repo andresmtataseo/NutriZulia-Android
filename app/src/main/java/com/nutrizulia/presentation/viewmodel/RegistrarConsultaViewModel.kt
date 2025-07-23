@@ -18,6 +18,7 @@ import com.nutrizulia.domain.usecase.collection.GetDiagnosticosByConsultaId
 import com.nutrizulia.util.Utils.calcularIMC
 import com.nutrizulia.util.Utils.calcularZScoreOMS
 import com.nutrizulia.util.Utils.ZScoreResult
+import com.nutrizulia.util.Utils.ImcResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull
@@ -27,7 +28,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegistrarConsultaViewModel @Inject constructor(
-    // ... (sin cambios en el constructor)
     private val getPaciente: GetPacienteById,
     private val getConsulta: GetConsultaProgramadaById,
     private val getTipoActividad: GetTipoActividadById,
@@ -58,6 +58,9 @@ class RegistrarConsultaViewModel @Inject constructor(
     private val getParametroCrecimientoNinoEdad: GetParametroCrecimientoNinoEdad,
     private val getParametroCrecimientoPediatricoEdad: GetParametroCrecimientoPediatricoEdad,
     private val getParametroCrecimientoPediatricoLongitud: GetParametroCrecimientoPediatricoLongitud,
+    private val getReglaInterpretacionImc: GetReglaInterpretacionImc,
+    //private val getReglasInterpretacionPercentil: GetReglasInterpretacionPercentil,
+    private val getReglaInterpretacionZScore: GetReglaInterpretacionZScore,
 
     private val sessionManager: SessionManager
 ) : ViewModel() {
@@ -205,7 +208,11 @@ class RegistrarConsultaViewModel @Inject constructor(
         }
     }
 
-    fun validarConsulta(tipoActividad: TipoActividad?, especialidad: Especialidad?, tipoConsulta: TipoConsulta?): Boolean {
+    fun validarConsulta(
+        tipoActividad: TipoActividad?,
+        especialidad: Especialidad?,
+        tipoConsulta: TipoConsulta?
+    ): Boolean {
         val errores = mutableMapOf<String, String>()
 
         if (sonCamposInformacionGeneralEditables()) {
@@ -225,7 +232,12 @@ class RegistrarConsultaViewModel @Inject constructor(
         return errores.isEmpty()
     }
 
-    fun guardarConsultaParcial(tipoActividad: TipoActividad, especialidad: Especialidad, tipoConsulta: TipoConsulta, motivo: String?) {
+    fun guardarConsultaParcial(
+        tipoActividad: TipoActividad,
+        especialidad: Especialidad,
+        tipoConsulta: TipoConsulta,
+        motivo: String?
+    ) {
         val consultaExistente = consulta.value
         val idConsulta = consultaExistente?.id ?: Utils.generarUUID()
         val idUsuarioInst = idUsuarioInstitucion.value ?: 0
@@ -286,7 +298,15 @@ class RegistrarConsultaViewModel @Inject constructor(
         }
     }
 
-    fun guardarSignosVitales(frecuenciaCardiaca: Int?, presionSistolica: Int?, presionDiastolica: Int?, frecuenciaRespiratoria: Int?, temperatura: Double?, saturacionOxigeno: Int?, pulso: Int?) {
+    fun guardarSignosVitales(
+        frecuenciaCardiaca: Int?,
+        presionSistolica: Int?,
+        presionDiastolica: Int?,
+        frecuenciaRespiratoria: Int?,
+        temperatura: Double?,
+        saturacionOxigeno: Int?,
+        pulso: Int?
+    ) {
         val idConsulta = consultaEditando.value?.id ?: return
         val idExistente = detalleVital.value?.id ?: Utils.generarUUID()
         val detalle = DetalleVital(
@@ -305,7 +325,17 @@ class RegistrarConsultaViewModel @Inject constructor(
         _detalleVital.value = detalle
     }
 
-    fun guardarDatosAntropometricos(peso: Double?, altura: Double?, talla: Double?, circunferenciaBraquial: Double?, circunferenciaCadera: Double?, circunferenciaCintura: Double?, perimetroCefalico: Double?, pliegueTricipital: Double?, pliegueSubescapular: Double?) {
+    fun guardarDatosAntropometricos(
+        peso: Double?,
+        altura: Double?,
+        talla: Double?,
+        circunferenciaBraquial: Double?,
+        circunferenciaCadera: Double?,
+        circunferenciaCintura: Double?,
+        perimetroCefalico: Double?,
+        pliegueTricipital: Double?,
+        pliegueSubescapular: Double?
+    ) {
         val idConsulta = consultaEditando.value?.id ?: return
         val idExistente = detalleAntropometrico.value?.id ?: Utils.generarUUID()
         val detalle = DetalleAntropometrico(
@@ -326,7 +356,16 @@ class RegistrarConsultaViewModel @Inject constructor(
         _detalleAntropometrico.value = detalle
     }
 
-    fun guardarDatosMetabolicos(glicemiaBasal: Int?, glicemiaPostprandial: Int?, glicemiaAleatoria: Int?, hemoglobinaGlicosilada: Double?, trigliceridos: Int?, colesterolTotal: Int?, colesterolHdl: Int?, colesterolLdl: Int?) {
+    fun guardarDatosMetabolicos(
+        glicemiaBasal: Int?,
+        glicemiaPostprandial: Int?,
+        glicemiaAleatoria: Int?,
+        hemoglobinaGlicosilada: Double?,
+        trigliceridos: Int?,
+        colesterolTotal: Int?,
+        colesterolHdl: Int?,
+        colesterolLdl: Int?
+    ) {
         val idConsulta = consultaEditando.value?.id ?: return
         val idExistente = detalleMetabolico.value?.id ?: Utils.generarUUID()
         val detalle = DetalleMetabolico(
@@ -360,7 +399,12 @@ class RegistrarConsultaViewModel @Inject constructor(
         _detallePediatrico.value = detalle
     }
 
-    fun guardarDatosObstetricos(estaEmbarazada: Boolean?, fechaUltimaMenstruacion: LocalDate?, semanasGestacion: Int?, pesoPreEmbarazo: Double?) {
+    fun guardarDatosObstetricos(
+        estaEmbarazada: Boolean?,
+        fechaUltimaMenstruacion: LocalDate?,
+        semanasGestacion: Int?,
+        pesoPreEmbarazo: Double?
+    ) {
         val idConsulta = consultaEditando.value?.id ?: return
         val idExistente = detalleObstetricia.value?.id
         val detalle = DetalleObstetricia(
@@ -378,9 +422,11 @@ class RegistrarConsultaViewModel @Inject constructor(
 
     // Fragment 3
     private val _riesgosBiologicosDisponibles = MutableLiveData<List<RiesgoBiologico>>()
-    val riesgosBiologicosDisponibles: LiveData<List<RiesgoBiologico>> = _riesgosBiologicosDisponibles
+    val riesgosBiologicosDisponibles: LiveData<List<RiesgoBiologico>> =
+        _riesgosBiologicosDisponibles
     private val _riesgosBiologicosSeleccionados = MediatorLiveData<List<RiesgoBiologico>>()
-    val riesgosBiologicosSeleccionados: LiveData<List<RiesgoBiologico>> = _riesgosBiologicosSeleccionados
+    val riesgosBiologicosSeleccionados: LiveData<List<RiesgoBiologico>> =
+        _riesgosBiologicosSeleccionados
     private val _enfermedades = MutableLiveData<List<Enfermedad>>()
     val enfermedades: LiveData<List<Enfermedad>> = _enfermedades
 
@@ -394,22 +440,24 @@ class RegistrarConsultaViewModel @Inject constructor(
     private val _resultadoImcEdad = MutableLiveData<ZScoreResult?>()
     val resultadoImcEdad: MutableLiveData<ZScoreResult?> = _resultadoImcEdad
     private val _resultadoCircunferenciaCefalicaEdad = MutableLiveData<ZScoreResult?>()
-    val resultadoCircunferenciaCefalicaEdad: MutableLiveData<ZScoreResult?> = _resultadoCircunferenciaCefalicaEdad
+    val resultadoCircunferenciaCefalicaEdad: MutableLiveData<ZScoreResult?> =
+        _resultadoCircunferenciaCefalicaEdad
     private val _resultadoPesoAltura = MutableLiveData<ZScoreResult?>()
     val resultadoPesoAltura: MutableLiveData<ZScoreResult?> = _resultadoPesoAltura
     private val _resultadoPesoEdad = MutableLiveData<ZScoreResult?>()
     val resultadoPesoEdad: MutableLiveData<ZScoreResult?> = _resultadoPesoEdad
-    private val _resultadoPesoTalla = MutableLiveData<ZScoreResult??>()
+    private val _resultadoPesoTalla = MutableLiveData<ZScoreResult?>()
     val resultadoPesoTalla: MutableLiveData<ZScoreResult?> = _resultadoPesoTalla
     private val _resultadoTallaEdad = MutableLiveData<ZScoreResult?>()
     val resultadoTallaEdad: MutableLiveData<ZScoreResult?> = _resultadoTallaEdad
     private val _resultadoAlturaEdad = MutableLiveData<ZScoreResult?>()
     val resultadoAlturaEdad: MutableLiveData<ZScoreResult?> = _resultadoAlturaEdad
-    private val _resultadoImc = MutableLiveData<Double>()
-    val resultadoImc: LiveData<Double> = _resultadoImc
+    private val _resultadoImc = MutableLiveData<ImcResult?>()
+    val resultadoImc: LiveData<ImcResult?> = _resultadoImc
 
     private val _evaluacionesAntropometricas = MutableLiveData<List<EvaluacionAntropometrica>>()
-    val evaluacionesAntropometricas: LiveData<List<EvaluacionAntropometrica>> = _evaluacionesAntropometricas
+    val evaluacionesAntropometricas: LiveData<List<EvaluacionAntropometrica>> =
+        _evaluacionesAntropometricas
 
 
     init {
@@ -428,14 +476,16 @@ class RegistrarConsultaViewModel @Inject constructor(
                     val idConsulta = consulta.value?.id
                     if (idConsulta != null) {
                         coroutineScope {
-                            val evaluacionesDeferred = async { getEvaluacionesAntropometricasByConsultaId(idConsulta) }
-                            val diagnosticosDeferred = async { getDiagnosticosByConsultaId(idConsulta) }
+                            val evaluacionesDeferred =
+                                async { getEvaluacionesAntropometricasByConsultaId(idConsulta) }
+                            val diagnosticosDeferred =
+                                async { getDiagnosticosByConsultaId(idConsulta) }
 
                             _evaluacionesAntropometricas.value = evaluacionesDeferred.await()
                             _diagnosticosConsulta.value = diagnosticosDeferred.await()
                         }
                     }
-                } else {
+                } else if (currentMode == ModoConsulta.EDITAR_CONSULTA) {
                     coroutineScope {
                         val riesgosDisponiblesDeferred = async {
                             val edadMeses = Utils.calcularEdadEnMeses(pacienteActual.fechaNacimiento)
@@ -444,8 +494,32 @@ class RegistrarConsultaViewModel @Inject constructor(
 
                         val idConsulta = consulta.value?.id
                         if (idConsulta != null) {
-                            val evaluacionesDeferred = async { getEvaluacionesAntropometricasByConsultaId(idConsulta) }
-                            val diagnosticosDeferred = async { getDiagnosticosByConsultaId(idConsulta) }
+                            val diagnosticosDeferred =
+                                async { getDiagnosticosByConsultaId(idConsulta) }
+                            _diagnosticosConsulta.value = diagnosticosDeferred.await()
+                        }
+
+                        _riesgosBiologicosDisponibles.value = riesgosDisponiblesDeferred.await()
+                    }
+
+                    realizarEvaluacionAntropometrica()
+
+                } else {
+                    coroutineScope {
+                        val riesgosDisponiblesDeferred = async {
+                            val edadMeses =
+                                Utils.calcularEdadEnMeses(pacienteActual.fechaNacimiento)
+                            getRiesgosbiologicos(
+                                pacienteActual.genero.first().uppercaseChar().toString(), edadMeses
+                            )
+                        }
+
+                        val idConsulta = consulta.value?.id
+                        if (idConsulta != null) {
+                            val evaluacionesDeferred =
+                                async { getEvaluacionesAntropometricasByConsultaId(idConsulta) }
+                            val diagnosticosDeferred =
+                                async { getDiagnosticosByConsultaId(idConsulta) }
 
                             _evaluacionesAntropometricas.value = evaluacionesDeferred.await()
                             _diagnosticosConsulta.value = diagnosticosDeferred.await()
@@ -592,15 +666,19 @@ class RegistrarConsultaViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 val pacienteActual = paciente.value ?: throw Exception("Paciente no disponible")
-                val detalle = _detalleAntropometrico.value ?: throw Exception("Datos antropométricos no disponibles")
-                val consultaActual = consultaEditando.value ?: throw Exception("Consulta no disponible")
-                val evaluacionesActuales = _evaluacionesAntropometricas.value.orEmpty().toMutableList()
+                val detalle = _detalleAntropometrico.value
+                    ?: throw Exception("Datos antropométricos no disponibles")
+                val consultaActual =
+                    consultaEditando.value ?: throw Exception("Consulta no disponible")
+                val evaluacionesActuales =
+                    _evaluacionesAntropometricas.value.orEmpty().toMutableList()
 
                 val genero = pacienteActual.genero.first().uppercaseChar().toString()
                 val fechaNacimiento = pacienteActual.fechaNacimiento
                 val edadMeses = Utils.calcularEdadEnMeses(fechaNacimiento)
                 val edadDias = Utils.calcularEdadEnDias(fechaNacimiento)
-                val grupoEtario = getGrupoEtario(edadMeses) ?: throw Exception("Grupo etario no encontrado")
+                val grupoEtario =
+                    getGrupoEtario(edadMeses) ?: throw Exception("Grupo etario no encontrado")
 
                 val fechaEvaluacion = LocalDate.now()
                 val updatedAt = LocalDateTime.now()
@@ -610,7 +688,12 @@ class RegistrarConsultaViewModel @Inject constructor(
                 val altura: Double? = detalle.altura
                 val longitud = talla ?: altura
 
-                fun upsertInList(indicadorId: Int, tipoValor: TipoValorCalculado, valorCalculado: Double, diagnostico: String) {
+                fun upsertInList(
+                    indicadorId: Int,
+                    tipoValor: TipoValorCalculado,
+                    valorCalculado: Double,
+                    diagnostico: String
+                ) {
                     val evaluacionExistente = evaluacionesActuales.find {
                         it.tipoIndicadorId == indicadorId && it.tipoValorCalculado == tipoValor
                     }
@@ -618,7 +701,7 @@ class RegistrarConsultaViewModel @Inject constructor(
                         val index = evaluacionesActuales.indexOf(evaluacionExistente)
                         evaluacionesActuales[index] = evaluacionExistente.copy(
                             valorCalculado = valorCalculado,
-                            diagnosticoAntropometrico = diagnostico,
+                            diagnosticoAntropometrico = diagnostico ?: "Desconocido",
                             updatedAt = updatedAt
                         )
                     } else {
@@ -643,17 +726,18 @@ class RegistrarConsultaViewModel @Inject constructor(
                         val tipoMedicion = if (altura != null) "A" else "T"
                         if (longitud == null) throw Exception("Debe registrar talla o altura para la evaluacion antropométrica")
 
-                        val paramsPorEdad = getParametroCrecimientoPediatricoEdad(grupoEtario.id, genero, edadDias)
+                        val paramsPorEdad =
+                            getParametroCrecimientoPediatricoEdad(grupoEtario.id, genero, edadDias)
                         paramsPorEdad.forEach { param ->
                             val valorParaEvaluar: Double? = when (param.tipoIndicadorId) {
-                                1 -> if (peso != null) calcularIMC(peso, longitud) else null
+                                1 -> if (peso != null) calcularIMC(peso, longitud).imc else null
                                 2 -> detalle.perimetroCefalico
                                 4 -> peso
                                 6 -> talla
                                 7 -> altura
                                 else -> null
                             }
-                            val liveData = when(param.tipoIndicadorId) {
+                            val liveData = when (param.tipoIndicadorId) {
                                 1 -> _resultadoImcEdad
                                 2 -> _resultadoCircunferenciaCefalicaEdad
                                 4 -> _resultadoPesoEdad
@@ -663,18 +747,40 @@ class RegistrarConsultaViewModel @Inject constructor(
                             }
 
                             if (valorParaEvaluar != null && liveData != null) {
-                                val resultado = calcularZScoreOMS(valorParaEvaluar, param.lambda, param.mu, param.sigma)
-                                // TODO: Extraer el diagnostico desde la tabla de interpretaciones zscore, percentil e imc
+                                val resultado = calcularZScoreOMS(
+                                    valorParaEvaluar,
+                                    param.lambda,
+                                    param.mu,
+                                    param.sigma
+                                )
+                                resultado?.diagnostico = getReglaInterpretacionZScore(
+                                    param.tipoIndicadorId,
+                                    resultado.zScore
+                                )
                                 liveData.postValue(resultado)
                                 resultado?.let {
-                                    val diagnostico = getDiagnosticoFromZScore(it.zScore)
-                                    upsertInList(param.tipoIndicadorId, TipoValorCalculado.Z_SCORE, it.zScore, diagnostico)
-                                    upsertInList(param.tipoIndicadorId, TipoValorCalculado.PERCENTIL, it.percentil, diagnostico)
+                                    upsertInList(
+                                        param.tipoIndicadorId,
+                                        TipoValorCalculado.Z_SCORE,
+                                        it.zScore,
+                                        it.diagnostico.toString()
+                                    )
+                                    upsertInList(
+                                        param.tipoIndicadorId,
+                                        TipoValorCalculado.PERCENTIL,
+                                        it.percentil,
+                                        it.diagnostico.toString()
+                                    )
                                 }
                             }
                         }
 
-                        val paramPorLongitud = getParametroCrecimientoPediatricoLongitud(grupoEtario.id, genero, longitud, tipoMedicion)
+                        val paramPorLongitud = getParametroCrecimientoPediatricoLongitud(
+                            grupoEtario.id,
+                            genero,
+                            longitud,
+                            tipoMedicion
+                        )
                         paramPorLongitud?.let { param ->
                             val liveData = when {
                                 tipoMedicion == "T" && param.tipoIndicadorId == 5 -> _resultadoPesoTalla
@@ -682,31 +788,46 @@ class RegistrarConsultaViewModel @Inject constructor(
                                 else -> null
                             }
                             if (peso != null && liveData != null) {
-                                val resultado = calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
-                                // TODO: Extraer el diagnostico desde la tabla de interpretaciones zscore, percentil e imc
+                                val resultado =
+                                    calcularZScoreOMS(peso, param.lambda, param.mu, param.sigma)
+                                resultado?.diagnostico = getReglaInterpretacionZScore(
+                                    param.tipoIndicadorId,
+                                    resultado.zScore
+                                )
                                 liveData.postValue(resultado)
                                 resultado?.let {
-                                    val diagnostico = getDiagnosticoFromZScore(it.zScore)
-                                    upsertInList(param.tipoIndicadorId, TipoValorCalculado.Z_SCORE, it.zScore, diagnostico)
-                                    upsertInList(param.tipoIndicadorId, TipoValorCalculado.PERCENTIL, it.percentil, diagnostico)
+                                    upsertInList(
+                                        param.tipoIndicadorId,
+                                        TipoValorCalculado.Z_SCORE,
+                                        it.zScore,
+                                        it.diagnostico.toString()
+                                    )
+                                    upsertInList(
+                                        param.tipoIndicadorId,
+                                        TipoValorCalculado.PERCENTIL,
+                                        it.percentil,
+                                        it.diagnostico.toString()
+                                    )
                                 }
                             }
                         }
                     }
+
                     2, 3 -> { // 5 a 19 años y 5 a 10
                         if (altura == null) throw Exception("Debe registrar la altura para la evaluacion antropométrica")
 
-                        val todosLosParametros = getParametroCrecimientoNinoEdad(2, genero, edadMeses) +
-                                getParametroCrecimientoNinoEdad(3, genero, edadMeses)
+                        val todosLosParametros =
+                            getParametroCrecimientoNinoEdad(2, genero, edadMeses) +
+                                    getParametroCrecimientoNinoEdad(3, genero, edadMeses)
 
                         todosLosParametros.forEach { param ->
                             val valorParaEvaluar: Double? = when (param.tipoIndicadorId) {
-                                1 -> if (peso != null) calcularIMC(peso, altura) else null
+                                1 -> if (peso != null) calcularIMC(peso, altura).imc else null
                                 4 -> peso // P/E
                                 7 -> altura // A/E
                                 else -> null
                             }
-                            val liveData = when(param.tipoIndicadorId) {
+                            val liveData = when (param.tipoIndicadorId) {
                                 1 -> _resultadoImcEdad
                                 4 -> _resultadoPesoEdad
                                 7 -> _resultadoAlturaEdad
@@ -714,24 +835,46 @@ class RegistrarConsultaViewModel @Inject constructor(
                             }
 
                             if (valorParaEvaluar != null && liveData != null) {
-                                val resultado = calcularZScoreOMS(valorParaEvaluar, param.lambda, param.mu, param.sigma)
-                                // TODO: Extraer el diagnostico desde la tabla de interpretaciones zscore, percentil e imc
+                                val resultado = calcularZScoreOMS(
+                                    valorParaEvaluar,
+                                    param.lambda,
+                                    param.mu,
+                                    param.sigma
+                                )
+                                resultado?.diagnostico = getReglaInterpretacionZScore(
+                                    param.tipoIndicadorId,
+                                    resultado.zScore
+                                )
                                 liveData.postValue(resultado)
                                 resultado?.let {
-                                    val diagnostico = getDiagnosticoFromZScore(it.zScore)
-                                    upsertInList(param.tipoIndicadorId, TipoValorCalculado.Z_SCORE, it.zScore, diagnostico)
-                                    upsertInList(param.tipoIndicadorId, TipoValorCalculado.PERCENTIL, it.percentil, diagnostico)
+                                    upsertInList(
+                                        param.tipoIndicadorId,
+                                        TipoValorCalculado.Z_SCORE,
+                                        it.zScore,
+                                        it.diagnostico.toString()
+                                    )
+                                    upsertInList(
+                                        param.tipoIndicadorId,
+                                        TipoValorCalculado.PERCENTIL,
+                                        it.percentil,
+                                        it.diagnostico.toString()
+                                    )
                                 }
                             }
                         }
                     }
+
                     else -> { // Adultos
                         if (peso != null && altura != null) {
                             val imc = calcularIMC(peso, altura)
-                            // TODO: Extraer el diagnostico desde la tabla de interpretaciones zscore, percentil e imc
+                            imc.diagnostico = getReglaInterpretacionImc(8, imc.imc)
                             _resultadoImc.postValue(imc)
-                            val diagnostico = getDiagnosticoFromIMC(imc)
-                            upsertInList(8, TipoValorCalculado.IMC, imc, diagnostico)
+                            upsertInList(
+                                8,
+                                TipoValorCalculado.IMC,
+                                imc.imc,
+                                imc.diagnostico.toString()
+                            )
                         }
                     }
                 }
@@ -744,26 +887,4 @@ class RegistrarConsultaViewModel @Inject constructor(
         }
     }
 
-    private fun getDiagnosticoFromZScore(zScore: Double): String {
-        return when {
-            zScore < -3 -> "Severo"
-            zScore < -2 -> "Moderado"
-            zScore < -1 -> "Leve"
-            zScore <= 1 -> "Normal"
-            zScore <= 2 -> "Sobrepeso"
-            zScore <= 3 -> "Obesidad"
-            else -> "Obesidad Severa"
-        }
-    }
-
-    private fun getDiagnosticoFromIMC(imc: Double): String {
-        return when {
-            imc < 18.5 -> "Bajo Peso"
-            imc < 25 -> "Normal"
-            imc < 30 -> "Sobrepeso"
-            imc < 35 -> "Obesidad Grado I"
-            imc < 40 -> "Obesidad Grado II"
-            else -> "Obesidad Grado III (Mórbida)"
-        }
-    }
 }

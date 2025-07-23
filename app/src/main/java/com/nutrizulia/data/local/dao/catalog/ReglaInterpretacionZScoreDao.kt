@@ -9,8 +9,8 @@ import com.nutrizulia.data.local.entity.catalog.ReglaInterpretacionZScoreEntity
 @Dao
 interface ReglaInterpretacionZScoreDao {
 
-    @Query("SELECT * FROM reglas_interpretaciones_z_score WHERE tipo_indicador_id = :tipoIndicadorId")
-    suspend fun findAllByTipoIndicadorId(tipoIndicadorId: Int): List<ReglaInterpretacionZScoreEntity>
+    @Query("SELECT diagnostico FROM reglas_interpretaciones_z_score WHERE tipo_indicador_id = :tipoIndicadorId AND :zScore BETWEEN z_score_minimo AND z_score_maximo")
+    suspend fun findInterpretacion(tipoIndicadorId: Int, zScore: Double): String?
 
     @Insert
     suspend fun insertAll(reglas: List<ReglaInterpretacionZScoreEntity>): List<Long>

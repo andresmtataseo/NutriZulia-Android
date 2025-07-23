@@ -120,8 +120,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:layout_weight="1"
-                        android:hint="Percentil"
-                        app:endIconMode="clear_text">
+                        android:hint="Percentil">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiImcEdadPercentil"
@@ -140,8 +139,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_weight="1"
-                        android:hint="Z-Score"
-                        app:endIconMode="clear_text">
+                        android:hint="Z-Score">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiImcEdadZscore"
@@ -160,14 +158,14 @@
                     android:id="@+id/tfDiagnosticoAntropometricoImcEdad"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Diagnostico antropométrico IMC/Edad"
-                    app:endIconMode="clear_text">
+                    android:hint="Interpretación">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiDiagnosticoAntropometricoImcEdad"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:enabled="false"
                         android:inputType="textMultiLine" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -202,8 +200,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:layout_weight="1"
-                        android:hint="Percentil"
-                        app:endIconMode="clear_text">
+                        android:hint="Percentil">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiCircunferenciaCefalicaEdadPercentil"
@@ -222,8 +219,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_weight="1"
-                        android:hint="Z-Score"
-                        app:endIconMode="clear_text">
+                        android:hint="Z-Score">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiCircunferenciaCefalicaEdadZscore"
@@ -242,14 +238,14 @@
                     android:id="@+id/tfDiagnosticoAntropometricoCircunferenciaCefalicaEdad"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Diagnostico antropométrico Circunferencia Cefálica/Edad"
-                    app:endIconMode="clear_text">
+                    android:hint="Interpretación">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiDiagnosticoAntropometricoCircunferenciaCefalicaEdad"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:enabled="false"
                         android:inputType="textMultiLine" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -284,8 +280,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:layout_weight="1"
-                        android:hint="Percentil"
-                        app:endIconMode="clear_text">
+                        android:hint="Percentil">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiPesoAlturaPercentil"
@@ -304,8 +299,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_weight="1"
-                        android:hint="Z-Score"
-                        app:endIconMode="clear_text">
+                        android:hint="Z-Score">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiPesoAlturaZscore"
@@ -324,14 +318,14 @@
                     android:id="@+id/tfDiagnosticoAntropometricoPesoAltura"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Diagnostico antropométrico Peso/Altura"
-                    app:endIconMode="clear_text">
+                    android:hint="Interpretación">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiDiagnosticoAntropometricoPesoAltura"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:enabled="false"
                         android:inputType="textMultiLine" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -366,8 +360,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:layout_weight="1"
-                        android:hint="Percentil"
-                        app:endIconMode="clear_text">
+                        android:hint="Percentil">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiPesoEdadPercentil"
@@ -386,8 +379,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_weight="1"
-                        android:hint="Z-Score"
-                        app:endIconMode="clear_text">
+                        android:hint="Z-Score">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiPesoEdadZscore"
@@ -406,14 +398,14 @@
                     android:id="@+id/tfDiagnosticoAntropometricoPesoEdad"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Diagnostico antropométrico Peso/Edad"
-                    app:endIconMode="clear_text">
+                    android:hint="Interpretación">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiDiagnosticoAntropometricoPesoEdad"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:enabled="false"
                         android:inputType="textMultiLine" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -448,8 +440,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:layout_weight="1"
-                        android:hint="Percentil"
-                        app:endIconMode="clear_text">
+                        android:hint="Percentil">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiPesoTallaPercentil"
@@ -468,8 +459,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_weight="1"
-                        android:hint="Z-Score"
-                        app:endIconMode="clear_text">
+                        android:hint="Z-Score">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiPesoTallaZscore"
@@ -488,14 +478,14 @@
                     android:id="@+id/tfDiagnosticoAntropometricoPesoTalla"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Diagnostico antropométrico Peso/Talla"
-                    app:endIconMode="clear_text">
+                    android:hint="Interpretación">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiDiagnosticoAntropometricoPesoTalla"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:enabled="false"
                         android:inputType="textMultiLine" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -530,8 +520,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:layout_weight="1"
-                        android:hint="Percentil"
-                        app:endIconMode="clear_text">
+                        android:hint="Percentil">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiTallaEdadPercentil"
@@ -550,8 +539,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_weight="1"
-                        android:hint="Z-Score"
-                        app:endIconMode="clear_text">
+                        android:hint="Z-Score">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiTallaEdadZscore"
@@ -570,14 +558,14 @@
                     android:id="@+id/tfDiagnosticoAntropometricoTallaEdad"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Diagnostico antropométrico Talla/Edad"
-                    app:endIconMode="clear_text">
+                    android:hint="Interpretación">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiDiagnosticoAntropometricoTallaEdad"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:enabled="false"
                         android:inputType="textMultiLine" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -612,8 +600,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:layout_weight="1"
-                        android:hint="Percentil"
-                        app:endIconMode="clear_text">
+                        android:hint="Percentil">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiAlturaEdadPercentil"
@@ -632,8 +619,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_weight="1"
-                        android:hint="Z-Score"
-                        app:endIconMode="clear_text">
+                        android:hint="Z-Score">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiAlturaEdadZscore"
@@ -652,14 +638,14 @@
                     android:id="@+id/tfDiagnosticoAntropometricoAlturaEdad"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Diagnostico antropométrico Altura/Edad"
-                    app:endIconMode="clear_text">
+                    android:hint="Interpretación">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiDiagnosticoAntropometricoAlturaEdad"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:enabled="false"
                         android:inputType="textMultiLine" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -692,8 +678,7 @@
                         android:id="@+id/tfImc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="IMC"
-                        app:endIconMode="clear_text">
+                        android:hint="IMC">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/tiImc"
@@ -712,14 +697,14 @@
                     android:id="@+id/tfDiagnosticoAntropometricoImc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Diagnostico antropométrico IMC"
-                    app:endIconMode="clear_text">
+                    android:hint="Interpretación">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiDiagnosticoAntropometricoImc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
+                        android:enabled="false"
                         android:inputType="textMultiLine" />
 
                 </com.google.android.material.textfield.TextInputLayout>
