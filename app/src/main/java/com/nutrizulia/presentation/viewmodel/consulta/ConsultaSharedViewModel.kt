@@ -9,6 +9,7 @@ import com.nutrizulia.domain.model.catalog.Especialidad
 import com.nutrizulia.domain.model.catalog.TipoActividad
 import com.nutrizulia.domain.model.collection.*
 import com.nutrizulia.domain.usecase.collection.*
+import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
 import com.nutrizulia.util.ModoConsulta
 import com.nutrizulia.util.SessionManager
 import com.nutrizulia.util.Utils
@@ -30,7 +31,7 @@ class ConsultaSharedViewModel @Inject constructor(
     private val saveDetallePediatrico: SaveDetallePediatrico,
     private val saveDiagnosticos: SaveDiagnosticos,
     private val saveEvaluacionesAntropometricas: SaveEvaluacionesAntropometricas,
-    private val sessionManager: SessionManager
+    private val getCurrentInstitutionId: GetCurrentInstitutionIdUseCase
 ) : ViewModel() {
 
     // MARK: - Shared State
@@ -142,7 +143,7 @@ class ConsultaSharedViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val institutionId = sessionManager.currentInstitutionIdFlow.firstOrNull() ?: run {
+                val institutionId = getCurrentInstitutionId() ?: run {
                     _mensaje.value = "No se ha seleccionado una institución."
                     _salir.value = true
                     return@launch

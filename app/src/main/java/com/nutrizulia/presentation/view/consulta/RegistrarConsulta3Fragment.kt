@@ -14,15 +14,12 @@ import com.nutrizulia.R
 import com.nutrizulia.data.local.enum.TipoValorCalculado
 import com.nutrizulia.databinding.FragmentRegistrarConsulta3Binding
 import com.nutrizulia.domain.model.catalog.RiesgoBiologico
-import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import com.nutrizulia.presentation.adapter.RiesgoBiologicoAdapter
-import com.nutrizulia.presentation.viewmodel.RegistrarConsultaViewModel
+import com.nutrizulia.presentation.viewmodel.consulta.RegistrarConsultaViewModel
 import com.nutrizulia.util.ModoConsulta
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 @AndroidEntryPoint
 class RegistrarConsulta3Fragment : Fragment() {

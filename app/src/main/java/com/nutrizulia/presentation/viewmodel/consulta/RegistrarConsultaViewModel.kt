@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.viewmodel
+package com.nutrizulia.presentation.viewmodel.consulta
 
 import android.util.Log
 import androidx.lifecycle.*
@@ -17,8 +17,6 @@ import com.nutrizulia.data.local.enum.TipoValorCalculado
 import com.nutrizulia.domain.usecase.collection.GetDiagnosticosByConsultaId
 import com.nutrizulia.util.Utils.calcularIMC
 import com.nutrizulia.util.Utils.calcularZScoreOMS
-import com.nutrizulia.util.Utils.ZScoreResult
-import com.nutrizulia.util.Utils.ImcResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.firstOrNull

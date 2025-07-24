@@ -14,6 +14,7 @@ import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.CompositeDateValidator
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
@@ -27,7 +28,8 @@ import com.nutrizulia.databinding.FragmentRegistrarCitaBinding
 import com.nutrizulia.domain.model.catalog.Especialidad
 import com.nutrizulia.domain.model.catalog.TipoActividad
 import com.nutrizulia.domain.model.collection.Consulta
-import com.nutrizulia.presentation.viewmodel.RegistrarCitaViewModel
+import com.nutrizulia.presentation.viewmodel.consulta.RegistrarCitaViewModel
+import com.nutrizulia.util.UnavailableDatesValidator
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
@@ -62,45 +64,44 @@ class RegistrarCitaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
         viewModel.onCreate(args.idPaciente, args.idConsulta, args.isEditable)
-        if (!args.isEditable) {
-            deshabilitarCampos()
-        } else {
-            setupListeners()
-        }
 
         binding.dropdownTipoActividad.bind(viewLifecycleOwner, viewModel.tiposActividades,
-            toText = { it.nombre   },
-            onItemSelected = { et ->
-                tipoActividadSel = et
-            }
+            toText = { it.nombre },
+            onItemSelected = { et -> tipoActividadSel = et }
         )
 
         binding.dropdownEspecialidades.bind(viewLifecycleOwner, viewModel.especialidades,
             toText = { it.nombre },
-            onItemSelected = { na ->
-                especialidadSel = na
-            }
+            onItemSelected = { na -> especialidadSel = na }
         )
-
     }
 
-    private fun setupListeners() {
-        mostrarSelectorFecha(binding.tfFechaCita.editText as TextInputEditText)
-
+    private fun setupListeners(unavailableDates: List<LocalDate>) {
+        mostrarSelectorFecha(binding.tfFechaCita.editText as TextInputEditText, unavailableDates)
         mostrarSelectorHora(binding.tfHoraCita.editText as TextInputEditText)
 
         binding.btnRegistrarCita.setOnClickListener {
             registrarCita(args.idPaciente, args.idConsulta, tipoActividadSel?.id ?: 0, especialidadSel?.id ?: 0, tipoConsultaSel)
         }
 
+        val isEditing = args.idConsulta != null
+
+        // CAMBIO: Se ajusta el texto del botón según el modo (edición o creación).
+        if (isEditing) {
+            binding.btnLimpiar.text = "Restaurar"
+        }
+
         binding.btnLimpiar.setOnClickListener {
+            val dialogMessage = if (isEditing) "¿Desea restaurar los datos originales de la cita?" else "¿Desea limpiar todos los campos?"
+            val positiveAction = if (isEditing) { { restaurarCamposOriginales() } } else { { limpiarCampos() } }
+
             Utils.mostrarDialog(
                 requireContext(),
                 "Advertencia",
-                "¿Desea limpiar todos los campos?",
+                dialogMessage,
                 "Sí",
                 "No",
-                { limpiarCampos() },
+                positiveAction,
                 { },
                 true
             )
@@ -109,6 +110,14 @@ class RegistrarCitaFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setupObservers() {
+        viewModel.fullyBookedDates.observe(viewLifecycleOwner) { dates ->
+            if (args.isEditable) {
+                setupListeners(dates)
+            } else {
+                deshabilitarCampos()
+            }
+        }
+
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
@@ -136,44 +145,80 @@ class RegistrarCitaFragment : Fragment() {
         }
 
         viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
-            if (paciente != null) {
-                binding.tfNombreCompletoPaciente.editText?.setText("${paciente.nombres} ${paciente.apellidos}")
-                binding.tfGeneroPaciente.editText?.setText(paciente.genero)
-                val edad = Utils.calcularEdadDetallada(paciente.fechaNacimiento)
+            paciente?.let {
+                binding.tfNombreCompletoPaciente.editText?.setText("${it.nombres} ${it.apellidos}")
+                binding.tfGeneroPaciente.editText?.setText(it.genero)
+                val edad = Utils.calcularEdadDetallada(it.fechaNacimiento)
                 binding.tfEdadPaciente.editText?.setText("${edad.anios} años, ${edad.meses} meses y ${edad.dias} días")
             }
         }
 
         viewModel.consulta.observe(viewLifecycleOwner) { consulta ->
-            if (consulta != null) {
-                binding.tfMotivoConsulta.editText?.setText(consulta.motivoConsulta.orEmpty())
-                binding.tfFechaCita.editText?.setText(consulta.fechaHoraProgramada?.format(
+            consulta?.let {
+                binding.tfMotivoConsulta.editText?.setText(it.motivoConsulta.orEmpty())
+                binding.tfFechaCita.editText?.setText(it.fechaHoraProgramada?.format(
                     DateTimeFormatter.ISO_LOCAL_DATE))
-                binding.tfHoraCita.editText?.setText(consulta.fechaHoraProgramada?.format(
+                binding.tfHoraCita.editText?.setText(it.fechaHoraProgramada?.format(
                     DateTimeFormatter.ofPattern("h:mm a", Locale.US)))
                 binding.btnRegistrarCita.text = "Reprogramar"
             }
         }
 
         viewModel.tipoActividad.observe(viewLifecycleOwner) { it ->
-            val tipoActividadDropdown = binding.tfTipoActividad.editText as? AutoCompleteTextView
-            tipoActividadDropdown?.setText(it.nombre, false)
-            tipoActividadSel = it
+            it?.let {
+                (binding.tfTipoActividad.editText as? AutoCompleteTextView)?.setText(it.nombre, false)
+                tipoActividadSel = it
+            }
         }
 
         viewModel.especialidad.observe(viewLifecycleOwner) { it ->
-            val especialidadDropdown = binding.tfEspecialidad.editText as? AutoCompleteTextView
-            especialidadDropdown?.setText(it.nombre, false)
-            especialidadSel = it
+            it?.let {
+                (binding.tfEspecialidad.editText as? AutoCompleteTextView)?.setText(it.nombre, false)
+                especialidadSel = it
+            }
         }
 
         viewModel.tipoConsulta.observe(viewLifecycleOwner) { it ->
-            val tipoConsultaDropdown = binding.tfTipoConsulta.editText as? AutoCompleteTextView
-            tipoConsultaDropdown?.setText(it.displayValue, false)
-            tipoConsultaSel = it
+            it?.let {
+                (binding.tfTipoConsulta.editText as? AutoCompleteTextView)?.setText(it.displayValue, false)
+                tipoConsultaSel = it
+            }
         }
     }
 
+    private fun restaurarCamposOriginales() {
+        quitarErrores()
+        val consultaOriginal = viewModel.consulta.value ?: return // Salir si no hay datos que restaurar
+
+        // Restaurar campos de texto
+        binding.tfMotivoConsulta.editText?.setText(consultaOriginal.motivoConsulta.orEmpty())
+        binding.tfFechaCita.editText?.setText(consultaOriginal.fechaHoraProgramada?.format(
+            DateTimeFormatter.ISO_LOCAL_DATE))
+        binding.tfHoraCita.editText?.setText(consultaOriginal.fechaHoraProgramada?.format(
+            DateTimeFormatter.ofPattern("h:mm a", Locale.US)))
+
+        // Restaurar dropdown de Tipo de Actividad
+        viewModel.tipoActividad.value?.let {
+            (binding.tfTipoActividad.editText as? AutoCompleteTextView)?.setText(it.nombre, false)
+            tipoActividadSel = it
+        }
+
+        // Restaurar dropdown de Especialidad
+        viewModel.especialidad.value?.let {
+            (binding.tfEspecialidad.editText as? AutoCompleteTextView)?.setText(it.nombre, false)
+            especialidadSel = it
+        }
+
+        // Restaurar dropdown de Tipo de Consulta
+        viewModel.tipoConsulta.value?.let {
+            (binding.tfTipoConsulta.editText as? AutoCompleteTextView)?.setText(it.displayValue, false)
+            tipoConsultaSel = it
+        }
+
+        Utils.mostrarSnackbar(binding.root, "Cambios revertidos.")
+    }
+
+    // ... El resto de la clase permanece igual ...
     private fun registrarCita(pacienteId: String, consultaId: String?, tipoActividadId: Int, especialidadRemitenteId: Int, tipoConsulta: TipoConsulta?) {
         quitarErrores()
 
@@ -183,9 +228,8 @@ class RegistrarCitaFragment : Fragment() {
             return
         }
 
-        val fechaCita: LocalDate
-        try {
-            fechaCita = LocalDate.parse(fechaStr)
+        val fechaCita: LocalDate = try {
+            LocalDate.parse(fechaStr)
         } catch (e: DateTimeParseException) {
             binding.tfFechaCita.error = "El formato de la fecha no es válido"
             return
@@ -197,10 +241,9 @@ class RegistrarCitaFragment : Fragment() {
             return
         }
 
-        val horaCita: LocalTime
-        try {
+        val horaCita: LocalTime = try {
             val formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
-            horaCita = LocalTime.parse(horaStr, formatter)
+            LocalTime.parse(horaStr, formatter)
         } catch (e: DateTimeParseException) {
             binding.tfHoraCita.error = "El formato de la hora no es válido"
             return
@@ -240,16 +283,15 @@ class RegistrarCitaFragment : Fragment() {
         binding.tfTipoActividad.error = null
         binding.tfEspecialidad.error = null
         binding.tfTipoConsulta.error = null
-        binding.tfEspecialidad.error = null
         binding.tfFechaCita.error = null
         binding.tfHoraCita.error = null
     }
 
     private fun deshabilitarCampos() {
-
-        binding.tiMotivoConsulta.isEnabled = false
-        binding.tiFechaCita.isEnabled = false
-        binding.tiHoraCita.isEnabled = false
+        binding.tfMotivoConsulta.isEnabled = false
+        binding.tfFechaCita.isEnabled = false
+        binding.tfHoraCita.isEnabled = false
+        binding.tfTipoConsulta.isEnabled = false
         binding.btnRegistrarCita.visibility = View.GONE
         binding.btnLimpiar.visibility = View.GONE
         listOf(
@@ -261,7 +303,7 @@ class RegistrarCitaFragment : Fragment() {
         }
     }
 
-    private fun mostrarSelectorFecha(editText: TextInputEditText) {
+    private fun mostrarSelectorFecha(editText: TextInputEditText, unavailableDates: List<LocalDate>) {
         val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
         fun abrirPicker() {
@@ -271,8 +313,20 @@ class RegistrarCitaFragment : Fragment() {
                 fragmentManager.beginTransaction().remove(existingPicker).commit()
             }
 
+            // Convierte las fechas LocalDate a milisegundos UTC
+            val unavailableDatesInMillis = unavailableDates.map {
+                it.atStartOfDay(ZoneId.of("UTC")).toInstant().toEpochMilli()
+            }
+
+            // Crea una lista de validadores para combinarlos
+            val validators = listOf(
+                DateValidatorPointForward.now(),
+                UnavailableDatesValidator(unavailableDatesInMillis)
+            )
+            val compositeValidator = CompositeDateValidator.allOf(validators)
+
             val constraints = CalendarConstraints.Builder()
-                .setValidator(DateValidatorPointForward.now())
+                .setValidator(compositeValidator)
                 .build()
 
             val seleccionInicial = ultimaFechaSeleccionada ?: MaterialDatePicker.todayInUtcMilliseconds()
@@ -285,11 +339,9 @@ class RegistrarCitaFragment : Fragment() {
 
             datePicker.addOnPositiveButtonClickListener { utcDateMillis ->
                 ultimaFechaSeleccionada = utcDateMillis
-
                 val localDate = Instant.ofEpochMilli(utcDateMillis)
                     .atZone(ZoneId.of("UTC"))
                     .toLocalDate()
-
                 editText.setText(localDate.format(dateFormatter))
             }
 
@@ -318,7 +370,6 @@ class RegistrarCitaFragment : Fragment() {
             picker.addOnPositiveButtonClickListener {
                 ultimaHora = picker.hour
                 ultimoMinuto = picker.minute
-
                 val hour = ultimaHora
                 val minute = ultimoMinuto
                 val amPm = if (hour < 12) "AM" else "PM"
@@ -344,18 +395,21 @@ class RegistrarCitaFragment : Fragment() {
         var currentItems: List<T> = emptyList()
 
         itemsLive.observe(lifecycleOwner) { items ->
-            currentItems = items
-            val names = items.map(toText)
-            val adapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, names)
-            setAdapter(adapter)
-            if (text.toString() !in names) {
-                setText("", false)
+            items?.let {
+                currentItems = it
+                val names = it.map(toText)
+                val adapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, names)
+                setAdapter(adapter)
+                if (text.toString() !in names) {
+                    setText("", false)
+                }
             }
         }
 
         setOnItemClickListener { _, _, position, _ ->
-            onItemSelected(currentItems[position])
+            if (position < currentItems.size) {
+                onItemSelected(currentItems[position])
+            }
         }
     }
-
 }

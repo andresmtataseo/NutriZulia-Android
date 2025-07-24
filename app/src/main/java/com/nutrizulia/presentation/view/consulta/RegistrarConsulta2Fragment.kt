@@ -12,7 +12,6 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
@@ -21,7 +20,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentRegistrarConsulta2Binding
-import com.nutrizulia.presentation.viewmodel.RegistrarConsultaViewModel
+import com.nutrizulia.presentation.viewmodel.consulta.RegistrarConsultaViewModel
 import com.nutrizulia.util.ModoConsulta
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint

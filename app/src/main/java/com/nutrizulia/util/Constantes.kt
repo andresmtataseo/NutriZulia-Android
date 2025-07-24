@@ -1,6 +1,5 @@
 package com.nutrizulia.util
 
-object Constantes {
-    const val SEGEN_USUARIO = "andresmtataseo"
-    const val SEGEN_CLAVE = "IX61N9Pl"
+object AppointmentConstants {
+    const val MAX_APPOINTMENTS_PER_DAY: Int = 1
 }

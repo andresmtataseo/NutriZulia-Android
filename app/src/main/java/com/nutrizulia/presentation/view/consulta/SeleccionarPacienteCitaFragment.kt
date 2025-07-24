@@ -133,7 +133,6 @@ class SeleccionarPacienteCitaFragment : Fragment() {
         if (args.isAgendar) {
             viewModel.verificarCita(paciente)
         } else {
-            // Navegar directo a consulta sin cita
             findNavController().navigate(
                 SeleccionarPacienteCitaFragmentDirections.actionSeleccionarPacienteCitaFragmentToRegistrarConsultaGraph2(
                     idConsulta = null,

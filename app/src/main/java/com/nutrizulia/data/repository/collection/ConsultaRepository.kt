@@ -3,8 +3,10 @@ package com.nutrizulia.data.repository.collection
 import com.nutrizulia.data.local.dao.collection.ConsultaDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.enum.Estado
+import com.nutrizulia.data.local.pojo.DailyAppointmentCount
 import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.domain.model.collection.toDomain
+import java.time.LocalDate
 import javax.inject.Inject
 
 class ConsultaRepository @Inject constructor(
@@ -12,6 +14,12 @@ class ConsultaRepository @Inject constructor(
 ) {
     suspend fun upsert(consulta: Consulta): Long {
         return consultaDao.upsert(consulta.toEntity())
+    }
+    suspend fun getAppointmentCountsByDay(usuarioInstitucionId: Int): Map<LocalDate, Int> {
+        val dailyCounts: List<DailyAppointmentCount> = consultaDao.getAppointmentCountsByDay(usuarioInstitucionId)
+        return dailyCounts.associate { dailyCount ->
+            dailyCount.date to dailyCount.count
+        }
     }
     suspend fun countConsultaByPacienteId(pacienteId: String): Boolean {
         val consultationCount: Int = consultaDao.countConsultaByPacienteId(pacienteId)
