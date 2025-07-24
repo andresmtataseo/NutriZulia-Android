@@ -1,9 +1,10 @@
-package com.nutrizulia.presentation.viewmodel
+package com.nutrizulia.presentation.viewmodel.consulta
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.view.PacienteConCita
 import com.nutrizulia.domain.usecase.collection.GetPacienteConCitaById
 import com.nutrizulia.domain.usecase.collection.SaveConsultaEstadoById
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AccionesCitaPerdidaViewModel @Inject constructor(
+class AccionesConsultaViewModel @Inject constructor(
     private val getPacienteConCitaById: GetPacienteConCitaById,
     private val sessionManager: SessionManager,
     private val saveConsultaEstadoById: SaveConsultaEstadoById
@@ -69,4 +70,20 @@ class AccionesCitaPerdidaViewModel @Inject constructor(
         }
     }
 
+    fun borrarConsulta(idConsulta: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                saveConsultaEstadoById(idConsulta, Estado.CANCELADA)
+                _mensaje.value = "Cita cancelada con éxito."
+                _salir.value = true
+            } catch (e: Exception) {
+                _mensaje.value = "Error al cancelar la cita."
+            } finally {
+                _isLoading.value = false
+            }
+
+        }
+
+    }
 }

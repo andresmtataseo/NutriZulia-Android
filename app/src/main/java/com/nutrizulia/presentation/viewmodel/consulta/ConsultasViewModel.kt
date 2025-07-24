@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.viewmodel
+package com.nutrizulia.presentation.viewmodel.consulta
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

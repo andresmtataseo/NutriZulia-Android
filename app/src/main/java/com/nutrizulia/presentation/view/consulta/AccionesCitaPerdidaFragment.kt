@@ -13,7 +13,7 @@ import androidx.navigation.fragment.navArgs
 import com.nutrizulia.R
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.databinding.FragmentAccionesCitaPerdidaBinding
-import com.nutrizulia.presentation.viewmodel.AccionesCitaPerdidaViewModel
+import com.nutrizulia.presentation.viewmodel.consulta.AccionesCitaPerdidaViewModel
 import com.nutrizulia.util.Utils.calcularEdadDetallada
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint

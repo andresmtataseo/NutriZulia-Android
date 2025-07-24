@@ -11,11 +11,9 @@ import com.nutrizulia.domain.model.collection.*
 import com.nutrizulia.domain.usecase.collection.*
 import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
 import com.nutrizulia.util.ModoConsulta
-import com.nutrizulia.util.SessionManager
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.firstOrNull
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -106,23 +104,23 @@ class ConsultaSharedViewModel @Inject constructor(
         _consultaEditando.value = nuevaConsulta
     }
 
-    fun updateDetalleVital(detalle: DetalleVital) {
+    fun updateDetalleVital(detalle: DetalleVital?) {
         _detalleVital.value = detalle
     }
 
-    fun updateDetalleAntropometrico(detalle: DetalleAntropometrico) {
+    fun updateDetalleAntropometrico(detalle: DetalleAntropometrico?) {
         _detalleAntropometrico.value = detalle
     }
 
-    fun updateDetalleMetabolico(detalle: DetalleMetabolico) {
+    fun updateDetalleMetabolico(detalle: DetalleMetabolico?) {
         _detalleMetabolico.value = detalle
     }
 
-    fun updateDetallePediatrico(detalle: DetallePediatrico) {
+    fun updateDetallePediatrico(detalle: DetallePediatrico?) {
         _detallePediatrico.value = detalle
     }
 
-    fun updateDetalleObstetricia(detalle: DetalleObstetricia) {
+    fun updateDetalleObstetricia(detalle: DetalleObstetricia?) {
         _detalleObstetricia.value = detalle
     }
 

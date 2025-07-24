@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.viewmodel
+package com.nutrizulia.presentation.viewmodel.consulta
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AccionesConsultaViewModel @Inject constructor(
+class AccionesCitaViewModel @Inject constructor(
     private val getPacienteConCitaById: GetPacienteConCitaById,
     private val sessionManager: SessionManager,
     private val saveConsultaEstadoById: SaveConsultaEstadoById
@@ -70,7 +70,7 @@ class AccionesConsultaViewModel @Inject constructor(
         }
     }
 
-    fun borrarConsulta(idConsulta: String) {
+    fun cancelarCita(idConsulta: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {

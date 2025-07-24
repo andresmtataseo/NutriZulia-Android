@@ -13,7 +13,7 @@ import androidx.navigation.fragment.navArgs
 import com.nutrizulia.R
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.databinding.FragmentAccionesConsultaBinding
-import com.nutrizulia.presentation.viewmodel.AccionesConsultaViewModel
+import com.nutrizulia.presentation.viewmodel.consulta.AccionesConsultaViewModel
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.format.DateTimeFormatter

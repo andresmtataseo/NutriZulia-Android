@@ -13,7 +13,7 @@ import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentConsultasBinding
 import com.nutrizulia.presentation.adapter.PacienteConCitaAdapter
-import com.nutrizulia.presentation.viewmodel.ConsultasViewModel
+import com.nutrizulia.presentation.viewmodel.consulta.ConsultasViewModel
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 

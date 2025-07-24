@@ -13,7 +13,7 @@ import androidx.navigation.fragment.navArgs
 import com.nutrizulia.R
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.databinding.FragmentAccionesCitaBinding
-import com.nutrizulia.presentation.viewmodel.AccionesCitaViewModel
+import com.nutrizulia.presentation.viewmodel.consulta.AccionesCitaViewModel
 import com.nutrizulia.util.Utils.calcularEdadDetallada
 import com.nutrizulia.util.Utils.mostrarDialog
 import com.nutrizulia.util.Utils.mostrarSnackbar

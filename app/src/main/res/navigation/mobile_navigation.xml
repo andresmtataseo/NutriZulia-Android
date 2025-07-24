@@ -323,7 +323,7 @@
 
         <fragment
             android:id="@+id/registrarConsulta2Fragment"
-            android:name="com.nutrizulia.presentation.view.consulta.RegistrarConsulta2Fragment"
+            android:name="com.nutrizulia.presentation.view.consulta.DatosClinicosFragment"
             android:label="Datos Clínicos"
             tools:layout="@layout/fragment_registrar_consulta2">
             <action
@@ -339,19 +339,7 @@
             android:id="@+id/registrarConsulta3Fragment"
             android:name="com.nutrizulia.presentation.view.consulta.RegistrarConsulta3Fragment"
             android:label="Evaluacion Finales"
-            tools:layout="@layout/fragment_registrar_consulta3">
-            <argument
-                android:name="idConsulta"
-                app:argType="string"
-                app:nullable="true" />
-            <argument
-                android:name="isEditable"
-                android:defaultValue="true"
-                app:argType="boolean" />
-            <argument
-                android:name="idPaciente"
-                app:argType="string" />
-        </fragment>
+            tools:layout="@layout/fragment_registrar_consulta3"/>
 
     </navigation>
 
