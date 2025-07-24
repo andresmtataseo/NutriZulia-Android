@@ -13,6 +13,7 @@ import com.nutrizulia.domain.usecase.catalog.GetEspecialidadById
 import com.nutrizulia.domain.usecase.catalog.GetEspecialidades
 import com.nutrizulia.domain.usecase.catalog.GetTipoActividadById
 import com.nutrizulia.domain.usecase.catalog.GetTiposActividades
+import com.nutrizulia.domain.usecase.collection.DetermineTipoConsulta
 import com.nutrizulia.domain.usecase.collection.GetConsultaProgramadaById
 import com.nutrizulia.domain.usecase.collection.GetPacienteById
 import com.nutrizulia.domain.usecase.collection.SaveConsulta
@@ -33,7 +34,8 @@ class RegistrarCitaViewModel @Inject constructor(
     private val getEspecialidad: GetEspecialidadById,
     private val sessionManager: SessionManager,
     private val getTiposActividades: GetTiposActividades,
-    private val getEspecialidades: GetEspecialidades
+    private val getEspecialidades: GetEspecialidades,
+    private val determineTipoConsulta: DetermineTipoConsulta
 ) : ViewModel() {
 
     private val _paciente = MutableLiveData<Paciente>()
@@ -54,8 +56,6 @@ class RegistrarCitaViewModel @Inject constructor(
     val tiposActividades: LiveData<List<TipoActividad>> = _tiposActividades
     private val _especialidades = MutableLiveData<List<Especialidad>>()
     val especialidades: LiveData<List<Especialidad>> = _especialidades
-    private val _tiposConsultas = MutableLiveData<List<TipoConsulta>>()
-    val tiposConsultas: LiveData<List<TipoConsulta>> = _tiposConsultas
 
     private val _errores = MutableLiveData<Map<String, String>>()
     val errores: LiveData<Map<String, String>> = _errores
@@ -73,17 +73,25 @@ class RegistrarCitaViewModel @Inject constructor(
                 val pacienteJob = launch { obtenerPaciente(idPaciente) }
                 val catalogosJob = launch { cargarCatalogos() }
 
-                if (idConsulta != null) {
-                    val consultaJob = launch { obtenerConsulta(idConsulta) }
-                    consultaJob.join()
-                }
-
                 pacienteJob.join()
                 catalogosJob.join()
+
+                if (idConsulta != null) {
+                    obtenerConsulta(idConsulta)
+                } else {
+                    executeDetermineTipoConsulta(idPaciente)
+                }
 
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    private fun executeDetermineTipoConsulta(pacienteId: String) {
+        viewModelScope.launch {
+            val tipo: TipoConsulta = determineTipoConsulta(pacienteId)
+            _tipoConsulta.postValue(tipo)
         }
     }
 
@@ -130,7 +138,6 @@ class RegistrarCitaViewModel @Inject constructor(
     private fun cargarCatalogos() {
         cargarTiposActividades()
         cargarEspecialidades()
-        cargarTiposConsultas()
     }
 
     private fun cargarTiposActividades() {
@@ -145,10 +152,6 @@ class RegistrarCitaViewModel @Inject constructor(
             val lista = getEspecialidades()
             _especialidades.value = lista
         }
-    }
-
-    private fun cargarTiposConsultas() {
-        _tiposConsultas.value = TipoConsulta.entries
     }
 
     private fun validarConsulta(consulta: Consulta): Map<String, String> {

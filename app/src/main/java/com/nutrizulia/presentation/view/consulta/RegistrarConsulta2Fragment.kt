@@ -39,7 +39,6 @@ class RegistrarConsulta2Fragment : Fragment() {
         defaultViewModelProviderFactory
     }
     private lateinit var binding: FragmentRegistrarConsulta2Binding
-    private val args: RegistrarConsulta2FragmentArgs by navArgs()
     private var ultimaFechaSeleccionada: Long? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -293,13 +292,9 @@ class RegistrarConsulta2Fragment : Fragment() {
                 pesoPreEmbarazo = binding.tfPesoPreEmbarazo.editText?.text.toString().toDoubleOrNull()
             )
 
-            findNavController().navigate(
-                RegistrarConsulta2FragmentDirections.actionRegistrarConsulta2FragmentToRegistrarConsulta3Fragment(
-                    idPaciente = args.idPaciente,
-                    idConsulta = args.idConsulta,
-                    isEditable = args.isEditable
-                )
-            )
+//            findNavController().navigate(
+//                RegistrarConsulta2FragmentDirections.actionRegistrarConsulta2FragmentToRegistrarConsulta3Fragment()
+//            )
         }
 
         binding.btnLimpiar.setOnClickListener {

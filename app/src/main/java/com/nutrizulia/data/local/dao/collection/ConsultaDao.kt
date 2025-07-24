@@ -18,6 +18,8 @@ interface ConsultaDao {
     @Query("SELECT * FROM consultas WHERE paciente_id = :pacienteId AND estado = 'PENDIENTE' OR estado = 'REPROGRAMADA'")
     suspend fun findConsultaProgramadaByPacienteId(pacienteId: String): ConsultaEntity?
 
+    @Query("SELECT COUNT(id) FROM consultas WHERE paciente_id = :pacienteId")
+    suspend fun countConsultaByPacienteId(pacienteId: String): Int
     @Query("SELECT * FROM consultas WHERE id = :id")
     suspend fun findConsultaProgramadaById(id: String): ConsultaEntity?
 

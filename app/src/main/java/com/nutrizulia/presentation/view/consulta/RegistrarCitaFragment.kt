@@ -17,6 +17,7 @@ import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.nutrizulia.R
@@ -78,13 +79,6 @@ class RegistrarCitaFragment : Fragment() {
             toText = { it.nombre },
             onItemSelected = { na ->
                 especialidadSel = na
-            }
-        )
-
-        binding.dropdownTipoConsulta.bind(viewLifecycleOwner, viewModel.tiposConsultas,
-            toText = { it.displayValue },
-            onItemSelected = { na ->
-                tipoConsultaSel = na
             }
         )
 
@@ -237,7 +231,6 @@ class RegistrarCitaFragment : Fragment() {
         quitarErrores()
         binding.tfTipoActividad.editText?.text?.clear()
         binding.tfEspecialidad.editText?.text?.clear()
-        binding.tfTipoConsulta.editText?.text?.clear()
         binding.tfMotivoConsulta.editText?.text?.clear()
         binding.tfFechaCita.editText?.text?.clear()
         binding.tfHoraCita.editText?.text?.clear()
@@ -253,14 +246,19 @@ class RegistrarCitaFragment : Fragment() {
     }
 
     private fun deshabilitarCampos() {
-        binding.tfTipoActividad.isEnabled = false
-        binding.tfEspecialidad.isEnabled = false
-        binding.tfTipoConsulta.isEnabled = false
-        binding.tfMotivoConsulta.isEnabled = false
-        binding.tfFechaCita.isEnabled = false
-        binding.tfHoraCita.isEnabled = false
+
+        binding.tiMotivoConsulta.isEnabled = false
+        binding.tiFechaCita.isEnabled = false
+        binding.tiHoraCita.isEnabled = false
         binding.btnRegistrarCita.visibility = View.GONE
         binding.btnLimpiar.visibility = View.GONE
+        listOf(
+            binding.dropdownTipoActividad,
+            binding.dropdownEspecialidades
+        ).forEach {
+            it.isEnabled = false
+            (it.parent.parent as? TextInputLayout)?.endIconMode = TextInputLayout.END_ICON_NONE
+        }
     }
 
     private fun mostrarSelectorFecha(editText: TextInputEditText) {

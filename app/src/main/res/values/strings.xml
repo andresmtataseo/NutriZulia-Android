@@ -55,6 +55,7 @@
     <string name="numero_de_telefono">Número de teléfono</string>
     <string name="correo_electronico">Correo electrónico</string>
     <string name="limpiar">Limpiar</string>
+    <string name="restaurar">Restaurar</string>
     <string name="registrar">Registrar</string>
     <string name="agendar">Agendar</string>
     <string name="buscar_paciente">Buscar paciente</string>

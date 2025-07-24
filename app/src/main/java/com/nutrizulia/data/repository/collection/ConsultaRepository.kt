@@ -13,6 +13,10 @@ class ConsultaRepository @Inject constructor(
     suspend fun upsert(consulta: Consulta): Long {
         return consultaDao.upsert(consulta.toEntity())
     }
+    suspend fun countConsultaByPacienteId(pacienteId: String): Boolean {
+        val consultationCount: Int = consultaDao.countConsultaByPacienteId(pacienteId)
+        return consultationCount > 0
+    }
     suspend fun findConsultaProgramadaByPacienteId(idPaciente: String): Consulta? {
         return consultaDao.findConsultaProgramadaByPacienteId(idPaciente)?.toDomain()
     }

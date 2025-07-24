@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.view.consulta.RegistrarConsultaFragment">
+    tools:context=".presentation.view.consulta.InformacionGeneralFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -141,6 +141,25 @@
                     android:textStyle="normal|bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tfTipoConsulta"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    app:endIconMode="none"
+                    android:hint="Tipo de consulta">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropdownTipoConsulta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:enabled="false"
+                        tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tfTipoActividad"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
@@ -167,23 +186,6 @@
 
                     <AutoCompleteTextView
                         android:id="@+id/dropdownEspecialidades"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="none"
-                        tools:ignore="LabelFor,SpeakableTextPresentCheck" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tfTipoConsulta"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:hint="Tipo de consulta *">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/dropdownTipoConsulta"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none"

@@ -137,6 +137,25 @@
                 android:textStyle="normal|bold" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfTipoConsulta"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:endIconMode="none"
+                android:hint="Tipo de consulta *">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdownTipoConsulta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:enabled="false"
+                    tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tfTipoActividad"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
@@ -163,23 +182,6 @@
 
                 <AutoCompleteTextView
                     android:id="@+id/dropdownEspecialidades"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    tools:ignore="LabelFor,SpeakableTextPresentCheck" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tfTipoConsulta"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:hint="Tipo de consulta *">
-
-                <AutoCompleteTextView
-                    android:id="@+id/dropdownTipoConsulta"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -227,6 +229,7 @@
                 app:startIconDrawable="@drawable/ic_calendario">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiFechaCita"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"
@@ -244,6 +247,7 @@
                 app:startIconDrawable="@drawable/ic_reloj">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiHoraCita"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"
