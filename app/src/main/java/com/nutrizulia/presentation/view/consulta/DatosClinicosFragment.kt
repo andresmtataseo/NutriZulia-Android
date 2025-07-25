@@ -239,7 +239,7 @@ class DatosClinicosFragment : Fragment() {
             }
 
             // Crear y actualizar Detalle Vital
-            val detalleVital: DetalleVital = clinicalDataViewModel.createDetalleVital(
+            val detalleVital: DetalleVital? = clinicalDataViewModel.createDetalleVital(
                 idConsulta = consultaId,
                 existingId = sharedViewModel.detalleVital.value?.id,
                 frecuenciaCardiaca = binding.tfFrecuenciaCardiaca.editText?.text.toString().toIntOrNull(),
@@ -253,7 +253,7 @@ class DatosClinicosFragment : Fragment() {
             sharedViewModel.updateDetalleVital(detalleVital)
 
             // Crear y actualizar Detalle Antropométrico
-            val detalleAntropometrico: DetalleAntropometrico = clinicalDataViewModel.createDetalleAntropometrico(
+            val detalleAntropometrico: DetalleAntropometrico? = clinicalDataViewModel.createDetalleAntropometrico(
                 idConsulta = consultaId,
                 existingId = sharedViewModel.detalleAntropometrico.value?.id,
                 peso = binding.tfPeso.editText?.text.toString().toDoubleOrNull(),
@@ -269,7 +269,7 @@ class DatosClinicosFragment : Fragment() {
             sharedViewModel.updateDetalleAntropometrico(detalleAntropometrico)
 
             // Crear y actualizar Detalle Metabólico
-            val detalleMetabolico: DetalleMetabolico = clinicalDataViewModel.createDetalleMetabolico(
+            val detalleMetabolico: DetalleMetabolico? = clinicalDataViewModel.createDetalleMetabolico(
                 idConsulta = consultaId,
                 existingId = sharedViewModel.detalleMetabolico.value?.id,
                 glicemiaBasal = binding.tfGlicemiaBasal.editText?.text.toString().toIntOrNull(),
@@ -294,7 +294,7 @@ class DatosClinicosFragment : Fragment() {
             } catch (e: DateTimeParseException) {
                 null
             }
-            val detalleObstetricia: DetalleObstetricia = clinicalDataViewModel.createDetalleObstetricia(
+            val detalleObstetricia: DetalleObstetricia? = clinicalDataViewModel.createDetalleObstetricia(
                 idConsulta = consultaId,
                 existingId = sharedViewModel.detalleObstetricia.value?.id,
                 estaEmbarazada = estaEmbarazada,

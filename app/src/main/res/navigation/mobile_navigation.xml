@@ -337,7 +337,7 @@
 
         <fragment
             android:id="@+id/registrarConsulta3Fragment"
-            android:name="com.nutrizulia.presentation.view.consulta.RegistrarConsulta3Fragment"
+            android:name="com.nutrizulia.presentation.view.consulta.EvaluacionesFinalesFragment"
             android:label="Evaluacion Finales"
             tools:layout="@layout/fragment_registrar_consulta3"/>
 

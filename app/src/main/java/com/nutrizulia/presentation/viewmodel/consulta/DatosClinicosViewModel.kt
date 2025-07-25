@@ -65,7 +65,13 @@ class DatosClinicosViewModel @Inject constructor(
         temperatura: Double?,
         saturacionOxigeno: Int?,
         pulso: Int?
-    ): DetalleVital {
+    ): DetalleVital? {
+        val hasNoData: Boolean = frecuenciaCardiaca == null && presionSistolica == null &&
+                presionDiastolica == null && frecuenciaRespiratoria == null &&
+                temperatura == null && saturacionOxigeno == null && pulso == null
+
+        if (hasNoData) return null
+
         return DetalleVital(
             id = existingId ?: Utils.generarUUID(),
             consultaId = idConsulta,
@@ -92,7 +98,14 @@ class DatosClinicosViewModel @Inject constructor(
         perimetroCefalico: Double?,
         pliegueTricipital: Double?,
         pliegueSubescapular: Double?
-    ): DetalleAntropometrico {
+    ): DetalleAntropometrico? {
+        val hasNoData: Boolean = peso == null && altura == null && talla == null &&
+                circunferenciaBraquial == null && circunferenciaCadera == null &&
+                circunferenciaCintura == null && perimetroCefalico == null &&
+                pliegueTricipital == null && pliegueSubescapular == null
+
+        if (hasNoData) return null
+
         return DetalleAntropometrico(
             id = existingId ?: Utils.generarUUID(),
             consultaId = idConsulta,
@@ -120,7 +133,14 @@ class DatosClinicosViewModel @Inject constructor(
         colesterolTotal: Int?,
         colesterolHdl: Int?,
         colesterolLdl: Int?
-    ): DetalleMetabolico {
+    ): DetalleMetabolico? {
+        val hasNoData: Boolean = glicemiaBasal == null && glicemiaPostprandial == null &&
+                glicemiaAleatoria == null && hemoglobinaGlicosilada == null &&
+                trigliceridos == null && colesterolTotal == null &&
+                colesterolHdl == null && colesterolLdl == null
+
+        if (hasNoData) return null
+
         return DetalleMetabolico(
             id = existingId ?: Utils.generarUUID(),
             consultaId = idConsulta,
@@ -141,7 +161,11 @@ class DatosClinicosViewModel @Inject constructor(
         existingId: String?,
         usaBiberon: Boolean?,
         tipoLactancia: TipoLactancia?
-    ): DetallePediatrico {
+    ): DetallePediatrico? {
+        val hasNoData: Boolean = usaBiberon == null && tipoLactancia == null
+
+        if (hasNoData) return null
+
         return DetallePediatrico(
             id = existingId ?: Utils.generarUUID(),
             consultaId = idConsulta,
@@ -158,7 +182,15 @@ class DatosClinicosViewModel @Inject constructor(
         fechaUltimaMenstruacion: LocalDate?,
         semanasGestacion: Int?,
         pesoPreEmbarazo: Double?
-    ): DetalleObstetricia {
+    ): DetalleObstetricia? {
+        // Aquí consideramos que si el campo "estaEmbarazada" tiene un valor (incluso `false`),
+        // ya es un dato válido. Si es nulo, verificamos el resto.
+        if (estaEmbarazada == null  && fechaUltimaMenstruacion == null &&
+            semanasGestacion == null && pesoPreEmbarazo == null
+        ) {
+            return null
+        }
+
         return DetalleObstetricia(
             id = existingId ?: Utils.generarUUID(),
             consultaId = idConsulta,
@@ -169,5 +201,4 @@ class DatosClinicosViewModel @Inject constructor(
             updatedAt = LocalDateTime.now()
         )
     }
-
 }
