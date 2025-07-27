@@ -4,32 +4,33 @@ import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.os.Bundle
 import com.nutrizulia.R
+import com.nutrizulia.util.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import com.nutrizulia.util.TokenManager
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
-    @Inject lateinit var tokenManager: TokenManager
+    @Inject
+    lateinit var tokenManager: TokenManager
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?): Unit {
         super.onCreate(savedInstanceState)
 
-        val token = tokenManager.getToken()
-
+        // 1. La verificación del token se mantiene igual.
+        val token: String? = tokenManager.getToken()
         if (!token.isNullOrEmpty()) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            navigateToMain()
             return
         }
 
+        // 2. Simplemente se infla el layout que contiene el NavHost.
         setContentView(R.layout.activity_login)
+    }
 
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, LoginFragment())
-                .commitNow()
-        }
+    private fun navigateToMain(): Unit {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }

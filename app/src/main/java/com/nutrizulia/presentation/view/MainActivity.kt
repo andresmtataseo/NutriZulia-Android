@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.cerrarSesion -> {
                     mostrarDialog(
                         context = this,
-                        title = "Confirmar cierre de sesión",
+                        title = "Cerrar sesión",
                         message = "¿Estás seguro que quieres cerrar sesión?",
                         positiveButtonText = "Cerrar sesión",
                         onPositiveClick = {
@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.salir -> {
                     mostrarDialog(
                         context = this,
-                        title = "Confirmar salida",
+                        title = "Salir",
                         message = "¿Estás seguro que quieres salir de la aplicación?",
                         positiveButtonText = "Salir",
                         onPositiveClick = {

@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.view
+package com.nutrizulia.presentation.view.paciente
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentPacientesBinding
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.presentation.adapter.PacienteAdapter

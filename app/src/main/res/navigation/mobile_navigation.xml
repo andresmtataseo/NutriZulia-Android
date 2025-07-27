@@ -80,7 +80,7 @@
     </fragment>
     <fragment
         android:id="@+id/pacientesFragment"
-        android:name="com.nutrizulia.presentation.view.PacientesFragment"
+        android:name="com.nutrizulia.presentation.view.paciente.PacientesFragment"
         android:label="Pacientes"
         tools:layout="@layout/fragment_pacientes">
         <action
@@ -116,7 +116,7 @@
         tools:layout="@layout/fragment_ayuda" />
     <fragment
         android:id="@+id/registrarPacienteFragment"
-        android:name="com.nutrizulia.presentation.view.RegistrarPacienteFragment"
+        android:name="com.nutrizulia.presentation.view.paciente.RegistrarPacienteFragment"
         android:label="Datos del Paciente"
         tools:layout="@layout/fragment_registrar_paciente">
         <argument
@@ -183,7 +183,7 @@
     </fragment>
     <fragment
         android:id="@+id/accionesPacienteFragment"
-        android:name="com.nutrizulia.presentation.view.AccionesPacienteFragment"
+        android:name="com.nutrizulia.presentation.view.paciente.AccionesPacienteFragment"
         android:label="Gestionar Paciente"
         tools:layout="@layout/fragment_acciones_paciente">
         <argument
@@ -206,7 +206,7 @@
     </fragment>
     <fragment
         android:id="@+id/historiaPacienteFragment"
-        android:name="com.nutrizulia.presentation.view.HistoriaPacienteFragment"
+        android:name="com.nutrizulia.presentation.view.paciente.HistoriaPacienteFragment"
         android:label="Historia Medica"
         tools:layout="@layout/fragment_historia_paciente">
         <argument

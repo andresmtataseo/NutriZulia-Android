@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
+import androidx.navigation.fragment.findNavController
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentLoginBinding
 import com.nutrizulia.presentation.viewmodel.LoginViewModel
@@ -27,6 +28,14 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.btnOlvidasteContrasena.setOnClickListener {
+            findNavController().navigate(R.id.action_loginFragment_to_recuperarClaveFragment)
+        }
+
+        binding.btnAyuda.setOnClickListener {
+            findNavController().navigate(R.id.action_loginFragment_to_ayudaFragment2)
+        }
 
         // Seleccionar primer ítem del array como valor por defecto
         val tipoCedulaArray = resources.getStringArray(R.array.tiposCedulas)
@@ -98,5 +107,6 @@ class LoginFragment : Fragment() {
             val clave = binding.tfContrasena.editText?.text.toString()
             viewModel.logearUsuario(cedulaCompleta, clave)
         }
+
     }
 }

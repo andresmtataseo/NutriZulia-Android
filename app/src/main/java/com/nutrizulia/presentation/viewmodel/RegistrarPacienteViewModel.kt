@@ -1,6 +1,5 @@
 package com.nutrizulia.presentation.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,7 +10,6 @@ import com.nutrizulia.domain.model.catalog.Etnia
 import com.nutrizulia.domain.model.catalog.Municipio
 import com.nutrizulia.domain.model.catalog.Nacionalidad
 import com.nutrizulia.domain.model.catalog.Parroquia
-import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.domain.usecase.catalog.GetEstadoById
 import com.nutrizulia.domain.usecase.catalog.GetEstados
@@ -26,16 +24,20 @@ import com.nutrizulia.domain.usecase.catalog.GetParroquias
 import com.nutrizulia.domain.usecase.collection.GetPacienteByCedula
 import com.nutrizulia.domain.usecase.collection.GetPacienteById
 import com.nutrizulia.domain.usecase.collection.SavePaciente
+import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
 import com.nutrizulia.util.CheckData.esCedulaValida
 import com.nutrizulia.util.CheckData.esCorreoValido
 import com.nutrizulia.util.CheckData.esNumeroTelefonoValido
 import com.nutrizulia.util.FormatData.formatearCedula
 import com.nutrizulia.util.FormatData.formatearTelefono
-import com.nutrizulia.util.SessionManager
+import com.nutrizulia.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeParseException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,35 +45,24 @@ class RegistrarPacienteViewModel @Inject constructor(
     private val savePaciente: SavePaciente,
     private val getPacienteByCedula: GetPacienteByCedula,
     private val getPacienteById: GetPacienteById,
-    private val getEtnia: GetEtniaById,
-    private val getNacionalidad: GetNacionalidadById,
-    private val getEstado: GetEstadoById,
-    private val getMunicipio: GetMunicipioById,
-    private val getParroquia: GetParroquiaById,
+    private val getEtniaById: GetEtniaById,
+    private val getNacionalidadById: GetNacionalidadById,
+    private val getEstadoById: GetEstadoById,
+    private val getMunicipioById: GetMunicipioById,
+    private val getParroquiaById: GetParroquiaById,
     private val getEtnias: GetEtnias,
     private val getNacionalidades: GetNacionalidades,
     private val getEstados: GetEstados,
     private val getMunicipios: GetMunicipios,
     private val getParroquias: GetParroquias,
-    private val sessionManager: SessionManager
+    private val getCurrentInstitutionId: GetCurrentInstitutionIdUseCase
 ) : ViewModel() {
 
+    // --- LiveData sin cambios ---
     private val _paciente = MutableLiveData<Paciente>()
     val paciente: LiveData<Paciente> = _paciente
     private val _idUsuarioInstitucion = MutableLiveData<Int>()
     val idUsuarioInstitucion: LiveData<Int> get() = _idUsuarioInstitucion
-
-    private val _etnia = MutableLiveData<Etnia>()
-    val etnia: LiveData<Etnia> get() = _etnia
-    private val _nacionalidad = MutableLiveData<Nacionalidad>()
-    val nacionalidad: LiveData<Nacionalidad> get() = _nacionalidad
-    private val _estado = MutableLiveData<Estado>()
-    val estado: LiveData<Estado> get() = _estado
-    private val _municipio = MutableLiveData<Municipio>()
-    val municipio: LiveData<Municipio> get() = _municipio
-    private val _parroquia = MutableLiveData<Parroquia>()
-    val parroquia: LiveData<Parroquia> get() = _parroquia
-
     private val _etnias = MutableLiveData<List<Etnia>>()
     val etnias: LiveData<List<Etnia>> get() = _etnias
     private val _nacionalidades = MutableLiveData<List<Nacionalidad>>()
@@ -82,7 +73,6 @@ class RegistrarPacienteViewModel @Inject constructor(
     val municipios: LiveData<List<Municipio>> get() = _municipios
     private val _parroquias = MutableLiveData<List<Parroquia>>()
     val parroquias: LiveData<List<Parroquia>> get() = _parroquias
-
     private val _errores = MutableLiveData<Map<String, String>>()
     val errores: LiveData<Map<String, String>> = _errores
     private val _mensaje = MutableLiveData<String>()
@@ -91,18 +81,26 @@ class RegistrarPacienteViewModel @Inject constructor(
     val isLoading: LiveData<Boolean> = _isLoading
     private val _salir = MutableLiveData<Boolean>()
     val salir: LiveData<Boolean> = _salir
+    private val _selectedEtnia = MutableLiveData<Etnia?>()
+    val selectedEtnia: LiveData<Etnia?> = _selectedEtnia
+    private val _selectedNacionalidad = MutableLiveData<Nacionalidad?>()
+    val selectedNacionalidad: LiveData<Nacionalidad?> = _selectedNacionalidad
+    private val _selectedEstado = MutableLiveData<Estado?>()
+    val selectedEstado: LiveData<Estado?> = _selectedEstado
+    private val _selectedMunicipio = MutableLiveData<Municipio?>()
+    val selectedMunicipio: LiveData<Municipio?> = _selectedMunicipio
+    private val _selectedParroquia = MutableLiveData<Parroquia?>()
+    val selectedParroquia: LiveData<Parroquia?> = _selectedParroquia
 
-    fun onCreate(idPaciente: String?, isEditable: Boolean) {
-        _isLoading.value = true
+    fun onCreate(pacienteId: String?, isEditable: Boolean) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                if (isEditable) {
-                    val catalogosJob = launch { cargarCatalogos() }
-                    catalogosJob.join()
-                }
-                if (idPaciente != null && idPaciente.isNotEmpty() && idPaciente.isNotBlank()) {
-                    val pacienteJob = launch { obtenerPaciente(idPaciente) }
-                    pacienteJob.join()
+                coroutineScope {
+                    val catalogsJob = if (isEditable) async { cargarCatalogos() } else null
+                    val patientJob = if (!pacienteId.isNullOrBlank()) async { obtenerPaciente(pacienteId) } else null
+                    catalogsJob?.await()
+                    patientJob?.await()
                 }
             } finally {
                 _isLoading.value = false
@@ -110,168 +108,149 @@ class RegistrarPacienteViewModel @Inject constructor(
         }
     }
 
-    fun obtenerPaciente(idPaciente: String) {
-        viewModelScope.launch {
-            _isLoading.postValue(true)
+    private suspend fun obtenerPaciente(idPaciente: String) {
+        val institutionId = getCurrentInstitutionId()
+        if (institutionId == null) {
+            _mensaje.postValue("Error: No se ha seleccionado una institución.")
+            _salir.postValue(true)
+            return
+        }
+        _idUsuarioInstitucion.postValue(institutionId)
 
-            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
-                _idUsuarioInstitucion.value = institutionId
-            } ?: run {
-                _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
-                _isLoading.value = false
-                _salir.value = true
-                return@launch
-            }
+        val loadedPaciente = getPacienteById(institutionId, idPaciente)
+        if (loadedPaciente == null) {
+            _mensaje.postValue("No se encontró el paciente.")
+            _salir.postValue(true)
+            return
+        }
+        _paciente.postValue(loadedPaciente)
 
-            val paciente = getPacienteById(idUsuarioInstitucion.value ?: 0, idPaciente)
-            if (paciente == null) {
-                _mensaje.postValue("No se encontró el paciente")
-                _salir.postValue(true)
-                return@launch
-            }
-            _paciente.value = paciente
-            _etnia.value = getEtnia(paciente.etniaId)
-            _nacionalidad.value = getNacionalidad(paciente.nacionalidadId)
-            _parroquia.value = getParroquia(paciente.parroquiaId)
-            _municipio.value = getMunicipio(parroquia.value?.municipioId!!)
-            _estado.value = getEstado(municipio.value?.estadoId!!)
+        val parroquia = getParroquiaById(loadedPaciente.parroquiaId)
+        val municipio = parroquia?.let { getMunicipioById(it.municipioId) }
+        val estado = municipio?.let { getEstadoById(it.estadoId) }
 
-            _isLoading.postValue(false)
+        _selectedEtnia.postValue(getEtniaById(loadedPaciente.etniaId))
+        _selectedNacionalidad.postValue(getNacionalidadById(loadedPaciente.nacionalidadId))
+        _selectedEstado.postValue(estado)
+        _selectedMunicipio.postValue(municipio)
+        _selectedParroquia.postValue(parroquia)
+
+        if (estado != null) _municipios.postValue(getMunicipios(estado.id))
+        if (municipio != null) _parroquias.postValue(getParroquias(municipio.id))
+    }
+
+    private suspend fun cargarCatalogos() {
+        coroutineScope {
+            val etniasJob = async { getEtnias() }
+            val nacionalidadesJob = async { getNacionalidades() }
+            val estadosJob = async { getEstados() }
+
+            _etnias.postValue(etniasJob.await())
+            _nacionalidades.postValue(nacionalidadesJob.await())
+            _estados.postValue(estadosJob.await())
         }
     }
 
-    private fun cargarCatalogos() {
-        cargarEtnias()
-        cargarNacionalidades()
-        cargarEstados()
-    }
+    fun onEtniaSelected(etnia: Etnia) { _selectedEtnia.value = etnia }
+    fun onNacionalidadSelected(nacionalidad: Nacionalidad) { _selectedNacionalidad.value = nacionalidad }
+    fun onParroquiaSelected(parroquia: Parroquia) { _selectedParroquia.value = parroquia }
 
-    private fun cargarEtnias() {
-        viewModelScope.launch {
-            val lista = getEtnias()
-            _etnias.value = lista
+    fun onTipoCedulaSelected(tipoCedula: String) {
+        if (tipoCedula == "V") {
+            val venezuela = _nacionalidades.value?.find { it.id == 239 }
+            _selectedNacionalidad.value = venezuela
         }
     }
 
-    private fun cargarNacionalidades() {
-        viewModelScope.launch {
-            val lista = getNacionalidades()
-            _nacionalidades.value = lista
+    fun onEstadoSelected(estado: Estado, isInitialLoad: Boolean = false) {
+        _selectedEstado.value = estado
+        if (!isInitialLoad) {
+            _selectedMunicipio.value = null
+            _selectedParroquia.value = null
         }
+        viewModelScope.launch { _municipios.value = getMunicipios(estado.id) }
     }
 
-    private fun cargarEstados() {
-        viewModelScope.launch {
-            val lista = getEstados()
-            _estados.value = lista
+    fun onMunicipioSelected(municipio: Municipio, isInitialLoad: Boolean = false) {
+        _selectedMunicipio.value = municipio
+        if (!isInitialLoad) {
+            _selectedParroquia.value = null
         }
+        viewModelScope.launch { _parroquias.value = getParroquias(municipio.id) }
     }
 
-    fun cargarMunicipios(idEstado: Int) {
-        viewModelScope.launch {
-            val lista = getMunicipios(idEstado)
-            _municipios.value = lista
-        }
-    }
-
-    fun cargarParroquias(idMunicipio: Int) {
-        viewModelScope.launch {
-            val lista = getParroquias(idMunicipio)
-            _parroquias.value = lista
-        }
-    }
-
-    fun guardarPaciente(paciente: Paciente) {
-        val erroresMap = validarDatosPaciente(paciente)
+    fun onSavePatientClicked(id: String?, tipoCedula: String, cedula: String, nombres: String, apellidos: String, fechaNacimientoStr: String, genero: String, domicilio: String, prefijo: String, telefono: String, correo: String) {
+        _errores.value = emptyMap()
+        val fechaNacimiento: LocalDate? = try { LocalDate.parse(fechaNacimientoStr) } catch (e: DateTimeParseException) { null }
+        val pacienteToSave = Paciente(
+            id = id ?: Utils.generarUUID(),
+            usuarioInstitucionId = 0,
+            cedula = "$tipoCedula-$cedula",
+            nombres = nombres,
+            apellidos = apellidos,
+            fechaNacimiento = fechaNacimiento ?: LocalDate.MIN,
+            genero = genero,
+            etniaId = _selectedEtnia.value?.id ?: 0,
+            nacionalidadId = _selectedNacionalidad.value?.id ?: 0,
+            parroquiaId = _selectedParroquia.value?.id ?: 0,
+            domicilio = domicilio,
+            telefono = if (telefono.isNotBlank()) "$prefijo$telefono" else "",
+            correo = correo,
+            updatedAt = LocalDateTime.now()
+        )
+        val erroresMap = validarDatosPaciente(pacienteToSave, fechaNacimiento == null)
         if (erroresMap.isNotEmpty()) {
+            _errores.value = erroresMap
             _mensaje.value = "Corrige los campos en rojo."
             return
         }
-
-        formatearDatosPaciente(paciente)
+        formatearDatosPaciente(pacienteToSave)
 
         viewModelScope.launch {
             _isLoading.value = true
-
-            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
-                val id = institutionId
-                paciente.usuarioInstitucionId = id
-            } ?: run {
-                _mensaje.postValue("Error al guardar el paciente. No se ha seleccionado una institución.")
-                _salir.postValue(false)
+            val institutionId = getCurrentInstitutionId() ?: run {
+                _mensaje.value = "Error al guardar: No se ha seleccionado una institución."
+                _isLoading.value = false
                 return@launch
             }
+            pacienteToSave.usuarioInstitucionId = institutionId
 
-            val exitsCedula = getPacienteByCedula(paciente.usuarioInstitucionId, paciente.cedula)
-            if (exitsCedula != null && exitsCedula.id != paciente.id) {
-                _mensaje.postValue("Ya existe un paciente con la cédula ${paciente.cedula}.")
-                _salir.postValue(false)
+            val cedulaExistente = getPacienteByCedula(institutionId, pacienteToSave.cedula)
+            if (cedulaExistente != null && cedulaExistente.id != pacienteToSave.id) {
+                _mensaje.value = "Ya existe un paciente con la cédula ${pacienteToSave.cedula}."
+                _isLoading.value = false
                 return@launch
             }
-
             try {
-                savePaciente(paciente)
-                _mensaje.postValue("Paciente guardado correctamente.")
-                _salir.postValue(true)
-
+                savePaciente(pacienteToSave)
+                _mensaje.value = "Paciente guardado correctamente."
+                _salir.value = true
             } catch (e: DomainException) {
-                _mensaje.postValue(e.message)
+                _mensaje.value = e.message
             } catch (e: Exception) {
-                _mensaje.postValue("Ocurrió un error inesperado: ${e.message}")
+                _mensaje.value = "Ocurrió un error inesperado: ${e.message}"
             } finally {
-                _isLoading.postValue(false)
+                _isLoading.value = false
             }
-
         }
     }
 
-    private fun validarDatosPaciente(paciente: Paciente): Map<String, String> {
-        val erroresActuales = _errores.value?.toMutableMap() ?: mutableMapOf()
-        erroresActuales.clear()
-
-        if (paciente.cedula.isBlank()) {
+    private fun validarDatosPaciente(paciente: Paciente, isFechaInvalida: Boolean): Map<String, String> {
+        val erroresActuales = mutableMapOf<String, String>()
+        if (paciente.cedula.isBlank() || paciente.cedula == "-") {
             erroresActuales["cedula"] = "La cédula es obligatoria."
         } else if (!esCedulaValida(paciente.cedula)) {
             erroresActuales["cedula"] = "La cédula no es válida."
         }
-
-        if (paciente.nombres.isBlank()) {
-            erroresActuales["nombres"] = "El nombre es obligatorio."
-        }
-
-        if (paciente.apellidos.isBlank()) {
-            erroresActuales["apellidos"] = "El apellido es obligatorio."
-        }
-
-        if (paciente.fechaNacimiento.isAfter(LocalDate.now())) {
-            erroresActuales["fechaNacimiento"] = "La fecha no puede ser futura."
-        }
-
-        if (paciente.genero.isBlank()) {
-            erroresActuales["genero"] = "El género es obligatorio."
-        }
-
-        if (paciente.etniaId == 0) {
-            erroresActuales["etnia"] = "La etnia es obligatoria."
-        }
-
-        if (paciente.nacionalidadId == 0) {
-            erroresActuales["nacionalidad"] = "La nacionalidad es obligatoria."
-        }
-
-        if (paciente.parroquiaId == 0) {
-            erroresActuales["parroquia"] = "La parroquia es obligatoria."
-        }
-
-        if (!paciente.telefono.isNullOrBlank() && !esNumeroTelefonoValido(paciente.telefono)) {
-            erroresActuales["telefono"] = "El teléfono no es válido."
-        }
-
-        if (!paciente.correo.isNullOrBlank() && !esCorreoValido(paciente.correo)) {
-            erroresActuales["correo"] = "El correo no es válido."
-        }
-
-        _errores.value = erroresActuales
+        if (paciente.nombres.isBlank()) erroresActuales["nombres"] = "El nombre es obligatorio."
+        if (paciente.apellidos.isBlank()) erroresActuales["apellidos"] = "El apellido es obligatorio."
+        if (isFechaInvalida) erroresActuales["fechaNacimiento"] = "La fecha no es válida o está vacía."
+        if (paciente.genero.isBlank()) erroresActuales["genero"] = "El género es obligatorio."
+        if (paciente.etniaId == 0) erroresActuales["etnia"] = "La etnia es obligatoria."
+        if (paciente.nacionalidadId == 0) erroresActuales["nacionalidad"] = "La nacionalidad es obligatoria."
+        if (paciente.parroquiaId == 0) erroresActuales["parroquia"] = "La parroquia es obligatoria."
+        if (!paciente.telefono.isNullOrBlank() && !esNumeroTelefonoValido(paciente.telefono)) erroresActuales["telefono"] = "El teléfono no es válido."
+        if (!paciente.correo.isNullOrBlank() && !esCorreoValido(paciente.correo)) erroresActuales["correo"] = "El correo no es válido."
         return erroresActuales
     }
 
