@@ -1,7 +1,5 @@
 package com.nutrizulia.di
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
@@ -13,6 +11,7 @@ import com.nutrizulia.data.remote.api.auth.IAuthService
 import com.nutrizulia.data.remote.api.catalog.ICatalogService
 import com.nutrizulia.data.remote.api.collection.ICollectionService
 import com.nutrizulia.data.remote.api.user.IUserService
+import com.nutrizulia.util.ApiConstants.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,9 +30,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    const val BASE_URL = "http://192.168.1.100:8080/"
-
-    @RequiresApi(Build.VERSION_CODES.O)
     @Singleton
     @Provides
     fun provideGson(): Gson {
