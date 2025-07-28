@@ -9,9 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-//import com.nutrizulia.presentation.viewmodel.AccionesPacienteViewModel
+//import com.nutrizulia.presentation.viewmodel.paciente.AccionesPacienteViewModel
 import com.nutrizulia.databinding.FragmentAccionesPacienteBinding
-import com.nutrizulia.presentation.viewmodel.AccionesPacienteViewModel
+import com.nutrizulia.presentation.viewmodel.paciente.AccionesPacienteViewModel
 import com.nutrizulia.util.Utils.calcularEdadDetallada
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint

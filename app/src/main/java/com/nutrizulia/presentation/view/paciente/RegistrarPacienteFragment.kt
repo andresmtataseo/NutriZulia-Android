@@ -22,7 +22,7 @@ import com.nutrizulia.domain.model.catalog.Etnia
 import com.nutrizulia.domain.model.catalog.Municipio
 import com.nutrizulia.domain.model.catalog.Nacionalidad
 import com.nutrizulia.domain.model.catalog.Parroquia
-import com.nutrizulia.presentation.viewmodel.RegistrarPacienteViewModel
+import com.nutrizulia.presentation.viewmodel.paciente.RegistrarPacienteViewModel
 import com.nutrizulia.util.Utils.mostrarDialog
 import com.nutrizulia.util.Utils.mostrarErrorEnCampo
 import com.nutrizulia.util.Utils.mostrarSnackbar
@@ -50,7 +50,6 @@ class RegistrarPacienteFragment : Fragment() {
         viewModel.onCreate(args.pacienteId, args.isEditable)
         setupObservers()
         setupListeners()
-//        setupFragmentResultListener()
 
         if (!args.isEditable) {
             deshabilitarCampos()
@@ -348,20 +347,8 @@ class RegistrarPacienteFragment : Fragment() {
      // Dialog representantes
 
     private fun showRepresentativeDialog() {
-        val representativeDialog = RepresentantesFragment()
+        val representativeDialog = SeleccionarRepresentanteFragment()
         representativeDialog.show(parentFragmentManager, "RepresentativeSelectionDialog")
     }
 
-//    private fun setupFragmentResultListener() {
-//        parentFragmentManager.setFragmentResultListener(
-//            RepresentativeSelectionDialogFragment.REQUEST_KEY,
-//            viewLifecycleOwner
-//        ) { requestKey, bundle ->
-//            val representativeId = bundle.getString(RepresentativeSelectionDialogFragment.RESULT_KEY)
-//            if (representativeId != null) {
-//                // Le dices al ViewModel que cargue y seleccione el representante por su ID
-//                viewModel.onRepresentativeSelectedById(representativeId)
-//            }
-//        }
-//    }
 }

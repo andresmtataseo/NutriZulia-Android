@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.databinding.FragmentSeleccionarPacienteCitaBinding
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.presentation.adapter.PacienteAdapter
-import com.nutrizulia.presentation.viewmodel.SeleccionarPacienteCitaViewModel
+import com.nutrizulia.presentation.viewmodel.consulta.SeleccionarPacienteCitaViewModel
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.format.DateTimeFormatter

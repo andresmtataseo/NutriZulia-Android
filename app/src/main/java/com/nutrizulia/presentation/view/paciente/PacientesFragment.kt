@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.databinding.FragmentPacientesBinding
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.presentation.adapter.PacienteAdapter
-import com.nutrizulia.presentation.viewmodel.PacientesViewModel
+import com.nutrizulia.presentation.viewmodel.paciente.PacientesViewModel
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 

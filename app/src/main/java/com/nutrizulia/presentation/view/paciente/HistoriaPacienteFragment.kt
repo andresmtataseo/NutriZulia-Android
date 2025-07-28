@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.nutrizulia.R
-import com.nutrizulia.presentation.viewmodel.HistoriaPacienteViewModel
+import com.nutrizulia.presentation.viewmodel.paciente.HistoriaPacienteViewModel
 
 class HistoriaPacienteFragment : Fragment() {
 

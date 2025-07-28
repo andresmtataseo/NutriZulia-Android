@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.viewmodel
+package com.nutrizulia.presentation.viewmodel.paciente
 
 import androidx.lifecycle.ViewModel
 

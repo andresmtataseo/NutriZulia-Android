@@ -6,18 +6,18 @@ import java.time.LocalDateTime
 
 data class Representante(
     val id: String,
-    val usuarioInstitucionId: Int,
-    val cedula: String,
-    val nombres: String,
-    val apellidos: String,
+    var usuarioInstitucionId: Int,
+    var cedula: String,
+    var nombres: String,
+    var apellidos: String,
     val fechaNacimiento: LocalDate,
     val genero: String,
     val etniaId: Int,
     val nacionalidadId: Int,
     val parroquiaId: Int,
     val domicilio: String,
-    val telefono: String?,
-    val correo: String?,
+    var telefono: String?,
+    var correo: String?,
     val updatedAt: LocalDateTime
 )
 

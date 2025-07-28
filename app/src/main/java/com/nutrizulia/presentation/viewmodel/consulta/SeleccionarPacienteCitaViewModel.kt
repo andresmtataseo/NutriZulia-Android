@@ -1,32 +1,26 @@
-package com.nutrizulia.presentation.viewmodel
+package com.nutrizulia.presentation.viewmodel.consulta
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.domain.model.collection.Paciente
+import com.nutrizulia.domain.usecase.collection.GetConsultaProgramadaByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetPacientes
 import com.nutrizulia.domain.usecase.collection.GetPacientesByFiltro
+import com.nutrizulia.util.Event
 import com.nutrizulia.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PacientesViewModel @Inject constructor(
-    private val getPacientesByFiltro: GetPacientesByFiltro,
+class SeleccionarPacienteCitaViewModel @Inject constructor(
     private val getPacientes: GetPacientes,
+    private val getPacientesByFiltro: GetPacientesByFiltro,
+    private val getConsultaProgramadaByPacienteId: GetConsultaProgramadaByPacienteId,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -35,6 +29,12 @@ class PacientesViewModel @Inject constructor(
 
     private val _pacientesFiltrados = MutableLiveData<List<Paciente>>()
     val pacientesFiltrados: LiveData<List<Paciente>> get() = _pacientesFiltrados
+
+    private val _consultaProgramada = MutableLiveData<Event<Consulta>>()
+    val consultaProgramada: LiveData<Event<Consulta>> get() = _consultaProgramada
+
+    private val _eventoNavegacion = MutableLiveData<Event<Pair<String, String?>>>()
+    val eventoNavegacion: LiveData<Event<Pair<String, String?>>> get() = _eventoNavegacion
 
     private val _filtro = MutableLiveData<String>()
     val filtro: LiveData<String> get() = _filtro
@@ -54,7 +54,6 @@ class PacientesViewModel @Inject constructor(
 
     fun obtenerPacientes() {
         viewModelScope.launch {
-            _isLoading.value = true
 
             sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
                 _idUsuarioInstitucion.value = institutionId
@@ -62,6 +61,7 @@ class PacientesViewModel @Inject constructor(
                 _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
             }
 
+            _isLoading.value = true
             val result = getPacientes(idUsuarioInstitucion.value ?: 0)
             if (result.isNotEmpty()) {
                 _pacientes.value = result
@@ -73,13 +73,6 @@ class PacientesViewModel @Inject constructor(
     fun buscarPacientes(query: String) {
         viewModelScope.launch {
             _isLoading.value = true
-
-            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
-                _idUsuarioInstitucion.value = institutionId
-            } ?: run {
-                _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
-            }
-
             _filtro.value = query
             val result = getPacientesByFiltro(idUsuarioInstitucion.value ?: 0, filtro.value ?: "")
             if (result.isNotEmpty()) {
@@ -88,6 +81,24 @@ class PacientesViewModel @Inject constructor(
                 _mensaje.value = "No se encontraron pacientes."
             }
             _isLoading.value = false
+        }
+    }
+
+
+
+    fun verificarCita(paciente: Paciente) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val citaExistente = getConsultaProgramadaByPacienteId(paciente.id)
+
+            if (citaExistente != null) {
+                // Si SÍ hay cita, envuelve la consulta en un Event
+                _consultaProgramada.value = Event(citaExistente)
+            } else {
+                // Si NO hay cita, envuelve los datos de navegación en un Event
+                _eventoNavegacion.value = Event(Pair(paciente.id, null))
             }
+            _isLoading.value = false
+        }
     }
 }

@@ -118,4 +118,5 @@
     <string name="guardar">Guardar</string>
     <string name="siguiente">Siguiente</string>
     <string name="buscar_representante">Buscar representante</string>
+    <string name="menu_representantes">Representantes</string>
 </resources>
