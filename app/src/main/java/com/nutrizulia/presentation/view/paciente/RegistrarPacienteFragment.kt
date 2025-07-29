@@ -83,6 +83,8 @@ class RegistrarPacienteFragment : Fragment() {
             quitarErrores()
             errores.forEach { (key, message) ->
                 when (key) {
+                    "esCedulado" -> mostrarErrorEnCampo(binding.tfEsCedulado, message)
+                    "tipoCedula" -> mostrarErrorEnCampo(binding.tfTipoCedula, message)
                     "cedula" -> mostrarErrorEnCampo(binding.tfCedula, message)
                     "nombres" -> mostrarErrorEnCampo(binding.tfNombres, message)
                     "apellidos" -> mostrarErrorEnCampo(binding.tfApellidos, message)
@@ -95,24 +97,15 @@ class RegistrarPacienteFragment : Fragment() {
                     "parroquia" -> mostrarErrorEnCampo(binding.tfParroquia, message)
                     "telefono" -> mostrarErrorEnCampo(binding.tfTelefono, message)
                     "correo" -> mostrarErrorEnCampo(binding.tfEmail, message)
+                    "representante", "parentesco", "cedulaTemporal" -> {
+                        // Para errores relacionados con representante, mostrar snackbar
+                        mostrarSnackbar(binding.root, message)
+                    }
                 }
             }
         }
 
         viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
-            val cedulaValue = paciente.cedula.replace("-", "").trim()
-            if (cedulaValue.isNotBlank()) {
-                (binding.tfEsCedulado.editText as? AutoCompleteTextView)?.setText("Sí", false)
-                binding.layoutCedulado.visibility = View.VISIBLE
-                binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
-            } else {
-                binding.layoutCedulado.visibility = View.GONE
-                binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
-            }
-
-            val cedulaParts = paciente.cedula.split("-")
-            (binding.tfTipoCedula.editText as? AutoCompleteTextView)?.setText(cedulaParts.getOrNull(0) ?: "", false)
-            binding.tfCedula.editText?.setText(cedulaParts.getOrNull(1) ?: "")
             binding.tfNombres.editText?.setText(paciente.nombres)
             binding.tfApellidos.editText?.setText(paciente.apellidos)
             binding.tfFechaNacimiento.editText?.setText(paciente.fechaNacimiento.toString())
@@ -122,6 +115,31 @@ class RegistrarPacienteFragment : Fragment() {
             binding.tfTelefono.editText?.setText(telefonoParts?.getOrNull(1) ?: "")
             binding.tfEmail.editText?.setText(paciente.correo)
             binding.tfDomicilio.editText?.setText(paciente.domicilio)
+        }
+        
+        viewModel.esCedulado.observe(viewLifecycleOwner) { esCedulado ->
+            if (esCedulado) {
+                // Paciente cedulado
+                binding.dropdownEsCedulado.setText("Si", false)
+                binding.layoutCedulado.visibility = View.VISIBLE
+                binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
+                
+                // Mostrar la cédula en los campos correspondientes
+                viewModel.paciente.value?.let { paciente ->
+                    val cedulaParts = paciente.cedula.split("-")
+                    (binding.tfTipoCedula.editText as? AutoCompleteTextView)?.setText(cedulaParts.getOrNull(0) ?: "", false)
+                    binding.tfCedula.editText?.setText(cedulaParts.getOrNull(1) ?: "")
+                }
+            } else {
+                // Paciente no cedulado (con cédula temporal)
+                binding.dropdownEsCedulado.setText("No", false)
+                binding.layoutCedulado.visibility = View.GONE
+                binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.VISIBLE
+                
+                // Limpiar campos de cédula
+                (binding.tfTipoCedula.editText as? AutoCompleteTextView)?.setText("", false)
+                binding.tfCedula.editText?.setText("")
+            }
         }
 
         viewModel.etnias.observe(viewLifecycleOwner) { updateAdapter(binding.dropdownEtnias, it.map(Etnia::nombre)) }
@@ -148,11 +166,14 @@ class RegistrarPacienteFragment : Fragment() {
         configurarDropdownCedulado()
         listenerRepresentante()
         mostrarSelectorFecha(binding.tfFechaNacimiento.editText as TextInputEditText)
+        configurarLimpiezaErrores()
 
         (binding.tfTipoCedula.editText as? AutoCompleteTextView)?.setOnItemClickListener { _, _, position, _ ->
             val adapter = (binding.tfTipoCedula.editText as AutoCompleteTextView).adapter
             val selectedType = adapter.getItem(position) as String
             viewModel.onTipoCedulaSelected(selectedType)
+            // Limpiar error al seleccionar
+            binding.tfTipoCedula.error = null
         }
 
         binding.btnSeleccinarRepresentate.setOnClickListener {
@@ -161,8 +182,15 @@ class RegistrarPacienteFragment : Fragment() {
 
         binding.btnRegistrar.setOnClickListener {
             if (args.isEditable) {
+                val textoEsCedulado = binding.dropdownEsCedulado.text.toString()
+                val esCedulado = when (textoEsCedulado) {
+                    "Si" -> true
+                    "No" -> false
+                    else -> null // No se ha seleccionado nada
+                }
                 viewModel.onSavePatientClicked(
                     id = args.pacienteId,
+                    esCedulado = esCedulado,
                     tipoCedula = obtenerTexto(binding.tfTipoCedula),
                     cedula = obtenerTexto(binding.tfCedula),
                     nombres = obtenerTexto(binding.tfNombres),
@@ -191,18 +219,53 @@ class RegistrarPacienteFragment : Fragment() {
 
         binding.dropdownEtnias.setOnItemClickListener { _, _, position, _ ->
             viewModel.etnias.value?.get(position)?.let { viewModel.onEtniaSelected(it) }
+            binding.tfEtnia.error = null
         }
         binding.dropdownNacionalidades.setOnItemClickListener { _, _, position, _ ->
             viewModel.nacionalidades.value?.get(position)?.let { viewModel.onNacionalidadSelected(it) }
+            binding.tfNacionalidad.error = null
         }
         binding.dropdownEstados.setOnItemClickListener { _, _, position, _ ->
             viewModel.estados.value?.get(position)?.let { viewModel.onEstadoSelected(it) }
+            binding.tfEstado.error = null
         }
         binding.dropdownMunicipios.setOnItemClickListener { _, _, position, _ ->
             viewModel.municipios.value?.get(position)?.let { viewModel.onMunicipioSelected(it) }
+            binding.tfMunicipio.error = null
         }
         binding.dropdownParroquias.setOnItemClickListener { _, _, position, _ ->
             viewModel.parroquias.value?.get(position)?.let { viewModel.onParroquiaSelected(it) }
+            binding.tfParroquia.error = null
+        }
+    }
+
+    private fun configurarLimpiezaErrores() {
+        // Limpiar errores cuando el usuario empieza a escribir
+        binding.tfCedula.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfCedula.error = null
+        }
+        binding.tfNombres.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfNombres.error = null
+        }
+        binding.tfApellidos.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfApellidos.error = null
+        }
+        binding.tfFechaNacimiento.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfFechaNacimiento.error = null
+        }
+        binding.tfTelefono.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfTelefono.error = null
+        }
+        binding.tfEmail.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfEmail.error = null
+        }
+        
+        // Limpiar errores en dropdowns cuando se abren
+        binding.dropdownEsCedulado.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfEsCedulado.error = null
+        }
+        (binding.tfGenero.editText as? AutoCompleteTextView)?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfGenero.error = null
         }
     }
 
@@ -268,9 +331,9 @@ class RegistrarPacienteFragment : Fragment() {
     }
 
     private fun quitarErrores() {
+        binding.tfEsCedulado.error = null
         binding.tfTipoCedula.error = null
         binding.tfCedula.error = null
-        binding.tfEsCedulado.error = null
         binding.tfNombres.error = null
         binding.tfApellidos.error = null
         binding.tfFechaNacimiento.error = null
@@ -326,10 +389,14 @@ class RegistrarPacienteFragment : Fragment() {
     }
 
     private fun configurarDropdownCedulado() {
-        val dropdown = binding.tfEsCedulado.editText as? AutoCompleteTextView ?: return
+        val dropdown = binding.dropdownEsCedulado
         dropdown.setOnItemClickListener { _, _, position, _ ->
+            // Limpiar errores relacionados con cédula y representante
+            binding.tfTipoCedula.error = null
+            binding.tfCedula.error = null
+            
             when (position) {
-                0 -> { // "Sí"
+                0 -> { // "Si"
                     binding.layoutCedulado.visibility = View.VISIBLE
                     binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
                     limpiarRepresentante()
@@ -381,8 +448,18 @@ class RegistrarPacienteFragment : Fragment() {
                 binding.tvFechaNacimiento.setText("Fecha de nacimiento: ${representante.fechaNacimiento}")
                 binding.tvEdad.setText("Edad: ${calcularEdad(representante.fechaNacimiento)} años")
                 binding.tvSinRepresentante.visibility = View.GONE
-                binding.btnSeleccinarRepresentate.text = "Cambiar representante"
+                
+                // Permitir cambio de representante si es modo edición y el paciente no es cedulado
+                val puedeEditarRepresentante = args.isEditable && viewModel.permitirCambioRepresentante()
+                binding.btnSeleccinarRepresentate.text = if (puedeEditarRepresentante) "Cambiar representante" else "Representante"
+                binding.btnSeleccinarRepresentate.isEnabled = puedeEditarRepresentante || args.pacienteId == null
+            } else {
+                binding.btnSeleccinarRepresentate.text = "Seleccionar representante"
+                binding.btnSeleccinarRepresentate.isEnabled = true
             }
+        }
+        viewModel.cedulaTemporal.observe(viewLifecycleOwner) { cedulaTemporal ->
+            binding.tvCedulaTemporal.setText("Cédula temporal: ${cedulaTemporal}")
         }
         viewModel.selectedParentesco.observe(viewLifecycleOwner) { parentesco ->
             binding.tvParentesco.setText("Parentesco: ${parentesco?.nombre}")

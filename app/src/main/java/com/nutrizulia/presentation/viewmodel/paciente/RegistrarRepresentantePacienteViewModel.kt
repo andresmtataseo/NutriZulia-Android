@@ -120,7 +120,14 @@ class RegistrarRepresentantePacienteViewModel @Inject constructor(
     }
 
     private suspend fun obtenerRepresentante(representanteId: String) {
-        val loadedRepresentante = getRepresentanteById(_idUsuarioInstitucion.value!!, representanteId)
+        val usuarioInstitucionId = _idUsuarioInstitucion.value
+        if (usuarioInstitucionId == null) {
+            _mensaje.postValue("Error: No se ha inicializado la institución.")
+            _salir.postValue(true)
+            return
+        }
+        
+        val loadedRepresentante = getRepresentanteById(usuarioInstitucionId, representanteId)
         if (loadedRepresentante == null) {
             _mensaje.postValue("No se encontró el paciente.")
             _salir.postValue(true)
@@ -187,7 +194,7 @@ class RegistrarRepresentantePacienteViewModel @Inject constructor(
         val fechaNacimiento: LocalDate? = try { LocalDate.parse(fechaNacimientoStr) } catch (e: DateTimeParseException) { null }
         val representanteToSave = Representante(
             id = id ?: Utils.generarUUID(),
-            usuarioInstitucionId = _idUsuarioInstitucion.value!!,
+            usuarioInstitucionId = _idUsuarioInstitucion.value ?: 0,
             cedula = "$tipoCedula-$cedula",
             nombres = nombres,
             apellidos = apellidos,

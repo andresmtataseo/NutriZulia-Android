@@ -4,14 +4,20 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.PacienteRepresentanteEntity
 
 @Dao
 interface PacienteRepresentanteDao {
 
     @Query("SELECT * FROM pacientes_representantes WHERE paciente_id = :pacienteId")
-    suspend fun findByPacienteId(pacienteId: Int): PacienteRepresentanteEntity?
+    suspend fun findByPacienteId(pacienteId: String): PacienteRepresentanteEntity?
 
+    @Query("SELECT COUNT(paciente_id) FROM pacientes_representantes WHERE usuario_institucion_id = :usuarioInstitucionId AND representante_id = :representanteId")
+    suspend fun countPacienteIdByUsuarioInstitucionIdAndRepresentanteId(usuarioInstitucionId: Int, representanteId: String): Int
+
+    @Upsert
+    suspend fun upsert(pacienteRepresentante: PacienteRepresentanteEntity)
     @Insert
     suspend fun insert(pacienteRepresentante: PacienteRepresentanteEntity): Long
 

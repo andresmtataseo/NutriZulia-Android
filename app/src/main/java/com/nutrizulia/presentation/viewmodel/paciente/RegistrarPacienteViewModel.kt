@@ -12,6 +12,7 @@ import com.nutrizulia.domain.model.catalog.Nacionalidad
 import com.nutrizulia.domain.model.catalog.Parentesco
 import com.nutrizulia.domain.model.catalog.Parroquia
 import com.nutrizulia.domain.model.collection.Paciente
+import com.nutrizulia.domain.model.collection.PacienteRepresentante
 import com.nutrizulia.domain.model.collection.Representante
 import com.nutrizulia.domain.usecase.catalog.GetEstadoById
 import com.nutrizulia.domain.usecase.catalog.GetEstados
@@ -24,11 +25,15 @@ import com.nutrizulia.domain.usecase.catalog.GetNacionalidades
 import com.nutrizulia.domain.usecase.catalog.GetParentescoById
 import com.nutrizulia.domain.usecase.catalog.GetParroquiaById
 import com.nutrizulia.domain.usecase.catalog.GetParroquias
+import com.nutrizulia.domain.usecase.collection.CountPacientesByRepresentante
 import com.nutrizulia.domain.usecase.collection.GetPacienteByCedula
 import com.nutrizulia.domain.usecase.collection.GetPacienteById
+import com.nutrizulia.domain.usecase.collection.GetPacienteRepresentanteByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetRepresentanteById
 import com.nutrizulia.domain.usecase.collection.SavePaciente
+import com.nutrizulia.domain.usecase.collection.SavePacienteRepresentante
 import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
+import com.nutrizulia.util.CheckData
 import com.nutrizulia.util.CheckData.esCedulaValida
 import com.nutrizulia.util.CheckData.esCorreoValido
 import com.nutrizulia.util.CheckData.esNumeroTelefonoValido
@@ -49,7 +54,10 @@ class RegistrarPacienteViewModel @Inject constructor(
     private val savePaciente: SavePaciente,
     private val getPacienteByCedula: GetPacienteByCedula,
     private val getPacienteById: GetPacienteById,
+    private val getPacienteRepresentanteByPacienteId: GetPacienteRepresentanteByPacienteId,
     private val getRepresentanteById: GetRepresentanteById,
+    private val countPacientesByRepresentante: CountPacientesByRepresentante,
+    private val savePacienteRepresentante: SavePacienteRepresentante,
     private val getParentescoById: GetParentescoById,
     private val getEtniaById: GetEtniaById,
     private val getNacionalidadById: GetNacionalidadById,
@@ -66,6 +74,8 @@ class RegistrarPacienteViewModel @Inject constructor(
 
     private val _paciente = MutableLiveData<Paciente>()
     val paciente: LiveData<Paciente> = _paciente
+    private val _esCedulado = MutableLiveData<Boolean>()
+    val esCedulado: LiveData<Boolean> = _esCedulado
     private val _idUsuarioInstitucion = MutableLiveData<Int>()
     val idUsuarioInstitucion: LiveData<Int> get() = _idUsuarioInstitucion
     private val _etnias = MutableLiveData<List<Etnia>>()
@@ -100,6 +110,8 @@ class RegistrarPacienteViewModel @Inject constructor(
     //representante
     private val _representante = MutableLiveData<Representante?>()
     val representante: LiveData<Representante?> = _representante
+    private val _cedulaTemporal = MutableLiveData<String?>()
+    val cedulaTemporal: LiveData<String?> = _cedulaTemporal
     private val _selectedParentesco = MutableLiveData<Parentesco?>()
     val selectedParentesco: LiveData<Parentesco?> = _selectedParentesco
     private val _selectedEtniaR = MutableLiveData<Etnia?>()
@@ -126,9 +138,12 @@ class RegistrarPacienteViewModel @Inject constructor(
                 _idUsuarioInstitucion.postValue(institutionId)
                 coroutineScope {
                     val catalogsJob = if (isEditable) async { cargarCatalogos() } else null
-                    val patientJob = if (!pacienteId.isNullOrBlank()) async { obtenerPaciente(pacienteId) } else null
                     catalogsJob?.await()
-                    patientJob?.await()
+                    
+                    // Ejecutar obtenerPaciente después de que _idUsuarioInstitucion esté asignado
+                    if (!pacienteId.isNullOrBlank()) {
+                        obtenerPaciente(pacienteId, institutionId)
+                    }
                 }
             } finally {
                 _isLoading.value = false
@@ -136,14 +151,26 @@ class RegistrarPacienteViewModel @Inject constructor(
         }
     }
 
-    private suspend fun obtenerPaciente(idPaciente: String) {
-        val loadedPaciente = getPacienteById(_idUsuarioInstitucion.value!!, idPaciente)
+    private suspend fun obtenerPaciente(idPaciente: String, usuarioInstitucionId: Int) {
+        val loadedPaciente = getPacienteById(usuarioInstitucionId, idPaciente)
         if (loadedPaciente == null) {
             _mensaje.postValue("No se encontró el paciente.")
             _salir.postValue(true)
             return
         }
         _paciente.postValue(loadedPaciente)
+
+        // Verificar si el paciente tiene cédula temporal
+        val tieneCedulaTemporal = esCedulaTemporal(loadedPaciente.cedula)
+        _esCedulado.postValue(!tieneCedulaTemporal)
+        
+        if (tieneCedulaTemporal) {
+            // Cargar información del representante sin generar nueva cédula temporal
+            val pacienteRepresentante = getPacienteRepresentanteByPacienteId(idPaciente)
+            if (pacienteRepresentante != null) {
+                cargarRepresentanteExistente(pacienteRepresentante.representanteId, pacienteRepresentante.parentescoId, loadedPaciente.cedula)
+            }
+        }
 
         val parroquia = getParroquiaById(loadedPaciente.parroquiaId)
         val municipio = parroquia?.let { getMunicipioById(it.municipioId) }
@@ -157,6 +184,11 @@ class RegistrarPacienteViewModel @Inject constructor(
 
         if (estado != null) _municipios.postValue(getMunicipios(estado.id))
         if (municipio != null) _parroquias.postValue(getParroquias(municipio.id))
+    }
+    
+    private fun esCedulaTemporal(cedula: String): Boolean {
+        // Las cédulas temporales tienen el formato: cedulaRepresentante-XX (donde XX son 2 dígitos)
+        return cedula.matches(Regex(".*-\\d{2}$"))
     }
 
     private suspend fun cargarCatalogos() {
@@ -199,13 +231,26 @@ class RegistrarPacienteViewModel @Inject constructor(
         viewModelScope.launch { _parroquias.value = getParroquias(municipio.id) }
     }
 
-    fun onSavePatientClicked(id: String?, tipoCedula: String, cedula: String, nombres: String, apellidos: String, fechaNacimientoStr: String, genero: String, domicilio: String, prefijo: String, telefono: String, correo: String) {
+    fun onSavePatientClicked(id: String?, esCedulado: Boolean?, tipoCedula: String, cedula: String, nombres: String, apellidos: String, fechaNacimientoStr: String, genero: String, domicilio: String, prefijo: String, telefono: String, correo: String) {
         _errores.value = emptyMap()
         val fechaNacimiento: LocalDate? = try { LocalDate.parse(fechaNacimientoStr) } catch (e: DateTimeParseException) { null }
+        
+        // Determinar la cédula a usar
+        val cedulaFinal = if (esCedulado == true) {
+            if (tipoCedula.isBlank() || cedula.isBlank()) {
+                ""
+            } else {
+                "$tipoCedula-$cedula"
+            }
+        } else {
+            // Para pacientes no cedulados, usar la cédula temporal del representante
+            _cedulaTemporal.value ?: ""
+        }
+        
         val pacienteToSave = Paciente(
             id = id ?: Utils.generarUUID(),
-            usuarioInstitucionId = _idUsuarioInstitucion.value!! ,
-            cedula = "$tipoCedula-$cedula",
+            usuarioInstitucionId = _idUsuarioInstitucion.value ?: 0,
+            cedula = cedulaFinal,
             nombres = nombres,
             apellidos = apellidos,
             fechaNacimiento = fechaNacimiento ?: LocalDate.MIN,
@@ -218,10 +263,16 @@ class RegistrarPacienteViewModel @Inject constructor(
             correo = correo,
             updatedAt = LocalDateTime.now()
         )
-        val erroresMap = validarDatosPaciente(pacienteToSave, fechaNacimiento == null)
+        val erroresMap = validarDatosPaciente(pacienteToSave, fechaNacimiento == null, esCedulado, tipoCedula, cedula)
         if (erroresMap.isNotEmpty()) {
             _errores.value = erroresMap
-            _mensaje.value = "Corrige los campos en rojo."
+            val cantidadErrores = erroresMap.size
+            val mensaje = if (cantidadErrores == 1) {
+                "Hay 1 campo que requiere atención. Revisa el campo marcado en rojo."
+            } else {
+                "Hay $cantidadErrores campos que requieren atención. Revisa los campos marcados en rojo."
+            }
+            _mensaje.value = mensaje
             return
         }
         formatearDatosPaciente(pacienteToSave)
@@ -243,6 +294,20 @@ class RegistrarPacienteViewModel @Inject constructor(
             }
             try {
                 savePaciente(pacienteToSave)
+                
+                // Si el paciente no está cedulado, guardar la relación con el representante
+                if (esCedulado == false && _representante.value != null && _selectedParentesco.value != null) {
+                    val pacienteRepresentante = PacienteRepresentante(
+                        id = Utils.generarUUID(),
+                        usuarioInstitucionId = institutionId,
+                        pacienteId = pacienteToSave.id,
+                        representanteId = _representante.value!!.id,
+                        parentescoId = _selectedParentesco.value!!.id,
+                        updatedAt = LocalDateTime.now()
+                    )
+                    savePacienteRepresentante(pacienteRepresentante)
+                }
+                
                 _mensaje.value = "Paciente guardado correctamente."
                 _salir.value = true
             } catch (e: DomainException) {
@@ -255,23 +320,56 @@ class RegistrarPacienteViewModel @Inject constructor(
         }
     }
 
-    private fun validarDatosPaciente(paciente: Paciente, isFechaInvalida: Boolean): Map<String, String> {
-        val erroresActuales = mutableMapOf<String, String>()
-        if (paciente.cedula.isBlank() || paciente.cedula == "-") {
-            erroresActuales["cedula"] = "La cédula es obligatoria."
-        } else if (!esCedulaValida(paciente.cedula)) {
-            erroresActuales["cedula"] = "La cédula no es válida."
+    private fun validarDatosPaciente(paciente: Paciente, fechaInvalida: Boolean, esCedulado: Boolean?, tipoCedula: String, cedula: String): Map<String, String> {
+        val errores = mutableMapOf<String, String>()
+        
+        // Validar que se haya seleccionado si es cedulado o no
+        if (esCedulado == null) {
+            errores["esCedulado"] = "Debe indicar si el paciente está cedulado"
+            return errores // Retornar inmediatamente si no se ha seleccionado
         }
-        if (paciente.nombres.isBlank()) erroresActuales["nombres"] = "El nombre es obligatorio."
-        if (paciente.apellidos.isBlank()) erroresActuales["apellidos"] = "El apellido es obligatorio."
-        if (isFechaInvalida) erroresActuales["fechaNacimiento"] = "La fecha no es válida o está vacía."
-        if (paciente.genero.isBlank()) erroresActuales["genero"] = "El género es obligatorio."
-        if (paciente.etniaId == 0) erroresActuales["etnia"] = "La etnia es obligatoria."
-        if (paciente.nacionalidadId == 0) erroresActuales["nacionalidad"] = "La nacionalidad es obligatoria."
-        if (paciente.parroquiaId == 0) erroresActuales["parroquia"] = "La parroquia es obligatoria."
-        if (!paciente.telefono.isNullOrBlank() && !esNumeroTelefonoValido(paciente.telefono)) erroresActuales["telefono"] = "El teléfono no es válido."
-        if (!paciente.correo.isNullOrBlank() && !esCorreoValido(paciente.correo)) erroresActuales["correo"] = "El correo no es válido."
-        return erroresActuales
+        
+        // Validar campos básicos
+        if (paciente.nombres.isBlank()) errores["nombres"] = "El nombre es obligatorio"
+        if (paciente.apellidos.isBlank()) errores["apellidos"] = "El apellido es obligatorio"
+        if (fechaInvalida) errores["fechaNacimiento"] = "La fecha de nacimiento es obligatoria"
+        if (paciente.genero.isBlank()) errores["genero"] = "El género es obligatorio"
+        
+        // Validar campos específicos para pacientes cedulados
+        if (esCedulado) {
+            if (tipoCedula.isBlank()) errores["tipoCedula"] = "El tipo de cédula es obligatorio"
+            if (cedula.isBlank()) errores["cedula"] = "La cédula es obligatoria"
+            else {
+                // Formar la cédula completa para validar
+                val cedulaCompleta = "$tipoCedula-$cedula"
+                if (!esCedulaValida(cedulaCompleta)) errores["cedula"] = "La cédula no es válida"
+            }
+        } else {
+            // Para pacientes no cedulados, validar que tengan representante
+            if (_representante.value == null) {
+                errores["representante"] = "Debe seleccionar un representante para pacientes no cedulados"
+            }
+            if (_selectedParentesco.value == null) {
+                errores["parentesco"] = "Debe seleccionar el parentesco con el representante"
+            }
+        }
+        
+        // Validar campos opcionales si están llenos
+        if (!paciente.telefono.isNullOrBlank() && !esNumeroTelefonoValido(paciente.telefono)) {
+            errores["telefono"] = "El número de teléfono no es válido"
+        }
+        if (!paciente.correo.isNullOrBlank() && !esCorreoValido(paciente.correo)) {
+            errores["correo"] = "El correo electrónico no es válido"
+        }
+        
+        // Validar selecciones de catálogos
+        if (_selectedEtnia.value == null) errores["etnia"] = "La etnia es obligatoria"
+        if (_selectedNacionalidad.value == null) errores["nacionalidad"] = "La nacionalidad es obligatoria"
+        if (_selectedEstado.value == null) errores["estado"] = "El estado es obligatorio"
+        if (_selectedMunicipio.value == null) errores["municipio"] = "El municipio es obligatorio"
+        if (_selectedParroquia.value == null) errores["parroquia"] = "La parroquia es obligatoria"
+        
+        return errores
     }
 
     private fun formatearDatosPaciente(p: Paciente) {
@@ -306,18 +404,25 @@ class RegistrarPacienteViewModel @Inject constructor(
     }
 
     private suspend fun obtenerRepresentante(representanteId: String, parentescoId: Int) {
-        val loadedRepresentante = getRepresentanteById(_idUsuarioInstitucion.value!!, representanteId)
+        val usuarioInstitucionId = _idUsuarioInstitucion.value
+        if (usuarioInstitucionId == null) {
+            _mensaje.postValue("Error: No se ha inicializado la institución.")
+            _salir.postValue(true)
+            return
+        }
+        
+        val loadedRepresentante = getRepresentanteById(usuarioInstitucionId, representanteId)
         if (loadedRepresentante == null) {
             _mensaje.postValue("No se encontró el representante.")
             _salir.postValue(true)
             return
         }
         _representante.postValue(loadedRepresentante)
-
+        val cedulaTemporal = generarCedulaTemporal(loadedRepresentante.id, loadedRepresentante.cedula)
         val parroquia = getParroquiaById(loadedRepresentante.parroquiaId)
         val municipio = parroquia?.let { getMunicipioById(it.municipioId) }
         val estado = municipio?.let { getEstadoById(it.estadoId) }
-
+        _cedulaTemporal.postValue(cedulaTemporal)
         _selectedParentesco.postValue(getParentescoById(parentescoId))
         _selectedEtniaR.postValue(getEtniaById(loadedRepresentante.etniaId))
         _selectedNacionalidadR.postValue(getNacionalidadById(loadedRepresentante.nacionalidadId))
@@ -328,14 +433,56 @@ class RegistrarPacienteViewModel @Inject constructor(
         if (municipio != null) _parroquias.postValue(getParroquias(municipio.id))
     }
 
+    private suspend fun cargarRepresentanteExistente(representanteId: String, parentescoId: Int, cedulaExistente: String) {
+        val usuarioInstitucionId = _idUsuarioInstitucion.value
+        if (usuarioInstitucionId == null) {
+            _mensaje.postValue("Error: No se ha inicializado la institución.")
+            _salir.postValue(true)
+            return
+        }
+        
+        val loadedRepresentante = getRepresentanteById(usuarioInstitucionId, representanteId)
+        if (loadedRepresentante == null) {
+            _mensaje.postValue("No se encontró el representante.")
+            _salir.postValue(true)
+            return
+        }
+        _representante.postValue(loadedRepresentante)
+        val parroquia = getParroquiaById(loadedRepresentante.parroquiaId)
+        val municipio = parroquia?.let { getMunicipioById(it.municipioId) }
+        val estado = municipio?.let { getEstadoById(it.estadoId) }
+        _cedulaTemporal.postValue(cedulaExistente)
+        _selectedParentesco.postValue(getParentescoById(parentescoId))
+        _selectedEtniaR.postValue(getEtniaById(loadedRepresentante.etniaId))
+        _selectedNacionalidadR.postValue(getNacionalidadById(loadedRepresentante.nacionalidadId))
+        _selectedEstadoR.postValue(estado)
+        _selectedMunicipioR.postValue(municipio)
+        _selectedParroquiaR.postValue(parroquia)
+        if (estado != null) _municipios.postValue(getMunicipios(estado.id))
+        if (municipio != null) _parroquias.postValue(getParroquias(municipio.id))
+    }
+
+    private suspend fun generarCedulaTemporal(representanteId: String, cedulaRepresentante: String): String {
+        val usuarioInstitucionId = _idUsuarioInstitucion.value ?: return ""
+        val count = countPacientesByRepresentante(usuarioInstitucionId, representanteId)
+        val nextNumber = (count + 1).toString().padStart(2, '0')
+        return "$cedulaRepresentante-$nextNumber"
+    }
+
     fun limpiarRepresentante() {
         _representante.value = null
+        _cedulaTemporal.value = null
         _selectedParentesco.value = null
         _selectedEtniaR.value = null
         _selectedNacionalidadR.value = null
         _selectedEstadoR.value = null
         _selectedMunicipioR.value = null
         _selectedParroquiaR.value = null
+    }
+    
+    fun permitirCambioRepresentante(): Boolean {
+        // Permitir cambio de representante si el paciente no es cedulado
+        return _esCedulado.value == false
     }
 
 }
