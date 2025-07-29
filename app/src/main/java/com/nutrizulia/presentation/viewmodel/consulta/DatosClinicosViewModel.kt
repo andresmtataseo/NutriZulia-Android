@@ -82,7 +82,8 @@ class DatosClinicosViewModel @Inject constructor(
             temperatura = temperatura,
             saturacionOxigeno = saturacionOxigeno,
             pulso = pulso,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isDeleted = false
         )
     }
 
@@ -118,7 +119,8 @@ class DatosClinicosViewModel @Inject constructor(
             perimetroCefalico = perimetroCefalico,
             pliegueTricipital = pliegueTricipital,
             pliegueSubescapular = pliegueSubescapular,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isDeleted = false
         )
     }
 
@@ -152,7 +154,8 @@ class DatosClinicosViewModel @Inject constructor(
             colesterolTotal = colesterolTotal,
             colesterolHdl = colesterolHdl,
             colesterolLdl = colesterolLdl,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isDeleted = false
         )
     }
 
@@ -171,7 +174,8 @@ class DatosClinicosViewModel @Inject constructor(
             consultaId = idConsulta,
             usaBiberon = usaBiberon,
             tipoLactancia = tipoLactancia,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isDeleted = false
         )
     }
 
@@ -198,7 +202,8 @@ class DatosClinicosViewModel @Inject constructor(
             fechaUltimaMenstruacion = fechaUltimaMenstruacion,
             semanasGestacion = semanasGestacion,
             pesoPreEmbarazo = pesoPreEmbarazo,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isDeleted = false
         )
     }
 }

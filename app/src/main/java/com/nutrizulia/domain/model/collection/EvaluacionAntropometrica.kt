@@ -14,7 +14,8 @@ data class EvaluacionAntropometrica(
     val tipoValorCalculado: TipoValorCalculado,
     val diagnosticoAntropometrico: String,
     val fechaEvaluacion: LocalDate,
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
+    val isDeleted: Boolean
 )
 
 fun EvaluacionAntropometricaEntity.toDomain() = EvaluacionAntropometrica(
@@ -26,5 +27,6 @@ fun EvaluacionAntropometricaEntity.toDomain() = EvaluacionAntropometrica(
     tipoValorCalculado = tipoValorCalculado,
     diagnosticoAntropometrico = diagnosticoAntropometrico,
     fechaEvaluacion = fechaEvaluacion,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

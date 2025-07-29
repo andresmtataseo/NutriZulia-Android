@@ -34,7 +34,8 @@ data class DetalleMetabolicoEntity(
     @ColumnInfo(name = "colesterol_total") val colesterolTotal: Int?,
     @ColumnInfo(name = "colesterol_hdl") val colesterolHdl: Int?,
     @ColumnInfo(name = "colesterol_ldl") val colesterolLdl: Int?,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime
+    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun DetalleMetabolico.toEntity() = DetalleMetabolicoEntity(
@@ -48,5 +49,6 @@ fun DetalleMetabolico.toEntity() = DetalleMetabolicoEntity(
     colesterolTotal = colesterolTotal,
     colesterolHdl = colesterolHdl,
     colesterolLdl = colesterolLdl,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

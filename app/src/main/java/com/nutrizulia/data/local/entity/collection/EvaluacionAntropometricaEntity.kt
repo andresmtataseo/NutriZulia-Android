@@ -49,7 +49,8 @@ data class EvaluacionAntropometricaEntity(
     @ColumnInfo(name = "tipo_valor_calculado") val tipoValorCalculado: TipoValorCalculado,
     @ColumnInfo(name = "diagnostico_antropometrico") val diagnosticoAntropometrico: String,
     @ColumnInfo(name = "fecha_evaluacion") val fechaEvaluacion: LocalDate,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime
+    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun EvaluacionAntropometrica.toEntity() = EvaluacionAntropometricaEntity(
@@ -61,5 +62,6 @@ fun EvaluacionAntropometrica.toEntity() = EvaluacionAntropometricaEntity(
     tipoValorCalculado = tipoValorCalculado,
     diagnosticoAntropometrico = diagnosticoAntropometrico,
     fechaEvaluacion = fechaEvaluacion,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

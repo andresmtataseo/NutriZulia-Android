@@ -18,14 +18,6 @@ interface ConsultaDao {
     @Query("SELECT * FROM consultas WHERE usuario_institucion_id = :usuarioInstitucionId ORDER BY fecha_hora_programada ASC")
     suspend fun findAllByUsuarioInstitucionId(usuarioInstitucionId: Int): List<ConsultaEntity>
 
-//    @Query("""
-//        SELECT DATE(fecha_hora_programada) as date, COUNT(id) as count
-//        FROM consultas
-//        WHERE estado = 'PENDIENTE' OR estado = 'REPROGRAMADA'
-//        GROUP BY DATE(fecha_hora_programada)
-//    """)
-//    suspend fun getAppointmentCountsByDay(): List<DailyAppointmentCount>
-
     @Query("""
         SELECT DATE(fecha_hora_programada) as date, COUNT(id) as count
         FROM consultas
@@ -50,13 +42,6 @@ interface ConsultaDao {
 
     @Query("UPDATE consultas SET estado = :estado WHERE id = :id")
     suspend fun updateEstadoById(id: String, estado: Estado)
-    @Update
-    suspend fun update(consulta: ConsultaEntity): Int
 
-    @Query("DELETE FROM consultas")
-    suspend fun deleteAll(): Int
-
-    @Delete
-    suspend fun delete(consulta: ConsultaEntity): Int
 
 }

@@ -270,7 +270,8 @@ class EvaluacionesFinalesViewModel @Inject constructor(
                     tipoValorCalculado = valueType,
                     diagnosticoAntropometrico = diagnostic,
                     fechaEvaluacion = LocalDate.now(),
-                    updatedAt = updatedAt
+                    updatedAt = updatedAt,
+                    isDeleted = false
                 )
             )
         }

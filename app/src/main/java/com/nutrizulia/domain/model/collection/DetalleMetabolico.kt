@@ -14,7 +14,8 @@ data class DetalleMetabolico(
     val colesterolTotal: Int?,
     val colesterolHdl: Int?,
     val colesterolLdl: Int?,
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
+    val isDeleted: Boolean
 )
 
 fun DetalleMetabolicoEntity.toDomain() = DetalleMetabolico(
@@ -28,5 +29,6 @@ fun DetalleMetabolicoEntity.toDomain() = DetalleMetabolico(
     colesterolTotal = colesterolTotal,
     colesterolHdl = colesterolHdl,
     colesterolLdl = colesterolLdl,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

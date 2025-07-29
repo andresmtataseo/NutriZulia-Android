@@ -35,7 +35,8 @@ data class DetalleAntropometricoEntity(
     @ColumnInfo(name = "perimetro_cefalico") val perimetroCefalico: Double?,
     @ColumnInfo(name = "pliegue_tricipital") val pliegueTricipital: Double?,
     @ColumnInfo(name = "pliegue_subescapular") val pliegueSubescapular: Double?,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime
+    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun DetalleAntropometrico.toEntity() = DetalleAntropometricoEntity(
@@ -50,5 +51,6 @@ fun DetalleAntropometrico.toEntity() = DetalleAntropometricoEntity(
     perimetroCefalico = perimetroCefalico,
     pliegueTricipital = pliegueTricipital,
     pliegueSubescapular = pliegueSubescapular,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

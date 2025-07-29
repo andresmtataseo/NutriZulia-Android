@@ -261,7 +261,8 @@ class RegistrarPacienteViewModel @Inject constructor(
             domicilio = domicilio,
             telefono = if (telefono.isNotBlank()) "$prefijo$telefono" else "",
             correo = correo,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isDeleted = false
         )
         val erroresMap = validarDatosPaciente(pacienteToSave, fechaNacimiento == null, esCedulado, tipoCedula, cedula)
         if (erroresMap.isNotEmpty()) {
@@ -303,7 +304,8 @@ class RegistrarPacienteViewModel @Inject constructor(
                         pacienteId = pacienteToSave.id,
                         representanteId = _representante.value!!.id,
                         parentescoId = _selectedParentesco.value!!.id,
-                        updatedAt = LocalDateTime.now()
+                        updatedAt = LocalDateTime.now(),
+                        isDeleted = false
                     )
                     savePacienteRepresentante(pacienteRepresentante)
                 }

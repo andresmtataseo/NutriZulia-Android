@@ -66,6 +66,7 @@ data class PacienteEntity(
     @ColumnInfo(name = "telefono") val telefono: String?,
     @ColumnInfo(name = "correo") val correo: String?,
     @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime = LocalDateTime.now(),
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun Paciente.toEntity() = PacienteEntity(
@@ -82,5 +83,6 @@ fun Paciente.toEntity() = PacienteEntity(
     domicilio = domicilio,
     telefono = telefono,
     correo = correo,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

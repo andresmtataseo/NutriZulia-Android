@@ -45,7 +45,8 @@ data class DiagnosticoEntity(
     @ColumnInfo(name = "riesgo_biologico_id") val riesgoBiologicoId: Int,
     @ColumnInfo(name = "enfermedad_id") val enfermedadId: Int?,
     @ColumnInfo(name = "is_principal") val isPrincipal: Boolean,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime
+    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun Diagnostico.toEntity() = DiagnosticoEntity(
@@ -54,5 +55,6 @@ fun Diagnostico.toEntity() = DiagnosticoEntity(
     riesgoBiologicoId = riesgoBiologicoId,
     enfermedadId = enfermedadId,
     isPrincipal = isPrincipal,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

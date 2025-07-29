@@ -33,7 +33,8 @@ data class DetalleVitalEntity(
     @ColumnInfo(name = "temperatura") val temperatura: Double?,
     @ColumnInfo(name = "saturacion_oxigeno") val saturacionOxigeno: Int?,
     @ColumnInfo(name = "pulso") val pulso: Int?,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime
+    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun DetalleVital.toEntity() = DetalleVitalEntity(
@@ -46,5 +47,6 @@ fun DetalleVital.toEntity() = DetalleVitalEntity(
     temperatura = temperatura,
     saturacionOxigeno = saturacionOxigeno,
     pulso = pulso,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

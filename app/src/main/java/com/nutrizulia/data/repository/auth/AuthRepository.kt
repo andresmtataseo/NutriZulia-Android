@@ -1,7 +1,6 @@
 package com.nutrizulia.data.repository.auth
 
 import com.nutrizulia.data.local.dao.user.UsuarioDao
-import com.nutrizulia.data.local.dao.user.UsuarioInstitucionDao
 import com.nutrizulia.data.local.entity.user.toEntity
 import com.nutrizulia.util.TokenManager
 import com.nutrizulia.data.remote.api.auth.AuthService

@@ -13,7 +13,8 @@ data class DetalleVital(
     val temperatura: Double?,
     val saturacionOxigeno: Int?,
     val pulso: Int?,
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
+    val isDeleted: Boolean
 )
 
 fun DetalleVitalEntity.toDomain() = DetalleVital(
@@ -26,5 +27,6 @@ fun DetalleVitalEntity.toDomain() = DetalleVital(
     temperatura = temperatura,
     saturacionOxigeno = saturacionOxigeno,
     pulso = pulso,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

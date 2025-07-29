@@ -13,7 +13,7 @@ interface PacienteRepresentanteDao {
     @Query("SELECT * FROM pacientes_representantes WHERE paciente_id = :pacienteId")
     suspend fun findByPacienteId(pacienteId: String): PacienteRepresentanteEntity?
 
-    @Query("SELECT COUNT(paciente_id) FROM pacientes_representantes WHERE usuario_institucion_id = :usuarioInstitucionId AND representante_id = :representanteId")
+    @Query("SELECT COUNT(paciente_id) FROM pacientes_representantes WHERE usuario_institucion_id = :usuarioInstitucionId AND representante_id = :representanteId AND is_deleted = 0")
     suspend fun countPacienteIdByUsuarioInstitucionIdAndRepresentanteId(usuarioInstitucionId: Int, representanteId: String): Int
 
     @Upsert

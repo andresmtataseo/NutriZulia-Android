@@ -264,7 +264,8 @@ class RegistrarCitaFragment : Fragment() {
             planes = null,
             fechaHoraReal = null,
             estado = if (consultaId != null) Estado.REPROGRAMADA else Estado.PENDIENTE,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isDeleted = false
         )
 
         viewModel.guardarConsulta(citaNueva)

@@ -18,7 +18,8 @@ data class Paciente(
     var domicilio: String,
     var telefono: String?,
     var correo: String?,
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
+    var isDeleted: Boolean
 )
  fun PacienteEntity.toDomain() = Paciente(
      id = id,
@@ -34,5 +35,6 @@ data class Paciente(
      domicilio = domicilio,
      telefono = telefono,
      correo = correo,
-     updatedAt = updatedAt
+     updatedAt = updatedAt,
+     isDeleted = isDeleted
  )

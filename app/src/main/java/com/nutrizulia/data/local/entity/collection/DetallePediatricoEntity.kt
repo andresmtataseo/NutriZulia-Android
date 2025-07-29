@@ -29,7 +29,8 @@ data class DetallePediatricoEntity(
     @ColumnInfo(name = "consulta_id") val consultaId: String,
     @ColumnInfo(name = "usa_biberon") val usaBiberon: Boolean?,
     @ColumnInfo(name = "tipo_lactancia") val tipoLactancia: TipoLactancia?,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime
+    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun DetallePediatrico.toEntity() = DetallePediatricoEntity(
@@ -37,5 +38,6 @@ fun DetallePediatrico.toEntity() = DetallePediatricoEntity(
     consultaId = consultaId,
     usaBiberon = usaBiberon,
     tipoLactancia = tipoLactancia,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

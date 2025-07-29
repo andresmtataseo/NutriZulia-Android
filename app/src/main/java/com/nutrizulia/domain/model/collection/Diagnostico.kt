@@ -9,7 +9,8 @@ data class Diagnostico(
     val riesgoBiologicoId: Int,
     val enfermedadId: Int?,
     val isPrincipal: Boolean,
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
+    val isDeleted: Boolean
 )
 
 fun DiagnosticoEntity.toDomain() = Diagnostico(
@@ -18,5 +19,6 @@ fun DiagnosticoEntity.toDomain() = Diagnostico(
     riesgoBiologicoId = riesgoBiologicoId,
     enfermedadId = enfermedadId,
     isPrincipal = isPrincipal,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

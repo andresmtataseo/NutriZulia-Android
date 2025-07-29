@@ -31,7 +31,8 @@ data class DetalleObstetriciaEntity(
     @ColumnInfo(name = "fecha_ultima_menstruacion") val fechaUltimaMenstruacion: LocalDate?,
     @ColumnInfo(name = "semanas_gestacion") val semanasGestacion: Int?,
     @ColumnInfo(name = "peso_pre_embarazo") val pesoPreEmbarazo: Double?,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime
+    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun DetalleObstetricia.toEntity() = DetalleObstetriciaEntity(
@@ -41,5 +42,6 @@ fun DetalleObstetricia.toEntity() = DetalleObstetriciaEntity(
     fechaUltimaMenstruacion = fechaUltimaMenstruacion,
     semanasGestacion = semanasGestacion,
     pesoPreEmbarazo = pesoPreEmbarazo,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

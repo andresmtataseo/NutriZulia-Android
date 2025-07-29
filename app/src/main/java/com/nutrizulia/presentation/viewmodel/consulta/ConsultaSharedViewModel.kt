@@ -99,7 +99,8 @@ class ConsultaSharedViewModel @Inject constructor(
             planes = consulta.value?.planes,
             fechaHoraReal = consulta.value?.fechaHoraReal,
             estado = consulta.value?.estado ?: Estado.SIN_PREVIA_CITA,
-            updatedAt = LocalDateTime.now()
+            updatedAt = LocalDateTime.now(),
+            isDeleted = false
         )
         _consultaEditando.value = nuevaConsulta
     }

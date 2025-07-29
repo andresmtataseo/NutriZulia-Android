@@ -9,7 +9,8 @@ data class PacienteRepresentante(
     val pacienteId: String,
     val representanteId: String,
     val parentescoId: Int,
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
+    val isDeleted: Boolean
 )
 
 fun PacienteRepresentanteEntity.toDomain() = PacienteRepresentante(
@@ -18,5 +19,6 @@ fun PacienteRepresentanteEntity.toDomain() = PacienteRepresentante(
     pacienteId = pacienteId,
     representanteId = representanteId,
     parentescoId = parentescoId,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

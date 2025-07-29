@@ -53,6 +53,7 @@ data class PacienteRepresentanteEntity(
     @ColumnInfo(name = "representante_id") val representanteId: String,
     @ColumnInfo(name = "parentesco_id") val parentescoId: Int,
     @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun PacienteRepresentante.toEntity() = PacienteRepresentanteEntity(
@@ -61,5 +62,6 @@ fun PacienteRepresentante.toEntity() = PacienteRepresentanteEntity(
     pacienteId = pacienteId,
     representanteId = representanteId,
     parentescoId = parentescoId,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

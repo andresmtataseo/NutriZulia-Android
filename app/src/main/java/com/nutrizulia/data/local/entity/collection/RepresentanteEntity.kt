@@ -65,6 +65,7 @@ data class RepresentanteEntity(
     @ColumnInfo(name = "telefono") val telefono: String?,
     @ColumnInfo(name = "correo") val correo: String?,
     @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun Representante.toEntity() = RepresentanteEntity(
@@ -81,5 +82,6 @@ fun Representante.toEntity() = RepresentanteEntity(
     domicilio = domicilio,
     telefono = telefono,
     correo = correo,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

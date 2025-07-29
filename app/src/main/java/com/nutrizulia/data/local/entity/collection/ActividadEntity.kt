@@ -47,6 +47,7 @@ data class ActividadEntity(
     @ColumnInfo(name = "programas_implementados") val programasImplementados: String?,
     @ColumnInfo(name = "url_evidencia") val urlEvidencia: String?,
     @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )
 
 fun Actividad.toEntity() = ActividadEntity(
@@ -62,5 +63,6 @@ fun Actividad.toEntity() = ActividadEntity(
     temaPrincipal = temaPrincipal,
     programasImplementados = programasImplementados,
     urlEvidencia = urlEvidencia,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )
