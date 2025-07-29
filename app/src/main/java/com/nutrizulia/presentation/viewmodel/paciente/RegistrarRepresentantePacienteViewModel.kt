@@ -9,9 +9,7 @@ import com.nutrizulia.domain.model.catalog.Estado
 import com.nutrizulia.domain.model.catalog.Etnia
 import com.nutrizulia.domain.model.catalog.Municipio
 import com.nutrizulia.domain.model.catalog.Nacionalidad
-import com.nutrizulia.domain.model.catalog.Parentesco
 import com.nutrizulia.domain.model.catalog.Parroquia
-import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.domain.model.collection.Representante
 import com.nutrizulia.domain.usecase.catalog.GetEstadoById
 import com.nutrizulia.domain.usecase.catalog.GetEstados
@@ -21,19 +19,14 @@ import com.nutrizulia.domain.usecase.catalog.GetMunicipioById
 import com.nutrizulia.domain.usecase.catalog.GetMunicipios
 import com.nutrizulia.domain.usecase.catalog.GetNacionalidadById
 import com.nutrizulia.domain.usecase.catalog.GetNacionalidades
-import com.nutrizulia.domain.usecase.catalog.GetParentescoById
 import com.nutrizulia.domain.usecase.catalog.GetParroquiaById
 import com.nutrizulia.domain.usecase.catalog.GetParroquias
-import com.nutrizulia.domain.usecase.collection.GetPacienteByCedula
-import com.nutrizulia.domain.usecase.collection.GetPacienteById
+import com.nutrizulia.domain.usecase.collection.GetRepresentanteByCedula
 import com.nutrizulia.domain.usecase.collection.GetRepresentanteById
-import com.nutrizulia.domain.usecase.collection.SavePaciente
+import com.nutrizulia.domain.usecase.collection.SaveRepresentante
 import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
-import com.nutrizulia.util.CheckData.esCedulaValida
-import com.nutrizulia.util.CheckData.esCorreoValido
-import com.nutrizulia.util.CheckData.esNumeroTelefonoValido
-import com.nutrizulia.util.FormatData.formatearCedula
-import com.nutrizulia.util.FormatData.formatearTelefono
+import com.nutrizulia.util.CheckData
+import com.nutrizulia.util.FormatData
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -45,12 +38,10 @@ import java.time.format.DateTimeParseException
 import javax.inject.Inject
 
 @HiltViewModel
-class RegistrarPacienteViewModel @Inject constructor(
-    private val savePaciente: SavePaciente,
-    private val getPacienteByCedula: GetPacienteByCedula,
-    private val getPacienteById: GetPacienteById,
+class RegistrarRepresentantePacienteViewModel @Inject constructor(
+    private val saveRepresentante: SaveRepresentante,
+    private val getRepresentanteByCedula: GetRepresentanteByCedula,
     private val getRepresentanteById: GetRepresentanteById,
-    private val getParentescoById: GetParentescoById,
     private val getEtniaById: GetEtniaById,
     private val getNacionalidadById: GetNacionalidadById,
     private val getEstadoById: GetEstadoById,
@@ -64,10 +55,12 @@ class RegistrarPacienteViewModel @Inject constructor(
     private val getCurrentInstitutionId: GetCurrentInstitutionIdUseCase
 ) : ViewModel() {
 
-    private val _paciente = MutableLiveData<Paciente>()
-    val paciente: LiveData<Paciente> = _paciente
+    // Necesarios
     private val _idUsuarioInstitucion = MutableLiveData<Int>()
     val idUsuarioInstitucion: LiveData<Int> get() = _idUsuarioInstitucion
+    private val _representante = MutableLiveData<Representante>()
+    val representante: LiveData<Representante> = _representante
+    // catalogo
     private val _etnias = MutableLiveData<List<Etnia>>()
     val etnias: LiveData<List<Etnia>> get() = _etnias
     private val _nacionalidades = MutableLiveData<List<Nacionalidad>>()
@@ -78,14 +71,7 @@ class RegistrarPacienteViewModel @Inject constructor(
     val municipios: LiveData<List<Municipio>> get() = _municipios
     private val _parroquias = MutableLiveData<List<Parroquia>>()
     val parroquias: LiveData<List<Parroquia>> get() = _parroquias
-    private val _errores = MutableLiveData<Map<String, String>>()
-    val errores: LiveData<Map<String, String>> = _errores
-    private val _mensaje = MutableLiveData<String>()
-    val mensaje: LiveData<String> = _mensaje
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-    private val _salir = MutableLiveData<Boolean>()
-    val salir: LiveData<Boolean> = _salir
+    // seleccion
     private val _selectedEtnia = MutableLiveData<Etnia?>()
     val selectedEtnia: LiveData<Etnia?> = _selectedEtnia
     private val _selectedNacionalidad = MutableLiveData<Nacionalidad?>()
@@ -96,24 +82,19 @@ class RegistrarPacienteViewModel @Inject constructor(
     val selectedMunicipio: LiveData<Municipio?> = _selectedMunicipio
     private val _selectedParroquia = MutableLiveData<Parroquia?>()
     val selectedParroquia: LiveData<Parroquia?> = _selectedParroquia
+    // Ui states
+    private val _filtro = MutableLiveData<String>()
+    val filtro: LiveData<String> get() = _filtro
+    private val _mensaje = MutableLiveData<String>()
+    val mensaje: LiveData<String> get() = _mensaje
+    private val _errores = MutableLiveData<Map<String, String>>()
+    val errores: LiveData<Map<String, String>> = _errores
+    private val _salir = MutableLiveData<Boolean>()
+    val salir: LiveData<Boolean> = _salir
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
-    //representante
-    private val _representante = MutableLiveData<Representante?>()
-    val representante: LiveData<Representante?> = _representante
-    private val _selectedParentesco = MutableLiveData<Parentesco?>()
-    val selectedParentesco: LiveData<Parentesco?> = _selectedParentesco
-    private val _selectedEtniaR = MutableLiveData<Etnia?>()
-    val selectedEtniaR: LiveData<Etnia?> = _selectedEtniaR
-    private val _selectedNacionalidadR = MutableLiveData<Nacionalidad?>()
-    val selectedNacionalidadR: LiveData<Nacionalidad?> = _selectedNacionalidadR
-    private val _selectedEstadoR = MutableLiveData<Estado?>()
-    val selectedEstadoR: LiveData<Estado?> = _selectedEstadoR
-    private val _selectedMunicipioR = MutableLiveData<Municipio?>()
-    val selectedMunicipioR: LiveData<Municipio?> = _selectedMunicipioR
-    private val _selectedParroquiaR = MutableLiveData<Parroquia?>()
-    val selectedParroquiaR: LiveData<Parroquia?> = _selectedParroquiaR
-
-    fun onCreate(pacienteId: String?, isEditable: Boolean) {
+    fun onCreate(representanteId: String?, isEditable: Boolean) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -126,9 +107,11 @@ class RegistrarPacienteViewModel @Inject constructor(
                 _idUsuarioInstitucion.postValue(institutionId)
                 coroutineScope {
                     val catalogsJob = if (isEditable) async { cargarCatalogos() } else null
-                    val patientJob = if (!pacienteId.isNullOrBlank()) async { obtenerPaciente(pacienteId) } else null
+                    val representanteJob = if (!representanteId.isNullOrBlank()) async {
+                        obtenerRepresentante(representanteId)
+                    } else null
                     catalogsJob?.await()
-                    patientJob?.await()
+                    representanteJob?.await()
                 }
             } finally {
                 _isLoading.value = false
@@ -136,21 +119,21 @@ class RegistrarPacienteViewModel @Inject constructor(
         }
     }
 
-    private suspend fun obtenerPaciente(idPaciente: String) {
-        val loadedPaciente = getPacienteById(_idUsuarioInstitucion.value!!, idPaciente)
-        if (loadedPaciente == null) {
+    private suspend fun obtenerRepresentante(representanteId: String) {
+        val loadedRepresentante = getRepresentanteById(_idUsuarioInstitucion.value!!, representanteId)
+        if (loadedRepresentante == null) {
             _mensaje.postValue("No se encontró el paciente.")
             _salir.postValue(true)
             return
         }
-        _paciente.postValue(loadedPaciente)
+        _representante.postValue(loadedRepresentante)
 
-        val parroquia = getParroquiaById(loadedPaciente.parroquiaId)
+        val parroquia = getParroquiaById(loadedRepresentante.parroquiaId)
         val municipio = parroquia?.let { getMunicipioById(it.municipioId) }
         val estado = municipio?.let { getEstadoById(it.estadoId) }
 
-        _selectedEtnia.postValue(getEtniaById(loadedPaciente.etniaId))
-        _selectedNacionalidad.postValue(getNacionalidadById(loadedPaciente.nacionalidadId))
+        _selectedEtnia.postValue(getEtniaById(loadedRepresentante.etniaId))
+        _selectedNacionalidad.postValue(getNacionalidadById(loadedRepresentante.nacionalidadId))
         _selectedEstado.postValue(estado)
         _selectedMunicipio.postValue(municipio)
         _selectedParroquia.postValue(parroquia)
@@ -202,9 +185,9 @@ class RegistrarPacienteViewModel @Inject constructor(
     fun onSavePatientClicked(id: String?, tipoCedula: String, cedula: String, nombres: String, apellidos: String, fechaNacimientoStr: String, genero: String, domicilio: String, prefijo: String, telefono: String, correo: String) {
         _errores.value = emptyMap()
         val fechaNacimiento: LocalDate? = try { LocalDate.parse(fechaNacimientoStr) } catch (e: DateTimeParseException) { null }
-        val pacienteToSave = Paciente(
+        val representanteToSave = Representante(
             id = id ?: Utils.generarUUID(),
-            usuarioInstitucionId = _idUsuarioInstitucion.value!! ,
+            usuarioInstitucionId = _idUsuarioInstitucion.value!!,
             cedula = "$tipoCedula-$cedula",
             nombres = nombres,
             apellidos = apellidos,
@@ -218,13 +201,13 @@ class RegistrarPacienteViewModel @Inject constructor(
             correo = correo,
             updatedAt = LocalDateTime.now()
         )
-        val erroresMap = validarDatosPaciente(pacienteToSave, fechaNacimiento == null)
+        val erroresMap = validarDatosRepresentante(representanteToSave, fechaNacimiento == null)
         if (erroresMap.isNotEmpty()) {
             _errores.value = erroresMap
             _mensaje.value = "Corrige los campos en rojo."
             return
         }
-        formatearDatosPaciente(pacienteToSave)
+        formatearDatosRepresentante(representanteToSave)
 
         viewModelScope.launch {
             _isLoading.value = true
@@ -233,17 +216,17 @@ class RegistrarPacienteViewModel @Inject constructor(
                 _isLoading.value = false
                 return@launch
             }
-            pacienteToSave.usuarioInstitucionId = institutionId
+            representanteToSave.usuarioInstitucionId = institutionId
 
-            val cedulaExistente = getPacienteByCedula(institutionId, pacienteToSave.cedula)
-            if (cedulaExistente != null && cedulaExistente.id != pacienteToSave.id) {
-                _mensaje.value = "Ya existe un paciente con la cédula ${pacienteToSave.cedula}."
+            val cedulaExistente = getRepresentanteByCedula(institutionId, representanteToSave.cedula)
+            if (cedulaExistente != null && cedulaExistente.id != representanteToSave.id) {
+                _mensaje.value = "Ya existe un paciente con la cédula ${representanteToSave.cedula}."
                 _isLoading.value = false
                 return@launch
             }
             try {
-                savePaciente(pacienteToSave)
-                _mensaje.value = "Paciente guardado correctamente."
+                saveRepresentante(representanteToSave)
+                _mensaje.value = "Representante guardado correctamente."
                 _salir.value = true
             } catch (e: DomainException) {
                 _mensaje.value = e.message
@@ -255,87 +238,34 @@ class RegistrarPacienteViewModel @Inject constructor(
         }
     }
 
-    private fun validarDatosPaciente(paciente: Paciente, isFechaInvalida: Boolean): Map<String, String> {
+    private fun validarDatosRepresentante(representante: Representante, isFechaInvalida: Boolean): Map<String, String> {
         val erroresActuales = mutableMapOf<String, String>()
-        if (paciente.cedula.isBlank() || paciente.cedula == "-") {
+        if (representante.cedula.isBlank() || representante.cedula == "-") {
             erroresActuales["cedula"] = "La cédula es obligatoria."
-        } else if (!esCedulaValida(paciente.cedula)) {
+        } else if (!CheckData.esCedulaValida(representante.cedula)) {
             erroresActuales["cedula"] = "La cédula no es válida."
         }
-        if (paciente.nombres.isBlank()) erroresActuales["nombres"] = "El nombre es obligatorio."
-        if (paciente.apellidos.isBlank()) erroresActuales["apellidos"] = "El apellido es obligatorio."
+        if (representante.nombres.isBlank()) erroresActuales["nombres"] = "El nombre es obligatorio."
+        if (representante.apellidos.isBlank()) erroresActuales["apellidos"] = "El apellido es obligatorio."
         if (isFechaInvalida) erroresActuales["fechaNacimiento"] = "La fecha no es válida o está vacía."
-        if (paciente.genero.isBlank()) erroresActuales["genero"] = "El género es obligatorio."
-        if (paciente.etniaId == 0) erroresActuales["etnia"] = "La etnia es obligatoria."
-        if (paciente.nacionalidadId == 0) erroresActuales["nacionalidad"] = "La nacionalidad es obligatoria."
-        if (paciente.parroquiaId == 0) erroresActuales["parroquia"] = "La parroquia es obligatoria."
-        if (!paciente.telefono.isNullOrBlank() && !esNumeroTelefonoValido(paciente.telefono)) erroresActuales["telefono"] = "El teléfono no es válido."
-        if (!paciente.correo.isNullOrBlank() && !esCorreoValido(paciente.correo)) erroresActuales["correo"] = "El correo no es válido."
+        if (representante.genero.isBlank()) erroresActuales["genero"] = "El género es obligatorio."
+        if (representante.etniaId == 0) erroresActuales["etnia"] = "La etnia es obligatoria."
+        if (representante.nacionalidadId == 0) erroresActuales["nacionalidad"] = "La nacionalidad es obligatoria."
+        if (representante.parroquiaId == 0) erroresActuales["parroquia"] = "La parroquia es obligatoria."
+        if (!representante.telefono.isNullOrBlank() && !CheckData.esNumeroTelefonoValido(
+                representante.telefono
+            )
+        ) erroresActuales["telefono"] = "El teléfono no es válido."
+        if (!representante.correo.isNullOrBlank() && !CheckData.esCorreoValido(representante.correo)) erroresActuales["correo"] = "El correo no es válido."
         return erroresActuales
     }
 
-    private fun formatearDatosPaciente(p: Paciente) {
-        p.cedula = formatearCedula(p.cedula)
-        p.nombres = p.nombres.uppercase().trim()
-        p.apellidos = p.apellidos.uppercase().trim()
-        p.telefono = formatearTelefono(p.telefono?.trim())
-        p.correo = p.correo?.lowercase()?.trim()
-    }
-
-    // Representante
-
-    fun onRepresentanteSelected(representanteId: String, parentescoId: Int) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val institutionId: Int? = getCurrentInstitutionId()
-                if (institutionId == null) {
-                    _mensaje.postValue("Error: No se ha seleccionado una institución.")
-                    _salir.postValue(true)
-                    return@launch
-                }
-                _idUsuarioInstitucion.postValue(institutionId)
-                coroutineScope {
-                    val representanteJob = if (representanteId.isNotBlank()) async { obtenerRepresentante(representanteId, parentescoId) } else null
-                    representanteJob?.await()
-                }
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    private suspend fun obtenerRepresentante(representanteId: String, parentescoId: Int) {
-        val loadedRepresentante = getRepresentanteById(_idUsuarioInstitucion.value!!, representanteId)
-        if (loadedRepresentante == null) {
-            _mensaje.postValue("No se encontró el representante.")
-            _salir.postValue(true)
-            return
-        }
-        _representante.postValue(loadedRepresentante)
-
-        val parroquia = getParroquiaById(loadedRepresentante.parroquiaId)
-        val municipio = parroquia?.let { getMunicipioById(it.municipioId) }
-        val estado = municipio?.let { getEstadoById(it.estadoId) }
-
-        _selectedParentesco.postValue(getParentescoById(parentescoId))
-        _selectedEtniaR.postValue(getEtniaById(loadedRepresentante.etniaId))
-        _selectedNacionalidadR.postValue(getNacionalidadById(loadedRepresentante.nacionalidadId))
-        _selectedEstadoR.postValue(estado)
-        _selectedMunicipioR.postValue(municipio)
-        _selectedParroquiaR.postValue(parroquia)
-        if (estado != null) _municipios.postValue(getMunicipios(estado.id))
-        if (municipio != null) _parroquias.postValue(getParroquias(municipio.id))
-    }
-
-    fun limpiarRepresentante() {
-        _representante.value = null
-        _selectedParentesco.value = null
-        _selectedEtniaR.value = null
-        _selectedNacionalidadR.value = null
-        _selectedEstadoR.value = null
-        _selectedMunicipioR.value = null
-        _selectedParroquiaR.value = null
+    private fun formatearDatosRepresentante(representante: Representante) {
+        representante.cedula = FormatData.formatearCedula(representante.cedula)
+        representante.nombres = representante.nombres.uppercase().trim()
+        representante.apellidos = representante.apellidos.uppercase().trim()
+        representante.telefono = FormatData.formatearTelefono(representante.telefono?.trim())
+        representante.correo = representante.correo?.lowercase()?.trim()
     }
 
 }

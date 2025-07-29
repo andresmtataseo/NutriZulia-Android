@@ -12,6 +12,9 @@ interface ParentescoDao {
     @Query("SELECT * FROM parentescos")
     suspend fun findAll(): List<ParentescoEntity>
 
+    @Query("SELECT * FROM parentescos WHERE id = :id")
+    suspend fun findById(id: Int): ParentescoEntity?
+
     @Insert
     suspend fun insertAll(parentescos: List<ParentescoEntity>): List<Long>
 

@@ -2,8 +2,8 @@ package com.nutrizulia.presentation.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.nutrizulia.presentation.view.representante.RegistrarRepresentanteFragment
-import com.nutrizulia.presentation.view.representante.RepresentantesFragment
+import com.nutrizulia.presentation.view.paciente.BuscarRepresentantePacienteFragment
+import com.nutrizulia.presentation.view.paciente.RegistrarRepresentantePacienteFragment
 
 private const val NUM_TABS: Int = 2
 
@@ -15,9 +15,10 @@ class SeleccionarRepresentanteAdapter(fragment: Fragment) : FragmentStateAdapter
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> RepresentantesFragment()
-            1 -> RegistrarRepresentanteFragment()
+            0 -> BuscarRepresentantePacienteFragment()
+            1 -> RegistrarRepresentantePacienteFragment()
             else -> throw IllegalStateException("Invalid adapter position: $position")
         }
     }
+
 }

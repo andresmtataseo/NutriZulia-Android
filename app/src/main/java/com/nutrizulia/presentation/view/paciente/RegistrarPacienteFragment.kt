@@ -1,7 +1,9 @@
 package com.nutrizulia.presentation.view.paciente
 
 import android.R
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +25,7 @@ import com.nutrizulia.domain.model.catalog.Municipio
 import com.nutrizulia.domain.model.catalog.Nacionalidad
 import com.nutrizulia.domain.model.catalog.Parroquia
 import com.nutrizulia.presentation.viewmodel.paciente.RegistrarPacienteViewModel
+import com.nutrizulia.util.Utils.calcularEdad
 import com.nutrizulia.util.Utils.mostrarDialog
 import com.nutrizulia.util.Utils.mostrarErrorEnCampo
 import com.nutrizulia.util.Utils.mostrarSnackbar
@@ -62,6 +65,7 @@ class RegistrarPacienteFragment : Fragment() {
     }
 
     private fun setupObservers() {
+        observerRepresentante()
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
@@ -142,6 +146,7 @@ class RegistrarPacienteFragment : Fragment() {
 
     private fun setupListeners() {
         configurarDropdownCedulado()
+        listenerRepresentante()
         mostrarSelectorFecha(binding.tfFechaNacimiento.editText as TextInputEditText)
 
         (binding.tfTipoCedula.editText as? AutoCompleteTextView)?.setOnItemClickListener { _, _, position, _ ->
@@ -239,7 +244,7 @@ class RegistrarPacienteFragment : Fragment() {
 
     private fun limpiarCampos() {
         quitarErrores()
-
+        limpiarRepresentante()
         binding.dropdownEsCedulado.setText("", false)
 
         binding.layoutCedulado.visibility = View.GONE
@@ -327,6 +332,7 @@ class RegistrarPacienteFragment : Fragment() {
                 0 -> { // "Sí"
                     binding.layoutCedulado.visibility = View.VISIBLE
                     binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
+                    limpiarRepresentante()
                 }
                 1 -> { // "No"
                     binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.VISIBLE
@@ -337,6 +343,7 @@ class RegistrarPacienteFragment : Fragment() {
                 else -> { // vacio
                     binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
                     binding.layoutCedulado.visibility = View.GONE
+                    limpiarRepresentante()
                     binding.tfCedula.editText?.text = null
                     binding.tfTipoCedula.editText?.text = null
                 }
@@ -349,6 +356,43 @@ class RegistrarPacienteFragment : Fragment() {
     private fun showRepresentativeDialog() {
         val representativeDialog = SeleccionarRepresentanteFragment()
         representativeDialog.show(parentFragmentManager, "RepresentativeSelectionDialog")
+    }
+
+    private fun listenerRepresentante() {
+        parentFragmentManager.setFragmentResultListener("representante_seleccionado", viewLifecycleOwner) { _, bundle ->
+            val representanteId = bundle.getString("representanteId")
+            val parentescoId = bundle.getString("parentescoId")?.toInt()
+
+            if (representanteId != null && parentescoId != null) {
+                viewModel.onRepresentanteSelected(representanteId, parentescoId)
+
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun observerRepresentante() {
+        viewModel.representante.observe(viewLifecycleOwner) { representante ->
+            if (representante != null) {
+                binding.cardPaciente.visibility = View.VISIBLE
+                binding.tvNombreCompleto.setText("${representante.nombres} ${representante.apellidos}")
+                binding.tvCedula.setText("Cédula: ${representante.cedula}")
+                binding.tvGenero.setText("Género: ${representante.genero}")
+                binding.tvFechaNacimiento.setText("Fecha de nacimiento: ${representante.fechaNacimiento}")
+                binding.tvEdad.setText("Edad: ${calcularEdad(representante.fechaNacimiento)} años")
+                binding.tvSinRepresentante.visibility = View.GONE
+                binding.btnSeleccinarRepresentate.text = "Cambiar representante"
+            }
+        }
+        viewModel.selectedParentesco.observe(viewLifecycleOwner) { parentesco ->
+            binding.tvParentesco.setText("Parentesco: ${parentesco?.nombre}")
+        }
+    }
+
+    private fun limpiarRepresentante() {
+        binding.cardPaciente.visibility = View.GONE
+        binding.tvSinRepresentante.visibility = View.VISIBLE
+        viewModel.limpiarRepresentante()
     }
 
 }

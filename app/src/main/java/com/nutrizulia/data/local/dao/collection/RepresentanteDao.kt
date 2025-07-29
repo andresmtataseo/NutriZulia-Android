@@ -27,7 +27,7 @@ interface RepresentanteDao {
     @Query("SELECT * FROM representantes WHERE usuario_institucion_id = :usuarioInstitucionId AND cedula = :cedula")
     suspend fun findByCedula(usuarioInstitucionId: Int, cedula: String): RepresentanteEntity?
 
-    @Query("SELECT * FROM representantes WHERE id = :id")
-    suspend fun findById(id: Int): RepresentanteEntity?
+    @Query("SELECT * FROM representantes WHERE usuario_institucion_id = :usuarioInstitucionId AND id = :representanteId")
+    suspend fun findById(usuarioInstitucionId: Int, representanteId: String): RepresentanteEntity?
 
 }

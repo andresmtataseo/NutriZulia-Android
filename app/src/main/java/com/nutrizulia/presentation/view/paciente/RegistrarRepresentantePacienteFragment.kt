@@ -1,6 +1,5 @@
-package com.nutrizulia.presentation.view.representante
+package com.nutrizulia.presentation.view.paciente
 
-import android.R
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,19 +9,18 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.nutrizulia.databinding.FragmentRegistrarRepresentanteBinding
+import com.nutrizulia.databinding.FragmentRegistrarRepresentantePacienteBinding
 import com.nutrizulia.domain.model.catalog.Estado
 import com.nutrizulia.domain.model.catalog.Etnia
 import com.nutrizulia.domain.model.catalog.Municipio
 import com.nutrizulia.domain.model.catalog.Nacionalidad
 import com.nutrizulia.domain.model.catalog.Parroquia
-import com.nutrizulia.presentation.viewmodel.representante.RegistrarRepresentanteViewModel
+import com.nutrizulia.presentation.viewmodel.paciente.RegistrarRepresentantePacienteViewModel
 import com.nutrizulia.util.Utils.mostrarDialog
 import com.nutrizulia.util.Utils.mostrarErrorEnCampo
 import com.nutrizulia.util.Utils.mostrarSnackbar
@@ -31,35 +29,29 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.getValue
 
 @AndroidEntryPoint
-class RegistrarRepresentanteFragment : Fragment() {
+class RegistrarRepresentantePacienteFragment : Fragment() {
 
-    private var _binding: FragmentRegistrarRepresentanteBinding? = null
-    private val binding: FragmentRegistrarRepresentanteBinding get() = _binding!!
-    private val viewModel: RegistrarRepresentanteViewModel by viewModels()
-    private val args: RegistrarRepresentanteFragmentArgs by navArgs()
+    private val viewModel: RegistrarRepresentantePacienteViewModel by viewModels()
+    private var _binding: FragmentRegistrarRepresentantePacienteBinding? = null
+    private val binding: FragmentRegistrarRepresentantePacienteBinding get() = _binding!!
     private var ultimaFechaSeleccionada: Long? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentRegistrarRepresentanteBinding.inflate(inflater, container, false)
+        _binding = FragmentRegistrarRepresentantePacienteBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.onCreate(args.representanteId, args.isEditable)
+        viewModel.onCreate(null, true)
         setupObservers()
         setupListeners()
 
-        if (!args.isEditable) {
-            deshabilitarCampos()
-            binding.btnRegistrar.text = "Salir"
-        } else {
-            if (args.representanteId != null) {
-                binding.btnLimpiar.text = "Restaurar"
-            }
-        }
     }
 
     private fun setupObservers() {
@@ -141,9 +133,9 @@ class RegistrarRepresentanteFragment : Fragment() {
         }
 
         binding.btnRegistrar.setOnClickListener {
-            if (args.isEditable) {
+            if (true) {
                 viewModel.onSavePatientClicked(
-                    id = args.representanteId,
+                    id = null,
                     tipoCedula = obtenerTexto(binding.tfTipoCedula),
                     cedula = obtenerTexto(binding.tfCedula),
                     nombres = obtenerTexto(binding.tfNombres),
@@ -161,13 +153,14 @@ class RegistrarRepresentanteFragment : Fragment() {
         }
 
         binding.btnLimpiar.setOnClickListener {
-            val dialogTitle = if (args.representanteId == null) "Limpiar campos" else "Restaurar cambios"
-            val dialogMessage = if (args.representanteId == null) "¿Desea limpiar todos los campos?" else "¿Desea restaurar los cambios?"
-            val positiveButton = if (args.representanteId == null) "Limpiar" else "Restaurar"
-            mostrarDialog(requireContext(), dialogTitle, dialogMessage, positiveButton, "No", {
-                limpiarCampos()
-                if (args.representanteId != null) viewModel.onCreate(args.representanteId, true)
-            }, {}, true)
+            mostrarDialog(
+                requireContext(),
+                "Limpiar campos",
+                "¿Desea limpiar todos los campos?",
+                "Limpiar",
+                "No",
+                { limpiarCampos() }
+            )
         }
 
         binding.dropdownEtnias.setOnItemClickListener { _, _, position, _ ->
@@ -218,7 +211,7 @@ class RegistrarRepresentanteFragment : Fragment() {
     }
 
     private fun updateAdapter(dropdown: AutoCompleteTextView, items: List<String>) {
-        val adapter = ArrayAdapter(requireContext(), R.layout.simple_dropdown_item_1line, items)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, items)
         dropdown.setAdapter(adapter)
     }
 

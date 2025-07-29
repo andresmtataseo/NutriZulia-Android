@@ -22,6 +22,7 @@ import com.nutrizulia.domain.usecase.catalog.GetNacionalidades
 import com.nutrizulia.domain.usecase.catalog.GetParroquiaById
 import com.nutrizulia.domain.usecase.catalog.GetParroquias
 import com.nutrizulia.domain.usecase.collection.GetRepresentanteByCedula
+import com.nutrizulia.domain.usecase.collection.GetRepresentanteById
 import com.nutrizulia.domain.usecase.collection.SaveRepresentante
 import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
 import com.nutrizulia.util.CheckData
@@ -40,6 +41,7 @@ import javax.inject.Inject
 class RegistrarRepresentanteViewModel @Inject constructor(
     private val saveRepresentante: SaveRepresentante,
     private val getRepresentanteByCedula: GetRepresentanteByCedula,
+    private val getRepresentanteById: GetRepresentanteById,
     private val getEtniaById: GetEtniaById,
     private val getNacionalidadById: GetNacionalidadById,
     private val getEstadoById: GetEstadoById,
@@ -54,8 +56,10 @@ class RegistrarRepresentanteViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Necesarios
-    private var _idUsuarioInstitucion = MutableLiveData<Int>()
+    private val _idUsuarioInstitucion = MutableLiveData<Int>()
     val idUsuarioInstitucion: LiveData<Int> get() = _idUsuarioInstitucion
+    private val _representante = MutableLiveData<Representante>()
+    val representante: LiveData<Representante> = _representante
     // catalogo
     private val _etnias = MutableLiveData<List<Etnia>>()
     val etnias: LiveData<List<Etnia>> get() = _etnias
@@ -90,9 +94,50 @@ class RegistrarRepresentanteViewModel @Inject constructor(
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
 
+    fun onCreate(representanteId: String?, isEditable: Boolean) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val institutionId: Int? = getCurrentInstitutionId()
+                if (institutionId == null) {
+                    _mensaje.postValue("Error: No se ha seleccionado una institución.")
+                    _salir.postValue(true)
+                    return@launch
+                }
+                _idUsuarioInstitucion.postValue(institutionId)
+                coroutineScope {
+                    val catalogsJob = if (isEditable) async { cargarCatalogos() } else null
+                    val representanteJob = if (!representanteId.isNullOrBlank()) async { obtenerRepresentante(representanteId) } else null
+                    catalogsJob?.await()
+                    representanteJob?.await()
+                }
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 
-    fun onCreate() {
+    private suspend fun obtenerRepresentante(representanteId: String) {
+        val loadedRepresentante = getRepresentanteById(_idUsuarioInstitucion.value!!, representanteId)
+        if (loadedRepresentante == null) {
+            _mensaje.postValue("No se encontró el paciente.")
+            _salir.postValue(true)
+            return
+        }
+        _representante.postValue(loadedRepresentante)
 
+        val parroquia = getParroquiaById(loadedRepresentante.parroquiaId)
+        val municipio = parroquia?.let { getMunicipioById(it.municipioId) }
+        val estado = municipio?.let { getEstadoById(it.estadoId) }
+
+        _selectedEtnia.postValue(getEtniaById(loadedRepresentante.etniaId))
+        _selectedNacionalidad.postValue(getNacionalidadById(loadedRepresentante.nacionalidadId))
+        _selectedEstado.postValue(estado)
+        _selectedMunicipio.postValue(municipio)
+        _selectedParroquia.postValue(parroquia)
+
+        if (estado != null) _municipios.postValue(getMunicipios(estado.id))
+        if (municipio != null) _parroquias.postValue(getParroquias(municipio.id))
     }
 
     private suspend fun cargarCatalogos() {

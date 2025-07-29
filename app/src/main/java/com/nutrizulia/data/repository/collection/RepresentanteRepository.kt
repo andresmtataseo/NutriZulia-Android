@@ -25,7 +25,7 @@ class RepresentanteRepository @Inject constructor(
         return dao.findByCedula(usuarioInstitucionId, cedula)?.toDomain()
     }
 
-    suspend fun findById(id: Int): Representante? {
-        return dao.findById(id)?.toDomain()
+    suspend fun findById(usuarioInstitucionId: Int, representanteId: String): Representante? {
+        return dao.findById(usuarioInstitucionId, representanteId)?.toDomain()
     }
 }

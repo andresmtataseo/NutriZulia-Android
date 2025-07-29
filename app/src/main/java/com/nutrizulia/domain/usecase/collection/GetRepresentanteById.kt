@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetRepresentanteById @Inject constructor(
     private val repository: RepresentanteRepository
 ) {
-    suspend operator fun invoke(id: Int): Representante? {
-        return repository.findById(id)
+    suspend operator fun invoke(usuarioInstitucionId: Int, representanteId: String): Representante? {
+        return repository.findById(usuarioInstitucionId, representanteId)
     }
 }
