@@ -6,12 +6,16 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.DetalleVitalEntity
+import java.time.LocalDateTime
 
 @Dao
 interface DetalleVitalDao {
 
     @Query("SELECT * FROM detalles_vitales WHERE consulta_id = :consultaId")
     suspend fun findByConsultaId(consultaId: String): DetalleVitalEntity?
+
+    @Query("SELECT * FROM detalles_vitales WHERE updated_at > :timestamp")
+    suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleVitalEntity>
 
     @Insert
     suspend fun insert(detalleVital: DetalleVitalEntity): Long
@@ -21,6 +25,9 @@ interface DetalleVitalDao {
 
     @Upsert
     suspend fun upsert(detalleVital: DetalleVitalEntity)
+
+    @Upsert
+    suspend fun upsertAll(detallesVitales: List<DetalleVitalEntity>)
 
     @Query("DELETE FROM detalles_vitales")
     suspend fun deleteAll(): Int

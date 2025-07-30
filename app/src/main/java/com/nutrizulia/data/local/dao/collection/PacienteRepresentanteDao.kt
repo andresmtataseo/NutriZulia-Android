@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.PacienteRepresentanteEntity
+import java.time.LocalDateTime
 
 @Dao
 interface PacienteRepresentanteDao {
@@ -13,11 +14,18 @@ interface PacienteRepresentanteDao {
     @Query("SELECT * FROM pacientes_representantes WHERE paciente_id = :pacienteId")
     suspend fun findByPacienteId(pacienteId: String): PacienteRepresentanteEntity?
 
+    @Query("SELECT * FROM pacientes_representantes WHERE updated_at > :timestamp")
+    suspend fun findPendingChanges(timestamp: LocalDateTime): List<PacienteRepresentanteEntity>
+
     @Query("SELECT COUNT(paciente_id) FROM pacientes_representantes WHERE usuario_institucion_id = :usuarioInstitucionId AND representante_id = :representanteId AND is_deleted = 0")
     suspend fun countPacienteIdByUsuarioInstitucionIdAndRepresentanteId(usuarioInstitucionId: Int, representanteId: String): Int
 
     @Upsert
     suspend fun upsert(pacienteRepresentante: PacienteRepresentanteEntity)
+    
+    @Upsert
+    suspend fun upsertAll(pacientesRepresentantes: List<PacienteRepresentanteEntity>)
+    
     @Insert
     suspend fun insert(pacienteRepresentante: PacienteRepresentanteEntity): Long
 

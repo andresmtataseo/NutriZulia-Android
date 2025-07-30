@@ -6,12 +6,16 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.DetalleMetabolicoEntity
+import java.time.LocalDateTime
 
 @Dao
 interface DetalleMetabolicoDao {
 
     @Query("SELECT * FROM detalles_metabolicos WHERE consulta_id = :consultaId")
     suspend fun findByConsultaId(consultaId: String): DetalleMetabolicoEntity?
+
+    @Query("SELECT * FROM detalles_metabolicos WHERE updated_at > :timestamp")
+    suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleMetabolicoEntity>
 
     @Insert
     suspend fun insert(detalleMetabolico: DetalleMetabolicoEntity): Long
@@ -21,6 +25,9 @@ interface DetalleMetabolicoDao {
 
     @Upsert
     suspend fun upsert(detalleMetabolico: DetalleMetabolicoEntity)
+
+    @Upsert
+    suspend fun upsertAll(detallesMetabolicos: List<DetalleMetabolicoEntity>)
 
     @Delete
     suspend fun delete(detalleMetabolico: DetalleMetabolicoEntity): Int

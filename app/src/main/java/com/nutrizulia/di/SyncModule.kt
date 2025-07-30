@@ -1,11 +1,15 @@
 package com.nutrizulia.di
 
 import com.nutrizulia.data.local.dao.catalog.*
+import com.nutrizulia.data.local.dao.collection.*
 import com.nutrizulia.data.local.dao.user.InstitucionDao
 import com.nutrizulia.data.local.dao.user.RolDao
 import com.nutrizulia.data.remote.api.catalog.CatalogService
+import com.nutrizulia.data.remote.api.sync.ISyncService
 import com.nutrizulia.data.remote.dto.catalog.toEntity
 import com.nutrizulia.data.repository.catalog.sync.*
+import com.nutrizulia.data.repository.sync.SyncRepository
+import com.nutrizulia.util.SyncManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -108,5 +112,42 @@ object SyncModule {
     // -- Institucion
     @Provides @Singleton @IntoMap @StringKey("instituciones")
     fun provideInstitucionSyncer(s: CatalogService, v: VersionDao, d: InstitucionDao) = createBaseSyncer("instituciones", v, { s.getInstituciones().body().orEmpty() }, { d.upsertAll(it) }, { it.toEntity() })
+
+    // -- SyncRepository para sincronización bidireccional
+    @Provides
+    @Singleton
+    fun provideSyncRepository(
+        syncService: ISyncService,
+        syncManager: SyncManager,
+        pacienteDao: PacienteDao,
+        consultaDao: ConsultaDao,
+        representanteDao: RepresentanteDao,
+        pacienteRepresentanteDao: PacienteRepresentanteDao,
+        evaluacionAntropometricaDao: EvaluacionAntropometricaDao,
+        detallePediatricoDao: DetallePediatricoDao,
+        detalleMetabolicoDao: DetalleMetabolicoDao,
+        detalleVitalDao: DetalleVitalDao,
+        detalleAntropometricoDao: DetalleAntropometricoDao,
+        detalleObstetriciaDao: DetalleObstetriciaDao,
+        diagnosticoDao: DiagnosticoDao,
+        actividadDao: ActividadDao
+    ): SyncRepository {
+        return SyncRepository(
+            syncService = syncService,
+            syncManager = syncManager,
+            pacienteDao = pacienteDao,
+            consultaDao = consultaDao,
+            representanteDao = representanteDao,
+            pacienteRepresentanteDao = pacienteRepresentanteDao,
+            evaluacionAntropometricaDao = evaluacionAntropometricaDao,
+            detallePediatricoDao = detallePediatricoDao,
+            detalleMetabolicoDao = detalleMetabolicoDao,
+            detalleVitalDao = detalleVitalDao,
+            detalleAntropometricoDao = detalleAntropometricoDao,
+            detalleObstetriciaDao = detalleObstetriciaDao,
+            diagnosticoDao = diagnosticoDao,
+            actividadDao = actividadDao
+        )
+    }
 
 }

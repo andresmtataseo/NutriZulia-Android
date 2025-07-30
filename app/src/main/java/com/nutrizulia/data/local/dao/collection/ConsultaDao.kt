@@ -1,15 +1,12 @@
 package com.nutrizulia.data.local.dao.collection
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Update
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.ConsultaEntity
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.pojo.DailyAppointmentCount
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Dao
@@ -43,5 +40,11 @@ interface ConsultaDao {
     @Query("UPDATE consultas SET estado = :estado WHERE id = :id")
     suspend fun updateEstadoById(id: String, estado: Estado)
 
+    // Consultas para sincronización
+    @Query("SELECT * FROM consultas WHERE updated_at > :timestamp")
+    suspend fun findPendingChanges(timestamp: LocalDateTime): List<ConsultaEntity>
+
+    @Upsert
+    suspend fun upsertAll(consultas: List<ConsultaEntity>)
 
 }
