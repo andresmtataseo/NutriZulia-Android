@@ -9,8 +9,6 @@ import com.nutrizulia.data.remote.api.ErrorInterceptor
 import com.nutrizulia.data.remote.api.auth.AuthInterceptor
 import com.nutrizulia.data.remote.api.auth.IAuthService
 import com.nutrizulia.data.remote.api.catalog.ICatalogService
-import com.nutrizulia.data.remote.api.collection.ICollectionService
-import com.nutrizulia.data.remote.api.sync.ISyncService
 import com.nutrizulia.data.remote.api.user.IUserService
 import com.nutrizulia.util.ApiConstants.BASE_URL
 import dagger.Module
@@ -134,20 +132,8 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideCollectionService(@AuthenticatedRetrofit retrofit: Retrofit): ICollectionService {
-        return retrofit.create(ICollectionService::class.java)
-    }
-
-    @Singleton
-    @Provides
     fun provideUserService(@AuthenticatedRetrofit retrofit: Retrofit): IUserService {
         return retrofit.create(IUserService::class.java)
-    }
-
-    @Singleton
-    @Provides
-    fun provideSyncService(@AuthenticatedRetrofit retrofit: Retrofit): ISyncService {
-        return retrofit.create(ISyncService::class.java)
     }
 }
 

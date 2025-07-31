@@ -94,11 +94,6 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     // lottie
     implementation(libs.lottie)
-    // WorkManager
-    implementation(libs.androidx.work.runtime.ktx)
-    // Hilt Work
-    implementation(libs.hilt.work)
-    ksp(libs.hilt.compiler)
-    //
+    // Button speed dial
     implementation("com.leinardi.android:speed-dial:3.3.0")
 }
