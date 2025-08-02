@@ -19,7 +19,8 @@ data class Paciente(
     var telefono: String?,
     var correo: String?,
     val updatedAt: LocalDateTime,
-    var isDeleted: Boolean
+    var isDeleted: Boolean,
+    var isSynced: Boolean
 )
  fun PacienteEntity.toDomain() = Paciente(
      id = id,
@@ -36,5 +37,6 @@ data class Paciente(
      telefono = telefono,
      correo = correo,
      updatedAt = updatedAt,
-     isDeleted = isDeleted
+     isDeleted = isDeleted,
+     isSynced = isSynced
  )
