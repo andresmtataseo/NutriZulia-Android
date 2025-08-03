@@ -19,5 +19,5 @@ data class ApiResponseDto<T>(
     val path: String,
 
     @SerializedName("errors")
-    val errors: List<String>? = null
+    val errors: Map<String, String>? = null
 )

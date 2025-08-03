@@ -3,7 +3,6 @@ package com.nutrizulia.domain.model.auth
 import com.nutrizulia.data.remote.dto.auth.SignInResponseDto
 import com.nutrizulia.data.remote.dto.user.toDomain
 import com.nutrizulia.domain.model.user.Usuario
-import com.nutrizulia.domain.model.user.UsuarioInstitucion
 
 data class SignIn(
     val token: String,
