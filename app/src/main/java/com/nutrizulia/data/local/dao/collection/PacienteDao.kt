@@ -30,9 +30,8 @@ interface PacienteDao {
     @Query("SELECT * FROM pacientes WHERE id = :id AND usuario_institucion_id = :usuarioInstitucionId")
     suspend fun findById(usuarioInstitucionId: Int, id: String): PacienteEntity?
 
-    // Consultas para sincronización
-    @Query("SELECT * FROM pacientes WHERE updated_at > :timestamp")
-    suspend fun findPendingChanges(timestamp: LocalDateTime): List<PacienteEntity>
+    @Query("SELECT * FROM pacientes WHERE is_synced = 0")
+    suspend fun findAllNotSynced(): List<PacienteEntity>
 
     @Upsert
     suspend fun upsert(paciente: PacienteEntity): Long
@@ -45,6 +44,9 @@ interface PacienteDao {
 
     @Update
     suspend fun update(paciente: PacienteEntity): Int
+
+    @Update
+    suspend fun updateAll(pacientes: List<PacienteEntity>): Int
 
     @Delete
     suspend fun delete(paciente: PacienteEntity): Int
