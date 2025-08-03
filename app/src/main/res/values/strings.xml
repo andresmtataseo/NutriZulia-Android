@@ -119,4 +119,14 @@
     <string name="siguiente">Siguiente</string>
     <string name="buscar_representante">Buscar representante</string>
     <string name="menu_representantes">Representantes</string>
+    
+    <!-- Mensajes de recuperación de contraseña -->
+    <string name="recuperacion_exitosa">Recuperación Exitosa</string>
+    <string name="entendido">Entendido</string>
+    <string name="reintentar">Reintentar</string>
+    <string name="corrija_errores_formulario">Por favor, corrija los errores en el formulario.</string>
+    <string name="contacto_admin_titulo">¿No puedes recuperar tu contraseña?</string>
+    <string name="contacto_admin_mensaje">Si tienes problemas para recuperar tu contraseña, puedes contactar al administrador del sistema para obtener ayuda.\n\nCorreo: admin@nutrizulia.com\nTeléfono: +58 261 123-4567</string>
+    <string name="volver_login">Volver al login</string>
+    <string name="mensaje_info_recuperacion">💡 Recibirás un enlace de recuperación en tu correo electrónico registrado. Revisa también tu carpeta de spam.</string>
 </resources>
