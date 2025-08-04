@@ -129,4 +129,13 @@
     <string name="contacto_admin_mensaje">Si tienes problemas para recuperar tu contraseña, puedes contactar al administrador del sistema para obtener ayuda.\n\nCorreo: admin@nutrizulia.com\nTeléfono: +58 261 123-4567</string>
     <string name="volver_login">Volver al login</string>
     <string name="mensaje_info_recuperacion">💡 Recibirás un enlace de recuperación en tu correo electrónico registrado. Revisa también tu carpeta de spam.</string>
+    
+    <!-- Strings para sincronización -->
+    <string name="sincronizar_pacientes">Sincronizar Pacientes</string>
+    <string name="sincronizando">Sincronizando…</string>
+    <string name="sincronizacion_exitosa">Sincronización completada exitosamente</string>
+    <string name="error_sincronizacion_negocio">Error de negocio: %s</string>
+    <string name="error_sincronizacion_conflicto">Conflicto de datos: algunos pacientes ya existen o tienen datos inconsistentes</string>
+    <string name="error_sincronizacion_red">Error de conexión. Verifique su conexión a internet</string>
+    <string name="error_sincronizacion_desconocido">Error inesperado durante la sincronización</string>
 </resources>

@@ -5,7 +5,9 @@ import com.nutrizulia.data.local.dao.collection.PacienteDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.view.PacienteConCita
 import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
+import com.nutrizulia.data.remote.dto.collection.PacienteDto
 import com.nutrizulia.data.remote.dto.collection.toEntity
+import com.nutrizulia.domain.model.SyncResult
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.domain.model.collection.toDto
@@ -37,42 +39,67 @@ class PacienteRepository @Inject constructor(
         return pacienteDao.findAllByUsuarioInstitucionIdAndFilter( usuarioInstitucionId, query).map { it.toDomain() }
     }
 
-    suspend fun sincronizarPacientes() {
+    suspend fun sincronizarPacientes(): SyncResult<List<PacienteDto>> {
         val pacientesNoSincronizados = pacienteDao.findAllNotSynced()
-        if (pacientesNoSincronizados.isEmpty()) return
+        if (pacientesNoSincronizados.isEmpty()) {
+            return SyncResult.Success(emptyList(), "No hay pacientes para sincronizar")
+        }
 
-        try {
+        return try {
             val pacientesDto = pacientesNoSincronizados.map { it.toDto() }
             val response = api.syncPacientes(pacientesDto)
 
-            if (response.isSuccessful) {
-                val body = response.body()
-
-                if (body != null && body.status == 200) {
-                    val data = body.data ?: emptyList()
-
-                    // 1. Marcar como sincronizados los que enviaste
-                    pacienteDao.updateAll(pacientesNoSincronizados.map {
-                        it.copy(isSynced = true)
-                    })
-
-                    // 2. Sobrescribir con los que vinieron más nuevos del backend
-                    data.forEach { dto ->
-                        val paciente = dto.toEntity().copy(isSynced = true)
-                        pacienteDao.upsert(paciente)
+            when {
+                response.isSuccessful -> {
+                    val body = response.body()
+                    when {
+                        body == null -> {
+                            SyncResult.NetworkError(
+                                code = response.code(),
+                                message = "Respuesta vacía del servidor"
+                            )
+                        }
+                        body.status == 200 -> {
+                            val data = body.data ?: emptyList()
+                            procesarSincronizacionExitosa(pacientesNoSincronizados, data)
+                            val cantidadSincronizados = pacientesNoSincronizados.size
+                            val mensajeCompleto = "Sincronización completada. $cantidadSincronizados pacientes sincronizados exitosamente."
+                            SyncResult.Success(data, mensajeCompleto)
+                        }
+                        else -> {
+                            SyncResult.BusinessError(
+                                status = body.status,
+                                message = body.message,
+                                errors = body.errors
+                            )
+                        }
                     }
-                } else {
-                    // Respuesta con status != 200 (error de negocio)
                 }
-            } else {
-                // Respuesta HTTP no exitosa (404, 500, etc.)
+                else -> {
+                    SyncResult.NetworkError(
+                        code = response.code(),
+                        message = response.message() ?: "Error de red desconocido"
+                    )
+                }
             }
-
         } catch (e: Exception) {
-            // Aquí podrías:
-            // - Mostrar mensaje al usuario
-            // - Agendar retry
-            // - Guardar en base local que falló el intento
+            SyncResult.UnknownError(e)
+        }
+    }
+
+    private suspend fun procesarSincronizacionExitosa(
+        pacientesNoSincronizados: List<com.nutrizulia.data.local.entity.collection.PacienteEntity>,
+        dataSincronizada: List<PacienteDto>
+    ) {
+        // 1. Marcar como sincronizados los que enviaste
+        pacienteDao.updateAll(pacientesNoSincronizados.map {
+            it.copy(isSynced = true)
+        })
+
+        // 2. Sobrescribir con los que vinieron más nuevos del backend
+        dataSincronizada.forEach { dto ->
+            val paciente = dto.toEntity().copy(isSynced = true)
+            pacienteDao.upsert(paciente)
         }
     }
 
