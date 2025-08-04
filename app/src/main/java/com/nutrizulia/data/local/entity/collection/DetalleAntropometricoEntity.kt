@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.nutrizulia.data.remote.dto.collection.DetalleAntropometricoDto
 import com.nutrizulia.domain.model.collection.DetalleAntropometrico
 import java.time.LocalDateTime
 
@@ -55,4 +56,20 @@ fun DetalleAntropometrico.toEntity() = DetalleAntropometricoEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun DetalleAntropometricoEntity.toDto() = DetalleAntropometricoDto(
+    id = id,
+    consultaId = consultaId,
+    peso = peso,
+    altura = altura,
+    talla = talla,
+    circunferenciaBraquial = circunferenciaBraquial,
+    circunferenciaCadera = circunferenciaCadera,
+    circunferenciaCintura = circunferenciaCintura,
+    perimetroCefalico = perimetroCefalico,
+    pliegueTricipital = pliegueTricipital,
+    pliegueSubescapular = pliegueSubescapular,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

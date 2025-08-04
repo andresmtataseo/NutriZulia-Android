@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nutrizulia.data.local.enum.TipoLactancia
+import com.nutrizulia.data.remote.dto.collection.DetallePediatricoDto
 import com.nutrizulia.domain.model.collection.DetallePediatrico
 import java.time.LocalDateTime
 
@@ -42,4 +43,13 @@ fun DetallePediatrico.toEntity() = DetallePediatricoEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun DetallePediatricoEntity.toDto() = DetallePediatricoDto(
+    id = id,
+    consultaId = consultaId,
+    usaBiberon = usaBiberon,
+    tipoLactancia = tipoLactancia,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

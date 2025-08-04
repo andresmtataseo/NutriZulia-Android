@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nutrizulia.data.local.entity.catalog.ParentescoEntity
 import com.nutrizulia.data.local.entity.user.UsuarioInstitucionEntity
+import com.nutrizulia.data.remote.dto.collection.PacienteRepresentanteDto
 import com.nutrizulia.domain.model.collection.PacienteRepresentante
 import java.time.LocalDateTime
 
@@ -66,4 +67,14 @@ fun PacienteRepresentante.toEntity() = PacienteRepresentanteEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun PacienteRepresentanteEntity.toDto() = PacienteRepresentanteDto(
+    id = id,
+    usuarioInstitucionId = usuarioInstitucionId,
+    pacienteId = pacienteId,
+    representanteId = representanteId,
+    parentescoId = parentescoId,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

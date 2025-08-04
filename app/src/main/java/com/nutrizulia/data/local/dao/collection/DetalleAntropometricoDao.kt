@@ -17,6 +17,9 @@ interface DetalleAntropometricoDao {
     @Query("SELECT * FROM detalles_antropometricos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleAntropometricoEntity>
 
+    @Query("SELECT * FROM detalles_antropometricos WHERE is_synced = 0")
+    suspend fun findAllNotSynced(): List<DetalleAntropometricoEntity>
+
     @Insert
     suspend fun insert(detalleAntropometrico: DetalleAntropometricoEntity): Long
 

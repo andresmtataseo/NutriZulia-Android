@@ -87,3 +87,50 @@ fun <T> SyncResult<T>.getErrorMessage(): String? = when (this) {
     is SyncResult.UnknownError -> exception.message ?: "Error desconocido"
     is SyncResult.Success -> null
 }
+
+/**
+ * Convierte una excepción a SyncResult.UnknownError
+ */
+fun Exception.toSyncResult(): SyncResult<Nothing> = SyncResult.UnknownError(this)
+
+/**
+ * Convierte una respuesta de la API a SyncResult
+ */
+fun <T> retrofit2.Response<com.nutrizulia.data.remote.dto.ApiResponseDto<T>>.toSyncResult(): SyncResult<T> {
+    return if (isSuccessful) {
+        val body = body()
+        if (body != null) {
+            when (body.status) {
+                in 200..299 -> SyncResult.Success(body.data!!, body.message)
+                in 400..499 -> SyncResult.BusinessError(body.status, body.message, body.errors)
+                else -> SyncResult.NetworkError(body.status, body.message)
+            }
+        } else {
+            SyncResult.NetworkError(code(), "Respuesta vacía del servidor")
+        }
+    } else {
+        SyncResult.NetworkError(code(), message())
+    }
+}
+
+/**
+ * Convierte una respuesta de la API a SyncResult con transformación personalizada
+ */
+inline fun <T, R> retrofit2.Response<com.nutrizulia.data.remote.dto.ApiResponseDto<T>>.toSyncResult(
+    transform: (com.nutrizulia.data.remote.dto.ApiResponseDto<T>) -> SyncResult<R>
+): SyncResult<R> {
+    return if (isSuccessful) {
+        val body = body()
+        if (body != null) {
+            when (body.status) {
+                in 200..299 -> transform(body)
+                in 400..499 -> SyncResult.BusinessError(body.status, body.message, body.errors)
+                else -> SyncResult.NetworkError(body.status, body.message)
+            }
+        } else {
+            SyncResult.NetworkError(code(), "Respuesta vacía del servidor")
+        }
+    } else {
+        SyncResult.NetworkError(code(), message())
+    }
+}

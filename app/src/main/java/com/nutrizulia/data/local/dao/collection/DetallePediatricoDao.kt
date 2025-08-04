@@ -17,6 +17,9 @@ interface DetallePediatricoDao {
     @Query("SELECT * FROM detalles_pediatricos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetallePediatricoEntity>
 
+    @Query("SELECT * FROM detalles_pediatricos WHERE is_synced = 0")
+    suspend fun findAllNotSynced(): List<DetallePediatricoEntity>
+
     @Insert
     suspend fun insert(detallePediatrico: DetallePediatricoEntity): Long
 

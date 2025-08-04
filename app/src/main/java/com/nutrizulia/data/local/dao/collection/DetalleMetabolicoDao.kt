@@ -17,6 +17,9 @@ interface DetalleMetabolicoDao {
     @Query("SELECT * FROM detalles_metabolicos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleMetabolicoEntity>
 
+    @Query("SELECT * FROM detalles_metabolicos WHERE is_synced = 0")
+    suspend fun findAllNotSynced(): List<DetalleMetabolicoEntity>
+
     @Insert
     suspend fun insert(detalleMetabolico: DetalleMetabolicoEntity): Long
 

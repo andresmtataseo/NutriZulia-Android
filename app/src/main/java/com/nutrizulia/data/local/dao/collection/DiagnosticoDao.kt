@@ -17,6 +17,9 @@ interface DiagnosticoDao {
     @Query("SELECT * FROM diagnosticos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DiagnosticoEntity>
 
+    @Query("SELECT * FROM diagnosticos WHERE is_synced = 0")
+    suspend fun findAllNotSynced(): List<DiagnosticoEntity>
+
     @Insert
     suspend fun insert(diagnostico: DiagnosticoEntity): Long
 

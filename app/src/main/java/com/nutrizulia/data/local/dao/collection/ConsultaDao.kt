@@ -44,6 +44,9 @@ interface ConsultaDao {
     @Query("SELECT * FROM consultas WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<ConsultaEntity>
 
+    @Query("SELECT * FROM consultas WHERE is_synced = 0")
+    suspend fun findAllNotSynced(): List<ConsultaEntity>
+
     @Upsert
     suspend fun upsertAll(consultas: List<ConsultaEntity>)
 

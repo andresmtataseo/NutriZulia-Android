@@ -11,6 +11,7 @@ import com.nutrizulia.domain.model.SyncResult
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.domain.model.collection.toDto
+import com.nutrizulia.domain.model.toSyncResult
 import javax.inject.Inject
 
 class PacienteRepository @Inject constructor(
@@ -40,73 +41,30 @@ class PacienteRepository @Inject constructor(
     }
 
     suspend fun sincronizarPacientes(): SyncResult<List<PacienteDto>> {
-        val pacientesNoSincronizados = pacienteDao.findAllNotSynced()
-        if (pacientesNoSincronizados.isEmpty()) {
-            return SyncResult.Success(emptyList(), "No hay pacientes para sincronizar")
-        }
-
         return try {
-            val pacientesDto = pacientesNoSincronizados.map { it.toDto() }
+            val pacientesPendientes = pacienteDao.findAllNotSynced()
+            if (pacientesPendientes.isEmpty()) {
+                return SyncResult.Success(emptyList(), "No hay pacientes para sincronizar")
+            }
+            val pacientesDto = pacientesPendientes.map { it.toDto() }
             val response = api.syncPacientes(pacientesDto)
 
-            when {
-                response.isSuccessful -> {
-                    val body = response.body()
-                    when {
-                        body == null -> {
-                            SyncResult.NetworkError(
-                                code = response.code(),
-                                message = "Respuesta vacía del servidor"
-                            )
-                        }
-                        body.status == 200 -> {
-                            val data = body.data ?: emptyList()
-                            procesarSincronizacionExitosa(pacientesNoSincronizados, data)
-                            val cantidadSincronizados = pacientesNoSincronizados.size
-                            val mensajeCompleto = "Sincronización completada. $cantidadSincronizados pacientes sincronizados exitosamente."
-                            SyncResult.Success(data, mensajeCompleto)
-                        }
-                        else -> {
-                            SyncResult.BusinessError(
-                                status = body.status,
-                                message = body.message,
-                                errors = body.errors
-                            )
-                        }
-                    }
-                }
-                else -> {
-                    SyncResult.NetworkError(
-                        code = response.code(),
-                        message = response.message() ?: "Error de red desconocido"
+            response.toSyncResult { apiResponse ->
+                val data = apiResponse.data ?: emptyList()
+                data.forEach { dto ->
+                    val entity = dto.toEntity().copy(
+                        isSynced = true
                     )
+                    pacienteDao.upsert(entity)
                 }
+                SyncResult.Success(data, response.body()?.message ?: "Sincronización de pacientes completada")
             }
         } catch (e: Exception) {
-            SyncResult.UnknownError(e)
+            e.toSyncResult()
         }
     }
-
-    private suspend fun procesarSincronizacionExitosa(
-        pacientesNoSincronizados: List<com.nutrizulia.data.local.entity.collection.PacienteEntity>,
-        dataSincronizada: List<PacienteDto>
-    ) {
-        // 1. Marcar como sincronizados los que enviaste
-        pacienteDao.updateAll(pacientesNoSincronizados.map {
-            it.copy(isSynced = true)
-        })
-
-        // 2. Sobrescribir con los que vinieron más nuevos del backend
-        dataSincronizada.forEach { dto ->
-            val paciente = dto.toEntity().copy(isSynced = true)
-            pacienteDao.upsert(paciente)
-        }
-    }
-
-
 
     // Pacientes con citas
-
     suspend fun findPacienteConCitaByConsultaId(usuarioInstitucionId: Int, consultaId: String): PacienteConCita? {
         return pacienteConCitaDao.findById(usuarioInstitucionId, consultaId)
     }

@@ -9,6 +9,7 @@ import com.nutrizulia.data.local.entity.catalog.EtniaEntity
 import com.nutrizulia.data.local.entity.catalog.NacionalidadEntity
 import com.nutrizulia.data.local.entity.catalog.ParroquiaEntity
 import com.nutrizulia.data.local.entity.user.UsuarioInstitucionEntity
+import com.nutrizulia.data.remote.dto.collection.RepresentanteDto
 import com.nutrizulia.domain.model.collection.Representante
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -86,4 +87,22 @@ fun Representante.toEntity() = RepresentanteEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun RepresentanteEntity.toDto() = RepresentanteDto(
+    id = id,
+    usuarioInstitucionId = usuarioInstitucionId,
+    cedula = cedula,
+    nombres = nombres,
+    apellidos = apellidos,
+    fechaNacimiento = fechaNacimiento,
+    genero = genero,
+    etniaId = etniaId,
+    nacionalidadId = nacionalidadId,
+    parroquiaId = parroquiaId,
+    domicilio = domicilio,
+    telefono = telefono,
+    correo = correo,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

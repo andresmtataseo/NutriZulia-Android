@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.nutrizulia.data.remote.dto.collection.DetalleObstetriciaDto
 import com.nutrizulia.domain.model.collection.DetalleObstetricia
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -46,4 +47,15 @@ fun DetalleObstetricia.toEntity() = DetalleObstetriciaEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun DetalleObstetriciaEntity.toDto() = DetalleObstetriciaDto(
+    id = id,
+    consultaId = consultaId,
+    estaEmbarazada = estaEmbarazada,
+    fechaUltimaMenstruacion = fechaUltimaMenstruacion,
+    semanasGestacion = semanasGestacion,
+    pesoPreEmbarazo = pesoPreEmbarazo,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

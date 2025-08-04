@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.nutrizulia.data.remote.dto.collection.DetalleVitalDto
 import com.nutrizulia.domain.model.collection.DetalleVital
 import java.time.LocalDateTime
 
@@ -51,4 +52,18 @@ fun DetalleVital.toEntity() = DetalleVitalEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun DetalleVitalEntity.toDto() = DetalleVitalDto(
+    id = id,
+    consultaId = consultaId,
+    tensionArterialSistolica = tensionArterialSistolica,
+    tensionArterialDiastolica = tensionArterialDiastolica,
+    frecuenciaCardiaca = frecuenciaCardiaca,
+    frecuenciaRespiratoria = frecuenciaRespiratoria,
+    temperatura = temperatura,
+    saturacionOxigeno = saturacionOxigeno,
+    pulso = pulso,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

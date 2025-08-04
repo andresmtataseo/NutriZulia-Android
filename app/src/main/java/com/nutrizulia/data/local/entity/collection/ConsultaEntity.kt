@@ -10,6 +10,7 @@ import com.nutrizulia.data.local.entity.catalog.TipoActividadEntity
 import com.nutrizulia.data.local.entity.user.UsuarioInstitucionEntity
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.enum.TipoConsulta
+import com.nutrizulia.data.remote.dto.collection.ConsultaDto
 import com.nutrizulia.domain.model.collection.Consulta
 import java.time.LocalDateTime
 
@@ -83,4 +84,21 @@ fun Consulta.toEntity() = ConsultaEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun ConsultaEntity.toDto() = ConsultaDto(
+    id = id,
+    usuarioInstitucionId = usuarioInstitucionId,
+    pacienteId = pacienteId,
+    tipoActividadId = tipoActividadId,
+    especialidadRemitenteId = especialidadRemitenteId,
+    tipoConsulta = tipoConsulta,
+    motivoConsulta = motivoConsulta,
+    fechaHoraProgramada = fechaHoraProgramada,
+    observaciones = observaciones,
+    planes = planes,
+    fechaHoraReal = fechaHoraReal,
+    estado = estado,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

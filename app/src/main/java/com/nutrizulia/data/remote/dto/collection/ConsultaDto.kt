@@ -23,7 +23,7 @@ data class ConsultaDto(
     @SerializedName("is_deleted") val isDeleted: Boolean
 )
 
-fun ConsultaDto.toDomain() = ConsultaEntity(
+fun ConsultaDto.toEntity() = ConsultaEntity(
     id = id,
     usuarioInstitucionId = usuarioInstitucionId,
     pacienteId = pacienteId,

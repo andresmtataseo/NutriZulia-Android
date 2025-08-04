@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nutrizulia.data.local.entity.catalog.TipoIndicadorEntity
 import com.nutrizulia.data.local.enum.TipoValorCalculado
+import com.nutrizulia.data.remote.dto.collection.EvaluacionAntropometricaDto
 import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -66,4 +67,17 @@ fun EvaluacionAntropometrica.toEntity() = EvaluacionAntropometricaEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun EvaluacionAntropometricaEntity.toDto() = EvaluacionAntropometricaDto(
+    id = id,
+    consultaId = consultaId,
+    detalleAntropometricoId = detalleAntropometricoId,
+    tipoIndicadorId = tipoIndicadorId,
+    valorCalculado = valorCalculado,
+    tipoValorCalculado = tipoValorCalculado,
+    diagnosticoAntropometrico = diagnosticoAntropometrico,
+    fechaEvaluacion = fechaEvaluacion,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

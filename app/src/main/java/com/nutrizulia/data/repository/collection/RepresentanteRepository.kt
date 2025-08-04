@@ -1,10 +1,15 @@
 package com.nutrizulia.data.repository.collection
 
 import com.nutrizulia.data.local.dao.collection.RepresentanteDao
+import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
+import com.nutrizulia.data.remote.dto.collection.RepresentanteDto
+import com.nutrizulia.data.remote.dto.collection.toEntity
+import com.nutrizulia.domain.model.SyncResult
 import com.nutrizulia.domain.model.collection.Representante
 import com.nutrizulia.domain.model.collection.toDomain
+import com.nutrizulia.domain.model.toSyncResult
 import javax.inject.Inject
 
 class RepresentanteRepository @Inject constructor(
@@ -29,5 +34,29 @@ class RepresentanteRepository @Inject constructor(
 
     suspend fun findById(usuarioInstitucionId: Int, representanteId: String): Representante? {
         return dao.findById(usuarioInstitucionId, representanteId)?.toDomain()
+    }
+
+    suspend fun sincronizarRepresentanteRepository(): SyncResult<List<RepresentanteDto>> {
+        return try {
+            val representantesPendientes = dao.findAllNotSynced()
+            if (representantesPendientes.isEmpty()) {
+                return SyncResult.Success(emptyList(), "No hay representantes para sincronizar")
+            }
+            val representantesDto = representantesPendientes.map { it.toDto() }
+            val response = api.syncRepresentantes(representantesDto)
+
+            response.toSyncResult { apiResponse ->
+                val data = apiResponse.data ?: emptyList()
+                data.forEach { dto ->
+                    val entity = dto.toEntity().copy(
+                        isSynced = true
+                    )
+                    dao.upsert(entity)
+                }
+                SyncResult.Success(data, response.body()?.message ?: "Sincronización de representantes completada")
+            }
+        } catch (e: Exception) {
+            e.toSyncResult()
+        }
     }
 }

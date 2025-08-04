@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nutrizulia.data.local.entity.catalog.EnfermedadEntity
 import com.nutrizulia.data.local.entity.catalog.RiesgoBiologicoEntity
+import com.nutrizulia.data.remote.dto.collection.DiagnosticoDto
 import com.nutrizulia.domain.model.collection.Diagnostico
 import java.time.LocalDateTime
 
@@ -59,4 +60,14 @@ fun Diagnostico.toEntity() = DiagnosticoEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun DiagnosticoEntity.toDto() = DiagnosticoDto(
+    id = id,
+    consultaId = consultaId,
+    riesgoBiologicoId = riesgoBiologicoId,
+    enfermedadId = enfermedadId,
+    isPrincipal = isPrincipal,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

@@ -2,6 +2,7 @@ package com.nutrizulia.data.local.dao.collection
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Update
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.RepresentanteEntity
 import java.time.LocalDateTime
@@ -33,6 +34,12 @@ interface RepresentanteDao {
     // Consultas para sincronización
     @Query("SELECT * FROM representantes WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<RepresentanteEntity>
+
+    @Query("SELECT * FROM representantes WHERE is_synced = 0")
+    suspend fun findAllNotSynced(): List<RepresentanteEntity>
+
+    @Update
+    suspend fun updateAll(representantes: List<RepresentanteEntity>): Int
 
     @Upsert
     suspend fun upsertAll(representantes: List<RepresentanteEntity>)

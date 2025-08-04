@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.nutrizulia.data.remote.dto.collection.DetalleMetabolicoDto
 import com.nutrizulia.domain.model.collection.DetalleMetabolico
 import java.time.LocalDateTime
 
@@ -53,4 +54,19 @@ fun DetalleMetabolico.toEntity() = DetalleMetabolicoEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun DetalleMetabolicoEntity.toDto() = DetalleMetabolicoDto(
+    id = id,
+    consultaId = consultaId,
+    glicemiaBasal = glicemiaBasal,
+    glicemiaPostprandial = glicemiaPostprandial,
+    glicemiaAleatoria = glicemiaAleatoria,
+    hemoglobinaGlicosilada = hemoglobinaGlicosilada,
+    trigliceridos = trigliceridos,
+    colesterolTotal = colesterolTotal,
+    colesterolHdl = colesterolHdl,
+    colesterolLdl = colesterolLdl,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

@@ -17,6 +17,9 @@ interface DetalleVitalDao {
     @Query("SELECT * FROM detalles_vitales WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleVitalEntity>
 
+    @Query("SELECT * FROM detalles_vitales WHERE is_synced = 0")
+    suspend fun findAllNotSynced(): List<DetalleVitalEntity>
+
     @Insert
     suspend fun insert(detalleVital: DetalleVitalEntity): Long
 
