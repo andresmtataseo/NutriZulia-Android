@@ -1,93 +1,98 @@
 package com.nutrizulia.data.remote.api.catalog
 
+import com.nutrizulia.data.remote.dto.ApiResponseDto
 import com.nutrizulia.data.remote.dto.catalog.*
 import com.nutrizulia.data.remote.dto.user.UsuarioInstitucionResponseDto
+import com.nutrizulia.util.CatalogEndpoints
+import com.nutrizulia.util.InstitutionEndpoints
+import com.nutrizulia.util.UserInstitutionEndpoints
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ICatalogService {
-    @GET("/catalog/v1/tiposInstituciones")
-    suspend fun getTiposInstituciones(): Response<List<TipoInstitucionResponseDto>>
 
-    @GET("/catalog/v1/tiposIndicadores")
-    suspend fun getTiposIndicadores(): Response<List<TipoIndicadorResponseDto>>
+    @GET(CatalogEndpoints.INSTITUTION_TYPES)
+    suspend fun getTiposInstituciones(): Response<ApiResponseDto<List<TipoInstitucionResponseDto>>>
 
-    @GET("/catalog/v1/tiposActividades")
-    suspend fun getTiposActividades(): Response<List<TipoActividadResponseDto>>
+    @GET(CatalogEndpoints.INDICATOR_TYPES)
+    suspend fun getTiposIndicadores(): Response<ApiResponseDto<List<TipoIndicadorResponseDto>>>
 
-    @GET("/catalog/v1/riesgosBiologicos")
-    suspend fun getRiesgosBiologicos(): Response<List<RiesgoBiologicoResponseDto>>
+    @GET(CatalogEndpoints.ACTIVITY_TYPES)
+    suspend fun getTiposActividades(): Response<ApiResponseDto<List<TipoActividadResponseDto>>>
 
-    @GET("/catalog/v1/reglasInterpretacionesZScore")
-    suspend fun getReglasInterpretacionesZScore(): Response<List<ReglaInterpretacionZScoreResponseDto>>
+    @GET(CatalogEndpoints.BIOLOGICAL_RISKS)
+    suspend fun getRiesgosBiologicos(): Response<ApiResponseDto<List<RiesgoBiologicoResponseDto>>>
 
-    @GET("/catalog/v1/reglasInterpretacionesPercentil")
-    suspend fun getReglasInterpretacionesPercentil(): Response<List<ReglaInterpretacionPercentilResponseDto>>
+    @GET(CatalogEndpoints.Z_SCORE_INTERPRETATION_RULES)
+    suspend fun getReglasInterpretacionesZScore(): Response<ApiResponseDto<List<ReglaInterpretacionZScoreResponseDto>>>
 
-    @GET("/catalog/v1/reglasInterpretacionesImc")
-    suspend fun getReglasInterpretacionesImc(): Response<List<ReglaInterpretacionImcResponseDto>>
+    @GET(CatalogEndpoints.PERCENTILE_INTERPRETATION_RULES)
+    suspend fun getReglasInterpretacionesPercentil(): Response<ApiResponseDto<List<ReglaInterpretacionPercentilResponseDto>>>
 
-    @GET("/catalog/v1/parroquias")
+    @GET(CatalogEndpoints.BMI_INTERPRETATION_RULES)
+    suspend fun getReglasInterpretacionesImc(): Response<ApiResponseDto<List<ReglaInterpretacionImcResponseDto>>>
+
+    @GET(CatalogEndpoints.PARISHES)
     suspend fun getParroquias(
         @Query("idEstado") idEstado: Int,
         @Query("idMunicipio") idMunicipio: Int
-    ): Response<List<ParroquiaResponseDto>>
+    ): Response<ApiResponseDto<List<ParroquiaResponseDto>>>
 
-    @GET("/catalog/v1/parentescos")
-    suspend fun getParentescos(): Response<List<ParentescoResponseDto>>
+    @GET(CatalogEndpoints.RELATIONSHIPS)
+    suspend fun getParentescos(): Response<ApiResponseDto<List<ParentescoResponseDto>>>
 
-    @GET("/catalog/v1/parametrosCrecimientosPediatricoLongitud")
-    suspend fun getParametrosCrecimientosPedriaticoLongitud(): Response<List<ParametroCrecimientoPediatricoLongitudResponseDto>>
+    @GET(CatalogEndpoints.PEDIATRIC_LENGTH_PARAMETERS)
+    suspend fun getParametrosCrecimientosPediatricoLongitud(): Response<ApiResponseDto<List<ParametroCrecimientoPediatricoLongitudResponseDto>>>
 
-    @GET("/catalog/v1/parametrosCrecimientosPediatricoEdad")
-    suspend fun getParametrosCrecimientosPedriaticoEdad(): Response<List<ParametroCrecimientoPediatricoEdadResponseDto>>
+    @GET(CatalogEndpoints.PEDIATRIC_AGE_PARAMETERS)
+    suspend fun getParametrosCrecimientosPediatricoEdad(): Response<ApiResponseDto<List<ParametroCrecimientoPediatricoEdadResponseDto>>>
 
-    @GET("/catalog/v1/parametrosCrecimientosNinosEdad")
-    suspend fun getParametrosCrecimientosNinosEdad(): Response<List<ParametroCrecimientoNinoEdadResponseDto>>
+    @GET(CatalogEndpoints.CHILDREN_AGE_PARAMETERS)
+    suspend fun getParametrosCrecimientosNinosEdad(): Response<ApiResponseDto<List<ParametroCrecimientoNinoEdadResponseDto>>>
 
-    @GET("/catalog/v1/nacionalidades")
-    suspend fun getNacionalidades(): Response<List<NacionalidadResponseDto>>
+    @GET(CatalogEndpoints.NATIONALITIES)
+    suspend fun getNacionalidades(): Response<ApiResponseDto<List<NacionalidadResponseDto>>>
 
-    @GET("/catalog/v1/municipios")
+    @GET(CatalogEndpoints.MUNICIPALITIES)
     suspend fun getMunicipios(
         @Query("idEstado") idEstado: Int
-    ): Response<List<MunicipioResponseDto>>
+    ): Response<ApiResponseDto<List<MunicipioResponseDto>>>
 
-    @GET("/catalog/v1/municipiosSanitarios")
+    @GET(CatalogEndpoints.HEALTH_MUNICIPALITIES)
     suspend fun getMunicipiosSanitarios(
         @Query("idEstado") idEstado: Int
-    ): Response<List<MunicipioSanitarioResponseDto>>
+    ): Response<ApiResponseDto<List<MunicipioSanitarioResponseDto>>>
 
-    @GET("/catalog/v1/gruposEtarios")
-    suspend fun getGruposEtarios(): Response<List<GrupoEtarioResponseDto>>
+    @GET(CatalogEndpoints.AGE_GROUPS)
+    suspend fun getGruposEtarios(): Response<ApiResponseDto<List<GrupoEtarioResponseDto>>>
 
-    @GET("/catalog/v1/etnias")
-    suspend fun getEtnias(): Response<List<EtniaResponseDto>>
+    @GET(CatalogEndpoints.ETHNICITIES)
+    suspend fun getEtnias(): Response<ApiResponseDto<List<EtniaResponseDto>>>
 
-    @GET("/catalog/v1/estados")
-    suspend fun getEstados(): Response<List<EstadoResponseDto>>
+    @GET(CatalogEndpoints.STATES)
+    suspend fun getEstados(): Response<ApiResponseDto<List<EstadoResponseDto>>>
 
-    @GET("/catalog/v1/especialidades")
-    suspend fun getEspecialidades(): Response<List<EspecialidadResponseDto>>
+    @GET(CatalogEndpoints.SPECIALTIES)
+    suspend fun getEspecialidades(): Response<ApiResponseDto<List<EspecialidadResponseDto>>>
 
-    @GET("/catalog/v1/enfermedades")
-    suspend fun getEnfermedades(): Response<List<EnfermedadResponseDto>>
+    @GET(CatalogEndpoints.DISEASES)
+    suspend fun getEnfermedades(): Response<ApiResponseDto<List<EnfermedadResponseDto>>>
 
-    @GET("/catalog/v1/versiones")
-    suspend fun getVersion(): Response<List<VersionResponseDto>>
+    @GET(CatalogEndpoints.VERSIONS)
+    suspend fun getVersiones(): Response<ApiResponseDto<List<VersionResponseDto>>>
 
-    @GET("/catalog/v1/regex")
-    suspend fun getRegex(): Response<List<RegexResponseDto>>
+    @GET(CatalogEndpoints.REGEX)
+    suspend fun getRegex(): Response<ApiResponseDto<List<RegexResponseDto>>>
 
-    @GET("/catalog/v1/roles")
-    suspend fun getRoles(): Response<List<RolResponseDto>>
+    @GET(CatalogEndpoints.ROLES)
+    suspend fun getRoles(): Response<ApiResponseDto<List<RolResponseDto>>>
 
-    @GET("/institution/v1/findAll")
-    suspend fun getInstituciones(): Response<List<InstitucionResponseDto>>
+    @GET(InstitutionEndpoints.GET_ALL)
+    suspend fun getInstituciones(): Response<ApiResponseDto<List<InstitucionResponseDto>>>
 
-    @GET("/user-institution/v1/findAll")
+    @GET(UserInstitutionEndpoints.GET_BY_USER)
     suspend fun getUsuarioInstitucion(
         @Query("idUsuario") idUsuario: Int
-    ): Response<List<UsuarioInstitucionResponseDto>>
+    ): Response<ApiResponseDto<List<UsuarioInstitucionResponseDto>>>
 }

@@ -24,7 +24,7 @@ class UsuarioInstitucionRepository @Inject constructor(
             throw Exception("Error en la respuesta del servidor: ${response.code()}")
         }
 
-        val remoteUserInstitutions = response.body() ?: emptyList()
+        val remoteUserInstitutions = response.body()?.data ?: emptyList()
         val remoteEntities = remoteUserInstitutions.map { it.toEntity() }
 
         usuarioInstitucionDao.upsertAll(remoteEntities)

@@ -24,7 +24,7 @@ class CatalogRepository @Inject constructor(
                 )
             }
 
-            val remoteVersions = versionResponse.body().orEmpty()
+            val remoteVersions = versionResponse.body()?.data.orEmpty()
             val allResults = mutableListOf<CatalogSyncResult>()
 
             // --- Lotes de Sincronización con Orden de Dependencia Corregido ---

@@ -40,7 +40,7 @@ class MunicipioSyncer @Inject constructor(
             // ✅ Ejecutar llamadas en paralelo
             coroutineScope {
                 val municipiosDeferred = allEstados.map { estado ->
-                    async { service.getMunicipios(estado.id).body().orEmpty() }
+                    async { service.getMunicipios(estado.id).body()?.data.orEmpty() }
                 }
 
                 // Esperar a que todas las llamadas terminen y aplanar la lista de listas
@@ -82,7 +82,7 @@ class MunicipioSanitarioSyncer @Inject constructor(
 
             coroutineScope {
                 val municipiosSanitariosDeferred = allEstados.map { estado ->
-                    async { service.getMunicipiosSanitarios(estado.id).body().orEmpty() }
+                    async { service.getMunicipiosSanitarios(estado.id).body()?.data.orEmpty() }
                 }
                 val allMunicipiosSanitarios = municipiosSanitariosDeferred.awaitAll().flatten()
 
@@ -121,7 +121,7 @@ class ParroquiaSyncer @Inject constructor(
 
             coroutineScope {
                 val parroquiasDeferred = allMunicipios.map { municipio ->
-                    async { service.getParroquias(municipio.estadoId, municipio.id).body().orEmpty() }
+                    async { service.getParroquias(municipio.estadoId, municipio.id).body()?.data.orEmpty() }
                 }
                 val allParroquias = parroquiasDeferred.awaitAll().flatten()
 
