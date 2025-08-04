@@ -11,8 +11,9 @@ data class DetalleObstetricia(
     val fechaUltimaMenstruacion: LocalDate?,
     val semanasGestacion: Int?,
     val pesoPreEmbarazo: Double?,
-    val updatedAt: LocalDateTime,
-    val isDeleted: Boolean
+    var updatedAt: LocalDateTime,
+    var isDeleted: Boolean,
+    var isSynced: Boolean
 )
 
 fun DetalleObstetriciaEntity.toDomain() = DetalleObstetricia(
@@ -23,5 +24,6 @@ fun DetalleObstetriciaEntity.toDomain() = DetalleObstetricia(
     semanasGestacion = semanasGestacion,
     pesoPreEmbarazo = pesoPreEmbarazo,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

@@ -2,12 +2,14 @@ package com.nutrizulia.data.repository.collection
 
 import com.nutrizulia.data.local.dao.collection.PacienteRepresentanteDao
 import com.nutrizulia.data.local.entity.collection.toEntity
+import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
 import com.nutrizulia.domain.model.collection.PacienteRepresentante
 import com.nutrizulia.domain.model.collection.toDomain
 import javax.inject.Inject
 
 class PacienteRepresentanteRepository @Inject constructor(
-    private val pacienteRepresentanteDao: PacienteRepresentanteDao
+    private val pacienteRepresentanteDao: PacienteRepresentanteDao,
+    private val api: ICollectionSyncService
 ){
     suspend fun countPacienteIdByUsuarioInstitucionIdAndRepresentanteId(usuarioInstitucionId: Int, representanteId: String) : Int {
         return pacienteRepresentanteDao.countPacienteIdByUsuarioInstitucionIdAndRepresentanteId(usuarioInstitucionId, representanteId)

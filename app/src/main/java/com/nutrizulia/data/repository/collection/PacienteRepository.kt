@@ -1,12 +1,10 @@
 package com.nutrizulia.data.repository.collection
 
-import android.util.Log
 import com.nutrizulia.data.local.dao.PacienteConCitaDao
 import com.nutrizulia.data.local.dao.collection.PacienteDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.view.PacienteConCita
-import com.nutrizulia.data.remote.api.collection.IPacienteService
-import com.nutrizulia.data.remote.dto.collection.PacienteRequestDto
+import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
 import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.domain.model.collection.toDomain
@@ -16,7 +14,7 @@ import javax.inject.Inject
 class PacienteRepository @Inject constructor(
     private val pacienteDao: PacienteDao,
     private val pacienteConCitaDao: PacienteConCitaDao,
-    private val api: IPacienteService
+    private val api: ICollectionSyncService
 ) {
 
     suspend fun upsert(paciente: Paciente): Long {

@@ -1,7 +1,7 @@
 package com.nutrizulia.domain.model.collection
 
 import com.nutrizulia.data.local.entity.collection.PacienteEntity
-import com.nutrizulia.data.remote.dto.collection.PacienteRequestDto
+import com.nutrizulia.data.remote.dto.collection.PacienteDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -19,11 +19,11 @@ data class Paciente(
     var domicilio: String,
     var telefono: String?,
     var correo: String?,
-    val updatedAt: LocalDateTime,
+    var updatedAt: LocalDateTime,
     var isDeleted: Boolean,
     var isSynced: Boolean
 )
-fun PacienteEntity.toDto() = PacienteRequestDto(
+fun PacienteEntity.toDto() = PacienteDto(
     id = id,
     usuarioInstitucionId = usuarioInstitucionId,
     cedula = cedula,

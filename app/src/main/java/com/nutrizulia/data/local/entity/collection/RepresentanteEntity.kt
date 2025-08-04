@@ -64,8 +64,9 @@ data class RepresentanteEntity(
     @ColumnInfo(name = "domicilio") val domicilio: String,
     @ColumnInfo(name = "telefono") val telefono: String?,
     @ColumnInfo(name = "correo") val correo: String?,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
-    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
+    @ColumnInfo(name = "updated_at", defaultValue = "CURRENT_TIMESTAMP") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted", defaultValue = "0") val isDeleted: Boolean,
+    @ColumnInfo(name = "is_synced", defaultValue = "0") val isSynced: Boolean
 )
 
 fun Representante.toEntity() = RepresentanteEntity(
@@ -83,5 +84,6 @@ fun Representante.toEntity() = RepresentanteEntity(
     telefono = telefono,
     correo = correo,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

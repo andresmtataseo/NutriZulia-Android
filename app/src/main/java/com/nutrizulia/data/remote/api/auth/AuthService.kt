@@ -13,7 +13,7 @@ class AuthService @Inject constructor(
     private val api: IAuthService
 ) {
 
-    suspend fun signIn(cedula: String, clave: String): Response<SignInResponseDto> {
+    suspend fun signIn(cedula: String, clave: String): Response<ApiResponseDto<SignInResponseDto>> {
         val request = SignInRequestDto(cedula = cedula, clave = clave)
         return api.signIn(request)
     }

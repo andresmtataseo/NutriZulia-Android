@@ -18,8 +18,9 @@ data class Consulta(
     val planes: String?,
     val fechaHoraReal: LocalDateTime?,
     val estado: Estado,
-    val updatedAt: LocalDateTime,
-    val isDeleted: Boolean
+    var updatedAt: LocalDateTime,
+    var isDeleted: Boolean,
+    var isSynced: Boolean
 )
 
 fun ConsultaEntity.toDomain() = Consulta(
@@ -36,5 +37,6 @@ fun ConsultaEntity.toDomain() = Consulta(
     fechaHoraReal = fechaHoraReal,
     estado = estado,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

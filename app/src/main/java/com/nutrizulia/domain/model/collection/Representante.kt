@@ -18,8 +18,9 @@ data class Representante(
     val domicilio: String,
     var telefono: String?,
     var correo: String?,
-    val updatedAt: LocalDateTime,
-    var isDeleted: Boolean
+    var updatedAt: LocalDateTime,
+    var isDeleted: Boolean,
+    var isSynced: Boolean
 )
 
 fun RepresentanteEntity.toDomain() = Representante(
@@ -37,5 +38,6 @@ fun RepresentanteEntity.toDomain() = Representante(
     telefono = telefono,
     correo = correo,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

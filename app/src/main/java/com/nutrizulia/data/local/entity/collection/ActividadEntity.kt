@@ -46,8 +46,9 @@ data class ActividadEntity(
     @ColumnInfo(name = "tema_principal") val temaPrincipal: String?,
     @ColumnInfo(name = "programas_implementados") val programasImplementados: String?,
     @ColumnInfo(name = "url_evidencia") val urlEvidencia: String?,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
-    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
+    @ColumnInfo(name = "updated_at", defaultValue = "CURRENT_TIMESTAMP") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted", defaultValue = "0") val isDeleted: Boolean,
+    @ColumnInfo(name = "is_synced", defaultValue = "0") val isSynced: Boolean
 )
 
 fun Actividad.toEntity() = ActividadEntity(
@@ -64,5 +65,6 @@ fun Actividad.toEntity() = ActividadEntity(
     programasImplementados = programasImplementados,
     urlEvidencia = urlEvidencia,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

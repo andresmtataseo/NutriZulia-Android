@@ -13,8 +13,9 @@ data class DetalleVital(
     val temperatura: Double?,
     val saturacionOxigeno: Int?,
     val pulso: Int?,
-    val updatedAt: LocalDateTime,
-    val isDeleted: Boolean
+    var updatedAt: LocalDateTime,
+    var isDeleted: Boolean,
+    var isSynced: Boolean
 )
 
 fun DetalleVitalEntity.toDomain() = DetalleVital(
@@ -28,5 +29,6 @@ fun DetalleVitalEntity.toDomain() = DetalleVital(
     saturacionOxigeno = saturacionOxigeno,
     pulso = pulso,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

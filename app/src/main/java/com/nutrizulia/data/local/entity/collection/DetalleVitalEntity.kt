@@ -33,8 +33,9 @@ data class DetalleVitalEntity(
     @ColumnInfo(name = "temperatura") val temperatura: Double?,
     @ColumnInfo(name = "saturacion_oxigeno") val saturacionOxigeno: Int?,
     @ColumnInfo(name = "pulso") val pulso: Int?,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
-    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
+    @ColumnInfo(name = "updated_at", defaultValue = "CURRENT_TIMESTAMP") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted", defaultValue = "0") val isDeleted: Boolean,
+    @ColumnInfo(name = "is_synced", defaultValue = "0") val isSynced: Boolean
 )
 
 fun DetalleVital.toEntity() = DetalleVitalEntity(
@@ -48,5 +49,6 @@ fun DetalleVital.toEntity() = DetalleVitalEntity(
     saturacionOxigeno = saturacionOxigeno,
     pulso = pulso,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

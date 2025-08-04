@@ -9,8 +9,9 @@ data class PacienteRepresentante(
     val pacienteId: String,
     val representanteId: String,
     val parentescoId: Int,
-    val updatedAt: LocalDateTime,
-    val isDeleted: Boolean
+    var updatedAt: LocalDateTime,
+    var isDeleted: Boolean,
+    var isSynced: Boolean
 )
 
 fun PacienteRepresentanteEntity.toDomain() = PacienteRepresentante(
@@ -20,5 +21,6 @@ fun PacienteRepresentanteEntity.toDomain() = PacienteRepresentante(
     representanteId = representanteId,
     parentescoId = parentescoId,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

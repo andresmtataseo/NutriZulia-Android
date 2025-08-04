@@ -18,10 +18,10 @@ class AuthRepository @Inject constructor(
 
     suspend fun authenticate(cedula: String, clave: String): SignIn {
         val response = api.signIn(cedula, clave)
-        val body = response.body()?.toDomain() ?: throw Exception("Respuesta vacía del servidor")
-        tokenManager.saveToken(body.token)
-        usuarioDao.insert(body.usuario.toEntity())
-        return body
+        val data = response.body()?.data?.toDomain() ?: throw Exception("Respuesta vacía del servidor")
+        tokenManager.saveToken(data.token)
+        usuarioDao.insert(data.usuario.toEntity())
+        return data
     }
 
     suspend fun forgotPassword(cedula: String): ApiResponse<Any>  {

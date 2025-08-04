@@ -128,7 +128,9 @@ class EvaluacionesFinalesViewModel @Inject constructor(
                 riesgoBiologicoId = riesgo.id,
                 enfermedadId = null,
                 isPrincipal = false,
-                updatedAt = LocalDateTime.now()
+                updatedAt = LocalDateTime.now(),
+                isDeleted = false,
+                isSynced = false
             )
         }
     }
@@ -271,7 +273,8 @@ class EvaluacionesFinalesViewModel @Inject constructor(
                     diagnosticoAntropometrico = diagnostic,
                     fechaEvaluacion = LocalDate.now(),
                     updatedAt = updatedAt,
-                    isDeleted = false
+                    isDeleted = false,
+                    isSynced = false
                 )
             )
         }

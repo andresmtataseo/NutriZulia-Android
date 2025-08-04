@@ -1,29 +1,29 @@
 package com.nutrizulia.data.remote.dto.collection
 
 import com.google.gson.annotations.SerializedName
-import com.nutrizulia.data.local.entity.collection.PacienteEntity
+import com.nutrizulia.data.local.entity.collection.RepresentanteEntity
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class PacienteDto (
+data class RepresentanteDto(
     @SerializedName("id") val id: String,
     @SerializedName("usuario_institucion_id") val usuarioInstitucionId: Int,
     @SerializedName("cedula") val cedula: String,
     @SerializedName("nombres") val nombres: String,
     @SerializedName("apellidos") val apellidos: String,
     @SerializedName("fecha_nacimiento") val fechaNacimiento: LocalDate,
-    @SerializedName("genero") var genero: String,
-    @SerializedName("etnia_id") var etniaId: Int,
-    @SerializedName("nacionalidad_id") var nacionalidadId: Int,
-    @SerializedName("parroquia_id") var parroquiaId: Int,
-    @SerializedName("domicilio") var domicilio: String,
-    @SerializedName("telefono") var telefono: String?,
-    @SerializedName("correo") var correo: String?,
+    @SerializedName("genero") val genero: String,
+    @SerializedName("etnia_id") val etniaId: Int,
+    @SerializedName("nacionalidad_id") val nacionalidadId: Int,
+    @SerializedName("parroquia_id") val parroquiaId: Int,
+    @SerializedName("domicilio") val domicilio: String,
+    @SerializedName("telefono") val telefono: String?,
+    @SerializedName("correo") val correo: String?,
     @SerializedName("updated_at") val updatedAt: LocalDateTime,
-    @SerializedName("is_deleted") var isDeleted: Boolean
+    @SerializedName("is_deleted") val isDeleted: Boolean,
 )
 
-fun PacienteDto.toEntity() = PacienteEntity(
+fun RepresentanteDto.toEntity() = RepresentanteEntity(
     id = id,
     usuarioInstitucionId = usuarioInstitucionId,
     cedula = cedula,

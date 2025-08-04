@@ -306,7 +306,8 @@ class RegistrarPacienteViewModel @Inject constructor(
                         representanteId = _representante.value!!.id,
                         parentescoId = _selectedParentesco.value!!.id,
                         updatedAt = LocalDateTime.now(),
-                        isDeleted = false
+                        isDeleted = false,
+                        isSynced = false
                     )
                     savePacienteRepresentante(pacienteRepresentante)
                 }

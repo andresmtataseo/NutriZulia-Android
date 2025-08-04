@@ -2,12 +2,14 @@ package com.nutrizulia.data.repository.collection
 
 import com.nutrizulia.data.local.dao.collection.DetalleObstetriciaDao
 import com.nutrizulia.data.local.entity.collection.toEntity
+import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
 import com.nutrizulia.domain.model.collection.DetalleObstetricia
 import com.nutrizulia.domain.model.collection.toDomain
 import javax.inject.Inject
 
 class DetalleObstetriciaRepository @Inject constructor(
-    private val dao: DetalleObstetriciaDao
+    private val dao: DetalleObstetriciaDao,
+    private val api: ICollectionSyncService
 ) {
     suspend fun upsert(it: DetalleObstetricia) {
         dao.upsert(it.toEntity())

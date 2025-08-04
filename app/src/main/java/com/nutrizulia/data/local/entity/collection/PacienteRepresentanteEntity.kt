@@ -52,8 +52,9 @@ data class PacienteRepresentanteEntity(
     @ColumnInfo(name = "paciente_id") val pacienteId: String,
     @ColumnInfo(name = "representante_id") val representanteId: String,
     @ColumnInfo(name = "parentesco_id") val parentescoId: Int,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
-    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
+    @ColumnInfo(name = "updated_at", defaultValue = "CURRENT_TIMESTAMP") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted", defaultValue = "0") val isDeleted: Boolean,
+    @ColumnInfo(name = "is_synced", defaultValue = "0") val isSynced: Boolean
 )
 
 fun PacienteRepresentante.toEntity() = PacienteRepresentanteEntity(
@@ -63,5 +64,6 @@ fun PacienteRepresentante.toEntity() = PacienteRepresentanteEntity(
     representanteId = representanteId,
     parentescoId = parentescoId,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

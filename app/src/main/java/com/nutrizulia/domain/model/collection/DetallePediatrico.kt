@@ -9,8 +9,9 @@ data class DetallePediatrico(
     val consultaId: String,
     val usaBiberon: Boolean?,
     val tipoLactancia: TipoLactancia?,
-    val updatedAt: LocalDateTime,
-    val isDeleted: Boolean
+    var updatedAt: LocalDateTime,
+    var isDeleted: Boolean,
+    var isSynced: Boolean
 )
 
 fun DetallePediatricoEntity.toDomain() = DetallePediatrico(
@@ -19,5 +20,6 @@ fun DetallePediatricoEntity.toDomain() = DetallePediatrico(
     usaBiberon = usaBiberon,
     tipoLactancia = tipoLactancia,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

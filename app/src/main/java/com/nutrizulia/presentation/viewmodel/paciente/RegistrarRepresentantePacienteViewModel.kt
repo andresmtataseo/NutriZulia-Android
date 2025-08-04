@@ -207,7 +207,8 @@ class RegistrarRepresentantePacienteViewModel @Inject constructor(
             telefono = if (telefono.isNotBlank()) "$prefijo$telefono" else "",
             correo = correo,
             updatedAt = LocalDateTime.now(),
-            isDeleted = false
+            isDeleted = false,
+            isSynced = false
         )
         val erroresMap = validarDatosRepresentante(representanteToSave, fechaNacimiento == null)
         if (erroresMap.isNotEmpty()) {

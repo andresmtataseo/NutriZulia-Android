@@ -62,8 +62,9 @@ data class ConsultaEntity(
     @ColumnInfo(name = "planes") val planes: String?,
     @ColumnInfo(name = "fecha_hora_real") val fechaHoraReal: LocalDateTime?,
     @ColumnInfo(name = "estado") val estado: Estado,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime,
-    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
+    @ColumnInfo(name = "updated_at", defaultValue = "CURRENT_TIMESTAMP") val updatedAt: LocalDateTime,
+    @ColumnInfo(name = "is_deleted", defaultValue = "0") val isDeleted: Boolean,
+    @ColumnInfo(name = "is_synced", defaultValue = "0") val isSynced: Boolean
 )
 
 fun Consulta.toEntity() = ConsultaEntity(
@@ -80,5 +81,6 @@ fun Consulta.toEntity() = ConsultaEntity(
     fechaHoraReal = fechaHoraReal,
     estado = estado,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

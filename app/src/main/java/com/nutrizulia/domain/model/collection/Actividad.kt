@@ -17,8 +17,9 @@ data class Actividad(
     val temaPrincipal: String?,
     val programasImplementados: String?,
     val urlEvidencia: String?,
-    val updatedAt: LocalDateTime,
-    val isDeleted: Boolean
+    var updatedAt: LocalDateTime,
+    var isDeleted: Boolean,
+    var isSynced: Boolean
 )
 
 fun ActividadEntity.toDomain() = Actividad(
@@ -35,5 +36,6 @@ fun ActividadEntity.toDomain() = Actividad(
     programasImplementados = programasImplementados,
     urlEvidencia = urlEvidencia,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )

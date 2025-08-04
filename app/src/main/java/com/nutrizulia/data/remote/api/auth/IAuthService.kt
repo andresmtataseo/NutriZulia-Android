@@ -16,7 +16,7 @@ interface IAuthService {
     @POST("/auth/sign-in")
     suspend fun signIn(
         @Body request: SignInRequestDto
-    ): Response<SignInResponseDto>
+    ): Response<ApiResponseDto<SignInResponseDto>>
 
     @POST("/auth/forgot-password")
     suspend fun forgotPassword(

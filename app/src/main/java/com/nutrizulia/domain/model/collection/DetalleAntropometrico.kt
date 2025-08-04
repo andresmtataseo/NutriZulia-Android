@@ -15,8 +15,9 @@ data class DetalleAntropometrico(
     val perimetroCefalico: Double?,
     val pliegueTricipital: Double?,
     val pliegueSubescapular: Double?,
-    val updatedAt: LocalDateTime,
-    val isDeleted: Boolean
+    var updatedAt: LocalDateTime,
+    var isDeleted: Boolean,
+    var isSynced: Boolean
 )
 
 fun DetalleAntropometricoEntity.toDomain() = DetalleAntropometrico(
@@ -32,5 +33,6 @@ fun DetalleAntropometricoEntity.toDomain() = DetalleAntropometrico(
     pliegueTricipital = pliegueTricipital,
     pliegueSubescapular = pliegueSubescapular,
     updatedAt = updatedAt,
-    isDeleted = isDeleted
+    isDeleted = isDeleted,
+    isSynced = isSynced
 )
