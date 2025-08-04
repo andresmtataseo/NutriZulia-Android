@@ -11,7 +11,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentInicioBinding
 import com.nutrizulia.presentation.viewmodel.InicioViewModel
-import com.nutrizulia.data.remote.dto.collection.PacienteDto
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,56 +33,53 @@ class InicioFragment : Fragment() {
         configurarClickListeners()
     }
 
-    private fun configurarViewModel(): Unit {
+    private fun configurarViewModel() {
         viewModel.onSyncStart = {
             binding.btnSincronizarPacientes.isEnabled = false
             binding.btnSincronizarPacientes.text = getString(R.string.sincronizando)
         }
         
-        viewModel.onSyncSuccess = { pacientes, mensaje ->
+        viewModel.onSyncSuccess = { successCount, totalOperations, mensaje ->
             binding.btnSincronizarPacientes.isEnabled = true
             binding.btnSincronizarPacientes.text = getString(R.string.sincronizar_pacientes)
-            mostrarMensajeExito(mensaje)
+            val mensajeCompleto = "$mensaje ($successCount/$totalOperations operaciones completadas)"
+            mostrarMensajeExito(mensajeCompleto)
         }
         
-        viewModel.onSyncConflictError = { mensaje, errors ->
+        viewModel.onSyncPartialSuccess = { successCount, totalOperations, failedBatches, mensaje ->
             binding.btnSincronizarPacientes.isEnabled = true
             binding.btnSincronizarPacientes.text = getString(R.string.sincronizar_pacientes)
-            mostrarMensajeError(getString(R.string.error_sincronizacion_conflicto))
+            val mensajeCompleto = "$mensaje ($successCount/$totalOperations operaciones). Lotes fallidos: ${failedBatches.joinToString(", ")}"
+            mostrarMensajeAdvertencia(mensajeCompleto)
         }
         
-        viewModel.onSyncBusinessError = { status, mensaje, errors ->
+        viewModel.onSyncError = { mensaje, details ->
             binding.btnSincronizarPacientes.isEnabled = true
             binding.btnSincronizarPacientes.text = getString(R.string.sincronizar_pacientes)
-            mostrarMensajeError(getString(R.string.error_sincronizacion_negocio, mensaje))
-        }
-        
-        viewModel.onSyncNetworkError = { code, mensaje ->
-            binding.btnSincronizarPacientes.isEnabled = true
-            binding.btnSincronizarPacientes.text = getString(R.string.sincronizar_pacientes)
-            mostrarMensajeError(getString(R.string.error_sincronizacion_red))
-        }
-        
-        viewModel.onSyncUnknownError = { error ->
-            binding.btnSincronizarPacientes.isEnabled = true
-            binding.btnSincronizarPacientes.text = getString(R.string.sincronizar_pacientes)
-            mostrarMensajeError(getString(R.string.error_sincronizacion_desconocido))
+            val mensajeCompleto = if (details != null) "$mensaje. $details" else mensaje
+            mostrarMensajeError(mensajeCompleto)
         }
     }
 
-    private fun configurarClickListeners(): Unit {
+    private fun configurarClickListeners() {
         binding.btnSincronizarPacientes.setOnClickListener {
             viewModel.sincronizarPacientes()
         }
     }
 
-    private fun mostrarMensajeExito(mensaje: String): Unit {
+    private fun mostrarMensajeExito(mensaje: String) {
         Snackbar.make(binding.root, mensaje, Snackbar.LENGTH_LONG)
             .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.color_sync_success))
             .show()
     }
     
-    private fun mostrarMensajeError(mensaje: String): Unit {
+    private fun mostrarMensajeAdvertencia(mensaje: String) {
+        Snackbar.make(binding.root, mensaje, Snackbar.LENGTH_LONG)
+            .setBackgroundTint(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_light))
+            .show()
+    }
+    
+    private fun mostrarMensajeError(mensaje: String) {
         Snackbar.make(binding.root, mensaje, Snackbar.LENGTH_LONG)
             .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.color_sync_error))
             .show()

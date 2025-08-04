@@ -36,7 +36,7 @@ class RepresentanteRepository @Inject constructor(
         return dao.findById(usuarioInstitucionId, representanteId)?.toDomain()
     }
 
-    suspend fun sincronizarRepresentanteRepository(): SyncResult<List<RepresentanteDto>> {
+    suspend fun sincronizarRepresentantes(): SyncResult<List<RepresentanteDto>> {
         return try {
             val representantesPendientes = dao.findAllNotSynced()
             if (representantesPendientes.isEmpty()) {
