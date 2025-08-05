@@ -2,9 +2,13 @@ package com.nutrizulia.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nutrizulia.domain.model.SyncResult
 import com.nutrizulia.domain.usecase.collection.SyncCollection
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
+import java.net.ConnectException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,21 +33,64 @@ class InicioViewModel @Inject constructor(
                 
                 if (results.hasErrors()) {
                     val failedBatches = mutableListOf<String>()
+                    var networkError = false
+                    var connectivityError = false
                     
-                    if (results.batch1Result.hasErrors) failedBatches.add(results.batch1Result.batchName)
-                    if (results.batch2Result.hasErrors) failedBatches.add(results.batch2Result.batchName)
-                    if (results.batch3Result.hasErrors) failedBatches.add(results.batch3Result.batchName)
-                    if (results.batch4Result.hasErrors) failedBatches.add(results.batch4Result.batchName)
-                    if (results.batch5Result.hasErrors) failedBatches.add(results.batch5Result.batchName)
+                    // Verificar tipos de errores en cada lote
+                    listOf(results.batch1Result, results.batch2Result, results.batch3Result, 
+                           results.batch4Result, results.batch5Result).forEach { batch ->
+                        if (batch.hasErrors) {
+                            failedBatches.add(batch.batchName)
+                            
+                            // Verificar si hay errores de conectividad
+                             batch.results.forEach { result ->
+                                 when (result) {
+                                     is SyncResult.UnknownError -> {
+                                         when (result.exception) {
+                                             is SocketTimeoutException, 
+                                             is ConnectException, 
+                                             is UnknownHostException -> {
+                                                 connectivityError = true
+                                             }
+                                         }
+                                     }
+                                     is SyncResult.NetworkError -> {
+                                         networkError = true
+                                     }
+                                     is SyncResult.BusinessError -> {
+                                         // Error de negocio, no es problema de conectividad
+                                     }
+                                     is SyncResult.Success -> {
+                                         // Éxito, no hay error
+                                     }
+                                 }
+                             }
+                        }
+                    }
                     
                     if (successCount > 0) {
                         // Sincronización parcial
-                        val message = "Sincronización parcial completada"
+                        val message = if (connectivityError) {
+                            "Sincronización parcial - Problemas de conectividad"
+                        } else if (networkError) {
+                            "Sincronización parcial - Errores de red"
+                        } else {
+                            "Sincronización parcial completada"
+                        }
                         onSyncPartialSuccess?.invoke(successCount, totalOperations, failedBatches, message)
                     } else {
                         // Error total
-                        val message = "Error en la sincronización"
-                        val details = "Lotes fallidos: ${failedBatches.joinToString(", ")}"
+                        val (message, details) = when {
+                            connectivityError -> {
+                                "Error de conectividad" to "No se puede conectar al servidor. Verifique su conexión a internet y que el servidor esté disponible."
+                            }
+                            networkError -> {
+                                "Error de red" to "Problemas de comunicación con el servidor. Intente nuevamente."
+                            }
+                            else -> {
+                                "Error en la sincronización" to "Lotes fallidos: ${failedBatches.joinToString(", ")}"
+                            }
+                        }
                         onSyncError?.invoke(message, details)
                     }
                 } else {

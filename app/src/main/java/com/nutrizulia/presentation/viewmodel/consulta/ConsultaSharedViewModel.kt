@@ -2,7 +2,6 @@ package com.nutrizulia.presentation.viewmodel.consulta
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.nutrizulia.data.local.entity.collection.DiagnosticoEntity
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.enum.TipoConsulta
 import com.nutrizulia.domain.model.catalog.Especialidad
@@ -65,8 +64,8 @@ class ConsultaSharedViewModel @Inject constructor(
     private val _detalleObstetricia = MutableLiveData<DetalleObstetricia?>()
     val detalleObstetricia: LiveData<DetalleObstetricia?> = _detalleObstetricia
 
-    private val _diagnosticosSeleccionados = MutableLiveData<List<DiagnosticoEntity>>()
-    val diagnosticosSeleccionados: LiveData<List<DiagnosticoEntity>> = _diagnosticosSeleccionados
+    private val _diagnosticosSeleccionados = MutableLiveData<List<Diagnostico>>()
+    val diagnosticosSeleccionados: LiveData<List<Diagnostico>> = _diagnosticosSeleccionados
 
     private val _evaluacionesAntropometricas = MutableLiveData<List<EvaluacionAntropometrica>>()
     val evaluacionesAntropometricas: LiveData<List<EvaluacionAntropometrica>> = _evaluacionesAntropometricas
@@ -126,7 +125,7 @@ class ConsultaSharedViewModel @Inject constructor(
         _detalleObstetricia.value = detalle
     }
 
-    fun updateDiagnosticos(diagnosticos: List<DiagnosticoEntity>) {
+    fun updateDiagnosticos(diagnosticos: List<Diagnostico>) {
         _diagnosticosSeleccionados.value = diagnosticos
     }
 

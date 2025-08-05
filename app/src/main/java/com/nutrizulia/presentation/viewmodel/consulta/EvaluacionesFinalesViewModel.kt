@@ -2,12 +2,12 @@ package com.nutrizulia.presentation.viewmodel.consulta
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.nutrizulia.data.local.entity.collection.DiagnosticoEntity
 import com.nutrizulia.data.local.enum.TipoValorCalculado
 import com.nutrizulia.domain.model.catalog.GrupoEtario
 import com.nutrizulia.domain.model.catalog.RiesgoBiologico
 import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.domain.model.collection.DetalleAntropometrico
+import com.nutrizulia.domain.model.collection.Diagnostico
 import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.domain.usecase.catalog.GetEnfermedades
@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
+import kotlin.collections.orEmpty
 
 @HiltViewModel
 class EvaluacionesFinalesViewModel @Inject constructor(
@@ -56,7 +57,7 @@ class EvaluacionesFinalesViewModel @Inject constructor(
     private val _riesgosBiologicosDisponibles = MutableLiveData<List<RiesgoBiologico>>()
     val riesgosBiologicosDisponibles: LiveData<List<RiesgoBiologico>> = _riesgosBiologicosDisponibles
 
-    private val _diagnosticosIniciales = MutableLiveData<List<DiagnosticoEntity>>()
+    private val _diagnosticosIniciales = MutableLiveData<List<Diagnostico>>()
 
     private val _riesgosBiologicosSeleccionados = MediatorLiveData<List<RiesgoBiologico>>()
     val riesgosBiologicosSeleccionados: LiveData<List<RiesgoBiologico>> = _riesgosBiologicosSeleccionados
@@ -99,7 +100,7 @@ class EvaluacionesFinalesViewModel @Inject constructor(
     }
 
     private fun mapearDiagnosticosYRiesgos() {
-        val diagnosticos: List<DiagnosticoEntity> = _diagnosticosIniciales.value.orEmpty()
+        val diagnosticos: List<Diagnostico> = _diagnosticosIniciales.value.orEmpty()
         val catalogo: List<RiesgoBiologico> = _riesgosBiologicosDisponibles.value.orEmpty()
         val riesgosSeleccionados: List<RiesgoBiologico> = diagnosticos
             .mapNotNull { diag -> catalogo.find { it.id == diag.riesgoBiologicoId } }
@@ -120,9 +121,9 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         _riesgosBiologicosSeleccionados.value = riesgosActuales
     }
 
-    fun createDiagnosticosEntities(consultaId: String): List<DiagnosticoEntity> {
+    fun createDiagnosticosEntities(consultaId: String): List<Diagnostico> {
         return riesgosBiologicosSeleccionados.value.orEmpty().map { riesgo ->
-            DiagnosticoEntity(
+            Diagnostico(
                 id = Utils.generarUUID(),
                 consultaId = consultaId,
                 riesgoBiologicoId = riesgo.id,
