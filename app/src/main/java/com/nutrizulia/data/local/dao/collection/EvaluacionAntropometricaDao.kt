@@ -10,7 +10,7 @@ import com.nutrizulia.data.local.entity.collection.EvaluacionAntropometricaEntit
 @Dao
 interface EvaluacionAntropometricaDao {
 
-    @Query("SELECT * FROM evaluaciones_antropometricas WHERE consulta_id = :consultaId")
+    @Query("SELECT * FROM evaluaciones_antropometricas WHERE consulta_id = :consultaId AND is_deleted = 0")
     suspend fun findAllByConsultaId(consultaId: String): List<EvaluacionAntropometricaEntity>
 
     @Query("SELECT * FROM evaluaciones_antropometricas WHERE is_synced = 0")
@@ -30,6 +30,9 @@ interface EvaluacionAntropometricaDao {
 
     @Query("DELETE FROM evaluaciones_antropometricas")
     suspend fun deleteAll(): Int
+
+    @Query("UPDATE evaluaciones_antropometricas SET is_deleted = 1, is_synced = 0 WHERE consulta_id = :consultaId")
+    suspend fun deleteByConsultaId(consultaId: String): Int
 
     @Delete
     suspend fun delete(evaluacionAntropometrica: EvaluacionAntropometricaEntity): Int

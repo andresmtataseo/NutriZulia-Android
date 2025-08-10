@@ -113,9 +113,38 @@
         tools:layout="@layout/fragment_reportes" />
     <fragment
         android:id="@+id/cuentaFragment"
-        android:name="com.nutrizulia.presentation.view.CuentaFragment"
+        android:name="com.nutrizulia.presentation.view.usuario.CuentaFragment"
         android:label="Cuenta"
-        tools:layout="@layout/fragment_cuenta" />
+        tools:layout="@layout/fragment_cuenta" >
+        <action
+            android:id="@+id/action_cuentaFragment_to_editarClaveFragment"
+            app:destination="@id/editarClaveFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_cuentaFragment_to_editarCorreoFragment"
+            app:destination="@id/editarCorreoFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_cuentaFragment_to_editarDiasCitaFragment"
+            app:destination="@id/editarDiasCitaFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_cuentaFragment_to_editarTelefonoFragment"
+            app:destination="@id/editarTelefonoFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
     <fragment
         android:id="@+id/ayudaFragment"
         android:name="com.nutrizulia.presentation.view.AyudaFragment"
@@ -384,6 +413,38 @@
         <argument
             android:name="representanteId"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/editarClaveFragment"
+        android:name="com.nutrizulia.presentation.view.usuario.EditarClaveFragment"
+        android:label="Contraseña"
+        tools:layout="@layout/fragment_editar_clave" >
+        <argument
+            android:name="usuarioId"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/editarCorreoFragment"
+        android:name="com.nutrizulia.presentation.view.usuario.EditarCorreoFragment"
+        android:label="@string/correo_electronico"
+        tools:layout="@layout/fragment_editar_correo" >
+        <argument
+            android:name="usuarioId"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/editarDiasCitaFragment"
+        android:name="com.nutrizulia.presentation.view.usuario.EditarDiasCitaFragment"
+        android:label="Citas"
+        tools:layout="@layout/fragment_editar_dias_cita" />
+    <fragment
+        android:id="@+id/editarTelefonoFragment"
+        android:name="com.nutrizulia.presentation.view.usuario.EditarTelefonoFragment"
+        android:label="Teléfono"
+        tools:layout="@layout/fragment_editar_telefono" >
+        <argument
+            android:name="usuarioId"
+            app:argType="integer" />
     </fragment>
 
 

@@ -166,4 +166,30 @@ object Utils {
             }
             .show()
     }
+
+    /**
+     * Valida si una contraseña cumple con los criterios de seguridad.
+     * Debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.
+     * @param clave La contraseña a validar
+     * @return true si la contraseña es válida, false en caso contrario
+     */
+    fun esClaveValida(clave: String): Boolean {
+        // Al menos 8 caracteres
+        if (clave.length < 8) return false
+        
+        // Al menos una mayúscula
+        if (!clave.any { it.isUpperCase() }) return false
+        
+        // Al menos una minúscula
+        if (!clave.any { it.isLowerCase() }) return false
+        
+        // Al menos un número
+        if (!clave.any { it.isDigit() }) return false
+        
+        // Al menos un carácter especial
+        val caracteresEspeciales = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+        if (!clave.any { it in caracteresEspeciales }) return false
+        
+        return true
+    }
 }

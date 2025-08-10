@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/.trae/rules/project_rules.md
+/.kotlin/errors

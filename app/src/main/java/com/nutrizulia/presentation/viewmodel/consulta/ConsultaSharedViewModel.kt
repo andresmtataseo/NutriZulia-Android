@@ -136,7 +136,6 @@ class ConsultaSharedViewModel @Inject constructor(
     // MARK: - Core Logic
     fun initialize(idPaciente: String, idConsulta: String?, isEditable: Boolean) {
         if (isInitialized) {
-            Log.w("ConsultaSharedViewModel", "initialize called when already initialized")
             return
         }
         viewModelScope.launch {
@@ -214,7 +213,7 @@ class ConsultaSharedViewModel @Inject constructor(
                 detalleObstetricia.value?.let { saveDetalleObstetricia(it) }
                 detallePediatrico.value?.let { saveDetallePediatrico(it) }
 
-                evaluacionesAntropometricas.value?.let { saveEvaluacionesAntropometricas(it) }
+                evaluacionesAntropometricas.value?.let { saveEvaluacionesAntropometricas(consultaActualizada.id, it) }
                 diagnosticosSeleccionados.value?.let { saveDiagnosticos(consultaActualizada.id, it) }
 
                 _mensaje.value = "Consulta guardada correctamente"

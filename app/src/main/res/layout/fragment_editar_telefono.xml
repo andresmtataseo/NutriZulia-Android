@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".presentation.view.usuario.EditarTelefonoFragment">
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfPrefijo"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="3"
+                android:hint="@string/prefijo">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdownPrefijos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    app:simpleItems="@array/prefijosTelefonicos"
+                    tools:ignore="LabelFor" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfTelefono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="2"
+                android:hint="@string/numero_de_telefono"
+                app:counterMaxLength="7"
+                app:endIconMode="clear_text"
+                app:helperTextEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiTelefono"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="7" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:text="El número de teléfono debe ser de 7 dígitos y solo se actualizará si hay conexion a internet."/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnRestaurar"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="2"
+                android:text="@string/restaurar"
+                android:textColor="@color/color_cita_cancelada"
+                app:icon="@drawable/ic_deshacer"
+                app:iconGravity="textStart"
+                app:iconTint="@color/color_cita_cancelada" />
+
+            <Button
+                android:id="@+id/btnGuardar"
+                style="?attr/materialButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:text="@string/guardar"
+                app:icon="@drawable/ic_guardar"
+                app:iconGravity="textStart" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

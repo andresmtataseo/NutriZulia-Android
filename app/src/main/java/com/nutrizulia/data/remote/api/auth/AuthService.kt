@@ -10,7 +10,8 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class AuthService @Inject constructor(
-    private val api: IAuthService
+    private val api: IAuthService,
+    private val authenticatedApi: IAuthenticatedService
 ) {
 
     suspend fun signIn(cedula: String, clave: String): Response<ApiResponseDto<SignInResponseDto>> {
@@ -25,10 +26,10 @@ class AuthService @Inject constructor(
 
     suspend fun changePassword(claveActual: String, claveNueva: String, claveNuevaConfirmacion: String): Response<ApiResponseDto<Any>> {
         val request = ChangePasswordRequestDto(claveActual = claveActual, claveNueva = claveNueva, claveNuevaConfirmacion = claveNuevaConfirmacion)
-        return api.changePassword(request)
+        return authenticatedApi.changePassword(request)
     }
 
     suspend fun checkAuth(): Response<ApiResponseDto<CheckAuthResponseDto>> {
-        return api.checkAuth()
+        return authenticatedApi.checkAuth()
     }
 }

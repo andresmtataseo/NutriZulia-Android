@@ -3,8 +3,328 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="24dp"
     android:orientation="vertical"
-    tools:context=".presentation.view.CuentaFragment">
+    tools:context=".presentation.view.usuario.CuentaFragment">
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/layoutCedula"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_cedula"
+                android:layout_gravity="center_vertical"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cedula"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+                <TextView
+                    android:id="@+id/tvCedula"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:text="V-00000000"/>
+
+            </LinearLayout>
+
+            </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutNombres"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_person"
+                android:layout_gravity="center_vertical"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"/>
+                <TextView
+                    android:id="@+id/tvNombres"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:text="FULANITO SULTANO DETALMAR POTES"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutFechaNacimiento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_calendario"
+                android:layout_gravity="center_vertical"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Fecha de nacimiento"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"/>
+                <TextView
+                    android:id="@+id/tvFechaNacimiento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:text="0000/00/00"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutGenero"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/ivGenero"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_male"
+                android:layout_gravity="center_vertical"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Género"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"/>
+                <TextView
+                    android:id="@+id/tvGenero"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:text="MASCULINO"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutTelefono"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_phone_enabled"
+                android:layout_gravity="center_vertical"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Teléfono"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"/>
+                <TextView
+                    android:id="@+id/tvTelefono"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:text="04XX-XXXXXXX"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutCorreo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_mail"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center_vertical"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Correo eléctronico"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"/>
+                <TextView
+                    android:id="@+id/tvCorreo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:text="xxxxxxxxxxxxxxxxx@mail.com"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ajustes"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+            android:gravity="center"
+            android:padding="8dp"/>
+
+        <LinearLayout
+            android:id="@+id/layoutCambiarContrasena"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_password"
+                android:layout_gravity="center_vertical"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cambiar contraseña"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutCambiarMaximoCitas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_calendar_lock"
+                android:layout_gravity="center_vertical"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cambiar maximo de citas"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"/>
+                <TextView
+                    android:id="@+id/tvMaximoCitas"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:text="10 citas por día"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 
 </LinearLayout>

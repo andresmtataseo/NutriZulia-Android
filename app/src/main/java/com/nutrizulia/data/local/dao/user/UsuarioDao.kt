@@ -12,6 +12,9 @@ interface UsuarioDao {
     @Query("SELECT * FROM usuarios")
     suspend fun findAll(): List<UsuarioEntity>
 
+    @Query("SELECT * FROM usuarios WHERE id = :id")
+    suspend fun findById(id: Int): UsuarioEntity?
+
     @Upsert
     suspend fun insert(usuario: UsuarioEntity): Long
 

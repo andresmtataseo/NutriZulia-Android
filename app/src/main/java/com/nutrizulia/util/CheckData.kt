@@ -23,8 +23,9 @@ object CheckData {
         if (numero.isNullOrEmpty()) {
             return false
         }
-        val patronTelefono = "^(0414|0424|0412|0416|0426)\\d{7}$"
-        return numero.matches(Regex(patronTelefono))
+        val patronTelefono = "^(0414|0424|0412|0416|0426)-\\d{7}$"
+        val patronTelefono2 = "^(0414|0424|0412|0416|0426)\\d{7}$"
+        return numero.matches(Regex(patronTelefono)) || numero.matches(Regex(patronTelefono2))
     }
 
 }

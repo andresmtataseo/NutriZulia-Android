@@ -1,5 +1,6 @@
 package com.nutrizulia.data.repository.collection
 
+import android.util.Log
 import com.nutrizulia.data.local.dao.collection.EvaluacionAntropometricaDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
@@ -21,6 +22,14 @@ class EvaluacionAntropometricaRepository @Inject constructor(
         dao.upsertAll(evaluacionAntropometrica.map { it.toEntity() })
     }
 
+    suspend fun insertAll(evaluacionAntropometrica: List<EvaluacionAntropometrica>) {
+        dao.insertAll(evaluacionAntropometrica.map { it.toEntity() })
+    }
+
+    suspend fun deleteByConsultaId(consultaId: String): Int {
+        return dao.deleteByConsultaId(consultaId)
+    }
+
     suspend fun findAllByConsultaId(idConsulta: String): List<EvaluacionAntropometrica> {
         return dao.findAllByConsultaId(idConsulta).map { it.toDomain() }
     }
@@ -30,21 +39,26 @@ class EvaluacionAntropometricaRepository @Inject constructor(
             val evaluacionesPendientes = dao.findAllNotSynced()
             if (evaluacionesPendientes.isEmpty()) {
                 return SyncResult.Success(emptyList(), "No hay evaluaciones antropométricas para sincronizar")
+                Log.d("EvaluacionAntropometricaRepository", "No hay evaluaciones antropométricas para sincronizar")
             }
             val evaluacionesDto = evaluacionesPendientes.map { it.toDto() }
             val response = api.syncEvaluacionesAntropometricas(evaluacionesDto)
             
             response.toSyncResult { apiResponse ->
+                // Marcar como sincronizados todos los registros que se enviaron exitosamente
+                evaluacionesPendientes.forEach { entity ->
+                    val updatedEntity = entity.copy(isSynced = true)
+                    dao.upsert(updatedEntity)
+                }
+                
+                // Procesar registros actualizados que devuelve el servidor (si los hay)
                 val data = apiResponse.data ?: emptyList()
                 data.forEach { dto ->
-                    val entity = dto.toEntity().copy(
-                        isSynced = true
-                    )
-                    dao.upsert(entity)
+                    val serverEntity = dto.toEntity().copy(isSynced = true)
+                    dao.upsert(serverEntity)
                 }
-                val cantidadSincronizados = data.size
-                val mensaje = "Sincronizadas $cantidadSincronizados evaluaciones antropométricas"
-                SyncResult.Success(data, mensaje)
+                
+                SyncResult.Success(data, response.body()?.message ?: "Sincronización de evaluaciones antropométricas completada")
             }
         } catch (e: Exception) {
             e.toSyncResult()

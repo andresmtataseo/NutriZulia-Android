@@ -11,11 +11,8 @@ import java.time.LocalDateTime
 @Dao
 interface DiagnosticoDao {
 
-    @Query("SELECT * FROM diagnosticos WHERE consulta_id = :consultaId")
+    @Query("SELECT * FROM diagnosticos WHERE consulta_id = :consultaId AND is_deleted = 0")
     suspend fun findByConsultaId(consultaId: String): List<DiagnosticoEntity>
-
-    @Query("SELECT * FROM diagnosticos WHERE updated_at > :timestamp")
-    suspend fun findPendingChanges(timestamp: LocalDateTime): List<DiagnosticoEntity>
 
     @Query("SELECT * FROM diagnosticos WHERE is_synced = 0")
     suspend fun findAllNotSynced(): List<DiagnosticoEntity>
@@ -38,7 +35,7 @@ interface DiagnosticoDao {
     @Query("DELETE FROM diagnosticos")
     suspend fun deleteAll(): Int
 
-    @Query("DELETE FROM diagnosticos WHERE consulta_id = :consultaId")
+    @Query("UPDATE diagnosticos SET is_deleted = 1, is_synced = 0 WHERE consulta_id = :consultaId")
     suspend fun deleteByConsultaId(consultaId: String): Int
 
 }

@@ -253,14 +253,13 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         consultaId: String,
         detalleId: String
     ) {
-        val updatedAt = LocalDateTime.now()
         val existingIndex = evaluations.indexOfFirst { it.tipoIndicadorId == indicatorId && it.tipoValorCalculado == valueType }
 
         if (existingIndex != -1) {
             evaluations[existingIndex] = evaluations[existingIndex].copy(
                 valorCalculado = calculatedValue,
                 diagnosticoAntropometrico = diagnostic,
-                updatedAt = updatedAt
+                updatedAt = LocalDateTime.now()
             )
         } else {
             evaluations.add(
@@ -273,7 +272,7 @@ class EvaluacionesFinalesViewModel @Inject constructor(
                     tipoValorCalculado = valueType,
                     diagnosticoAntropometrico = diagnostic,
                     fechaEvaluacion = LocalDate.now(),
-                    updatedAt = updatedAt,
+                    updatedAt = LocalDateTime.now(),
                     isDeleted = false,
                     isSynced = false
                 )

@@ -1,7 +1,11 @@
 package com.nutrizulia.util
 
 object AppointmentConstants {
+    @Deprecated("Use UserPreferencesRepository to get dynamic max appointments per day")
     const val MAX_APPOINTMENTS_PER_DAY: Int = 1
+    
+    // Default value is now managed by UserPreferencesRepository
+    // Use GetMaxAppointmentsPerDayUseCase to get the current user preference
 }
 
 object ApiConstants {

@@ -19,6 +19,7 @@ import com.nutrizulia.domain.usecase.collection.GetConsultaProgramadaById
 import com.nutrizulia.domain.usecase.collection.GetPacienteById
 import com.nutrizulia.domain.usecase.collection.SaveConsulta
 import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
+import com.nutrizulia.domain.usecase.user.GetMaxAppointmentsPerDayValueUseCase
 import com.nutrizulia.util.AppointmentConstants
 import com.nutrizulia.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +42,8 @@ class RegistrarCitaViewModel @Inject constructor(
     private val getEspecialidades: GetEspecialidades,
     private val determineTipoConsulta: DetermineTipoConsulta,
     private val getAppointmentCounts: GetAppointmentCounts,
-    private val getCurrentInstitutionId: GetCurrentInstitutionIdUseCase
+    private val getCurrentInstitutionId: GetCurrentInstitutionIdUseCase,
+    private val getMaxAppointmentsPerDayValue: GetMaxAppointmentsPerDayValueUseCase
 ) : ViewModel() {
 
     // --- State & UI Events LiveData ---
@@ -189,8 +191,9 @@ class RegistrarCitaViewModel @Inject constructor(
 
     private suspend fun executeGetAppointmentCounts(institutionId: Int) {
         val counts = getAppointmentCounts(institutionId)
+        val maxAppointments = getMaxAppointmentsPerDayValue()
         _fullyBookedDates.value = counts.filter { (_, count) ->
-            count >= AppointmentConstants.MAX_APPOINTMENTS_PER_DAY
+            count >= maxAppointments
         }.map { it.key }
     }
 

@@ -5,5 +5,6 @@ data class ApiErrorResponseDto(
     val message: String,
     val timestamp: String,
     val path: String,
-    val errors: List<String>? = null
+    val errors: Map<String, String>? = null,
+    val data: Map<String, Any>? = null
 )

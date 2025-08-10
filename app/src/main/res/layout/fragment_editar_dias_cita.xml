@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".presentation.view.usuario.EditarDiasCitaFragment">
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="visible">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tfCitasPorDia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="8dp"
+            android:hint="Número de citas por día"
+            app:counterMaxLength="2"
+            app:endIconMode="clear_text"
+            app:helperTextEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tiCitasPorDia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Establece el numero maximo de citas que se pueden agendar por dia en la app."
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnRestaurar"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="2"
+                android:text="@string/restaurar"
+                android:textColor="@color/color_cita_cancelada"
+                app:icon="@drawable/ic_deshacer"
+                app:iconGravity="textStart"
+                app:iconTint="@color/color_cita_cancelada" />
+
+            <Button
+                android:id="@+id/btnGuardar"
+                style="?attr/materialButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:text="@string/guardar"
+                app:icon="@drawable/ic_guardar"
+                app:iconGravity="textStart" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -8,6 +8,7 @@ import com.google.gson.JsonSerializer
 import com.nutrizulia.data.remote.api.ErrorInterceptor
 import com.nutrizulia.data.remote.api.auth.AuthInterceptor
 import com.nutrizulia.data.remote.api.auth.IAuthService
+import com.nutrizulia.data.remote.api.auth.IAuthenticatedService
 import com.nutrizulia.data.remote.api.catalog.ICatalogService
 import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
 import com.nutrizulia.data.remote.api.user.IUserService
@@ -74,9 +75,10 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(errorInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
             .build()
     }
 
@@ -92,9 +94,10 @@ object NetworkModule {
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
             .addInterceptor(errorInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
             .build()
     }
 
@@ -130,6 +133,12 @@ object NetworkModule {
     @Provides
     fun provideAuthService(@AuthRetrofit retrofit: Retrofit): IAuthService {
         return retrofit.create(IAuthService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAuthenticatedService(@AuthenticatedRetrofit retrofit: Retrofit): IAuthenticatedService {
+        return retrofit.create(IAuthenticatedService::class.java)
     }
 
     @Singleton
