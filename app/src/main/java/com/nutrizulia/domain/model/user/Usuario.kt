@@ -10,7 +10,7 @@ data class Usuario(
     val apellidos: String,
     val fechaNacimiento: LocalDate,
     val genero: String,
-    val telefono: String,
+    val telefono: String?,
     val correo: String,
     val clave: String,
     val isEnabled: Boolean

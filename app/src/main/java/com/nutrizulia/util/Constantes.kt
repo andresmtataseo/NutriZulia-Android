@@ -1,13 +1,5 @@
 package com.nutrizulia.util
 
-object AppointmentConstants {
-    @Deprecated("Use UserPreferencesRepository to get dynamic max appointments per day")
-    const val MAX_APPOINTMENTS_PER_DAY: Int = 1
-    
-    // Default value is now managed by UserPreferencesRepository
-    // Use GetMaxAppointmentsPerDayUseCase to get the current user preference
-}
-
 object ApiConstants {
     const val BASE_URL: String = "http://192.168.1.100:8080/"
 }
@@ -17,7 +9,6 @@ object AuthEndpoints {
     private const val AUTH_BASE_URL: String = "/api/v1/auth"
     
     const val SIGN_IN: String = "$AUTH_BASE_URL/sign-in"
-    const val SIGN_UP: String = "$AUTH_BASE_URL/sign-up"
     const val CHECK_AUTH: String = "$AUTH_BASE_URL/check"
     const val FORGOT_PASSWORD: String = "$AUTH_BASE_URL/forgot-password"
     const val CHANGE_PASSWORD: String = "$AUTH_BASE_URL/change-password"
@@ -50,6 +41,7 @@ object CatalogEndpoints {
     const val INDICATOR_TYPES: String = "$CATALOG_BASE_URL/indicator-types"
     const val INSTITUTION_TYPES: String = "$CATALOG_BASE_URL/institution-types"
     const val VERSIONS: String = "$CATALOG_BASE_URL/versions"
+    const val INSTITUTIONS: String = "$CATALOG_BASE_URL/institutions"
 }
 
 // ========== DATA COLLECTION API ==========
@@ -70,23 +62,15 @@ object CollectionSyncEndpoints {
     const val SYNC_ACTIVITIES: String = "$COLLECTION_BASE_URL/sync/activities"
 }
 
-// ========== INSTITUTIONS API ==========
-object InstitutionEndpoints {
-    private const val INSTITUTIONS_BASE_URL: String = "/api/v1/institutions"
-    
-    const val GET_ALL: String = INSTITUTIONS_BASE_URL
-}
-
 // ========== USERS API ==========
 object UserEndpoints {
     private const val USERS_BASE_URL: String = "/api/v1/users"
     
-    const val GET_ALL: String = USERS_BASE_URL
 }
 
 // ========== USER-INSTITUTIONS API ==========
 object UserInstitutionEndpoints {
-    private const val USER_INSTITUTIONS_BASE_URL: String = "/api/v1/user-institutions"
+    private const val USER_INSTITUTIONS_BASE_URL: String = "/api/v1/user"
     
-    const val GET_BY_USER: String = "$USER_INSTITUTIONS_BASE_URL/by-user"
+    const val GET_BY_USER: String = "$USER_INSTITUTIONS_BASE_URL/institutions-by-user"
 }

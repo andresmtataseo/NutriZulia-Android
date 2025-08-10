@@ -65,7 +65,7 @@ class EditarTelefonoFragment : Fragment() {
         viewModel.usuario.observe(viewLifecycleOwner) { usuario ->
             if (usuario == null) return@observe
 
-            val telefono = usuario.telefono
+            val telefono = usuario.telefono ?: ""
             val prefijo: String
             val numero: String
 

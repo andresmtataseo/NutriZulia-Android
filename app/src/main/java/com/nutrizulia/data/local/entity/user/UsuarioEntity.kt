@@ -15,10 +15,10 @@ data class UsuarioEntity(
     @ColumnInfo(name = "apellidos") val apellidos: String,
     @ColumnInfo(name = "fecha_nacimiento") val fechaNacimiento: LocalDate,
     @ColumnInfo(name = "genero") val genero: String,
-    @ColumnInfo(name = "telefono") val telefono: String,
+    @ColumnInfo(name = "telefono") val telefono: String?,
     @ColumnInfo(name = "correo") val correo: String,
     @ColumnInfo(name = "clave") val clave: String,
-    @ColumnInfo(name = "is_enabled", defaultValue = "true") val isEnabled: Boolean
+    @ColumnInfo(name = "is_enabled") val isEnabled: Boolean
 )
 
 fun Usuario.toEntity() = UsuarioEntity(

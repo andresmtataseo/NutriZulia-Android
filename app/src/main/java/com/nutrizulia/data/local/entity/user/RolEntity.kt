@@ -9,10 +9,12 @@ import com.nutrizulia.domain.model.user.Rol
 data class RolEntity(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: Int,
-    @ColumnInfo(name = "nombre") val nombre: String
+    @ColumnInfo(name = "nombre") val nombre: String,
+    @ColumnInfo(name = "descripcion") val descripcion: String
 )
 
 fun Rol.toEntity() = RolEntity(
     id = id,
-    nombre = nombre
+    nombre = nombre,
+    descripcion = descripcion
 )

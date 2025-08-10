@@ -6,9 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import com.nutrizulia.R
+import androidx.navigation.fragment.findNavController
 import com.nutrizulia.databinding.FragmentEditarDiasCitaBinding
 import com.nutrizulia.presentation.viewmodel.usuario.EditarDiasCitaViewModel
 import com.nutrizulia.util.Utils.mostrarSnackbar
@@ -37,6 +36,14 @@ class EditarDiasCitaFragment : Fragment() {
     }
 
     private fun setupObservers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.exit.collect { exit ->
+                if (exit) {
+                    findNavController().popBackStack()
+                }
+            }
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             // Observar el valor actual de citas por día
             viewModel.maxAppointmentsPerDay.collect { maxAppointments ->

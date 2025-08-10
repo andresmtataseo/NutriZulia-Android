@@ -10,7 +10,7 @@ import java.time.LocalDate
             ui.id AS usuario_institucion_id,
             ui.usuario_id,
             ui.rol_id,
-            r.nombre AS rol_nombre,
+            r.descripcion AS rol_nombre,
             ui.institucion_id,
             i.nombre AS institucion_nombre,
             m.nombre AS municipio_nombre,

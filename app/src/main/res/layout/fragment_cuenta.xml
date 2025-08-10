@@ -11,14 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <LinearLayout
             android:id="@+id/layoutCedula"
@@ -51,7 +51,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:text="V-00000000"/>
+                    android:text="@string/desconocido"/>
 
             </LinearLayout>
 
@@ -88,7 +88,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:text="FULANITO SULTANO DETALMAR POTES"/>
+                    android:text="@string/desconocido"/>
 
             </LinearLayout>
 
@@ -125,7 +125,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:text="0000/00/00"/>
+                    android:text="@string/desconocido"/>
 
             </LinearLayout>
 
@@ -163,7 +163,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:text="MASCULINO"/>
+                    android:text="@string/desconocido"/>
 
             </LinearLayout>
 
@@ -200,7 +200,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:text="04XX-XXXXXXX"/>
+                    android:text="@string/desconocido"/>
 
             </LinearLayout>
 
@@ -237,7 +237,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:text="xxxxxxxxxxxxxxxxx@mail.com"/>
+                    android:text="@string/desconocido"/>
 
             </LinearLayout>
 
@@ -314,12 +314,6 @@
                     android:layout_height="wrap_content"
                     android:text="Cambiar maximo de citas"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"/>
-                <TextView
-                    android:id="@+id/tvMaximoCitas"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:text="10 citas por día"/>
             </LinearLayout>
 
         </LinearLayout>

@@ -29,6 +29,9 @@ class EditarDiasCitaViewModel @Inject constructor(
     private val _saveSuccess = MutableStateFlow(false)
     val saveSuccess: StateFlow<Boolean> = _saveSuccess.asStateFlow()
 
+    private val _exit = MutableStateFlow(false)
+    val exit: StateFlow<Boolean> = _exit.asStateFlow()
+
     init {
         loadMaxAppointmentsPerDay()
     }
@@ -56,6 +59,7 @@ class EditarDiasCitaViewModel @Inject constructor(
                 saveMaxAppointmentsPerDayUseCase(_maxAppointmentsPerDay.value)
                 
                 _saveSuccess.value = true
+                _exit.value = true
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Error al guardar la configuración"
             } finally {

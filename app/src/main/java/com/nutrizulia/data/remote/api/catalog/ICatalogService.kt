@@ -4,7 +4,6 @@ import com.nutrizulia.data.remote.dto.ApiResponseDto
 import com.nutrizulia.data.remote.dto.catalog.*
 import com.nutrizulia.data.remote.dto.user.UsuarioInstitucionResponseDto
 import com.nutrizulia.util.CatalogEndpoints
-import com.nutrizulia.util.InstitutionEndpoints
 import com.nutrizulia.util.UserInstitutionEndpoints
 import retrofit2.Response
 import retrofit2.http.GET
@@ -88,7 +87,7 @@ interface ICatalogService {
     @GET(CatalogEndpoints.ROLES)
     suspend fun getRoles(): Response<ApiResponseDto<List<RolResponseDto>>>
 
-    @GET(InstitutionEndpoints.GET_ALL)
+    @GET(CatalogEndpoints.INSTITUTIONS)
     suspend fun getInstituciones(): Response<ApiResponseDto<List<InstitucionResponseDto>>>
 
     @GET(UserInstitutionEndpoints.GET_BY_USER)

@@ -9,9 +9,9 @@ data class UsuarioResponseDto(
     @SerializedName("cedula") val cedula: String,
     @SerializedName("nombres") val nombres: String,
     @SerializedName("apellidos") val apellidos: String,
-    @SerializedName("fechaNacimiento") val fechaNacimiento: LocalDate,
+    @SerializedName("fecha_nacimiento") val fechaNacimiento: LocalDate,
     @SerializedName("genero") val genero: String,
-    @SerializedName("telefono") val telefono: String,
+    @SerializedName("telefono") val telefono: String?,
     @SerializedName("correo") val correo: String,
     @SerializedName("clave") val clave: String,
     @SerializedName("is_enabled") val isEnabled: Boolean
