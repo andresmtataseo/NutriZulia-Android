@@ -138,4 +138,5 @@
     <string name="error_sincronizacion_conflicto">Conflicto de datos: algunos pacientes ya existen o tienen datos inconsistentes</string>
     <string name="error_sincronizacion_red">Error de conexión. Verifique su conexión a internet</string>
     <string name="error_sincronizacion_desconocido">Error inesperado durante la sincronización</string>
+    <string name="actividades">Actividades</string>
 </resources>

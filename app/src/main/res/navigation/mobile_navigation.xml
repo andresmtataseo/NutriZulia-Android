@@ -84,6 +84,9 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_inicioFragment_to_actividadFragment"
+            app:destination="@id/actividadFragment" />
     </fragment>
     <fragment
         android:id="@+id/pacientesFragment"
@@ -446,6 +449,11 @@
             android:name="usuarioId"
             app:argType="integer" />
     </fragment>
+    <fragment
+        android:id="@+id/actividadFragment"
+        android:name="com.nutrizulia.presentation.view.actividad.ActividadFragment"
+        android:label="fragment_actividad"
+        tools:layout="@layout/fragment_actividad" />
 
 
 </navigation>

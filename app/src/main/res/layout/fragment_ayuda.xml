@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_margin="24dp"
+    android:layout_margin="16dp"
     tools:context=".presentation.view.AyudaFragment">
 
     <ImageView
@@ -20,41 +20,58 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/app_name"
-        android:textAlignment="center"
-        android:textAllCaps="true"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+        android:textAlignment="center" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:text="@string/version_app"
-        android:textAlignment="center"
-        android:textSize="16sp" />
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:textAlignment="center" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/coordinacion_regional"
-        android:textSize="16sp" />
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/manual_usuario"
-        android:textSize="16sp" />
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
     <Button
         app:icon="@drawable/ic_descargar"
         app:iconGravity="textStart"
+        style="@style/Widget.Material3.Button"
         android:layout_gravity="center_horizontal"
         android:id="@+id/btnContinuar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/manual_de_usuario" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="bottom">
+
+        <Button
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/btnSoporte"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/necesitas_ayuda" />
+
+    </LinearLayout>
+
 
 </LinearLayout>

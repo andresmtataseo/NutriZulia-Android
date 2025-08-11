@@ -20,12 +20,9 @@ import com.nutrizulia.domain.usecase.collection.GetPacienteById
 import com.nutrizulia.domain.usecase.collection.SaveConsulta
 import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
 import com.nutrizulia.domain.usecase.user.GetMaxAppointmentsPerDayValueUseCase
-import com.nutrizulia.util.AppointmentConstants
-import com.nutrizulia.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime

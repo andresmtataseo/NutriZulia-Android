@@ -20,8 +20,12 @@
             android:title="@string/menu_pacientes" />
         <item
             android:id="@+id/representantesFragment"
-            android:icon="@drawable/ic_menu_pacientes"
+            android:icon="@drawable/ic_representantes"
             android:title="@string/menu_representantes" />
+        <item
+            android:id="@+id/actividadFragment"
+            android:icon="@drawable/ic_actividades"
+            android:title="@string/actividades" />
         <item
             android:id="@+id/reportesFragment"
             android:icon="@drawable/ic_menu_reportes"

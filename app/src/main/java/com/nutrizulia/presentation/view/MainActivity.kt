@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.consultasFragment,
                 R.id.pacientesFragment,
                 R.id.representantesFragment,
+                R.id.actividadFragment,
                 R.id.reportesFragment,
                 R.id.cuentaFragment,
                 R.id.ayudaFragment,
