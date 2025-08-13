@@ -32,6 +32,9 @@ interface DiagnosticoDao {
     @Delete
     suspend fun delete(diagnostico: DiagnosticoEntity): Int
 
+    @Query("UPDATE diagnosticos SET is_synced = 1, updated_at = :timestamp WHERE id = :id")
+    suspend fun markAsSynced(id: String, timestamp: LocalDateTime)
+
     @Query("DELETE FROM diagnosticos")
     suspend fun deleteAll(): Int
 

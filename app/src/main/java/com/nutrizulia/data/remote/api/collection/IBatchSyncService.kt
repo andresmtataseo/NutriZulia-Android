@@ -7,9 +7,6 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-/**
- * Servicio de sincronización por lotes que maneja respuestas con success/failed por UUID
- */
 interface IBatchSyncService {
 
     @POST(CollectionSyncEndpoints.SYNC_REPRESENTATIVES)

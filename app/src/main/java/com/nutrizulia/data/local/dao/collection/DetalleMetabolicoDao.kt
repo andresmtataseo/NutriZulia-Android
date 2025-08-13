@@ -23,6 +23,9 @@ interface DetalleMetabolicoDao {
     @Insert
     suspend fun insert(detalleMetabolico: DetalleMetabolicoEntity): Long
 
+    @Query("UPDATE detalles_metabolicos SET is_synced = 1, updated_at = :timestamp WHERE id = :id")
+    suspend fun markAsSynced(id: String, timestamp: LocalDateTime)
+
     @Insert
     suspend fun insertAll(detallesMetabolicos: List<DetalleMetabolicoEntity>): List<Long>
 

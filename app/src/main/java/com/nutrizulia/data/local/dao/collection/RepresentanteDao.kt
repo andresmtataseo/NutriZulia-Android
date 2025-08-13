@@ -38,6 +38,9 @@ interface RepresentanteDao {
     @Query("SELECT * FROM representantes WHERE is_synced = 0")
     suspend fun findAllNotSynced(): List<RepresentanteEntity>
 
+    @Query("UPDATE representantes SET is_synced = 1, updated_at = :updatedAt WHERE id = :id")
+    suspend fun markAsSynced(id: String, updatedAt: LocalDateTime): Int
+
     @Update
     suspend fun updateAll(representantes: List<RepresentanteEntity>): Int
 

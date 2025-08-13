@@ -1,13 +1,12 @@
 package com.nutrizulia.data.repository.collection
 
-import android.util.Log
 import com.nutrizulia.data.local.dao.collection.DiagnosticoDao
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.local.entity.collection.toEntity
-import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
-import com.nutrizulia.data.remote.dto.collection.DiagnosticoDto
-import com.nutrizulia.data.remote.dto.collection.toEntity
+import com.nutrizulia.data.remote.api.collection.IBatchSyncService
 import com.nutrizulia.domain.model.SyncResult
+import com.nutrizulia.domain.model.BatchSyncResult
+import com.nutrizulia.domain.model.toBatchSyncResult
 import com.nutrizulia.domain.model.collection.Diagnostico
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.domain.model.toSyncResult
@@ -16,7 +15,7 @@ import javax.inject.Inject
 
 class DiagnosticoRepository @Inject constructor(
     private val dao: DiagnosticoDao,
-    private val api: ICollectionSyncService
+    private val batchApi: IBatchSyncService
 ) {
     suspend fun insertAll(diagnosticos: List<Diagnostico>): List<Long> {
         return dao.insertAll(diagnosticos.map { it.toEntity() })
@@ -26,36 +25,44 @@ class DiagnosticoRepository @Inject constructor(
     suspend fun findAllByConsultaId(consultaId: String): List<Diagnostico> {
         return dao.findByConsultaId(consultaId).map { it.toDomain() }
     }
-    
-    suspend fun sincronizarDiagnosticos(): SyncResult<List<DiagnosticoDto>> {
+
+    suspend fun sincronizarDiagnosticosBatch(): SyncResult<BatchSyncResult> {
         return try {
             val diagnosticosPendientes = dao.findAllNotSynced()
             if (diagnosticosPendientes.isEmpty()) {
-                return SyncResult.Success(emptyList(), "No hay diagnosticos para sincronizar")
-                Log.d("DiagnosticoRepository", "No hay diagnosticos para sincronizar")
+                return SyncResult.Success(
+                    BatchSyncResult(),
+                    "No hay diagnósticos para sincronizar"
+                )
             }
+
             val diagnosticosDto = diagnosticosPendientes.map { it.toDto() }
-            val response = api.syncDiagnosticoDto(diagnosticosDto)
-            
-            response.toSyncResult { apiResponse ->
-                // Marcar como sincronizados todos los registros que se enviaron exitosamente
-                diagnosticosPendientes.forEach { entity ->
-                    val updatedEntity = entity.copy(
-                        isSynced = true
-                    )
-                    dao.upsert(updatedEntity)
+            val response = batchApi.syncDiagnosticosBatch(diagnosticosDto)
+
+            response.toBatchSyncResult { batchResult ->
+                batchResult.successfulUuids.forEach { uuid ->
+                    dao.markAsSynced(uuid, LocalDateTime.now())
                 }
-                
-                // Procesar registros actualizados que devuelve el servidor (si los hay)
-                val data = apiResponse.data ?: emptyList()
-                data.forEach { dto ->
-                    val serverEntity = dto.toEntity().copy(
-                        isSynced = true
+
+                if (batchResult.failedUuids.isNotEmpty()) {
+                    if (batchResult.successfulUuids.isNotEmpty()) {
+                        SyncResult.Success(
+                            batchResult,
+                            "Sincronización parcial: ${batchResult.successfulUuids.size} exitosos, ${batchResult.failedUuids.size} fallidos"
+                        )
+                    } else {
+                        SyncResult.BusinessError(
+                            409,
+                            response.body()?.message ?: "Error en la sincronización de diagnósticos",
+                            null
+                        )
+                    }
+                } else {
+                    SyncResult.Success(
+                        batchResult,
+                        response.body()?.message ?: "Sincronización de diagnósticos completada exitosamente"
                     )
-                    dao.upsert(serverEntity)
                 }
-                
-                SyncResult.Success(data, response.body()?.message ?: "Sincronización de diagnosticos completada")
             }
         } catch (e: Exception) {
             e.toSyncResult()

@@ -32,6 +32,9 @@ interface DetalleObstetriciaDao {
     @Upsert
     suspend fun upsertAll(detallesObstetricia: List<DetalleObstetriciaEntity>)
 
+    @Query("UPDATE detalles_obstetricias SET is_synced = 1, updated_at = :timestamp WHERE id = :id")
+    suspend fun markAsSynced(id: String, timestamp: LocalDateTime)
+
     @Delete
     suspend fun delete(detalleObstetricia: DetalleObstetriciaEntity): Int
 

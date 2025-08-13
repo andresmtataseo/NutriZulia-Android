@@ -32,6 +32,9 @@ interface DetalleVitalDao {
     @Upsert
     suspend fun upsertAll(detallesVitales: List<DetalleVitalEntity>)
 
+    @Query("UPDATE detalles_vitales SET is_synced = 1, updated_at = :timestamp WHERE id = :id")
+    suspend fun markAsSynced(id: String, timestamp: LocalDateTime)
+
     @Query("DELETE FROM detalles_vitales")
     suspend fun deleteAll(): Int
 

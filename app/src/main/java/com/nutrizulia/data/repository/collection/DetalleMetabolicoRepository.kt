@@ -3,18 +3,21 @@ package com.nutrizulia.data.repository.collection
 import com.nutrizulia.data.local.dao.collection.DetalleMetabolicoDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.entity.collection.toDto
-import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
+import com.nutrizulia.data.remote.api.collection.IBatchSyncService
 import com.nutrizulia.data.remote.dto.collection.DetalleMetabolicoDto
 import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.SyncResult
+import com.nutrizulia.domain.model.BatchSyncResult
+import com.nutrizulia.domain.model.toBatchSyncResult
 import com.nutrizulia.domain.model.toSyncResult
 import com.nutrizulia.domain.model.collection.DetalleMetabolico
 import com.nutrizulia.domain.model.collection.toDomain
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class DetalleMetabolicoRepository @Inject constructor(
     private val dao: DetalleMetabolicoDao,
-    private val api: ICollectionSyncService
+    private val batchApi: IBatchSyncService
 ) {
     suspend fun upsert(detalleMetabolico: DetalleMetabolico) {
         dao.upsert(detalleMetabolico.toEntity())
@@ -22,25 +25,44 @@ class DetalleMetabolicoRepository @Inject constructor(
     suspend fun findByConsultaId(consultaId: String) : DetalleMetabolico? {
         return dao.findByConsultaId(consultaId)?.toDomain()
     }
-    
-    suspend fun sincronizarDetallesMetabolicos(): SyncResult<List<DetalleMetabolicoDto>> {
+
+    suspend fun sincronizarDetallesMetabolicosBatch(): SyncResult<BatchSyncResult> {
         return try {
             val metabolicosPendientes = dao.findAllNotSynced()
             if (metabolicosPendientes.isEmpty()) {
-                return SyncResult.Success(emptyList(), "No hay detalles metabolicos para sincronizar")
+                return SyncResult.Success(
+                    BatchSyncResult(),
+                    "No hay detalles metabólicos para sincronizar"
+                )
             }
-            val metabolicoDto = metabolicosPendientes.map { it.toDto() }
-            val response = api.syncDetallesMetabolicos(metabolicoDto)
-            
-            response.toSyncResult { apiResponse ->
-                val data = apiResponse.data ?: emptyList()
-                data.forEach { dto ->
-                    val entity = dto.toEntity().copy(
-                        isSynced = true
-                    )
-                    dao.upsert(entity)
+
+            val metabolicosDto = metabolicosPendientes.map { it.toDto() }
+            val response = batchApi.syncDetallesMetabolicosBatch(metabolicosDto)
+
+            response.toBatchSyncResult { batchResult ->
+                batchResult.successfulUuids.forEach { uuid ->
+                    dao.markAsSynced(uuid, LocalDateTime.now())
                 }
-                SyncResult.Success(data, response.body()?.message ?: "Sincronización de detalles metabolicos completada")
+
+                if (batchResult.failedUuids.isNotEmpty()) {
+                    if (batchResult.successfulUuids.isNotEmpty()) {
+                        SyncResult.Success(
+                            batchResult,
+                            "Sincronización parcial: ${batchResult.successfulUuids.size} exitosos, ${batchResult.failedUuids.size} fallidos"
+                        )
+                    } else {
+                        SyncResult.BusinessError(
+                            409,
+                            response.body()?.message ?: "Error en la sincronización de detalles metabólicos",
+                            null
+                        )
+                    }
+                } else {
+                    SyncResult.Success(
+                        batchResult,
+                        response.body()?.message ?: "Sincronización de detalles metabólicos completada exitosamente"
+                    )
+                }
             }
         } catch (e: Exception) {
             e.toSyncResult()

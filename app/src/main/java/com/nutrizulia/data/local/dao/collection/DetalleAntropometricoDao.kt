@@ -29,6 +29,9 @@ interface DetalleAntropometricoDao {
     @Upsert
     suspend fun upsert(detalleAntropometrico: DetalleAntropometricoEntity)
 
+    @Query("UPDATE detalles_antropometricos SET is_synced = 1, updated_at = :timestamp WHERE id = :id")
+    suspend fun markAsSynced(id: String, timestamp: LocalDateTime)
+
     @Upsert
     suspend fun upsertAll(detallesAntropometricos: List<DetalleAntropometricoEntity>)
 

@@ -3,18 +3,19 @@ package com.nutrizulia.data.repository.collection
 import com.nutrizulia.data.local.dao.collection.DetalleObstetriciaDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.entity.collection.toDto
-import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
-import com.nutrizulia.data.remote.dto.collection.DetalleObstetriciaDto
-import com.nutrizulia.data.remote.dto.collection.toEntity
+import com.nutrizulia.data.remote.api.collection.IBatchSyncService
 import com.nutrizulia.domain.model.SyncResult
+import com.nutrizulia.domain.model.BatchSyncResult
+import com.nutrizulia.domain.model.toBatchSyncResult
 import com.nutrizulia.domain.model.collection.DetalleObstetricia
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.domain.model.toSyncResult
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class DetalleObstetriciaRepository @Inject constructor(
     private val dao: DetalleObstetriciaDao,
-    private val api: ICollectionSyncService
+    private val batchApi: IBatchSyncService
 ) {
     suspend fun upsert(it: DetalleObstetricia) {
         dao.upsert(it.toEntity())
@@ -22,25 +23,44 @@ class DetalleObstetriciaRepository @Inject constructor(
     suspend fun findByConsultaId(ConsultaId: String): DetalleObstetricia? {
         return dao.findByConsultaId(ConsultaId)?.toDomain()
     }
-    
-    suspend fun sincronizarDetallesObstetricias(): SyncResult<List<DetalleObstetriciaDto>> {
+
+    suspend fun sincronizarDetallesObstetriciaBatch(): SyncResult<BatchSyncResult> {
         return try {
             val obstetriciasPendientes = dao.findAllNotSynced()
             if (obstetriciasPendientes.isEmpty()) {
-                return SyncResult.Success(emptyList(), "No hay detalles obstétricos para sincronizar")
+                return SyncResult.Success(
+                    BatchSyncResult(),
+                    "No hay detalles obstétricos para sincronizar"
+                )
             }
-            val obstetriciaDto = obstetriciasPendientes.map { it.toDto() }
-            val response = api.syncDetallesObstetricias(obstetriciaDto)
-            
-            response.toSyncResult { apiResponse ->
-                val data = apiResponse.data ?: emptyList()
-                data.forEach { dto ->
-                    val entity = dto.toEntity().copy(
-                        isSynced = true
-                    )
-                    dao.upsert(entity)
+
+            val obstetriciasDto = obstetriciasPendientes.map { it.toDto() }
+            val response = batchApi.syncDetallesObstetriciaBatch(obstetriciasDto)
+
+            response.toBatchSyncResult { batchResult ->
+                batchResult.successfulUuids.forEach { uuid ->
+                    dao.markAsSynced(uuid, LocalDateTime.now())
                 }
-                SyncResult.Success(data, response.body()?.message ?: "Sincronización de detalles obstétricos completada")
+
+                if (batchResult.failedUuids.isNotEmpty()) {
+                    if (batchResult.successfulUuids.isNotEmpty()) {
+                        SyncResult.Success(
+                            batchResult,
+                            "Sincronización parcial: ${batchResult.successfulUuids.size} exitosos, ${batchResult.failedUuids.size} fallidos"
+                        )
+                    } else {
+                        SyncResult.BusinessError(
+                            409,
+                            response.body()?.message ?: "Error en la sincronización de detalles obstétricos",
+                            null
+                        )
+                    }
+                } else {
+                    SyncResult.Success(
+                        batchResult,
+                        response.body()?.message ?: "Sincronización de detalles obstétricos completada exitosamente"
+                    )
+                }
             }
         } catch (e: Exception) {
             e.toSyncResult()

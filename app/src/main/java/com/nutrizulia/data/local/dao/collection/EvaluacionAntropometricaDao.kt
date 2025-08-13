@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.EvaluacionAntropometricaEntity
+import java.time.LocalDateTime
 
 @Dao
 interface EvaluacionAntropometricaDao {
@@ -27,6 +28,9 @@ interface EvaluacionAntropometricaDao {
 
     @Upsert
     suspend fun upsertAll(evaluacionesAntropometricas: List<EvaluacionAntropometricaEntity>)
+
+    @Query("UPDATE evaluaciones_antropometricas SET is_synced = 1, updated_at = :timestamp WHERE id = :id")
+    suspend fun markAsSynced(id: String, timestamp: LocalDateTime)
 
     @Query("DELETE FROM evaluaciones_antropometricas")
     suspend fun deleteAll(): Int

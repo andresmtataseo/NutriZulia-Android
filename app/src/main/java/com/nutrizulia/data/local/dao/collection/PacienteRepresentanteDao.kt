@@ -31,7 +31,10 @@ interface PacienteRepresentanteDao {
     
     @Upsert
     suspend fun updateAll(pacientesRepresentantes: List<PacienteRepresentanteEntity>)
-    
+
+    @Query("UPDATE pacientes_representantes SET is_synced = 1, updated_at = :timestamp WHERE id = :uuid")
+    suspend fun markAsSynced(uuid: String, timestamp: LocalDateTime)
+
     @Insert
     suspend fun insert(pacienteRepresentante: PacienteRepresentanteEntity): Long
 

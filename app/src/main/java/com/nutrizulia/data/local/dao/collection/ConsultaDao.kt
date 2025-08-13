@@ -37,6 +37,9 @@ interface ConsultaDao {
     @Upsert
     suspend fun upsert(consulta: ConsultaEntity): Long
 
+    @Query("UPDATE consultas SET is_synced = 1, updated_at = :timestamp WHERE id = :id")
+    suspend fun markAsSynced(id: String, timestamp: LocalDateTime)
+
     @Query("UPDATE consultas SET estado = :estado WHERE id = :id")
     suspend fun updateEstadoById(id: String, estado: Estado)
 

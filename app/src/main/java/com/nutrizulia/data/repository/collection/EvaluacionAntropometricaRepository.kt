@@ -1,21 +1,21 @@
 package com.nutrizulia.data.repository.collection
 
-import android.util.Log
 import com.nutrizulia.data.local.dao.collection.EvaluacionAntropometricaDao
 import com.nutrizulia.data.local.entity.collection.toEntity
-import com.nutrizulia.data.remote.api.collection.ICollectionSyncService
-import com.nutrizulia.data.remote.dto.collection.EvaluacionAntropometricaDto
-import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.SyncResult
+import com.nutrizulia.domain.model.BatchSyncResult
+import com.nutrizulia.domain.model.toBatchSyncResult
 import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.data.local.entity.collection.toDto
+import com.nutrizulia.data.remote.api.collection.IBatchSyncService
 import com.nutrizulia.domain.model.toSyncResult
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class EvaluacionAntropometricaRepository @Inject constructor(
     private val dao: EvaluacionAntropometricaDao,
-    private val api: ICollectionSyncService
+    private val batchApi: IBatchSyncService
 ) {
 
     suspend fun upsertAll(evaluacionAntropometrica: List<EvaluacionAntropometrica>) {
@@ -33,32 +33,44 @@ class EvaluacionAntropometricaRepository @Inject constructor(
     suspend fun findAllByConsultaId(idConsulta: String): List<EvaluacionAntropometrica> {
         return dao.findAllByConsultaId(idConsulta).map { it.toDomain() }
     }
-    
-    suspend fun sincronizarEvaluacionesAntropometricas(): SyncResult<List<EvaluacionAntropometricaDto>> {
+
+    suspend fun sincronizarEvaluacionesAntropometricasBatch(): SyncResult<BatchSyncResult> {
         return try {
             val evaluacionesPendientes = dao.findAllNotSynced()
             if (evaluacionesPendientes.isEmpty()) {
-                return SyncResult.Success(emptyList(), "No hay evaluaciones antropométricas para sincronizar")
-                Log.d("EvaluacionAntropometricaRepository", "No hay evaluaciones antropométricas para sincronizar")
+                return SyncResult.Success(
+                    BatchSyncResult(),
+                    "No hay evaluaciones antropométricas para sincronizar"
+                )
             }
+
             val evaluacionesDto = evaluacionesPendientes.map { it.toDto() }
-            val response = api.syncEvaluacionesAntropometricas(evaluacionesDto)
-            
-            response.toSyncResult { apiResponse ->
-                // Marcar como sincronizados todos los registros que se enviaron exitosamente
-                evaluacionesPendientes.forEach { entity ->
-                    val updatedEntity = entity.copy(isSynced = true)
-                    dao.upsert(updatedEntity)
+            val response = batchApi.syncEvaluacionesAntropometricasBatch(evaluacionesDto)
+
+            response.toBatchSyncResult { batchResult ->
+                batchResult.successfulUuids.forEach { uuid ->
+                    dao.markAsSynced(uuid, LocalDateTime.now())
                 }
-                
-                // Procesar registros actualizados que devuelve el servidor (si los hay)
-                val data = apiResponse.data ?: emptyList()
-                data.forEach { dto ->
-                    val serverEntity = dto.toEntity().copy(isSynced = true)
-                    dao.upsert(serverEntity)
+
+                if (batchResult.failedUuids.isNotEmpty()) {
+                    if (batchResult.successfulUuids.isNotEmpty()) {
+                        SyncResult.Success(
+                            batchResult,
+                            "Sincronización parcial: ${batchResult.successfulUuids.size} exitosos, ${batchResult.failedUuids.size} fallidos"
+                        )
+                    } else {
+                        SyncResult.BusinessError(
+                            409,
+                            response.body()?.message ?: "Error en la sincronización de evaluaciones antropométricas",
+                            null
+                        )
+                    }
+                } else {
+                    SyncResult.Success(
+                        batchResult,
+                        response.body()?.message ?: "Sincronización de evaluaciones antropométricas completada exitosamente"
+                    )
                 }
-                
-                SyncResult.Success(data, response.body()?.message ?: "Sincronización de evaluaciones antropométricas completada")
             }
         } catch (e: Exception) {
             e.toSyncResult()
