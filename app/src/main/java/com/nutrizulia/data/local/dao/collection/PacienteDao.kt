@@ -54,4 +54,10 @@ interface PacienteDao {
     @Query("DELETE FROM pacientes")
     suspend fun deleteAll(): Int
 
+    @Query("UPDATE pacientes SET is_synced = 1, updated_at = :updatedAt WHERE id = :id")
+    suspend fun markAsSynced(id: String, updatedAt: LocalDateTime): Int
+
+    @Query("UPDATE pacientes SET is_synced = 1, updated_at = :updatedAt WHERE id IN (:ids)")
+    suspend fun markMultipleAsSynced(ids: List<String>, updatedAt: LocalDateTime): Int
+
 }

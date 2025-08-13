@@ -454,6 +454,11 @@
         android:name="com.nutrizulia.presentation.view.actividad.ActividadFragment"
         android:label="fragment_actividad"
         tools:layout="@layout/fragment_actividad" />
+    <fragment
+        android:id="@+id/syncBatchFragment"
+        android:name="com.nutrizulia.presentation.fragment.SyncBatchFragment"
+        android:label="Sincronización por Lotes"
+        tools:layout="@layout/fragment_sync_batch" />
 
 
 </navigation>

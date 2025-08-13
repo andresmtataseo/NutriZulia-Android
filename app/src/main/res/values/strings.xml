@@ -24,6 +24,17 @@
     <string name="menu_reportes">Reportes</string>
     <string name="menu_inicio">Inicio</string>
     <string name="menu_cerrar_sesion">Cerrar sesión</string>
+    <string name="menu_sincronizacion">Sincronización</string>
+    
+    <!-- Batch Synchronization Strings -->
+    <string name="sync_batch_title">Sincronización por Lotes</string>
+    <string name="sync_batch_description">Sincroniza todos los datos pendientes con el servidor</string>
+    <string name="sync_batch_start_button">Iniciar Sincronización</string>
+    <string name="sync_batch_in_progress">Sincronizando...</string>
+    <string name="sync_batch_success">Sincronización completada exitosamente</string>
+    <string name="sync_batch_partial_success">Sincronización parcial completada</string>
+    <string name="sync_batch_error">Error en la sincronización</string>
+    <string name="sync_batch_details">Ver detalles</string>
     <string name="buscar">Buscar</string>
     <string name="ic_content_buscar">Icono de Buscar</string>
     <string name="selecciona_nacionalidad">Nacionalidad *</string>

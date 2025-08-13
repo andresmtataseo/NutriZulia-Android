@@ -5,6 +5,12 @@
     <color name="color_cita_cancelada">#F44336</color>
     <color name="color_sync_success">#4CAF50</color>
     <color name="color_sync_error">#F44336</color>
+    
+    <!-- Colores para mensajes de sincronización por lotes -->
+    <color name="success_color">#4CAF50</color>
+    <color name="error_color">#F44336</color>
+    <color name="warning_color">#FF9800</color>
+    <color name="info_color">#2196F3</color>
     <color name="md_theme_primary">#003FC4</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
     <color name="md_theme_primaryContainer">#2959E4</color>
