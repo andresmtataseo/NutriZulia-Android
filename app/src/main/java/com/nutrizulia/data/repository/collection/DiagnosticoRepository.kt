@@ -20,6 +20,11 @@ class DiagnosticoRepository @Inject constructor(
     suspend fun insertAll(diagnosticos: List<Diagnostico>): List<Long> {
         return dao.insertAll(diagnosticos.map { it.toEntity() })
     }
+    
+    suspend fun upsertAll(diagnosticos: List<Diagnostico>) {
+        dao.upsertAll(diagnosticos.map { it.toEntity() })
+    }
+    
     suspend fun deleteByConsultaId(consultaId: String): Int = dao.deleteByConsultaId(consultaId)
 
     suspend fun findAllByConsultaId(consultaId: String): List<Diagnostico> {

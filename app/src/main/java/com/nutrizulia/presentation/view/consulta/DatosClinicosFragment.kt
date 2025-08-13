@@ -1,6 +1,7 @@
 package com.nutrizulia.presentation.view.consulta
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -233,10 +234,13 @@ class DatosClinicosFragment : Fragment() {
         mostrarSelectorFecha(binding.tfFechaUltimaMenstruacion.editText as TextInputEditText)
 
         binding.btnSiguiente.setOnClickListener {
-            val consultaId: String = sharedViewModel.consulta.value?.id ?: run {
+            val consultaId: String = sharedViewModel.consulta.value?.id ?: sharedViewModel.consultaEditando.value?.id ?: run {
+                Log.d("datosClinicos", "consulta" + sharedViewModel.consulta.value.toString())
+                Log.d("datosClinicos", "consultaEdit" + sharedViewModel.consultaEditando.value.toString())
                 Utils.mostrarSnackbar(binding.root, "Error: No se ha podido identificar la consulta.")
                 return@setOnClickListener
             }
+            Log.d("idConsulta", "id = " + consultaId)
 
             // Crear y actualizar Detalle Vital
             val detalleVital: DetalleVital? = clinicalDataViewModel.createDetalleVital(

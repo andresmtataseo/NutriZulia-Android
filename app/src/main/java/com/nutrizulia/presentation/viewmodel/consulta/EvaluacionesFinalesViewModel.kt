@@ -122,13 +122,30 @@ class EvaluacionesFinalesViewModel @Inject constructor(
     }
 
     fun createDiagnosticosEntities(consultaId: String): List<Diagnostico> {
+        val diagnosticosExistentes = _diagnosticosIniciales.value.orEmpty()
+        
         return riesgosBiologicosSeleccionados.value.orEmpty().map { riesgo ->
+            // Buscar si ya existe un diagnóstico para este riesgo biológico que NO esté eliminado
+            val diagnosticoExistente = diagnosticosExistentes.find { 
+                it.riesgoBiologicoId == riesgo.id && !it.isDeleted 
+            }
+            
             Diagnostico(
-                id = Utils.generarUUID(),
+                id = diagnosticoExistente?.id ?: Utils.generarUUID(), // Reutilizar ID existente solo si no está eliminado
                 consultaId = consultaId,
                 riesgoBiologicoId = riesgo.id,
                 enfermedadId = null,
                 isPrincipal = false,
+                updatedAt = LocalDateTime.now(),
+                isDeleted = false,
+                isSynced = false
+            )
+        }
+    }
+
+    fun createEvaluacionesAntropometricasEntities(): List<EvaluacionAntropometrica> {
+        return _evaluacionesCalculadas.value.orEmpty().map { evaluacion ->
+            evaluacion.copy(
                 updatedAt = LocalDateTime.now(),
                 isDeleted = false,
                 isSynced = false
@@ -256,15 +273,25 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         val existingIndex = evaluations.indexOfFirst { it.tipoIndicadorId == indicatorId && it.tipoValorCalculado == valueType }
 
         if (existingIndex != -1) {
+            // Actualizar evaluación existente manteniendo el ID original
             evaluations[existingIndex] = evaluations[existingIndex].copy(
                 valorCalculado = calculatedValue,
                 diagnosticoAntropometrico = diagnostic,
-                updatedAt = LocalDateTime.now()
+                updatedAt = LocalDateTime.now(),
+                isDeleted = false,
+                isSynced = false
             )
         } else {
+            // Buscar si existe una evaluación previa en las evaluaciones iniciales para reutilizar su ID
+            // Solo reutilizar ID si la evaluación NO está eliminada
+            val evaluacionesIniciales = _evaluacionesCalculadas.value.orEmpty()
+            val evaluacionExistente = evaluacionesIniciales.find { 
+                it.tipoIndicadorId == indicatorId && it.tipoValorCalculado == valueType && !it.isDeleted
+            }
+            
             evaluations.add(
                 EvaluacionAntropometrica(
-                    id = Utils.generarUUID(),
+                    id = evaluacionExistente?.id ?: Utils.generarUUID(), // Reutilizar ID existente solo si no está eliminado
                     consultaId = consultaId,
                     detalleAntropometricoId = detalleId,
                     tipoIndicadorId = indicatorId,

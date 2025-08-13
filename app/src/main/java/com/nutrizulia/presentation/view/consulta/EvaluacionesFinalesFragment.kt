@@ -79,12 +79,13 @@ class EvaluacionesFinalesFragment : Fragment() {
         // Observamos los datos del sharedViewModel para iniciar la lógica del viewModel local.
         sharedViewModel.paciente.observe(viewLifecycleOwner) { paciente ->
             if (paciente != null && !dataLoadedForUI) {
-                val consulta = sharedViewModel.consulta.value
+                val consulta = sharedViewModel.consulta.value ?: sharedViewModel.consultaEditando.value
                 val detalleAntro = sharedViewModel.detalleAntropometrico.value
 
                 viewModel.loadInitialData(paciente, consulta?.id)
 
                 if (detalleAntro != null && consulta != null && sharedViewModel.modoConsulta.value != ModoConsulta.VER_CONSULTA) {
+                    Log.d("EvaluacionesFinalesFragment", "Cargando evaluación antropométrica")
                     viewModel.performAnthropometricEvaluation(paciente, detalleAntro, consulta)
                 }
 
@@ -134,7 +135,7 @@ class EvaluacionesFinalesFragment : Fragment() {
             }
 
             // 1. Obtener la lista de diagnósticos finales desde el viewModel local
-            val consultaId = sharedViewModel.consulta.value?.id ?: return@setOnClickListener
+            val consultaId = sharedViewModel.consulta.value?.id ?: sharedViewModel.consultaEditando.value?.id ?: return@setOnClickListener
             val diagnosticosFinales = viewModel.createDiagnosticosEntities(consultaId)
 
             // 2. Actualizar la lista de diagnósticos en el viewModel compartido

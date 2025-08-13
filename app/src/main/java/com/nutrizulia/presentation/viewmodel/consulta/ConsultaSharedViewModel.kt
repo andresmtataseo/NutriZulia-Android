@@ -220,6 +220,7 @@ class ConsultaSharedViewModel @Inject constructor(
                 _salir.value = true
             } catch (e: Exception) {
                 _mensaje.value = "Error al guardar consulta: ${e.localizedMessage}"
+                Log.e("ConsultaSharedViewModel", "Error al guardar consulta", e)
             } finally {
                 _isLoading.value = false
             }

@@ -26,6 +26,10 @@ class EvaluacionAntropometricaRepository @Inject constructor(
         dao.insertAll(evaluacionAntropometrica.map { it.toEntity() })
     }
 
+    suspend fun upsert(evaluacionAntropometrica: EvaluacionAntropometrica) {
+        dao.upsert(evaluacionAntropometrica.toEntity())
+    }
+
     suspend fun deleteByConsultaId(consultaId: String): Int {
         return dao.deleteByConsultaId(consultaId)
     }

@@ -13,10 +13,7 @@ import com.nutrizulia.data.repository.collection.PacienteRepresentanteRepository
 import com.nutrizulia.data.repository.collection.RepresentanteRepository
 import com.nutrizulia.domain.model.BatchSyncResult
 import com.nutrizulia.domain.model.SyncResult
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.Deferred
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -82,30 +79,27 @@ class SyncCollectionBatch @Inject constructor(
         var totalFailed = 0
 
         try {
-            // Paso 1: Sincronizar tablas independientes en paralelo
-            android.util.Log.d("SyncCollectionBatch", "Iniciando sincronización de tablas independientes")
-            val independentTablesJobs = listOf<Deferred<TableSyncResult>>(
-                async { syncRepresentantes() },
-                async { syncPacientes() }
-            )
+            // Paso 1: Sincronizar tablas independientes secuencialmente
+            android.util.Log.d("SyncCollectionBatch", "Iniciando sincronización secuencial de tablas independientes")
             
-            val independentResults = independentTablesJobs.awaitAll()
-            results.addAll(independentResults)
-            
-            val representantesSuccess = independentResults[0].isSuccess
-            val pacientesSuccess = independentResults[1].isSuccess
-            
-            if (!representantesSuccess) {
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando representantes...")
+            val representantesResult = syncRepresentantes()
+            results.add(representantesResult)
+            if (!representantesResult.isSuccess) {
                 overallSuccess = false
                 android.util.Log.w("SyncCollectionBatch", "Error en representantes")
             }
-            if (!pacientesSuccess) {
+            
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando pacientes...")
+            val pacientesResult = syncPacientes()
+            results.add(pacientesResult)
+            if (!pacientesResult.isSuccess) {
                 overallSuccess = false
                 android.util.Log.w("SyncCollectionBatch", "Error en pacientes")
             }
 
-            // Paso 2: Sincronizar tablas dependientes (SIEMPRE se ejecuta)
-            android.util.Log.d("SyncCollectionBatch", "Iniciando sincronización de tablas dependientes")
+            // Paso 2: Sincronizar tablas dependientes
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando pacientes-representantes...")
             val pacientesRepresentantesResult = syncPacientesRepresentantes()
             results.add(pacientesRepresentantesResult)
             if (!pacientesRepresentantesResult.isSuccess) {
@@ -113,21 +107,76 @@ class SyncCollectionBatch @Inject constructor(
                 android.util.Log.w("SyncCollectionBatch", "Error en pacientes-representantes")
             }
 
-            // Paso 3: Sincronizar datos clínicos en paralelo (SIEMPRE se ejecutan, son independientes)
-            android.util.Log.d("SyncCollectionBatch", "Iniciando sincronización de datos clínicos independientes")
-            val clinicalDataJobs = listOf<Deferred<TableSyncResult>>(
-                async { syncConsultas() },
-                async { syncDetallesAntropometricos() },
-                async { syncDetallesMetabolicos() },
-                async { syncDetallesObstetricia() },
-                async { syncDetallesPediatricos() },
-                async { syncDetallesVitales() },
-                async { syncDiagnosticos() },
-                async { syncEvaluacionesAntropometricas() }
-            )
-
-            val clinicalResults = clinicalDataJobs.awaitAll()
-            results.addAll(clinicalResults)
+            // Paso 3: Sincronizar datos clínicos secuencialmente para evitar violaciones de llave foránea
+            android.util.Log.d("SyncCollectionBatch", "Iniciando sincronización secuencial de datos clínicos")
+            
+            // Paso 3.1: Sincronizar consultas primero (base para otros datos)
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando consultas...")
+            val consultasResult = syncConsultas()
+            results.add(consultasResult)
+            if (!consultasResult.isSuccess) {
+                overallSuccess = false
+                android.util.Log.w("SyncCollectionBatch", "Error en consultas")
+            }
+            
+            // Paso 3.2: Sincronizar detalles (independientes entre sí)
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles antropométricos...")
+            val detallesAntropometricosResult = syncDetallesAntropometricos()
+            results.add(detallesAntropometricosResult)
+            if (!detallesAntropometricosResult.isSuccess) {
+                overallSuccess = false
+                android.util.Log.w("SyncCollectionBatch", "Error en detalles antropométricos")
+            }
+            
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles metabólicos...")
+            val detallesMetabolicosResult = syncDetallesMetabolicos()
+            results.add(detallesMetabolicosResult)
+            if (!detallesMetabolicosResult.isSuccess) {
+                overallSuccess = false
+                android.util.Log.w("SyncCollectionBatch", "Error en detalles metabólicos")
+            }
+            
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles obstetricia...")
+            val detallesObstetriciaResult = syncDetallesObstetricia()
+            results.add(detallesObstetriciaResult)
+            if (!detallesObstetriciaResult.isSuccess) {
+                overallSuccess = false
+                android.util.Log.w("SyncCollectionBatch", "Error en detalles obstetricia")
+            }
+            
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles pediátricos...")
+            val detallesPediatricosResult = syncDetallesPediatricos()
+            results.add(detallesPediatricosResult)
+            if (!detallesPediatricosResult.isSuccess) {
+                overallSuccess = false
+                android.util.Log.w("SyncCollectionBatch", "Error en detalles pediátricos")
+            }
+            
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles vitales...")
+            val detallesVitalesResult = syncDetallesVitales()
+            results.add(detallesVitalesResult)
+            if (!detallesVitalesResult.isSuccess) {
+                overallSuccess = false
+                android.util.Log.w("SyncCollectionBatch", "Error en detalles vitales")
+            }
+            
+            // Paso 3.3: Sincronizar diagnósticos
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando diagnósticos...")
+            val diagnosticosResult = syncDiagnosticos()
+            results.add(diagnosticosResult)
+            if (!diagnosticosResult.isSuccess) {
+                overallSuccess = false
+                android.util.Log.w("SyncCollectionBatch", "Error en diagnósticos")
+            }
+            
+            // Paso 3.4: Sincronizar evaluaciones antropométricas AL FINAL (depende de detalles antropométricos)
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando evaluaciones antropométricas...")
+            val evaluacionesAntropometricasResult = syncEvaluacionesAntropometricas()
+            results.add(evaluacionesAntropometricasResult)
+            if (!evaluacionesAntropometricasResult.isSuccess) {
+                overallSuccess = false
+                android.util.Log.w("SyncCollectionBatch", "Error en evaluaciones antropométricas")
+            }
 
             // Calcular totales
             results.forEach { result ->
