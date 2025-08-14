@@ -3,6 +3,7 @@ package com.nutrizulia.di
 import com.nutrizulia.data.local.dao.PacienteConCitaDao
 import com.nutrizulia.data.local.dao.collection.PacienteDao
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.repository.collection.ActividadRepository
 import com.nutrizulia.data.repository.collection.ConsultaRepository
 import com.nutrizulia.data.repository.collection.DetalleAntropometricoRepository
 import com.nutrizulia.data.repository.collection.DetalleMetabolicoRepository
@@ -48,7 +49,8 @@ object RepositoryModule {
         diagnosticoRepository: DiagnosticoRepository,
         evaluacionRepository: EvaluacionAntropometricaRepository,
         pacienteRepresentanteRepository: PacienteRepresentanteRepository,
-        representanteRepository: RepresentanteRepository
+        representanteRepository: RepresentanteRepository,
+        actividadRepository: ActividadRepository
     ): SyncCollectionBatch {
         return SyncCollectionBatch(
             pacienteRepository = pacienteRepository,
@@ -61,7 +63,8 @@ object RepositoryModule {
             diagnosticoRepository = diagnosticoRepository,
             evaluacionRepository = evaluacionRepository,
             pacienteRepresentanteRepository = pacienteRepresentanteRepository,
-            representanteRepository = representanteRepository
+            representanteRepository = representanteRepository,
+            actividadesRepository = actividadRepository
         )
     }
 }

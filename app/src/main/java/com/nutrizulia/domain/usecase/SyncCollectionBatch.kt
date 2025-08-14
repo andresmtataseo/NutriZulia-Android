@@ -1,5 +1,6 @@
 package com.nutrizulia.domain.usecase
 
+import com.nutrizulia.data.repository.collection.ActividadRepository
 import com.nutrizulia.data.repository.collection.ConsultaRepository
 import com.nutrizulia.data.repository.collection.DetalleAntropometricoRepository
 import com.nutrizulia.data.repository.collection.DetalleMetabolicoRepository
@@ -24,6 +25,7 @@ import javax.inject.Singleton
 @Singleton
 class SyncCollectionBatch @Inject constructor(
     private val consultaRepository: ConsultaRepository,
+    private val actividadesRepository: ActividadRepository,
     private val antropometricoRepository: DetalleAntropometricoRepository,
     private val metabolicoRepository: DetalleMetabolicoRepository,
     private val obstetriciaRepository: DetalleObstetriciaRepository,
@@ -81,6 +83,14 @@ class SyncCollectionBatch @Inject constructor(
         try {
             // Paso 1: Sincronizar tablas independientes secuencialmente
             android.util.Log.d("SyncCollectionBatch", "Iniciando sincronización secuencial de tablas independientes")
+
+            android.util.Log.d("SyncCollectionBatch", "Sincronizando actividades...")
+            val actividadesResult = syncActividades()
+            results.add(actividadesResult)
+            if (!actividadesResult.isSuccess) {
+                overallSuccess = false
+                android.util.Log.w("SyncCollectionBatch", "Error en actividades")
+            }
             
             android.util.Log.d("SyncCollectionBatch", "Sincronizando representantes...")
             val representantesResult = syncRepresentantes()
@@ -211,6 +221,39 @@ class SyncCollectionBatch @Inject constructor(
         )
     }
 
+    private fun generateSummary(
+        results: List<TableSyncResult>,
+        overallSuccess: Boolean,
+        totalSuccess: Int,
+        totalFailed: Int
+    ): String {
+        val totalProcessed = totalSuccess + totalFailed
+        val tablesWithErrors = results.filter { !it.isSuccess }
+
+        return buildString {
+            if (overallSuccess) {
+                append("✅ Sincronización completada exitosamente\n")
+            } else {
+                append("⚠️ Sincronización completada con errores\n")
+            }
+
+            append("📊 Resumen: $totalSuccess exitosos, $totalFailed fallidos de $totalProcessed registros\n")
+
+            if (tablesWithErrors.isNotEmpty()) {
+                append("\n❌ Tablas con errores:\n")
+                tablesWithErrors.forEach { table ->
+                    append("• ${table.tableName}: ${table.errorMessage ?: "Error desconocido"}\n")
+                }
+            }
+
+            append("\n📋 Detalle por tabla:\n")
+            results.forEach { table ->
+                val status = if (table.isSuccess) "✅" else "❌"
+                append("$status ${table.tableName}: ${table.successCount} exitosos, ${table.failedCount} fallidos\n")
+            }
+        }
+    }
+
     private suspend fun syncPacientes(): TableSyncResult {
         return try {
             when (val result = pacienteRepository.sincronizarPacientesBatch()) {
@@ -263,39 +306,6 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private fun generateSummary(
-        results: List<TableSyncResult>,
-        overallSuccess: Boolean,
-        totalSuccess: Int,
-        totalFailed: Int
-    ): String {
-        val totalProcessed = totalSuccess + totalFailed
-        val tablesWithErrors = results.filter { !it.isSuccess }
-        
-        return buildString {
-            if (overallSuccess) {
-                append("✅ Sincronización completada exitosamente\n")
-            } else {
-                append("⚠️ Sincronización completada con errores\n")
-            }
-            
-            append("📊 Resumen: $totalSuccess exitosos, $totalFailed fallidos de $totalProcessed registros\n")
-            
-            if (tablesWithErrors.isNotEmpty()) {
-                append("\n❌ Tablas con errores:\n")
-                tablesWithErrors.forEach { table ->
-                    append("• ${table.tableName}: ${table.errorMessage ?: "Error desconocido"}\n")
-                }
-            }
-            
-            append("\n📋 Detalle por tabla:\n")
-            results.forEach { table ->
-                val status = if (table.isSuccess) "✅" else "❌"
-                append("$status ${table.tableName}: ${table.successCount} exitosos, ${table.failedCount} fallidos\n")
-            }
-        }
-    }
-
     private suspend fun syncRepresentantes(): TableSyncResult {
         return try {
             when (val result = representanteRepository.sincronizarRepresentantesBatch()) {
@@ -340,6 +350,58 @@ class SyncCollectionBatch @Inject constructor(
         } catch (e: Exception) {
             TableSyncResult(
                 tableName = "Representantes",
+                isSuccess = false,
+                successCount = 0,
+                failedCount = 0,
+                errorMessage = "Error inesperado: ${e.message}"
+            )
+        }
+    }
+
+    private suspend fun syncActividades(): TableSyncResult {
+        return try {
+            when (val result = actividadesRepository.sincronizarActividadesBatch()) {
+                is SyncResult.Success -> {
+                    val batchResult = result.data
+                    TableSyncResult(
+                        tableName = "Actividades",
+                        isSuccess = batchResult.isCompleteSuccess || batchResult.hasPartialSuccess,
+                        successCount = batchResult.getSuccessCount(),
+                        failedCount = batchResult.getFailureCount(),
+                        details = batchResult
+                    )
+                }
+                is SyncResult.BusinessError -> {
+                    TableSyncResult(
+                        tableName = "Actividades",
+                        isSuccess = false,
+                        successCount = 0,
+                        failedCount = 0,
+                        errorMessage = result.message
+                    )
+                }
+                is SyncResult.NetworkError -> {
+                    TableSyncResult(
+                        tableName = "Actividades",
+                        isSuccess = false,
+                        successCount = 0,
+                        failedCount = 0,
+                        errorMessage = result.message
+                    )
+                }
+                is SyncResult.UnknownError -> {
+                    TableSyncResult(
+                        tableName = "Actividades",
+                        isSuccess = false,
+                        successCount = 0,
+                        failedCount = 0,
+                        errorMessage = result.exception.message ?: "Error desconocido"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            TableSyncResult(
+                tableName = "Actividades",
                 isSuccess = false,
                 successCount = 0,
                 failedCount = 0,
