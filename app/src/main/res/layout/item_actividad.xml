@@ -18,7 +18,7 @@
 
         <!-- Nombre completo -->
         <TextView
-            android:id="@+id/tvNombreCompleto"
+            android:id="@+id/tvNombreTipoActividad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
@@ -36,21 +36,14 @@
             android:paddingTop="4dp">
 
             <TextView
-                android:id="@+id/tvCedula"
+                android:id="@+id/tvFechaActividad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="Cédula: V12345678"
+                android:text="Fecha: YYYY/MM/DD"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?attr/colorOnSurfaceVariant" />
 
-            <TextView
-                android:id="@+id/tvGenero"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Género: DESCONOCIDO"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 
         <!-- Fecha de nacimiento -->
@@ -64,19 +57,13 @@
             android:paddingTop="4dp">
 
             <TextView
-                android:id="@+id/tvFechaNacimiento"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="Fecha de nacimiento: DD/MM/YYYY"
+                android:id="@+id/tvDescripcionGeneralActividad"
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:text="Descripcion:"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="?attr/colorOnSurfaceVariant" />
 
-            <TextView
-                android:id="@+id/tvEdad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edad:" />
         </LinearLayout>
 
     </LinearLayout>

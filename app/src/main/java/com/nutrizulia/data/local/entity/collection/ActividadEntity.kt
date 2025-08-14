@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nutrizulia.data.local.entity.catalog.TipoActividadEntity
 import com.nutrizulia.data.local.entity.user.UsuarioInstitucionEntity
+import com.nutrizulia.data.remote.dto.collection.ActividadDto
 import com.nutrizulia.domain.model.collection.Actividad
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -67,4 +68,21 @@ fun Actividad.toEntity() = ActividadEntity(
     updatedAt = updatedAt,
     isDeleted = isDeleted,
     isSynced = isSynced
+)
+
+fun ActividadEntity.toDto() = ActividadDto(
+    id = id,
+    usuarioInstitucionId = usuarioInstitucionId,
+    tipoActividadId = tipoActividadId,
+    fecha = fecha,
+    direccion = direccion,
+    descripcionGeneral = descripcionGeneral,
+    cantidadParticipantes = cantidadParticipantes,
+    cantidadSesiones = cantidadSesiones,
+    duracionMinutos = duracionMinutos,
+    temaPrincipal = temaPrincipal,
+    programasImplementados = programasImplementados,
+    urlEvidencia = urlEvidencia,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted
 )

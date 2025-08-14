@@ -60,7 +60,8 @@ import com.nutrizulia.data.local.dao.user.*
     views = [
         PacienteConCita::class,
         PacienteConConsultaYDetalles::class,
-        PerfilInstitucional::class
+        PerfilInstitucional::class,
+        ActividadConTipo::class
     ],
     version = 1,
     exportSchema = false
