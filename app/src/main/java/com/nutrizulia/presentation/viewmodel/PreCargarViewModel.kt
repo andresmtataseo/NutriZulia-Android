@@ -53,6 +53,9 @@ class PreCargarViewModel @Inject constructor(
     private val _authError = MutableLiveData<Boolean>()
     val authError: LiveData<Boolean> get() = _authError
     
+    private val _showErrorDialog = MutableLiveData<String>()
+    val showErrorDialog: LiveData<String> get() = _showErrorDialog
+    
     // Estados del progreso de sincronización
     private val _syncProgress = MutableLiveData<SyncProgressInfo>()
     val syncProgress: LiveData<SyncProgressInfo> get() = _syncProgress
@@ -101,16 +104,19 @@ class PreCargarViewModel @Inject constructor(
                 
                 // Fase 1: Sincronización de catálogos
                 if (!syncCatalogs()) {
+                    _isLoading.postValue(false)
                     return@launch // Error manejado en syncCatalogs()
                 }
                 
                 // Fase 2: Sincronización del perfil de usuario
                 if (!syncUserProfile()) {
+                    _isLoading.postValue(false)
                     return@launch // Error manejado en syncUserProfile()
                 }
                 
                 // Fase 3: Sincronización de datos del usuario
                 if (!syncUserData()) {
+                    _isLoading.postValue(false)
                     return@launch // Error manejado en syncUserData()
                 }
                 
@@ -446,13 +452,32 @@ class PreCargarViewModel @Inject constructor(
         return _syncProgress.value?.details
     }
     
+    /**
+     * Limpia el estado del diálogo de error después de mostrarlo
+     */
+    fun clearErrorDialog() {
+        _showErrorDialog.postValue("")
+    }
+    
+    /**
+     * Fuerza el cierre de sesión y navegación al login
+     */
+    fun forceLogout() {
+        viewModelScope.launch {
+            tokenManager.clearToken()
+            sessionManager.clearCurrentInstitution()
+            _authError.postValue(true)
+            _salir.postValue(true)
+        }
+    }
+    
     // Los casos de uso se manejan directamente en este ViewModel orquestador
 
     private fun handleFailure(errorMessage: String, isAuthError: Boolean = false) {
         viewModelScope.launch {
-            _mensaje.postValue(errorMessage)
-            _salir.postValue(true)
-
+            // Mostrar diálogo de error en lugar de solo mensaje
+            _showErrorDialog.postValue(errorMessage)
+            
             if (isAuthError) {
                 tokenManager.clearToken()
                 sessionManager.clearCurrentInstitution()

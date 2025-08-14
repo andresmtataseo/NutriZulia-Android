@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.databinding.ActivityPreCargarBinding
 import com.nutrizulia.presentation.adapter.InstitucionAdapter
 import com.nutrizulia.presentation.viewmodel.PreCargarViewModel
-import com.nutrizulia.util.Utils.mostrarSnackbar
+import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -64,7 +64,7 @@ class PreCargarActivity : AppCompatActivity() {
 
         viewModel.mensaje.observe(this) { mensaje ->
             if (mensaje.isNotEmpty()) {
-                mostrarSnackbar(binding.root, mensaje)
+                Utils.mostrarSnackbar(binding.root, mensaje)
             }
         }
 
@@ -96,6 +96,13 @@ class PreCargarActivity : AppCompatActivity() {
         viewModel.salir.observe(this) { shouldExit ->
             if (shouldExit) {
                 navigateToLogin()
+            }
+        }
+        
+        // Observar diálogos de error
+        viewModel.showErrorDialog.observe(this) { errorMessage ->
+            if (errorMessage.isNotEmpty()) {
+                showErrorDialog(errorMessage)
             }
         }
     }
@@ -166,5 +173,22 @@ class PreCargarActivity : AppCompatActivity() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
+    }
+    
+    /**
+     * Muestra un diálogo de error que obliga al usuario a volver al login
+     */
+    private fun showErrorDialog(errorMessage: String) {
+        Utils.mostrarAlerta(
+            context = this,
+            title = "Error de Sincronización",
+            message = "$errorMessage\n\nDebe volver al login para continuar.",
+            positiveButtonText = "Ir al Login",
+            onAcknowledge = {
+                viewModel.clearErrorDialog()
+                viewModel.forceLogout()
+            },
+            isCancelable = false // No permitir cancelar el diálogo
+        )
     }
 }
