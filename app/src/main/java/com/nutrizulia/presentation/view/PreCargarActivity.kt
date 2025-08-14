@@ -27,10 +27,13 @@ class PreCargarActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnContinuar.visibility = View.GONE
+        binding.tvSyncProgress.visibility = View.VISIBLE
+        binding.btnReintentar.visibility = View.GONE
 
         setupWindowInsets()
         setupRecyclerView()
         setupObservers()
+        setupRetryButton()
 
         viewModel.cargarDatos()
     }
@@ -62,6 +65,13 @@ class PreCargarActivity : AppCompatActivity() {
         viewModel.mensaje.observe(this) { mensaje ->
             if (mensaje.isNotEmpty()) {
                 mostrarSnackbar(binding.root, mensaje)
+            }
+        }
+
+        // Observar el progreso detallado de sincronización
+        viewModel.syncProgress.observe(this) { syncProgress ->
+            syncProgress?.let { progress ->
+                updateSyncProgressUI(progress)
             }
         }
 
@@ -97,6 +107,58 @@ class PreCargarActivity : AppCompatActivity() {
         }
         startActivity(intent)
         finish()
+    }
+
+    /**
+     * Configura el botón de reintentar
+     */
+    private fun setupRetryButton() {
+        binding.btnReintentar.setOnClickListener {
+            binding.btnReintentar.visibility = View.GONE
+            binding.tvSyncProgress.visibility = View.VISIBLE
+            binding.tvSyncProgress.text = "Reintentando sincronización..."
+            viewModel.retrySyncProcess()
+        }
+    }
+
+    /**
+     * Actualiza la UI con el progreso detallado de sincronización
+     */
+    private fun updateSyncProgressUI(progress: PreCargarViewModel.SyncProgressInfo) {
+        // Actualizar mensaje según la fase actual
+        val phaseMessage = when (progress.phase) {
+            PreCargarViewModel.SyncPhase.CATALOGS -> "Sincronizando catálogos..."
+            PreCargarViewModel.SyncPhase.USER_PROFILE -> "Sincronizando perfil de usuario..."
+            PreCargarViewModel.SyncPhase.USER_DATA -> "Sincronizando datos del usuario..."
+            PreCargarViewModel.SyncPhase.INSTITUTIONAL_PROFILES -> "Obteniendo perfiles institucionales..."
+            PreCargarViewModel.SyncPhase.COMPLETED -> "Sincronización completada"
+            PreCargarViewModel.SyncPhase.ERROR -> "Error en la sincronización"
+        }
+        
+        // Actualizar el TextView de progreso
+        binding.tvSyncProgress.text = if (progress.details?.isNotEmpty() ?: false) {
+            "$phaseMessage\n${progress.details}"
+        } else {
+            phaseMessage
+        }
+        
+        // Manejar estados especiales
+        when (progress.phase) {
+            PreCargarViewModel.SyncPhase.ERROR -> {
+                binding.tvSyncProgress.visibility = View.VISIBLE
+                binding.btnReintentar.visibility = View.VISIBLE
+                binding.progress.visibility = View.GONE
+            }
+            PreCargarViewModel.SyncPhase.COMPLETED -> {
+                binding.tvSyncProgress.visibility = View.GONE
+                binding.progress.visibility = View.GONE
+            }
+            else -> {
+                binding.tvSyncProgress.visibility = View.VISIBLE
+                binding.btnReintentar.visibility = View.GONE
+                binding.progress.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun navigateToMain() {
