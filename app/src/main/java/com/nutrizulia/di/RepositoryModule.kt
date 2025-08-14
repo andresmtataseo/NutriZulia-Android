@@ -3,6 +3,7 @@ package com.nutrizulia.di
 import com.nutrizulia.data.local.dao.PacienteConCitaDao
 import com.nutrizulia.data.local.dao.collection.PacienteDao
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
 import com.nutrizulia.data.repository.collection.ActividadRepository
 import com.nutrizulia.data.repository.collection.ConsultaRepository
 import com.nutrizulia.data.repository.collection.DetalleAntropometricoRepository
@@ -31,9 +32,10 @@ object RepositoryModule {
     fun providePacienteRepository(
         pacienteDao: PacienteDao,
         pacienteConCitaDao: PacienteConCitaDao,
-        batchSyncService: IBatchSyncService
+        batchSyncService: IBatchSyncService,
+        fullSyncService: IFullSyncService
     ): PacienteRepository {
-        return PacienteRepository(pacienteDao, pacienteConCitaDao, batchSyncService)
+        return PacienteRepository(pacienteDao, pacienteConCitaDao, batchSyncService, fullSyncService)
     }
 
     @Singleton

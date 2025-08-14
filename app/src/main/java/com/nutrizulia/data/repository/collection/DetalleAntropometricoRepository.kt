@@ -4,6 +4,8 @@ import com.nutrizulia.data.local.dao.collection.DetalleAntropometricoDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
+import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.collection.DetalleAntropometrico
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.domain.model.SyncResult
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 class DetalleAntropometricoRepository @Inject constructor(
     private val dao: DetalleAntropometricoDao,
-    private val batchApi: IBatchSyncService
+    private val batchApi: IBatchSyncService,
+    private val fullSyncApi: IFullSyncService
 ) {
     suspend fun upsert(detalleAntropometrico: DetalleAntropometrico) {
         dao.upsert(detalleAntropometrico.toEntity())
@@ -63,6 +66,44 @@ class DetalleAntropometricoRepository @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            e.toSyncResult()
+        }
+    }
+
+    /**
+     * Sincronización completa de detalles antropométricos desde el backend
+     * Recupera todos los detalles del usuario y los guarda localmente
+     * @return SyncResult<Int> con el número de registros procesados
+     */
+    suspend fun fullSyncDetallesAntropometricos(): SyncResult<Int> {
+        return try {
+            android.util.Log.d("DetalleAntropometricoRepository", "Iniciando sincronización completa de detalles antropométricos")
+            
+            val response = fullSyncApi.getFullSyncDetallesAntropometricos()
+            
+            response.toSyncResult { fullSyncResponse ->
+                android.util.Log.d("DetalleAntropometricoRepository", "Respuesta recibida: ${fullSyncResponse.data?.totalRegistros} detalles antropométricos")
+                
+                if (fullSyncResponse.data?.datos!!.isNotEmpty()) {
+                    // Convertir DTOs a entidades y hacer upsert
+                    val entidades = fullSyncResponse.data.datos.map { it.toEntity() }
+                    dao.upsertAll(entidades)
+                    
+                    android.util.Log.d("DetalleAntropometricoRepository", "Sincronización completa de detalles antropométricos exitosa: ${entidades.size} registros")
+                    SyncResult.Success(
+                        entidades.size,
+                        "Sincronización completa de detalles antropométricos exitosa: ${entidades.size} registros"
+                    )
+                } else {
+                    android.util.Log.d("DetalleAntropometricoRepository", "No hay detalles antropométricos para sincronizar")
+                    SyncResult.Success(
+                        0,
+                        "No hay detalles antropométricos para sincronizar"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("DetalleAntropometricoRepository", "Error en sincronización completa de detalles antropométricos", e)
             e.toSyncResult()
         }
     }

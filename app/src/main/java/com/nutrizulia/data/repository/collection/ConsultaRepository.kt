@@ -6,6 +6,8 @@ import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.pojo.DailyAppointmentCount
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
+import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.domain.model.SyncResult
@@ -19,7 +21,8 @@ import javax.inject.Inject
 
 class ConsultaRepository @Inject constructor(
     private val consultaDao: ConsultaDao,
-    private val batchApi: IBatchSyncService
+    private val batchApi: IBatchSyncService,
+    private val fullSyncApi: IFullSyncService
 ) {
     suspend fun upsert(consulta: Consulta): Long {
         return consultaDao.upsert(consulta.toEntity())
@@ -86,6 +89,44 @@ class ConsultaRepository @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            e.toSyncResult()
+        }
+    }
+
+    /**
+     * Sincronización completa de consultas desde el backend
+     * Recupera todas las consultas del usuario y las guarda localmente
+     * @return SyncResult<Int> con el número de registros procesados
+     */
+    suspend fun fullSyncConsultas(): SyncResult<Int> {
+        return try {
+            android.util.Log.d("ConsultaRepository", "Iniciando sincronización completa de consultas")
+            
+            val response = fullSyncApi.getFullSyncConsultas()
+            
+            response.toSyncResult { fullSyncResponse ->
+                android.util.Log.d("ConsultaRepository", "Respuesta recibida: ${fullSyncResponse.data?.totalRegistros} consultas")
+                
+                if (fullSyncResponse.data?.datos!!.isNotEmpty()) {
+                    // Convertir DTOs a entidades y hacer upsert
+                    val entidades = fullSyncResponse.data.datos.map { it.toEntity() }
+                    consultaDao.upsertAll(entidades)
+                    
+                    android.util.Log.d("ConsultaRepository", "Sincronización completa de consultas exitosa: ${entidades.size} registros")
+                    SyncResult.Success(
+                        entidades.size,
+                        "Sincronización completa de consultas exitosa: ${entidades.size} registros"
+                    )
+                } else {
+                    android.util.Log.d("ConsultaRepository", "No hay consultas para sincronizar")
+                    SyncResult.Success(
+                        0,
+                        "No hay consultas para sincronizar"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("ConsultaRepository", "Error en sincronización completa de consultas", e)
             e.toSyncResult()
         }
     }

@@ -48,6 +48,7 @@ object CatalogEndpoints {
 object CollectionSyncEndpoints {
     private const val COLLECTION_BASE_URL: String = "/api/v1/collection"
     
+    // Batch sync endpoints (POST)
     const val SYNC_PATIENTS: String = "$COLLECTION_BASE_URL/sync/patients"
     const val SYNC_REPRESENTATIVES: String = "$COLLECTION_BASE_URL/sync/representatives"
     const val SYNC_PATIENT_REPRESENTATIVES: String = "$COLLECTION_BASE_URL/sync/patient-representatives"
@@ -60,6 +61,20 @@ object CollectionSyncEndpoints {
     const val SYNC_PEDIATRIC_DETAILS: String = "$COLLECTION_BASE_URL/sync/pediatric-details"
     const val SYNC_OBSTETRIC_DETAILS: String = "$COLLECTION_BASE_URL/sync/obstetric-details"
     const val SYNC_ACTIVITIES: String = "$COLLECTION_BASE_URL/sync/activities"
+    
+    // Full sync endpoints (GET)
+    const val FULL_SYNC_PATIENTS: String = "$COLLECTION_BASE_URL/sync/pacientes/full"
+    const val FULL_SYNC_REPRESENTATIVES: String = "$COLLECTION_BASE_URL/sync/representantes/full"
+    const val FULL_SYNC_PATIENT_REPRESENTATIVES: String = "$COLLECTION_BASE_URL/sync/pacientes-representantes/full"
+    const val FULL_SYNC_CONSULTATIONS: String = "$COLLECTION_BASE_URL/sync/consultas/full"
+    const val FULL_SYNC_DIAGNOSES: String = "$COLLECTION_BASE_URL/sync/diagnosticos/full"
+    const val FULL_SYNC_ANTHROPOMETRIC_EVALUATIONS: String = "$COLLECTION_BASE_URL/sync/detalles-antropometricos/full"
+    const val FULL_SYNC_ANTHROPOMETRIC_DETAILS: String = "$COLLECTION_BASE_URL/sync/evaluaciones-antropometricas/full"
+    const val FULL_SYNC_VITAL_DETAILS: String = "$COLLECTION_BASE_URL/sync/detalles-vitales/full"
+    const val FULL_SYNC_METABOLIC_DETAILS: String = "$COLLECTION_BASE_URL/sync/detalles-metabolicos/full"
+    const val FULL_SYNC_PEDIATRIC_DETAILS: String = "$COLLECTION_BASE_URL/sync/detalles-pediatricos/full"
+    const val FULL_SYNC_OBSTETRIC_DETAILS: String = "$COLLECTION_BASE_URL/sync/detalles-obstetricias/full"
+    const val FULL_SYNC_ACTIVITIES: String = "$COLLECTION_BASE_URL/sync/actividades/full"
 }
 
 // ========== USERS API ==========

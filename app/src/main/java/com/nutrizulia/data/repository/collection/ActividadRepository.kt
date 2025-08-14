@@ -4,10 +4,10 @@ import com.nutrizulia.data.local.dao.collection.ActividadDao
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.local.view.ActividadConTipo
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
+import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.BatchSyncResult
 import com.nutrizulia.domain.model.SyncResult
-import com.nutrizulia.domain.model.collection.Actividad
-import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.domain.model.toBatchSyncResult
 import com.nutrizulia.domain.model.toSyncResult
 import java.time.LocalDateTime
@@ -15,7 +15,8 @@ import javax.inject.Inject
 
 class ActividadRepository @Inject constructor(
     private val dao: ActividadDao,
-    private val api: IBatchSyncService
+    private val api: IBatchSyncService,
+    private val fullSyncApi: IFullSyncService
 ) {
 
     suspend fun findAll(usuarioInstitucionId: Int): List<ActividadConTipo> {
@@ -68,6 +69,44 @@ class ActividadRepository @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            e.toSyncResult()
+        }
+    }
+
+    /**
+     * Sincronización completa de actividades desde el backend
+     * Recupera todas las actividades del usuario y las guarda localmente
+     * @return SyncResult<Int> con el número de registros procesados
+     */
+    suspend fun fullSyncActividades(): SyncResult<Int> {
+        return try {
+            android.util.Log.d("ActividadRepository", "Iniciando sincronización completa de actividades")
+            
+            val response = fullSyncApi.getFullSyncActividades()
+            
+            response.toSyncResult { fullSyncResponse ->
+                android.util.Log.d("ActividadRepository", "Respuesta recibida: ${fullSyncResponse.data?.totalRegistros} actividades")
+                
+                if (fullSyncResponse.data?.datos!!.isNotEmpty()) {
+                    // Convertir DTOs a entidades y hacer upsert
+                    val entidades = fullSyncResponse.data.datos.map { it.toEntity() }
+                    dao.upsertAll(entidades)
+                    
+                    android.util.Log.d("ActividadRepository", "Sincronización completa de actividades exitosa: ${entidades.size} registros")
+                    SyncResult.Success(
+                        entidades.size,
+                        "Sincronización completa de actividades exitosa: ${entidades.size} registros"
+                    )
+                } else {
+                    android.util.Log.d("ActividadRepository", "No hay actividades para sincronizar")
+                    SyncResult.Success(
+                        0,
+                        "No hay actividades para sincronizar"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("ActividadRepository", "Error en sincronización completa de actividades", e)
             e.toSyncResult()
         }
     }

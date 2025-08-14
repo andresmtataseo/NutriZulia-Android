@@ -11,6 +11,7 @@ import com.nutrizulia.data.remote.api.auth.IAuthService
 import com.nutrizulia.data.remote.api.auth.IAuthenticatedService
 import com.nutrizulia.data.remote.api.catalog.ICatalogService
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
 import com.nutrizulia.data.remote.api.user.IUserService
 import com.nutrizulia.util.ApiConstants.BASE_URL
 import dagger.Module
@@ -157,6 +158,12 @@ object NetworkModule {
     @Provides
     fun provideBatchSyncService(@AuthenticatedRetrofit retrofit: Retrofit): IBatchSyncService {
         return retrofit.create(IBatchSyncService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideFullSyncService(@AuthenticatedRetrofit retrofit: Retrofit): IFullSyncService {
+        return retrofit.create(IFullSyncService::class.java)
     }
 }
 

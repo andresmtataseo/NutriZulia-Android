@@ -9,13 +9,16 @@ import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
+import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.toSyncResult
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 class EvaluacionAntropometricaRepository @Inject constructor(
     private val dao: EvaluacionAntropometricaDao,
-    private val batchApi: IBatchSyncService
+    private val batchApi: IBatchSyncService,
+    private val fullSyncApi: IFullSyncService
 ) {
 
     suspend fun upsertAll(evaluacionAntropometrica: List<EvaluacionAntropometrica>) {
@@ -77,6 +80,44 @@ class EvaluacionAntropometricaRepository @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            e.toSyncResult()
+        }
+    }
+
+    /**
+     * Sincronización completa de evaluaciones antropométricas desde el backend
+     * Recupera todas las evaluaciones del usuario y las guarda localmente
+     * @return SyncResult<Int> con el número de registros procesados
+     */
+    suspend fun fullSyncEvaluacionesAntropometricas(): SyncResult<Int> {
+        return try {
+            android.util.Log.d("EvaluacionAntropometricaRepository", "Iniciando sincronización completa de evaluaciones antropométricas")
+            
+            val response = fullSyncApi.getFullSyncEvaluacionesAntropometricas()
+            
+            response.toSyncResult { fullSyncResponse ->
+                android.util.Log.d("EvaluacionAntropometricaRepository", "Respuesta recibida: ${fullSyncResponse.data?.totalRegistros} evaluaciones antropométricas")
+                
+                if (fullSyncResponse.data?.datos!!.isNotEmpty()) {
+                    // Convertir DTOs a entidades y hacer upsert
+                    val entidades = fullSyncResponse.data.datos.map { it.toEntity() }
+                    dao.upsertAll(entidades)
+                    
+                    android.util.Log.d("EvaluacionAntropometricaRepository", "Sincronización completa de evaluaciones antropométricas exitosa: ${entidades.size} registros")
+                    SyncResult.Success(
+                        entidades.size,
+                        "Sincronización completa de evaluaciones antropométricas exitosa: ${entidades.size} registros"
+                    )
+                } else {
+                    android.util.Log.d("EvaluacionAntropometricaRepository", "No hay evaluaciones antropométricas para sincronizar")
+                    SyncResult.Success(
+                        0,
+                        "No hay evaluaciones antropométricas para sincronizar"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("EvaluacionAntropometricaRepository", "Error en sincronización completa de evaluaciones antropométricas", e)
             e.toSyncResult()
         }
     }

@@ -4,6 +4,8 @@ import com.nutrizulia.data.local.dao.collection.RepresentanteDao
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
+import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.SyncResult
 import com.nutrizulia.domain.model.BatchSyncResult
 import com.nutrizulia.domain.model.toBatchSyncResult
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 class RepresentanteRepository @Inject constructor(
     private val dao: RepresentanteDao,
-    private val batchApi: IBatchSyncService
+    private val batchApi: IBatchSyncService,
+    private val fullSyncApi: IFullSyncService
 ) {
     suspend fun findAll(idUsuarioInstitucion: Int): List<Representante> {
         return dao.findAll(idUsuarioInstitucion).map { it.toDomain() }
@@ -76,6 +79,44 @@ class RepresentanteRepository @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            e.toSyncResult()
+        }
+    }
+
+    /**
+     * Sincronización completa de representantes desde el backend
+     * Recupera todos los representantes del usuario y los guarda localmente
+     * @return SyncResult<Int> con el número de registros procesados
+     */
+    suspend fun fullSyncRepresentantes(): SyncResult<Int> {
+        return try {
+            android.util.Log.d("RepresentanteRepository", "Iniciando sincronización completa de representantes")
+            
+            val response = fullSyncApi.getFullSyncRepresentantes()
+            
+            response.toSyncResult { fullSyncResponse ->
+                android.util.Log.d("RepresentanteRepository", "Respuesta recibida: ${fullSyncResponse.data?.totalRegistros} representantes")
+
+                if (fullSyncResponse.data?.datos!!.isNotEmpty()) {
+                    // Convertir DTOs a entidades y hacer upsert
+                    val entidades = fullSyncResponse.data.datos.map { it.toEntity() }
+                    dao.upsertAll(entidades)
+
+                    android.util.Log.d("RepresentanteRepository", "Sincronización completa de representantes exitosa: ${entidades.size} registros")
+                    SyncResult.Success(
+                        entidades.size,
+                        "Sincronización completa de representantes exitosa: ${entidades.size} registros"
+                    )
+                } else {
+                    android.util.Log.d("RepresentanteRepository", "No hay representantes para sincronizar")
+                    SyncResult.Success(
+                        0,
+                        "No hay representantes para sincronizar"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("RepresentanteRepository", "Error en sincronización completa de representantes", e)
             e.toSyncResult()
         }
     }

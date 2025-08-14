@@ -4,6 +4,8 @@ import com.nutrizulia.data.local.dao.collection.DiagnosticoDao
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
+import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.SyncResult
 import com.nutrizulia.domain.model.BatchSyncResult
 import com.nutrizulia.domain.model.toBatchSyncResult
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 class DiagnosticoRepository @Inject constructor(
     private val dao: DiagnosticoDao,
-    private val batchApi: IBatchSyncService
+    private val batchApi: IBatchSyncService,
+    private val fullSyncApi: IFullSyncService
 ) {
     suspend fun insertAll(diagnosticos: List<Diagnostico>): List<Long> {
         return dao.insertAll(diagnosticos.map { it.toEntity() })
@@ -70,6 +73,44 @@ class DiagnosticoRepository @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            e.toSyncResult()
+        }
+    }
+
+    /**
+     * Sincronización completa de diagnósticos desde el backend
+     * Recupera todos los diagnósticos del usuario y los guarda localmente
+     * @return SyncResult<Int> con el número de registros procesados
+     */
+    suspend fun fullSyncDiagnosticos(): SyncResult<Int> {
+        return try {
+            android.util.Log.d("DiagnosticoRepository", "Iniciando sincronización completa de diagnósticos")
+            
+            val response = fullSyncApi.getFullSyncDiagnosticos()
+            
+            response.toSyncResult { fullSyncResponse ->
+                android.util.Log.d("DiagnosticoRepository", "Respuesta recibida: ${fullSyncResponse.data?.totalRegistros} diagnósticos")
+                
+                if (fullSyncResponse.data?.datos!!.isNotEmpty()) {
+                    // Convertir DTOs a entidades y hacer upsert
+                    val entidades = fullSyncResponse.data.datos.map { it.toEntity() }
+                    dao.upsertAll(entidades)
+                    
+                    android.util.Log.d("DiagnosticoRepository", "Sincronización completa de diagnósticos exitosa: ${entidades.size} registros")
+                    SyncResult.Success(
+                        entidades.size,
+                        "Sincronización completa de diagnósticos exitosa: ${entidades.size} registros"
+                    )
+                } else {
+                    android.util.Log.d("DiagnosticoRepository", "No hay diagnósticos para sincronizar")
+                    SyncResult.Success(
+                        0,
+                        "No hay diagnósticos para sincronizar"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("DiagnosticoRepository", "Error en sincronización completa de diagnósticos", e)
             e.toSyncResult()
         }
     }

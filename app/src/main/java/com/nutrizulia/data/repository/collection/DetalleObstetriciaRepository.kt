@@ -4,6 +4,8 @@ import com.nutrizulia.data.local.dao.collection.DetalleObstetriciaDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
+import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.SyncResult
 import com.nutrizulia.domain.model.BatchSyncResult
 import com.nutrizulia.domain.model.toBatchSyncResult
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 class DetalleObstetriciaRepository @Inject constructor(
     private val dao: DetalleObstetriciaDao,
-    private val batchApi: IBatchSyncService
+    private val batchApi: IBatchSyncService,
+    private val fullSyncApi: IFullSyncService
 ) {
     suspend fun upsert(it: DetalleObstetricia) {
         dao.upsert(it.toEntity())
@@ -63,6 +66,44 @@ class DetalleObstetriciaRepository @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            e.toSyncResult()
+        }
+    }
+
+    /**
+     * Sincronización completa de detalles obstétricos desde el backend
+     * Recupera todos los detalles del usuario y los guarda localmente
+     * @return SyncResult<Int> con el número de registros procesados
+     */
+    suspend fun fullSyncDetallesObstetricia(): SyncResult<Int> {
+        return try {
+            android.util.Log.d("DetalleObstetriciaRepository", "Iniciando sincronización completa de detalles obstétricos")
+            
+            val response = fullSyncApi.getFullSyncDetallesObstetricias()
+            
+            response.toSyncResult { fullSyncResponse ->
+                android.util.Log.d("DetalleObstetriciaRepository", "Respuesta recibida: ${fullSyncResponse.data?.totalRegistros} detalles obstétricos")
+                
+                if (fullSyncResponse.data?.datos!!.isNotEmpty()) {
+                    // Convertir DTOs a entidades y hacer upsert
+                    val entidades = fullSyncResponse.data.datos.map { it.toEntity() }
+                    dao.upsertAll(entidades)
+                    
+                    android.util.Log.d("DetalleObstetriciaRepository", "Sincronización completa de detalles obstétricos exitosa: ${entidades.size} registros")
+                    SyncResult.Success(
+                        entidades.size,
+                        "Sincronización completa de detalles obstétricos exitosa: ${entidades.size} registros"
+                    )
+                } else {
+                    android.util.Log.d("DetalleObstetriciaRepository", "No hay detalles obstétricos para sincronizar")
+                    SyncResult.Success(
+                        0,
+                        "No hay detalles obstétricos para sincronizar"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("DetalleObstetriciaRepository", "Error en sincronización completa de detalles obstétricos", e)
             e.toSyncResult()
         }
     }

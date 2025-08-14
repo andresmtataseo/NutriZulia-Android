@@ -8,6 +8,8 @@ import com.nutrizulia.domain.model.collection.PacienteRepresentante
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
+import com.nutrizulia.data.remote.api.collection.IFullSyncService
+import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.toSyncResult
 import com.nutrizulia.domain.model.toBatchSyncResult
 import java.time.LocalDateTime
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 class PacienteRepresentanteRepository @Inject constructor(
     private val pacienteRepresentanteDao: PacienteRepresentanteDao,
-    private val batchApi: IBatchSyncService
+    private val batchApi: IBatchSyncService,
+    private val fullSyncApi: IFullSyncService
 ){
     suspend fun countPacienteIdByUsuarioInstitucionIdAndRepresentanteId(usuarioInstitucionId: Int, representanteId: String) : Int {
         return pacienteRepresentanteDao.countPacienteIdByUsuarioInstitucionIdAndRepresentanteId(usuarioInstitucionId, representanteId)
@@ -68,6 +71,44 @@ class PacienteRepresentanteRepository @Inject constructor(
                 }
             }
         } catch (e: Exception) {
+            e.toSyncResult()
+        }
+    }
+
+    /**
+     * Sincronización completa de pacientes-representantes desde el backend
+     * Recupera todas las relaciones del usuario y las guarda localmente
+     * @return SyncResult<Int> con el número de registros procesados
+     */
+    suspend fun fullSyncPacientesRepresentantes(): SyncResult<Int> {
+        return try {
+            android.util.Log.d("PacienteRepresentanteRepository", "Iniciando sincronización completa de pacientes-representantes")
+            
+            val response = fullSyncApi.getFullSyncPacientesRepresentantes()
+            
+            response.toSyncResult { fullSyncResponse ->
+                android.util.Log.d("PacienteRepresentanteRepository", "Respuesta recibida: ${fullSyncResponse.data?.totalRegistros} relaciones paciente-representante")
+                
+                if (fullSyncResponse.data?.datos!!.isNotEmpty()) {
+                    // Convertir DTOs a entidades y hacer upsert
+                    val entidades = fullSyncResponse.data.datos.map { it.toEntity() }
+                    pacienteRepresentanteDao.upsertAll(entidades)
+                    
+                    android.util.Log.d("PacienteRepresentanteRepository", "Sincronización completa de relaciones paciente-representante exitosa: ${entidades.size} registros")
+                    SyncResult.Success(
+                        entidades.size,
+                        "Sincronización completa de relaciones paciente-representante exitosa: ${entidades.size} registros"
+                    )
+                } else {
+                    android.util.Log.d("PacienteRepresentanteRepository", "No hay relaciones paciente-representante para sincronizar")
+                    SyncResult.Success(
+                        0,
+                        "No hay relaciones paciente-representante para sincronizar"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("PacienteRepresentanteRepository", "Error en sincronización completa de pacientes-representantes", e)
             e.toSyncResult()
         }
     }
