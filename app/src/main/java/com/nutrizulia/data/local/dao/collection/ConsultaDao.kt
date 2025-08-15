@@ -31,6 +31,8 @@ interface ConsultaDao {
     @Query("SELECT * FROM consultas WHERE id = :id")
     suspend fun findConsultaProgramadaById(id: String): ConsultaEntity?
 
+    @Query("SELECT COUNT(*) FROM consultas WHERE is_synced = 0")
+    suspend fun countNotSynced(): Int
     @Insert
     suspend fun insertAll(consultas: List<ConsultaEntity>): List<Long>
 
@@ -49,6 +51,17 @@ interface ConsultaDao {
 
     @Query("SELECT * FROM consultas WHERE is_synced = 0")
     suspend fun findAllNotSynced(): List<ConsultaEntity>
+
+    @Query("""
+        SELECT * FROM consultas 
+        WHERE usuario_institucion_id = :usuarioInstitucionId 
+        AND (
+            (fecha_hora_programada IS NOT NULL AND strftime('%Y-%m', fecha_hora_programada) = strftime('%Y-%m', 'now')) OR
+            (fecha_hora_programada IS NULL AND fecha_hora_real IS NOT NULL AND strftime('%Y-%m', fecha_hora_real) = strftime('%Y-%m', 'now'))
+        )
+        AND (estado = 'COMPLETADA' OR estado = 'SIN_PREVIA_CITA')
+    """)
+    suspend fun findConsultasDelMesActual(usuarioInstitucionId: Int): List<ConsultaEntity>
 
     @Upsert
     suspend fun upsertAll(consultas: List<ConsultaEntity>)

@@ -32,6 +32,10 @@ class PacienteRepresentanteRepository @Inject constructor(
         return pacienteRepresentanteDao.upsert(pacienteRepresentante.toEntity())
     }
 
+    suspend fun findAllNotSynced(): Int {
+        return pacienteRepresentanteDao.countNotSynced()
+    }
+
     suspend fun sincronizarPacientesRepresentantesBatch(): SyncResult<BatchSyncResult> {
         return try {
             val pacientesRepresentantesPendientes = pacienteRepresentanteDao.findAllNotSynced()

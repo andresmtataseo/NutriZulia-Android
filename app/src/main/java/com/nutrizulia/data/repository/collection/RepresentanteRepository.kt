@@ -20,6 +20,10 @@ class RepresentanteRepository @Inject constructor(
     private val batchApi: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ) {
+    suspend fun findAllNotSynced(): Int {
+        return dao.countNotSynced()
+    }
+
     suspend fun findAll(idUsuarioInstitucion: Int): List<Representante> {
         return dao.findAll(idUsuarioInstitucion).map { it.toDomain() }
     }

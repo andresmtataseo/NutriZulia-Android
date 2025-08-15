@@ -27,6 +27,10 @@ class DetalleAntropometricoRepository @Inject constructor(
         return dao.findByConsultaId(consultaId)?.toDomain()
     }
 
+    suspend fun findAllNotSynced(): Int {
+        return dao.countNotSynced()
+    }
+
     suspend fun sincronizarDetallesAntropometricosBatch(): SyncResult<BatchSyncResult> {
         return try {
             val antropometricosPendientes = dao.findAllNotSynced()

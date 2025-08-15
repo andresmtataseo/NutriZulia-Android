@@ -45,6 +45,10 @@ class PacienteRepository @Inject constructor(
         return pacienteDao.findAllByUsuarioInstitucionIdAndFilter( usuarioInstitucionId, query).map { it.toDomain() }
     }
 
+    suspend fun findAllNotSynced(): Int {
+        return pacienteDao.countNotSynced()
+    }
+
     suspend fun sincronizarPacientesBatch(): SyncResult<BatchSyncResult> {
         return try {
             val pacientesPendientes = pacienteDao.findAllNotSynced()

@@ -24,6 +24,10 @@ class ConsultaRepository @Inject constructor(
     private val batchApi: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ) {
+    suspend fun findAllNotSynced(): Int {
+        return consultaDao.countNotSynced()
+    }
+
     suspend fun upsert(consulta: Consulta): Long {
         return consultaDao.upsert(consulta.toEntity())
     }
@@ -32,6 +36,9 @@ class ConsultaRepository @Inject constructor(
         return dailyCounts.associate { dailyCount ->
             dailyCount.date to dailyCount.count
         }
+    }
+    suspend fun getConsultasDelMesActual(usuarioInstitucionId: Int): List<Consulta> {
+        return consultaDao.findConsultasDelMesActual(usuarioInstitucionId).map { it.toDomain() }
     }
     suspend fun countConsultaByPacienteId(pacienteId: String): Boolean {
         val consultationCount: Int = consultaDao.countConsultaByPacienteId(pacienteId)

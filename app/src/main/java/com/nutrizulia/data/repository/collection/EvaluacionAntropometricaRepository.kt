@@ -41,6 +41,10 @@ class EvaluacionAntropometricaRepository @Inject constructor(
         return dao.findAllByConsultaId(idConsulta).map { it.toDomain() }
     }
 
+    suspend fun findAllNotSynced(): Int {
+        return dao.countNotSynced()
+    }
+
     suspend fun sincronizarEvaluacionesAntropometricasBatch(): SyncResult<BatchSyncResult> {
         return try {
             val evaluacionesPendientes = dao.findAllNotSynced()

@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/md_theme_primary"
+            android:background="@color/md_theme_primary_logo"
             app:popupTheme="@style/Theme.NutriZuliaKtx.PopupOverlay"
             app:titleCentered="true"/>
 

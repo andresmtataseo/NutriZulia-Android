@@ -29,6 +29,9 @@ interface ActividadDao {
     @Insert
     suspend fun insert(actividad: ActividadEntity): Long
 
+    @Query("SELECT COUNT(*) FROM actividades WHERE is_synced = 0")
+    suspend fun countNotSynced(): Int
+
     @Update
     suspend fun update(actividad: ActividadEntity): Int
 

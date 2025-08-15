@@ -25,6 +25,9 @@ interface RepresentanteDao {
     @Upsert
     suspend fun upsert(representante: RepresentanteEntity)
 
+    @Query("SELECT COUNT(*) FROM representantes WHERE is_synced = 0")
+    suspend fun countNotSynced(): Int
+
     @Query("SELECT * FROM representantes WHERE usuario_institucion_id = :usuarioInstitucionId AND cedula = :cedula")
     suspend fun findByCedula(usuarioInstitucionId: Int, cedula: String): RepresentanteEntity?
 

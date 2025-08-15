@@ -20,6 +20,9 @@ interface DetalleAntropometricoDao {
     @Query("SELECT * FROM detalles_antropometricos WHERE is_synced = 0")
     suspend fun findAllNotSynced(): List<DetalleAntropometricoEntity>
 
+    @Query("SELECT COUNT(*) FROM detalles_antropometricos WHERE is_synced = 0")
+    suspend fun countNotSynced(): Int
+
     @Insert
     suspend fun insert(detalleAntropometrico: DetalleAntropometricoEntity): Long
 

@@ -17,6 +17,9 @@ interface EvaluacionAntropometricaDao {
     @Query("SELECT * FROM evaluaciones_antropometricas WHERE is_synced = 0")
     suspend fun findAllNotSynced(): List<EvaluacionAntropometricaEntity>
 
+    @Query("SELECT COUNT(*) FROM evaluaciones_antropometricas WHERE is_synced = 0")
+    suspend fun countNotSynced(): Int
+
     @Insert
     suspend fun insert(evaluacionAntropometrica: EvaluacionAntropometricaEntity): Long
 

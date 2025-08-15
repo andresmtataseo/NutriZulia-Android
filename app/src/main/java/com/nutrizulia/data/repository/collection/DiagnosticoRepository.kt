@@ -34,6 +34,10 @@ class DiagnosticoRepository @Inject constructor(
         return dao.findByConsultaId(consultaId).map { it.toDomain() }
     }
 
+    suspend fun findAllNotSynced(): Int {
+        return dao.countNotSynced()
+    }
+
     suspend fun sincronizarDiagnosticosBatch(): SyncResult<BatchSyncResult> {
         return try {
             val diagnosticosPendientes = dao.findAllNotSynced()

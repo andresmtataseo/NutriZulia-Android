@@ -87,6 +87,12 @@
         <action
             android:id="@+id/action_inicioFragment_to_actividadFragment"
             app:destination="@id/actividadFragment" />
+        <action
+            android:id="@+id/action_inicioFragment_to_syncBatchFragment"
+            app:destination="@id/syncBatchFragment" />
+        <action
+            android:id="@+id/action_inicioFragment_to_accionesCitaFragment"
+            app:destination="@id/accionesCitaFragment" />
     </fragment>
     <fragment
         android:id="@+id/pacientesFragment"

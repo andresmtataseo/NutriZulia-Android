@@ -27,6 +27,10 @@ class DetalleObstetriciaRepository @Inject constructor(
         return dao.findByConsultaId(ConsultaId)?.toDomain()
     }
 
+    suspend fun findAllNotSynced(): Int {
+        return dao.countNotSynced()
+    }
+
     suspend fun sincronizarDetallesObstetriciaBatch(): SyncResult<BatchSyncResult> {
         return try {
             val obstetriciasPendientes = dao.findAllNotSynced()

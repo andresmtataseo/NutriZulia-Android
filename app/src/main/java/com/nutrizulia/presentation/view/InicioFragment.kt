@@ -6,9 +6,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import com.nutrizulia.databinding.FragmentInicioBinding
+import com.nutrizulia.presentation.view.paciente.AccionesPacienteFragmentDirections
 import com.nutrizulia.presentation.viewmodel.InicioViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Calendar
 
 @AndroidEntryPoint
 class InicioFragment : Fragment() {
@@ -27,6 +31,7 @@ class InicioFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
+        setupGreeting()
         setupObservers()
         setupClickListeners()
         
@@ -54,7 +59,6 @@ class InicioFragment : Fragment() {
 
         viewModel.datosUsuario.observe(viewLifecycleOwner) { datos ->
             datos?.let {
-                binding.tvBienvenidaUsuario.text = it.nombreUsuario
                 binding.tvInstitucionActual.text = it.nombreInstitucion
             }
         }
@@ -72,24 +76,61 @@ class InicioFragment : Fragment() {
 
         viewModel.archivosPendientes.observe(viewLifecycleOwner) { archivos ->
             binding.tvArchivosPendientes.text = archivos.toString()
+            // Ocultar card de sincronización si no hay archivos pendientes
+            binding.cardSincronizacion.visibility = if (archivos > 0) View.VISIBLE else View.GONE
         }
 
         viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            // Aquí puedes mostrar/ocultar un indicador de carga si es necesario
+            // TODO: Implementar indicador de carga cuando se añada al layout
+        }
+        
+        viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                viewModel.clearErrorMessage()
+            }
+        }
+        
+        viewModel.citasDelDiaDetalle.observe(viewLifecycleOwner) { citasDetalle ->
+            // TODO: Actualizar RecyclerView o lista de citas del día si existe en el layout
+            // Por ahora solo actualizamos los contadores que ya están implementados
         }
     }
 
     private fun setupClickListeners() {
         binding.btnVerProximaConsulta.setOnClickListener {
-            // Navegar a los detalles de la próxima consulta
-            // findNavController().navigate(R.id.action_inicioFragment_to_consultaDetailFragment)
+            findNavController().navigate(
+                InicioFragmentDirections.actionInicioFragmentToAccionesCitaFragment(viewModel.proximaConsulta.value?.consultaId
+                    ?: return@setOnClickListener)
+            )
         }
 
         binding.btnSincronizar.setOnClickListener {
-            // Iniciar proceso de sincronización
-            viewModel.sincronizarArchivos()
+            findNavController().navigate(
+                InicioFragmentDirections.actionInicioFragmentToSyncBatchFragment()
+            )
         }
 
+        binding.btnCambiar.setOnClickListener {
+            findNavController().navigate(
+                InicioFragmentDirections.actionInicioFragmentToSeleccionarInstitucionFragment2()
+            )
+        }
+    }
+
+    private fun setupGreeting() {
+        binding.tvSaludo.text = getDynamicGreeting()
+    }
+
+    private fun getDynamicGreeting(): String {
+        val calendar: Calendar = Calendar.getInstance()
+        val hourOfDay: Int = calendar.get(Calendar.HOUR_OF_DAY)
+        
+        return when (hourOfDay) {
+            in 5..11 -> "¡Buenos días!"
+            in 12..17 -> "¡Buenas tardes!"
+            else -> "¡Buenas noches!"
+        }
     }
 
 }

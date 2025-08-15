@@ -20,6 +20,9 @@ interface DetalleMetabolicoDao {
     @Query("SELECT * FROM detalles_metabolicos WHERE is_synced = 0")
     suspend fun findAllNotSynced(): List<DetalleMetabolicoEntity>
 
+    @Query("SELECT COUNT(*) FROM detalles_metabolicos WHERE is_synced = 0")
+    suspend fun countNotSynced(): Int
+
     @Insert
     suspend fun insert(detalleMetabolico: DetalleMetabolicoEntity): Long
 

@@ -17,6 +17,9 @@ interface DiagnosticoDao {
     @Query("SELECT * FROM diagnosticos WHERE is_synced = 0")
     suspend fun findAllNotSynced(): List<DiagnosticoEntity>
 
+    @Query("SELECT COUNT(*) FROM diagnosticos WHERE is_synced = 0")
+    suspend fun countNotSynced(): Int
+
     @Insert
     suspend fun insert(diagnostico: DiagnosticoEntity): Long
 

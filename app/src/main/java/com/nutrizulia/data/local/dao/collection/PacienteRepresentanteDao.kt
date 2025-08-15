@@ -23,6 +23,9 @@ interface PacienteRepresentanteDao {
     @Query("SELECT * FROM pacientes_representantes WHERE is_synced = 0")
     suspend fun findAllNotSynced(): List<PacienteRepresentanteEntity>
 
+    @Query("SELECT COUNT(*) FROM pacientes_representantes WHERE is_synced = 0")
+    suspend fun countNotSynced(): Int
+
     @Upsert
     suspend fun upsert(pacienteRepresentante: PacienteRepresentanteEntity)
     
