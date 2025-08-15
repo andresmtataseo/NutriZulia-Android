@@ -8,8 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.nutrizulia.domain.usecase.auth.LogoutUseCase
 import com.nutrizulia.domain.usecase.user.GetPerfilesInstitucionales
 import com.nutrizulia.domain.usecase.user.GetPerfilesResult // ✅ 1. Importar el sealed class
+import com.nutrizulia.domain.usecase.user.GetUserDetails
 import com.nutrizulia.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,6 +20,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val logoutUseCase: LogoutUseCase,
     private val getPerfilesInstitucionales: GetPerfilesInstitucionales,
+    private val getUserDetails: GetUserDetails,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -25,9 +28,16 @@ class MainViewModel @Inject constructor(
     val logoutComplete: LiveData<Boolean> get() = _logoutComplete
     private val _isInstitutionSelected = MutableLiveData<Boolean>()
     val isInstitutionSelected: LiveData<Boolean> get() = _isInstitutionSelected
+    
+    private val _userName = MutableLiveData<String>()
+    val userName: LiveData<String> get() = _userName
+    private val _institutionName = MutableLiveData<String>()
+    val institutionName: LiveData<String> get() = _institutionName
 
     fun onCreated() {
         checkIfInstitutionIsSelected()
+        loadHeaderData()
+        observeInstitutionChanges()
     }
 
     private fun checkIfInstitutionIsSelected() {
@@ -63,6 +73,49 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun loadHeaderData() {
+        viewModelScope.launch {
+            try {
+                when (val result = getPerfilesInstitucionales()) {
+                    is GetPerfilesResult.Success -> {
+                        val currentInstitutionId = sessionManager.currentInstitutionIdFlow.firstOrNull()
+                        val currentProfile = result.perfiles.find { 
+                            it.usuarioInstitucionId == currentInstitutionId 
+                        }
+                        
+                        if (currentProfile != null) {
+                            val usuario = getUserDetails(currentProfile.usuarioId)
+                            if (usuario != null) {
+                                val fullName = usuario.nombres.substringBefore(" ") + " " + usuario.apellidos.substringBefore(" ")
+                                _userName.postValue(fullName)
+                            }
+                            _institutionName.postValue(currentProfile.institucionNombre)
+                        }
+                    }
+                    is GetPerfilesResult.Failure -> {
+                        Log.e("MainViewModel", "Error al cargar datos del header: ${result.message}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error inesperado al cargar datos del header: ${e.message}", e)
+            }
+        }
+    }
+
+    private fun observeInstitutionChanges() {
+        viewModelScope.launch {
+            sessionManager.currentInstitutionIdFlow.collect { institutionId ->
+                if (institutionId != null && institutionId > 0) {
+                    loadHeaderData()
+                }
+            }
+        }
+    }
+
+    fun refreshHeaderData() {
+        loadHeaderData()
     }
 
     fun logout() {

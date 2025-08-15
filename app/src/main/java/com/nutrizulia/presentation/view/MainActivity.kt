@@ -3,6 +3,7 @@ package com.nutrizulia.presentation.view
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import android.widget.TextView
 import androidx.activity.viewModels
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -61,6 +62,10 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         setupObservers()
+        setupNavHeader(navView)
+        
+        // Inicializar la carga de datos del header
+        viewModel.onCreated()
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -124,6 +129,27 @@ class MainActivity : AppCompatActivity() {
         viewModel.logoutComplete.observe(this) { isComplete ->
             if (isComplete) {
                 navigateToLogin()
+            }
+        }
+    }
+
+    /**
+     * Configura el header del navigation drawer con la información del usuario.
+     */
+    private fun setupNavHeader(navView: NavigationView) {
+        val headerView = navView.getHeaderView(0)
+        val tvNombreUsuario: TextView = headerView.findViewById(R.id.tvNombreUsuario)
+        val tvInstitucionSeleccionada: TextView = headerView.findViewById(R.id.tvInstitucionSeleccionada)
+
+        viewModel.userName.observe(this) { userName ->
+            if (!userName.isNullOrEmpty()) {
+                tvNombreUsuario.text = userName
+            }
+        }
+
+        viewModel.institutionName.observe(this) { institutionName ->
+            if (!institutionName.isNullOrEmpty()) {
+                tvInstitucionSeleccionada.text = institutionName
             }
         }
     }
