@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.airbnb.lottie.LottieAnimationView
 import com.nutrizulia.databinding.ActivityPreCargarBinding
 import com.nutrizulia.presentation.adapter.InstitucionAdapter
 import com.nutrizulia.presentation.viewmodel.PreCargarViewModel
@@ -26,9 +27,14 @@ class PreCargarActivity : AppCompatActivity() {
         binding = ActivityPreCargarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnContinuar.visibility = View.GONE
-        binding.tvSyncProgress.visibility = View.VISIBLE
+        // Configurar estado inicial
+        binding.btnAceptar.visibility = View.GONE
+        binding.layoutSyncProgress.visibility = View.VISIBLE
+        binding.layoutInstituciones.visibility = View.GONE
         binding.btnReintentar.visibility = View.GONE
+        
+        // Iniciar animación Lottie
+        binding.lottieAnimation.playAnimation()
 
         setupWindowInsets()
         setupRecyclerView()
@@ -76,9 +82,13 @@ class PreCargarActivity : AppCompatActivity() {
         }
 
         viewModel.profiles.observe(this) { perfiles ->
-            binding.recyclerViewInstituciones.visibility =
-                if (perfiles.isNotEmpty()) View.VISIBLE else View.GONE
-            institucionAdapter.updatePerfilesInstitucionales(perfiles)
+            if (perfiles.isNotEmpty()) {
+                binding.layoutSyncProgress.visibility = View.GONE
+                binding.layoutInstituciones.visibility = View.VISIBLE
+                binding.btnAceptar.visibility = View.VISIBLE
+                binding.lottieAnimation.pauseAnimation()
+                institucionAdapter.updatePerfilesInstitucionales(perfiles)
+            }
         }
 
         viewModel.continuar.observe(this) { isReadyToContinue ->
@@ -122,8 +132,10 @@ class PreCargarActivity : AppCompatActivity() {
     private fun setupRetryButton() {
         binding.btnReintentar.setOnClickListener {
             binding.btnReintentar.visibility = View.GONE
-            binding.tvSyncProgress.visibility = View.VISIBLE
+            binding.layoutSyncProgress.visibility = View.VISIBLE
+            binding.layoutInstituciones.visibility = View.GONE
             binding.tvSyncProgress.text = "Reintentando sincronización..."
+            binding.lottieAnimation.playAnimation()
             viewModel.retrySyncProcess()
         }
     }
@@ -152,18 +164,22 @@ class PreCargarActivity : AppCompatActivity() {
         // Manejar estados especiales
         when (progress.phase) {
             PreCargarViewModel.SyncPhase.ERROR -> {
-                binding.tvSyncProgress.visibility = View.VISIBLE
+                binding.layoutSyncProgress.visibility = View.VISIBLE
                 binding.btnReintentar.visibility = View.VISIBLE
                 binding.progress.visibility = View.GONE
+                binding.lottieAnimation.pauseAnimation()
             }
             PreCargarViewModel.SyncPhase.COMPLETED -> {
-                binding.tvSyncProgress.visibility = View.GONE
+                // No ocultar aquí, se manejará cuando lleguen los perfiles
                 binding.progress.visibility = View.GONE
             }
             else -> {
-                binding.tvSyncProgress.visibility = View.VISIBLE
+                binding.layoutSyncProgress.visibility = View.VISIBLE
                 binding.btnReintentar.visibility = View.GONE
                 binding.progress.visibility = View.VISIBLE
+                if (!binding.lottieAnimation.isAnimating) {
+                    binding.lottieAnimation.playAnimation()
+                }
             }
         }
     }
