@@ -99,16 +99,16 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginEnd="12dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer"
+                    app:cardCornerRadius="24dp">
 
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_sync"
                         android:contentDescription="Sincronización"
-                        app:tint="@color/md_theme_primaryContainer" />
+                        android:src="@drawable/ic_sync"
+                        app:tint="@color/md_theme_onSecondaryContainer" />
 
                 </com.google.android.material.card.MaterialCardView>
 
@@ -143,7 +143,7 @@
                         android:id="@+id/tvArchivosPendientes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="12"
+                        android:text="0"
                         android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                         android:textColor="@color/md_theme_secondary"
                         android:textStyle="bold" />
@@ -185,20 +185,26 @@
                     android:layout_marginBottom="16dp" />
 
                 <!-- Próxima Consulta -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Próxima Consulta"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColor="@color/md_theme_primaryContainer"
-                    android:layout_marginBottom="8dp" />
-
                 <LinearLayout
+                    android:id="@+id/layoutProximaConsulta"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:orientation="vertical"
                     android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Próxima Consulta"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                        android:textColor="@color/md_theme_primaryContainer"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="48dp"
@@ -240,12 +246,14 @@
 
                     </LinearLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnVerProximaConsulta"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Ver" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnVerProximaConsulta"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ver" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -311,7 +319,7 @@
                                 android:id="@+id/tvCitasProgramadas"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="8"
+                                android:text="0"
                                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                                 android:textColor="@color/md_theme_tertiaryContainer"
                                 android:textStyle="bold" />
@@ -334,15 +342,15 @@
                             android:layout_height="32dp"
                             android:layout_marginEnd="8dp"
                             app:cardCornerRadius="16dp"
-                            app:cardBackgroundColor="@color/md_theme_background">
+                            app:cardBackgroundColor="@color/md_theme_primaryContainer">
 
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:layout_gravity="center"
-                                android:src="@drawable/ic_check_circle"
+                                android:src="@drawable/ic_check"
                                 android:contentDescription="Citas completadas"
-                                app:tint="@color/md_theme_primaryContainer" />
+                                app:tint="@color/md_theme_onPrimaryContainer" />
 
                         </com.google.android.material.card.MaterialCardView>
 
@@ -362,7 +370,7 @@
                                 android:id="@+id/tvCitasCompletadas"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="5"
+                                android:text="0"
                                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                                 android:textColor="@color/md_theme_primaryContainer"
                                 android:textStyle="bold" />
@@ -447,7 +455,7 @@
                         android:id="@+id/tvTotalConsultas"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="156"
+                        android:text="0"
                         android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                         android:textColor="@color/md_theme_primaryContainer"
                         android:textStyle="bold" />
@@ -516,7 +524,7 @@
                                     android:id="@+id/tvTotalHombres"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="78"
+                                    android:text="0"
                                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                                     android:textColor="@color/md_theme_primaryContainer"
                                     android:textStyle="bold" />
@@ -567,7 +575,7 @@
                                     android:id="@+id/tvTotalMujeres"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="78"
+                                    android:text="0"
                                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                                     android:textColor="@color/md_theme_errorContainer_highContrast"
                                     android:textStyle="bold" />
@@ -626,7 +634,7 @@
                                     android:id="@+id/tvTotalNinos"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="32"
+                                    android:text="0"
                                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                                     android:textColor="@color/md_theme_primaryContainer"
                                     android:textStyle="bold" />
@@ -677,7 +685,7 @@
                                     android:id="@+id/tvTotalNinas"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="28"
+                                    android:text="0"
                                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                                     android:textColor="@color/md_theme_errorContainer_highContrast"
                                     android:textStyle="bold" />

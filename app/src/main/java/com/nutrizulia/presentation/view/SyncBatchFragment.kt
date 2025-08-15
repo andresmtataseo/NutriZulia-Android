@@ -9,11 +9,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentSyncBatchBinding
 import com.nutrizulia.presentation.viewmodel.SyncBatchViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SyncBatchFragment : Fragment() {
@@ -36,12 +38,37 @@ class SyncBatchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupUI()
         setupViewModelCallbacks()
+        observePendingRecords()
     }
 
     private fun setupUI() {
-        binding.btnSincronizar.setOnClickListener {
+        // Configurar el botón de sincronización en el encabezado
+        binding.cardSyncButton.setOnClickListener {
             viewModel.iniciarSincronizacion()
         }
+    }
+
+    private fun observePendingRecords() {
+        lifecycleScope.launch {
+            viewModel.pendingRecords.collect { pendingRecords ->
+                updatePendingRecordsUI(pendingRecords)
+            }
+        }
+    }
+
+    private fun updatePendingRecordsUI(pendingRecords: com.nutrizulia.domain.usecase.dashboard.PendingRecordsByEntity) {
+        binding.tvPacientesCount.text = pendingRecords.pacientes.toString()
+        binding.tvConsultasCount.text = pendingRecords.consultas.toString()
+        
+        // Calcular total de registros
+        val totalRegistros = pendingRecords.pacientes + pendingRecords.consultas + 
+                           pendingRecords.signosVitales + pendingRecords.antropometricos + 
+                           pendingRecords.diagnosticos + pendingRecords.otros
+        binding.tvTotalCount.text = totalRegistros.toString()
+        
+        binding.tvAntropometricosCount.text = pendingRecords.antropometricos.toString()
+        binding.tvDiagnosticosCount.text = pendingRecords.diagnosticos.toString()
+        binding.tvOtrosCount.text = pendingRecords.otros.toString()
     }
 
     private fun setupViewModelCallbacks() {
@@ -66,11 +93,10 @@ class SyncBatchFragment : Fragment() {
      * Maneja el inicio de la sincronización
      */
     private fun onSyncStart(message: String) {
-        // Deshabilitar botón y mostrar progreso
-        binding.btnSincronizar.isEnabled = false
-        binding.btnSincronizar.text = "Sincronizando..."
+        // Deshabilitar botón del encabezado y mostrar progreso
+        binding.cardSyncButton.isEnabled = false
+        binding.cardProgress.visibility = View.VISIBLE
         binding.progressBar.visibility = View.VISIBLE
-
         // Mostrar mensaje de inicio
         showInfoMessage(message)
     }
@@ -85,7 +111,7 @@ class SyncBatchFragment : Fragment() {
         detailedReport: String
     ) {
         // Restaurar UI
-        resetSyncButton()
+        restoreUI()
 
         // Mostrar mensaje de éxito
         val fullMessage = if (totalProcessed > 0) {
@@ -111,7 +137,7 @@ class SyncBatchFragment : Fragment() {
         detailedReport: String
     ) {
         // Restaurar UI
-        resetSyncButton()
+        restoreUI()
 
         // Mostrar mensaje de advertencia
         val fullMessage = "$message\n" +
@@ -129,7 +155,7 @@ class SyncBatchFragment : Fragment() {
      */
     private fun onSyncError(message: String, details: String?) {
         // Restaurar UI
-        resetSyncButton()
+        restoreUI()
 
         // Mostrar mensaje de error
         val fullMessage = if (details != null) {
@@ -142,11 +168,11 @@ class SyncBatchFragment : Fragment() {
     }
 
     /**
-     * Restaura el estado del botón de sincronización
+     * Restaura la UI a su estado inicial
      */
-    private fun resetSyncButton() {
-        binding.btnSincronizar.isEnabled = true
-        binding.btnSincronizar.text = "Sincronizar"
+    private fun restoreUI() {
+        binding.cardSyncButton.isEnabled = true
+        binding.cardProgress.visibility = View.GONE
         binding.progressBar.visibility = View.GONE
     }
 

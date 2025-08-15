@@ -41,9 +41,12 @@ class InicioFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.proximaConsulta.observe(viewLifecycleOwner) { consulta ->
-            consulta?.let {
-                binding.tvNombrePacienteProximaConsulta.text = it.nombrePaciente
-                binding.tvFechaHoraProximaConsulta.text = it.fechaHora
+            if (consulta != null) {
+                binding.tvNombrePacienteProximaConsulta.text = consulta.nombrePaciente
+                binding.tvFechaHoraProximaConsulta.text = consulta.fechaHora
+                binding.layoutProximaConsulta.visibility = View.VISIBLE
+            } else {
+                binding.layoutProximaConsulta.visibility = View.GONE
             }
         }
 

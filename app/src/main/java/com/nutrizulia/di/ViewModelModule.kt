@@ -1,6 +1,7 @@
 package com.nutrizulia.di
 
 import com.nutrizulia.domain.usecase.SyncCollectionBatch
+import com.nutrizulia.domain.usecase.dashboard.GetPendingRecordsByEntityUseCase
 import com.nutrizulia.presentation.viewmodel.SyncBatchViewModel
 import dagger.Module
 import dagger.Provides
@@ -15,8 +16,9 @@ object ViewModelModule {
     @ViewModelScoped
     @Provides
     fun provideSyncBatchViewModel(
-        syncCollectionBatch: SyncCollectionBatch
+        syncCollectionBatch: SyncCollectionBatch,
+        getPendingRecordsByEntityUseCase: GetPendingRecordsByEntityUseCase
     ): SyncBatchViewModel {
-        return SyncBatchViewModel(syncCollectionBatch)
+        return SyncBatchViewModel(syncCollectionBatch, getPendingRecordsByEntityUseCase)
     }
 }

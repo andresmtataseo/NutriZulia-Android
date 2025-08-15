@@ -3,20 +3,48 @@ package com.nutrizulia.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nutrizulia.domain.usecase.SyncCollectionBatch
+import com.nutrizulia.domain.usecase.dashboard.GetPendingRecordsByEntityUseCase
+import com.nutrizulia.domain.usecase.dashboard.PendingRecordsByEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SyncBatchViewModel @Inject constructor(
-    private val syncCollectionBatch: SyncCollectionBatch
+    private val syncCollectionBatch: SyncCollectionBatch,
+    private val getPendingRecordsByEntityUseCase: GetPendingRecordsByEntityUseCase
 ) : ViewModel() {
+
+    // StateFlow para los contadores por entidad
+    private val _pendingRecords = MutableStateFlow(PendingRecordsByEntity(0, 0, 0, 0, 0, 0))
+    val pendingRecords: StateFlow<PendingRecordsByEntity> = _pendingRecords.asStateFlow()
 
     // Callbacks para manejar los diferentes estados de la sincronización
     var onSyncStart: ((message: String) -> Unit)? = null
     var onSyncSuccess: ((successCount: Int, totalProcessed: Int, message: String, detailedReport: String) -> Unit)? = null
     var onSyncPartialSuccess: ((successCount: Int, totalProcessed: Int, failureCount: Int, message: String, detailedReport: String) -> Unit)? = null
     var onSyncError: ((message: String, details: String?) -> Unit)? = null
+
+    init {
+        loadPendingRecords()
+    }
+
+    /**
+     * Carga los contadores de registros pendientes por entidad
+     */
+    fun loadPendingRecords() {
+        viewModelScope.launch {
+            try {
+                val records = getPendingRecordsByEntityUseCase()
+                _pendingRecords.value = records
+            } catch (e: Exception) {
+                _pendingRecords.value = PendingRecordsByEntity(0, 0, 0, 0, 0, 0)
+            }
+        }
+    }
 
     /**
      * Inicia la sincronización siguiendo todos los requerimientos del usuario:
@@ -59,6 +87,8 @@ class SyncBatchViewModel @Inject constructor(
                             "Sincronización completada exitosamente",
                             detailedReport
                         )
+                        // Recargar contadores después del éxito
+                        loadPendingRecords()
                     }
                     totalSuccess > 0 && totalFailure > 0 -> {
                         // Éxito parcial
@@ -67,6 +97,8 @@ class SyncBatchViewModel @Inject constructor(
                             "Sincronización parcial completada",
                             detailedReport
                         )
+                        // Recargar contadores después del éxito parcial
+                        loadPendingRecords()
                     }
                     else -> {
                         // Error completo
