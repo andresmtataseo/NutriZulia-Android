@@ -12,8 +12,16 @@ import java.time.LocalDateTime
 @Dao
 interface ConsultaDao {
 
-    @Query("SELECT * FROM consultas WHERE usuario_institucion_id = :usuarioInstitucionId ORDER BY fecha_hora_programada ASC")
+    @Query("""SELECT * FROM consultas WHERE usuario_institucion_id = :usuarioInstitucionId ORDER BY fecha_hora_programada ASC""")
     suspend fun findAllByUsuarioInstitucionId(usuarioInstitucionId: Int): List<ConsultaEntity>
+
+    @Query("""
+        SELECT * FROM consultas 
+        WHERE DATE(fecha_hora_programada) = DATE('now', '-1 day') 
+        AND (estado = 'PENDIENTE' OR estado = 'REPROGRAMADA')
+        ORDER BY fecha_hora_programada ASC
+    """)
+    suspend fun findPreviousDayPendingAppointments(): List<ConsultaEntity>
 
     @Query("""
         SELECT DATE(fecha_hora_programada) as date, COUNT(id) as count
@@ -44,6 +52,14 @@ interface ConsultaDao {
 
     @Query("UPDATE consultas SET estado = :estado WHERE id = :id")
     suspend fun updateEstadoById(id: String, estado: Estado)
+
+    @Query("""
+        UPDATE consultas 
+        SET estado = 'NO_ASISTIO', updated_at = :timestamp, is_synced = 0 
+        WHERE DATE(fecha_hora_programada) = DATE('now', '-1 day') 
+        AND (estado = 'PENDIENTE' OR estado = 'REPROGRAMADA')
+    """)
+    suspend fun updatePreviousDayPendingAppointmentsToNoShow(timestamp: LocalDateTime): Int
 
     // Consultas para sincronización
     @Query("SELECT * FROM consultas WHERE updated_at > :timestamp")

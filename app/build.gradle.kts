@@ -96,4 +96,10 @@ dependencies {
     implementation(libs.lottie)
     // Button speed dial
     implementation("com.leinardi.android:speed-dial:3.3.0")
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+    // Hilt Work
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
 }

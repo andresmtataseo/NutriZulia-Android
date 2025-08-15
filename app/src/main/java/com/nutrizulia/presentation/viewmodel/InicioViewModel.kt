@@ -30,7 +30,9 @@ data class DatosUsuario(
 
 data class CitasDelDia(
     val programadas: Int,
-    val completadas: Int
+    val completadas: Int,
+    val sinPreviaCita: Int,
+    val canceladas: Int
 )
 
 @HiltViewModel
@@ -134,7 +136,9 @@ class InicioViewModel @Inject constructor(
             _citasDelDiaDetalle.value = citasHoy
             _citasDelDia.value = CitasDelDia(
                 programadas = citasHoy.size,
-                completadas = citasHoy.count { it.estado == "REALIZADA" || it.estado == "COMPLETADA" }
+                completadas = citasHoy.count { it.estado == "REALIZADA" || it.estado == "COMPLETADA" },
+                sinPreviaCita = citasHoy.count { it.estado == "SIN_PREVIA_CITA" },
+                canceladas = citasHoy.count { it.estado == "CANCELADA" }
             )
             
             // Por ahora, notificaciones pendientes será 0 (se puede implementar después)

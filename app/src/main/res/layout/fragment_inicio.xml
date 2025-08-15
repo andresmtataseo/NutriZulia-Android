@@ -233,14 +233,14 @@
                             android:id="@+id/tvNombrePacienteProximaConsulta"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="María González"
+                            android:text="No hay consultas"
                             android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
                         <TextView
                             android:id="@+id/tvFechaHoraProximaConsulta"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Hoy, 2:30 PM"
+                            android:text=""
                             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                             android:textColor="?attr/colorOnSurfaceVariant" />
 
@@ -255,13 +255,15 @@
 
                     </LinearLayout>
 
+                    <!-- Divisor -->
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp" />
+
                 </LinearLayout>
 
-                <!-- Divisor -->
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="8dp" />
+
 
                 <!-- Estadísticas del Día -->
                 <TextView
@@ -381,6 +383,115 @@
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Citas Programadas -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginEnd="8dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginEnd="8dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardBackgroundColor="@color/md_theme_onSecondaryContainer">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_menu_consultas"
+                                android:contentDescription="Citas programadas"
+                                app:tint="@color/md_theme_secondaryContainer" />
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Sin previa cita"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
+
+                            <TextView
+                                android:id="@+id/tvSinPreviaCita"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                                android:textColor="@color/md_theme_onSecondaryContainer"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Citas Completadas -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginStart="8dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginEnd="8dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardBackgroundColor="@color/md_theme_onErrorContainer">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_calendar_lock"
+                                android:contentDescription="Citas completadas"
+                                app:tint="@color/md_theme_errorContainer" />
+
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Canceladas"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
+
+                            <TextView
+                                android:id="@+id/tvCanceladas"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                                android:textColor="@color/md_theme_errorContainer_highContrast"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
@@ -427,7 +538,7 @@
                             android:layout_gravity="center"
                             android:src="@drawable/ic_menu_consultas"
                             android:contentDescription="Total consultas"
-                            app:tint="@color/md_theme_primaryContainer" />
+                            app:tint="@color/md_theme_onSecondaryContainer" />
 
                     </com.google.android.material.card.MaterialCardView>
 

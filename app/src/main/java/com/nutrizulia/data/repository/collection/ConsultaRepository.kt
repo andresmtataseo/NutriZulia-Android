@@ -54,6 +54,15 @@ class ConsultaRepository @Inject constructor(
         return consultaDao.updateEstadoById(id, estado)
     }
 
+    suspend fun findPreviousDayPendingAppointments(): List<Consulta> {
+        return consultaDao.findPreviousDayPendingAppointments().map { it.toDomain() }
+    }
+
+    suspend fun updatePreviousDayPendingAppointmentsToNoShow(): Int {
+        val timestamp: LocalDateTime = LocalDateTime.now()
+        return consultaDao.updatePreviousDayPendingAppointmentsToNoShow(timestamp)
+    }
+
     suspend fun sincronizarConsultasBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
             val consultasPendientes = consultaDao.findAllNotSynced(usuarioInstitucionId)

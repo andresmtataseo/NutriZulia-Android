@@ -74,6 +74,8 @@ class InicioFragment : Fragment() {
             citas?.let {
                 binding.tvCitasProgramadas.text = it.programadas.toString()
                 binding.tvCitasCompletadas.text = it.completadas.toString()
+                binding.tvSinPreviaCita.text = it.sinPreviaCita.toString()
+                binding.tvCanceladas.text = it.canceladas.toString()
             }
         }
 
