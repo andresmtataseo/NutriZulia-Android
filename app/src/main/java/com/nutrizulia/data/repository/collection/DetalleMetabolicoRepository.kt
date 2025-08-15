@@ -27,13 +27,13 @@ class DetalleMetabolicoRepository @Inject constructor(
         return dao.findByConsultaId(consultaId)?.toDomain()
     }
 
-    suspend fun findAllNotSynced(): Int {
-        return dao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return dao.countNotSynced(usuarioInstitucionId)
     }
 
-    suspend fun sincronizarDetallesMetabolicosBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarDetallesMetabolicosBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val metabolicosPendientes = dao.findAllNotSynced()
+            val metabolicosPendientes = dao.findAllNotSynced(usuarioInstitucionId)
             if (metabolicosPendientes.isEmpty()) {
                 return SyncResult.Success(
                     BatchSyncResult(),
@@ -77,6 +77,7 @@ class DetalleMetabolicoRepository @Inject constructor(
     /**
      * Sincronización completa de detalles metabólicos desde el backend
      * Recupera todos los detalles del usuario y los guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncDetallesMetabolicos(): SyncResult<Int> {

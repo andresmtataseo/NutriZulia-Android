@@ -20,8 +20,8 @@ class RepresentanteRepository @Inject constructor(
     private val batchApi: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ) {
-    suspend fun findAllNotSynced(): Int {
-        return dao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return dao.countNotSynced(usuarioInstitucionId)
     }
 
     suspend fun findAll(idUsuarioInstitucion: Int): List<Representante> {
@@ -44,9 +44,9 @@ class RepresentanteRepository @Inject constructor(
         return dao.findById(usuarioInstitucionId, representanteId)?.toDomain()
     }
 
-    suspend fun sincronizarRepresentantesBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarRepresentantesBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val representantesPendientes = dao.findAllNotSynced()
+            val representantesPendientes = dao.findAllNotSynced(usuarioInstitucionId)
             if (representantesPendientes.isEmpty()) {
                 return SyncResult.Success(
                     BatchSyncResult(),
@@ -90,6 +90,7 @@ class RepresentanteRepository @Inject constructor(
     /**
      * Sincronización completa de representantes desde el backend
      * Recupera todos los representantes del usuario y los guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncRepresentantes(): SyncResult<Int> {

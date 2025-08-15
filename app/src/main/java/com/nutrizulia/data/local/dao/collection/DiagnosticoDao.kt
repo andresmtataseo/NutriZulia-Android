@@ -14,11 +14,11 @@ interface DiagnosticoDao {
     @Query("SELECT * FROM diagnosticos WHERE consulta_id = :consultaId AND is_deleted = 0")
     suspend fun findByConsultaId(consultaId: String): List<DiagnosticoEntity>
 
-    @Query("SELECT * FROM diagnosticos WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<DiagnosticoEntity>
+    @Query("SELECT d.* FROM diagnosticos d INNER JOIN consultas c ON d.consulta_id = c.id WHERE d.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<DiagnosticoEntity>
 
-    @Query("SELECT COUNT(*) FROM diagnosticos WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM diagnosticos d INNER JOIN consultas c ON d.consulta_id = c.id WHERE d.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Insert
     suspend fun insert(diagnostico: DiagnosticoEntity): Long

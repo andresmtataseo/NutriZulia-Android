@@ -20,11 +20,11 @@ interface PacienteRepresentanteDao {
     @Query("SELECT COUNT(paciente_id) FROM pacientes_representantes WHERE usuario_institucion_id = :usuarioInstitucionId AND representante_id = :representanteId AND is_deleted = 0")
     suspend fun countPacienteIdByUsuarioInstitucionIdAndRepresentanteId(usuarioInstitucionId: Int, representanteId: String): Int
 
-    @Query("SELECT * FROM pacientes_representantes WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<PacienteRepresentanteEntity>
+    @Query("SELECT * FROM pacientes_representantes WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<PacienteRepresentanteEntity>
 
-    @Query("SELECT COUNT(*) FROM pacientes_representantes WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM pacientes_representantes WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Upsert
     suspend fun upsert(pacienteRepresentante: PacienteRepresentanteEntity)

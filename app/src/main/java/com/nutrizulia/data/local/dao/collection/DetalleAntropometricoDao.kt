@@ -17,11 +17,11 @@ interface DetalleAntropometricoDao {
     @Query("SELECT * FROM detalles_antropometricos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleAntropometricoEntity>
 
-    @Query("SELECT * FROM detalles_antropometricos WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<DetalleAntropometricoEntity>
+    @Query("SELECT da.* FROM detalles_antropometricos da INNER JOIN consultas c ON da.consulta_id = c.id WHERE da.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<DetalleAntropometricoEntity>
 
-    @Query("SELECT COUNT(*) FROM detalles_antropometricos WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM detalles_antropometricos da INNER JOIN consultas c ON da.consulta_id = c.id WHERE da.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Insert
     suspend fun insert(detalleAntropometrico: DetalleAntropometricoEntity): Long

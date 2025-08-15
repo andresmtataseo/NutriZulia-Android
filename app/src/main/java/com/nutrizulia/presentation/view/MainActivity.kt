@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
     private fun mostrar() {
         mostrarAlerta(
             context = this,
-            title = "Error de autenticación",
+            title = "Error",
             message = "No hay datos del usuario o la institución. Por favor, inicie sesión nuevamente.",
             positiveButtonText = "Cerrar sesión",
             onAcknowledge = {

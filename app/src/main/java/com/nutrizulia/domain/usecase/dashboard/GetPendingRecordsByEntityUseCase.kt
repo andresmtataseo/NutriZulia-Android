@@ -12,6 +12,8 @@ import com.nutrizulia.data.repository.collection.DetalleObstetriciaRepository
 import com.nutrizulia.data.repository.collection.DetallePediatricoRepository
 import com.nutrizulia.data.repository.collection.DetalleVitalRepository
 import com.nutrizulia.data.repository.collection.EvaluacionAntropometricaRepository
+import com.nutrizulia.util.SessionManager
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 data class PendingRecordsByEntity(
@@ -39,22 +41,27 @@ class GetPendingRecordsByEntityUseCase @Inject constructor(
     private val detalleObstetriciaRepository: DetalleObstetriciaRepository,
     private val detallePediatricoRepository: DetallePediatricoRepository,
     private val detalleVitalRepository: DetalleVitalRepository,
-    private val evaluacionAntropometricaRepository: EvaluacionAntropometricaRepository
+    private val evaluacionAntropometricaRepository: EvaluacionAntropometricaRepository,
+    private val sessionManager: SessionManager
 ) {
     suspend operator fun invoke(): PendingRecordsByEntity {
         return try {
-            val pacientesPendientes = pacienteRepository.findAllNotSynced()
-            val consultasPendientes = consultaRepository.findAllNotSynced()
-            val actividadesPendientes = actividadRepository.findAllNotSynced()
-            val representantesPendientes = representanteRepository.findAllNotSynced()
-            val pacienteRepresentantePendientes = pacienteRepresentanteRepository.findAllNotSynced()
-            val diagnosticosPendientes = diagnosticoRepository.findAllNotSynced()
-            val detalleAntropometricoPendientes = detalleAntropometricoRepository.findAllNotSynced()
-            val detalleMetabolicoPendientes = detalleMetabolicoRepository.findAllNotSynced()
-            val detalleObstetriciaPendientes = detalleObstetriciaRepository.findAllNotSynced()
-            val detallePediatricoPendientes = detallePediatricoRepository.findAllNotSynced()
-            val detalleVitalPendientes = detalleVitalRepository.findAllNotSynced()
-            val evaluacionAntropometricaPendientes = evaluacionAntropometricaRepository.findAllNotSynced()
+            // Obtener el ID de la institución actual
+            val usuarioInstitucionId = sessionManager.currentInstitutionIdFlow.firstOrNull()
+                ?: return PendingRecordsByEntity(0, 0, 0, 0, 0, 0) // Si no hay institución seleccionada, no hay registros pendientes
+            
+            val pacientesPendientes = pacienteRepository.findAllNotSynced(usuarioInstitucionId)
+            val consultasPendientes = consultaRepository.findAllNotSynced(usuarioInstitucionId)
+            val actividadesPendientes = actividadRepository.findAllNotSynced(usuarioInstitucionId)
+            val representantesPendientes = representanteRepository.findAllNotSynced(usuarioInstitucionId)
+            val pacienteRepresentantePendientes = pacienteRepresentanteRepository.findAllNotSynced(usuarioInstitucionId)
+            val diagnosticosPendientes = diagnosticoRepository.findAllNotSynced(usuarioInstitucionId)
+            val detalleAntropometricoPendientes = detalleAntropometricoRepository.findAllNotSynced(usuarioInstitucionId)
+            val detalleMetabolicoPendientes = detalleMetabolicoRepository.findAllNotSynced(usuarioInstitucionId)
+            val detalleObstetriciaPendientes = detalleObstetriciaRepository.findAllNotSynced(usuarioInstitucionId)
+            val detallePediatricoPendientes = detallePediatricoRepository.findAllNotSynced(usuarioInstitucionId)
+            val detalleVitalPendientes = detalleVitalRepository.findAllNotSynced(usuarioInstitucionId)
+            val evaluacionAntropometricaPendientes = evaluacionAntropometricaRepository.findAllNotSynced(usuarioInstitucionId)
             
             // Agrupar por categorías lógicas
             val pacientes = pacientesPendientes + representantesPendientes + pacienteRepresentantePendientes

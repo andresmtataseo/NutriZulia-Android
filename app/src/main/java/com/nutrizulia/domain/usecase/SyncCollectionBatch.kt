@@ -14,7 +14,9 @@ import com.nutrizulia.data.repository.collection.PacienteRepresentanteRepository
 import com.nutrizulia.data.repository.collection.RepresentanteRepository
 import com.nutrizulia.domain.model.BatchSyncResult
 import com.nutrizulia.domain.model.SyncResult
+import com.nutrizulia.util.SessionManager
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,7 +37,8 @@ class SyncCollectionBatch @Inject constructor(
     private val evaluacionRepository: EvaluacionAntropometricaRepository,
     private val pacienteRepository: PacienteRepository,
     private val pacienteRepresentanteRepository: PacienteRepresentanteRepository,
-    private val representanteRepository: RepresentanteRepository
+    private val representanteRepository: RepresentanteRepository,
+    private val sessionManager: SessionManager
 ) {
 
     /**
@@ -75,6 +78,11 @@ class SyncCollectionBatch @Inject constructor(
      */
     suspend fun invoke(): CollectionBatchSyncResults = coroutineScope {
         android.util.Log.d("SyncCollectionBatch", "=== INICIANDO SINCRONIZACIÓN BATCH ===")
+        
+        // Obtener el ID de institución actual
+        val usuarioInstitucionId = sessionManager.currentInstitutionIdFlow.firstOrNull()
+            ?: throw IllegalStateException("No hay una institución seleccionada")
+        
         val results = mutableListOf<TableSyncResult>()
         var overallSuccess = true
         var totalSuccess = 0
@@ -85,7 +93,7 @@ class SyncCollectionBatch @Inject constructor(
             android.util.Log.d("SyncCollectionBatch", "Iniciando sincronización secuencial de tablas independientes")
 
             android.util.Log.d("SyncCollectionBatch", "Sincronizando actividades...")
-            val actividadesResult = syncActividades()
+            val actividadesResult = syncActividades(usuarioInstitucionId)
             results.add(actividadesResult)
             if (!actividadesResult.isSuccess) {
                 overallSuccess = false
@@ -93,7 +101,7 @@ class SyncCollectionBatch @Inject constructor(
             }
             
             android.util.Log.d("SyncCollectionBatch", "Sincronizando representantes...")
-            val representantesResult = syncRepresentantes()
+            val representantesResult = syncRepresentantes(usuarioInstitucionId)
             results.add(representantesResult)
             if (!representantesResult.isSuccess) {
                 overallSuccess = false
@@ -101,7 +109,7 @@ class SyncCollectionBatch @Inject constructor(
             }
             
             android.util.Log.d("SyncCollectionBatch", "Sincronizando pacientes...")
-            val pacientesResult = syncPacientes()
+            val pacientesResult = syncPacientes(usuarioInstitucionId)
             results.add(pacientesResult)
             if (!pacientesResult.isSuccess) {
                 overallSuccess = false
@@ -110,7 +118,7 @@ class SyncCollectionBatch @Inject constructor(
 
             // Paso 2: Sincronizar tablas dependientes
             android.util.Log.d("SyncCollectionBatch", "Sincronizando pacientes-representantes...")
-            val pacientesRepresentantesResult = syncPacientesRepresentantes()
+            val pacientesRepresentantesResult = syncPacientesRepresentantes(usuarioInstitucionId)
             results.add(pacientesRepresentantesResult)
             if (!pacientesRepresentantesResult.isSuccess) {
                 overallSuccess = false
@@ -122,7 +130,7 @@ class SyncCollectionBatch @Inject constructor(
             
             // Paso 3.1: Sincronizar consultas primero (base para otros datos)
             android.util.Log.d("SyncCollectionBatch", "Sincronizando consultas...")
-            val consultasResult = syncConsultas()
+            val consultasResult = syncConsultas(usuarioInstitucionId)
             results.add(consultasResult)
             if (!consultasResult.isSuccess) {
                 overallSuccess = false
@@ -131,7 +139,7 @@ class SyncCollectionBatch @Inject constructor(
             
             // Paso 3.2: Sincronizar detalles (independientes entre sí)
             android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles antropométricos...")
-            val detallesAntropometricosResult = syncDetallesAntropometricos()
+            val detallesAntropometricosResult = syncDetallesAntropometricos(usuarioInstitucionId)
             results.add(detallesAntropometricosResult)
             if (!detallesAntropometricosResult.isSuccess) {
                 overallSuccess = false
@@ -139,7 +147,7 @@ class SyncCollectionBatch @Inject constructor(
             }
             
             android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles metabólicos...")
-            val detallesMetabolicosResult = syncDetallesMetabolicos()
+            val detallesMetabolicosResult = syncDetallesMetabolicos(usuarioInstitucionId)
             results.add(detallesMetabolicosResult)
             if (!detallesMetabolicosResult.isSuccess) {
                 overallSuccess = false
@@ -147,7 +155,7 @@ class SyncCollectionBatch @Inject constructor(
             }
             
             android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles obstetricia...")
-            val detallesObstetriciaResult = syncDetallesObstetricia()
+            val detallesObstetriciaResult = syncDetallesObstetricia(usuarioInstitucionId)
             results.add(detallesObstetriciaResult)
             if (!detallesObstetriciaResult.isSuccess) {
                 overallSuccess = false
@@ -155,7 +163,7 @@ class SyncCollectionBatch @Inject constructor(
             }
             
             android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles pediátricos...")
-            val detallesPediatricosResult = syncDetallesPediatricos()
+            val detallesPediatricosResult = syncDetallesPediatricos(usuarioInstitucionId)
             results.add(detallesPediatricosResult)
             if (!detallesPediatricosResult.isSuccess) {
                 overallSuccess = false
@@ -163,7 +171,7 @@ class SyncCollectionBatch @Inject constructor(
             }
             
             android.util.Log.d("SyncCollectionBatch", "Sincronizando detalles vitales...")
-            val detallesVitalesResult = syncDetallesVitales()
+            val detallesVitalesResult = syncDetallesVitales(usuarioInstitucionId)
             results.add(detallesVitalesResult)
             if (!detallesVitalesResult.isSuccess) {
                 overallSuccess = false
@@ -172,7 +180,7 @@ class SyncCollectionBatch @Inject constructor(
             
             // Paso 3.3: Sincronizar diagnósticos
             android.util.Log.d("SyncCollectionBatch", "Sincronizando diagnósticos...")
-            val diagnosticosResult = syncDiagnosticos()
+            val diagnosticosResult = syncDiagnosticos(usuarioInstitucionId)
             results.add(diagnosticosResult)
             if (!diagnosticosResult.isSuccess) {
                 overallSuccess = false
@@ -181,7 +189,7 @@ class SyncCollectionBatch @Inject constructor(
             
             // Paso 3.4: Sincronizar evaluaciones antropométricas AL FINAL (depende de detalles antropométricos)
             android.util.Log.d("SyncCollectionBatch", "Sincronizando evaluaciones antropométricas...")
-            val evaluacionesAntropometricasResult = syncEvaluacionesAntropometricas()
+            val evaluacionesAntropometricasResult = syncEvaluacionesAntropometricas(usuarioInstitucionId)
             results.add(evaluacionesAntropometricasResult)
             if (!evaluacionesAntropometricasResult.isSuccess) {
                 overallSuccess = false
@@ -254,9 +262,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncPacientes(): TableSyncResult {
+    private suspend fun syncPacientes(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = pacienteRepository.sincronizarPacientesBatch()) {
+            when (val result = pacienteRepository.sincronizarPacientesBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -306,9 +314,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncRepresentantes(): TableSyncResult {
+    private suspend fun syncRepresentantes(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = representanteRepository.sincronizarRepresentantesBatch()) {
+            when (val result = representanteRepository.sincronizarRepresentantesBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -358,9 +366,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncActividades(): TableSyncResult {
+    private suspend fun syncActividades(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = actividadesRepository.sincronizarActividadesBatch()) {
+            when (val result = actividadesRepository.sincronizarActividadesBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -410,10 +418,10 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncConsultas(): TableSyncResult {
+    private suspend fun syncConsultas(usuarioInstitucionId: Int): TableSyncResult {
         return try {
             android.util.Log.d("SyncCollectionBatch", "Iniciando sincronización de consultas")
-            when (val result = consultaRepository.sincronizarConsultasBatch()) {
+            when (val result = consultaRepository.sincronizarConsultasBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -463,9 +471,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncDetallesAntropometricos(): TableSyncResult {
+    private suspend fun syncDetallesAntropometricos(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = antropometricoRepository.sincronizarDetallesAntropometricosBatch()) {
+            when (val result = antropometricoRepository.sincronizarDetallesAntropometricosBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -515,9 +523,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncDetallesMetabolicos(): TableSyncResult {
+    private suspend fun syncDetallesMetabolicos(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = metabolicoRepository.sincronizarDetallesMetabolicosBatch()) {
+            when (val result = metabolicoRepository.sincronizarDetallesMetabolicosBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -567,9 +575,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncDetallesObstetricia(): TableSyncResult {
+    private suspend fun syncDetallesObstetricia(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = obstetriciaRepository.sincronizarDetallesObstetriciaBatch()) {
+            when (val result = obstetriciaRepository.sincronizarDetallesObstetriciaBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -619,9 +627,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncDetallesPediatricos(): TableSyncResult {
+    private suspend fun syncDetallesPediatricos(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = pediatricoRepository.sincronizarDetallesPediatricosBatch()) {
+            when (val result = pediatricoRepository.sincronizarDetallesPediatricosBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -671,9 +679,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncDetallesVitales(): TableSyncResult {
+    private suspend fun syncDetallesVitales(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = vitalRepository.sincronizarDetallesVitalesBatch()) {
+            when (val result = vitalRepository.sincronizarDetallesVitalesBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -723,9 +731,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncDiagnosticos(): TableSyncResult {
+    private suspend fun syncDiagnosticos(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = diagnosticoRepository.sincronizarDiagnosticosBatch()) {
+            when (val result = diagnosticoRepository.sincronizarDiagnosticosBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -775,9 +783,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncEvaluacionesAntropometricas(): TableSyncResult {
+    private suspend fun syncEvaluacionesAntropometricas(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = evaluacionRepository.sincronizarEvaluacionesAntropometricasBatch()) {
+            when (val result = evaluacionRepository.sincronizarEvaluacionesAntropometricasBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(
@@ -827,9 +835,9 @@ class SyncCollectionBatch @Inject constructor(
         }
     }
 
-    private suspend fun syncPacientesRepresentantes(): TableSyncResult {
+    private suspend fun syncPacientesRepresentantes(usuarioInstitucionId: Int): TableSyncResult {
         return try {
-            when (val result = pacienteRepresentanteRepository.sincronizarPacientesRepresentantesBatch()) {
+            when (val result = pacienteRepresentanteRepository.sincronizarPacientesRepresentantesBatch(usuarioInstitucionId)) {
                 is SyncResult.Success -> {
                     val batchResult = result.data
                     TableSyncResult(

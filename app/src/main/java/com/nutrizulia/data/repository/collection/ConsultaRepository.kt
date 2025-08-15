@@ -24,8 +24,8 @@ class ConsultaRepository @Inject constructor(
     private val batchApi: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ) {
-    suspend fun findAllNotSynced(): Int {
-        return consultaDao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return consultaDao.countNotSynced(usuarioInstitucionId)
     }
 
     suspend fun upsert(consulta: Consulta): Long {
@@ -54,9 +54,9 @@ class ConsultaRepository @Inject constructor(
         return consultaDao.updateEstadoById(id, estado)
     }
 
-    suspend fun sincronizarConsultasBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarConsultasBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val consultasPendientes = consultaDao.findAllNotSynced()
+            val consultasPendientes = consultaDao.findAllNotSynced(usuarioInstitucionId)
             android.util.Log.d("ConsultaRepository", "Consultas no sincronizadas encontradas: ${consultasPendientes.size}")
             if (consultasPendientes.isEmpty()) {
                 android.util.Log.d("ConsultaRepository", "No hay consultas para sincronizar")
@@ -103,6 +103,7 @@ class ConsultaRepository @Inject constructor(
     /**
      * Sincronización completa de consultas desde el backend
      * Recupera todas las consultas del usuario y las guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncConsultas(): SyncResult<Int> {

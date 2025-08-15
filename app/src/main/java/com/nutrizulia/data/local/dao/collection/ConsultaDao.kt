@@ -31,8 +31,8 @@ interface ConsultaDao {
     @Query("SELECT * FROM consultas WHERE id = :id")
     suspend fun findConsultaProgramadaById(id: String): ConsultaEntity?
 
-    @Query("SELECT COUNT(*) FROM consultas WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM consultas WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
     @Insert
     suspend fun insertAll(consultas: List<ConsultaEntity>): List<Long>
 
@@ -49,8 +49,8 @@ interface ConsultaDao {
     @Query("SELECT * FROM consultas WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<ConsultaEntity>
 
-    @Query("SELECT * FROM consultas WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<ConsultaEntity>
+    @Query("SELECT * FROM consultas WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<ConsultaEntity>
 
     @Query("""
         SELECT * FROM consultas 

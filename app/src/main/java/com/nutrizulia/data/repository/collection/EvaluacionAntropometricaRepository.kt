@@ -41,13 +41,13 @@ class EvaluacionAntropometricaRepository @Inject constructor(
         return dao.findAllByConsultaId(idConsulta).map { it.toDomain() }
     }
 
-    suspend fun findAllNotSynced(): Int {
-        return dao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return dao.countNotSynced(usuarioInstitucionId)
     }
 
-    suspend fun sincronizarEvaluacionesAntropometricasBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarEvaluacionesAntropometricasBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val evaluacionesPendientes = dao.findAllNotSynced()
+            val evaluacionesPendientes = dao.findAllNotSynced(usuarioInstitucionId)
             if (evaluacionesPendientes.isEmpty()) {
                 return SyncResult.Success(
                     BatchSyncResult(),
@@ -91,6 +91,7 @@ class EvaluacionAntropometricaRepository @Inject constructor(
     /**
      * Sincronización completa de evaluaciones antropométricas desde el backend
      * Recupera todas las evaluaciones del usuario y las guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncEvaluacionesAntropometricas(): SyncResult<Int> {

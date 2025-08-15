@@ -18,8 +18,8 @@ class ActividadRepository @Inject constructor(
     private val api: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ) {
-    suspend fun findAllNotSynced(): Int {
-        return dao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return dao.countNotSynced(usuarioInstitucionId)
     }
 
     suspend fun findAll(usuarioInstitucionId: Int): List<ActividadConTipo> {
@@ -30,9 +30,9 @@ class ActividadRepository @Inject constructor(
         return dao.findAllByUsuarioInstitucionIdAndFilter(usuarioInstitucionId, filtro)
     }
 
-    suspend fun sincronizarActividadesBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarActividadesBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val actividadesPendientes = dao.findAllNotSynced()
+            val actividadesPendientes = dao.findAllNotSynced(usuarioInstitucionId)
             android.util.Log.d("ActividadRepository", "Actividades no sincronizadas encontradas: ${actividadesPendientes.size}")
             if (actividadesPendientes.isEmpty()) {
                 android.util.Log.d("ActividadRepository", "No hay consultas para sincronizar")
@@ -79,6 +79,7 @@ class ActividadRepository @Inject constructor(
     /**
      * Sincronización completa de actividades desde el backend
      * Recupera todas las actividades del usuario y las guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncActividades(): SyncResult<Int> {

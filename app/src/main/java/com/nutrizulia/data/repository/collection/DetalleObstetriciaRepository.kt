@@ -27,13 +27,13 @@ class DetalleObstetriciaRepository @Inject constructor(
         return dao.findByConsultaId(ConsultaId)?.toDomain()
     }
 
-    suspend fun findAllNotSynced(): Int {
-        return dao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return dao.countNotSynced(usuarioInstitucionId)
     }
 
-    suspend fun sincronizarDetallesObstetriciaBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarDetallesObstetriciaBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val obstetriciasPendientes = dao.findAllNotSynced()
+            val obstetriciasPendientes = dao.findAllNotSynced(usuarioInstitucionId)
             if (obstetriciasPendientes.isEmpty()) {
                 return SyncResult.Success(
                     BatchSyncResult(),
@@ -77,6 +77,7 @@ class DetalleObstetriciaRepository @Inject constructor(
     /**
      * Sincronización completa de detalles obstétricos desde el backend
      * Recupera todos los detalles del usuario y los guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncDetallesObstetricia(): SyncResult<Int> {

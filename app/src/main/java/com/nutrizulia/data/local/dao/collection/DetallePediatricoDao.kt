@@ -17,11 +17,11 @@ interface DetallePediatricoDao {
     @Query("SELECT * FROM detalles_pediatricos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetallePediatricoEntity>
 
-    @Query("SELECT * FROM detalles_pediatricos WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<DetallePediatricoEntity>
+    @Query("SELECT dp.* FROM detalles_pediatricos dp INNER JOIN consultas c ON dp.consulta_id = c.id WHERE dp.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<DetallePediatricoEntity>
 
-    @Query("SELECT COUNT(*) FROM detalles_pediatricos WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM detalles_pediatricos dp INNER JOIN consultas c ON dp.consulta_id = c.id WHERE dp.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Insert
     suspend fun insert(detallePediatrico: DetallePediatricoEntity): Long

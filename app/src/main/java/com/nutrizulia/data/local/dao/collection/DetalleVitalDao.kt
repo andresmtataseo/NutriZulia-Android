@@ -17,11 +17,11 @@ interface DetalleVitalDao {
     @Query("SELECT * FROM detalles_vitales WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleVitalEntity>
 
-    @Query("SELECT * FROM detalles_vitales WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<DetalleVitalEntity>
+    @Query("SELECT dv.* FROM detalles_vitales dv INNER JOIN consultas c ON dv.consulta_id = c.id WHERE dv.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<DetalleVitalEntity>
 
-    @Query("SELECT COUNT(*) FROM detalles_vitales WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM detalles_vitales dv INNER JOIN consultas c ON dv.consulta_id = c.id WHERE dv.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Insert
     suspend fun insert(detalleVital: DetalleVitalEntity): Long

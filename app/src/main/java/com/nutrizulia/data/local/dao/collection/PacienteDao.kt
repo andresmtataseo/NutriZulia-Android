@@ -30,11 +30,11 @@ interface PacienteDao {
     @Query("SELECT * FROM pacientes WHERE id = :id AND usuario_institucion_id = :usuarioInstitucionId")
     suspend fun findById(usuarioInstitucionId: Int, id: String): PacienteEntity?
 
-    @Query("SELECT * FROM pacientes WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<PacienteEntity>
+    @Query("SELECT * FROM pacientes WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<PacienteEntity>
 
-    @Query("SELECT COUNT(*) FROM pacientes WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM pacientes WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Upsert
     suspend fun upsert(paciente: PacienteEntity): Long

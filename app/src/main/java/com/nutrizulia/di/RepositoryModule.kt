@@ -13,6 +13,7 @@ import com.nutrizulia.data.repository.collection.DetallePediatricoRepository
 import com.nutrizulia.data.repository.collection.DetalleVitalRepository
 import com.nutrizulia.data.repository.collection.DiagnosticoRepository
 import com.nutrizulia.data.repository.collection.EvaluacionAntropometricaRepository
+import com.nutrizulia.util.SessionManager
 import com.nutrizulia.data.repository.collection.PacienteRepository
 import com.nutrizulia.data.repository.collection.PacienteRepresentanteRepository
 import com.nutrizulia.data.repository.collection.RepresentanteRepository
@@ -52,7 +53,8 @@ object RepositoryModule {
         evaluacionRepository: EvaluacionAntropometricaRepository,
         pacienteRepresentanteRepository: PacienteRepresentanteRepository,
         representanteRepository: RepresentanteRepository,
-        actividadRepository: ActividadRepository
+        actividadRepository: ActividadRepository,
+        sessionManager: SessionManager
     ): SyncCollectionBatch {
         return SyncCollectionBatch(
             pacienteRepository = pacienteRepository,
@@ -66,7 +68,8 @@ object RepositoryModule {
             evaluacionRepository = evaluacionRepository,
             pacienteRepresentanteRepository = pacienteRepresentanteRepository,
             representanteRepository = representanteRepository,
-            actividadesRepository = actividadRepository
+            actividadesRepository = actividadRepository,
+            sessionManager = sessionManager
         )
     }
 }

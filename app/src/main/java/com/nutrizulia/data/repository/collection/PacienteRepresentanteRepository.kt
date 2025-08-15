@@ -32,13 +32,13 @@ class PacienteRepresentanteRepository @Inject constructor(
         return pacienteRepresentanteDao.upsert(pacienteRepresentante.toEntity())
     }
 
-    suspend fun findAllNotSynced(): Int {
-        return pacienteRepresentanteDao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return pacienteRepresentanteDao.countNotSynced(usuarioInstitucionId)
     }
 
-    suspend fun sincronizarPacientesRepresentantesBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarPacientesRepresentantesBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val pacientesRepresentantesPendientes = pacienteRepresentanteDao.findAllNotSynced()
+            val pacientesRepresentantesPendientes = pacienteRepresentanteDao.findAllNotSynced(usuarioInstitucionId)
             if (pacientesRepresentantesPendientes.isEmpty()) {
                 return SyncResult.Success(
                     BatchSyncResult(),
@@ -82,6 +82,7 @@ class PacienteRepresentanteRepository @Inject constructor(
     /**
      * Sincronización completa de pacientes-representantes desde el backend
      * Recupera todas las relaciones del usuario y las guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncPacientesRepresentantes(): SyncResult<Int> {

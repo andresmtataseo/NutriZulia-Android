@@ -25,8 +25,8 @@ interface RepresentanteDao {
     @Upsert
     suspend fun upsert(representante: RepresentanteEntity)
 
-    @Query("SELECT COUNT(*) FROM representantes WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM representantes WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Query("SELECT * FROM representantes WHERE usuario_institucion_id = :usuarioInstitucionId AND cedula = :cedula")
     suspend fun findByCedula(usuarioInstitucionId: Int, cedula: String): RepresentanteEntity?
@@ -38,8 +38,8 @@ interface RepresentanteDao {
     @Query("SELECT * FROM representantes WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<RepresentanteEntity>
 
-    @Query("SELECT * FROM representantes WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<RepresentanteEntity>
+    @Query("SELECT * FROM representantes WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<RepresentanteEntity>
 
     @Query("UPDATE representantes SET is_synced = 1, updated_at = :updatedAt WHERE id = :id")
     suspend fun markAsSynced(id: String, updatedAt: LocalDateTime): Int

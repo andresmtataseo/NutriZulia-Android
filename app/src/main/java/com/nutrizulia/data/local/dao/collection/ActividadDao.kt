@@ -29,8 +29,8 @@ interface ActividadDao {
     @Insert
     suspend fun insert(actividad: ActividadEntity): Long
 
-    @Query("SELECT COUNT(*) FROM actividades WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM actividades WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Update
     suspend fun update(actividad: ActividadEntity): Int
@@ -41,8 +41,8 @@ interface ActividadDao {
     @Upsert
     suspend fun upsertAll(actividades: List<ActividadEntity>)
 
-    @Query("SELECT * FROM actividades WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<ActividadEntity>
+    @Query("SELECT * FROM actividades WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<ActividadEntity>
 
     @Query("UPDATE actividades SET is_synced = 1, updated_at = :timestamp WHERE id = :id")
     suspend fun markAsSynced(id: String, timestamp: LocalDateTime)

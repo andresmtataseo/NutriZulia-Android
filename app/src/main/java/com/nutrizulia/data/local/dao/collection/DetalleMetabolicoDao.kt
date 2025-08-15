@@ -17,11 +17,11 @@ interface DetalleMetabolicoDao {
     @Query("SELECT * FROM detalles_metabolicos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleMetabolicoEntity>
 
-    @Query("SELECT * FROM detalles_metabolicos WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<DetalleMetabolicoEntity>
+    @Query("SELECT dm.* FROM detalles_metabolicos dm INNER JOIN consultas c ON dm.consulta_id = c.id WHERE dm.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<DetalleMetabolicoEntity>
 
-    @Query("SELECT COUNT(*) FROM detalles_metabolicos WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM detalles_metabolicos dm INNER JOIN consultas c ON dm.consulta_id = c.id WHERE dm.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Insert
     suspend fun insert(detalleMetabolico: DetalleMetabolicoEntity): Long

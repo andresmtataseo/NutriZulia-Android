@@ -17,11 +17,11 @@ interface DetalleObstetriciaDao {
     @Query("SELECT * FROM detalles_obstetricias WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleObstetriciaEntity>
 
-    @Query("SELECT * FROM detalles_obstetricias WHERE is_synced = 0")
-    suspend fun findAllNotSynced(): List<DetalleObstetriciaEntity>
+    @Query("SELECT dob.* FROM detalles_obstetricias dob INNER JOIN consultas c ON dob.consulta_id = c.id WHERE dob.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<DetalleObstetriciaEntity>
 
-    @Query("SELECT COUNT(*) FROM detalles_obstetricias WHERE is_synced = 0")
-    suspend fun countNotSynced(): Int
+    @Query("SELECT COUNT(*) FROM detalles_obstetricias dob INNER JOIN consultas c ON dob.consulta_id = c.id WHERE dob.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
     @Insert
     suspend fun insert(detalleObstetricia: DetalleObstetriciaEntity): Long

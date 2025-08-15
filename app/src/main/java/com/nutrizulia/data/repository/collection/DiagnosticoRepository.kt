@@ -34,13 +34,13 @@ class DiagnosticoRepository @Inject constructor(
         return dao.findByConsultaId(consultaId).map { it.toDomain() }
     }
 
-    suspend fun findAllNotSynced(): Int {
-        return dao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return dao.countNotSynced(usuarioInstitucionId)
     }
 
-    suspend fun sincronizarDiagnosticosBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarDiagnosticosBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val diagnosticosPendientes = dao.findAllNotSynced()
+            val diagnosticosPendientes = dao.findAllNotSynced(usuarioInstitucionId)
             if (diagnosticosPendientes.isEmpty()) {
                 return SyncResult.Success(
                     BatchSyncResult(),
@@ -84,6 +84,7 @@ class DiagnosticoRepository @Inject constructor(
     /**
      * Sincronización completa de diagnósticos desde el backend
      * Recupera todos los diagnósticos del usuario y los guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncDiagnosticos(): SyncResult<Int> {

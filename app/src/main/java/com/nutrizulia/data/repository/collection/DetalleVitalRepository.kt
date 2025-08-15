@@ -28,13 +28,13 @@ class DetalleVitalRepository @Inject constructor(
         return dao.findByConsultaId(consultaId)?.toDomain()
     }
 
-    suspend fun findAllNotSynced(): Int {
-        return dao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return dao.countNotSynced(usuarioInstitucionId)
     }
 
-    suspend fun sincronizarDetallesVitalesBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarDetallesVitalesBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val detallesVitalesPendientes = dao.findAllNotSynced()
+            val detallesVitalesPendientes = dao.findAllNotSynced(usuarioInstitucionId)
             if (detallesVitalesPendientes.isEmpty()) {
                 return SyncResult.Success(
                     BatchSyncResult(),
@@ -79,6 +79,7 @@ class DetalleVitalRepository @Inject constructor(
     /**
      * Sincronización completa de detalles vitales desde el backend
      * Recupera todos los detalles del usuario y los guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncDetallesVitales(): SyncResult<Int> {

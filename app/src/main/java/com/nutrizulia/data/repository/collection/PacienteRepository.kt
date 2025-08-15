@@ -45,13 +45,13 @@ class PacienteRepository @Inject constructor(
         return pacienteDao.findAllByUsuarioInstitucionIdAndFilter( usuarioInstitucionId, query).map { it.toDomain() }
     }
 
-    suspend fun findAllNotSynced(): Int {
-        return pacienteDao.countNotSynced()
+    suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
+        return pacienteDao.countNotSynced(usuarioInstitucionId)
     }
 
-    suspend fun sincronizarPacientesBatch(): SyncResult<BatchSyncResult> {
+    suspend fun sincronizarPacientesBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
-            val pacientesPendientes = pacienteDao.findAllNotSynced()
+            val pacientesPendientes = pacienteDao.findAllNotSynced(usuarioInstitucionId)
             Log.d("PacienteRepository", "Pacientes no sincronizados encontrados: ${pacientesPendientes.size}")
             if (pacientesPendientes.isEmpty()) {
                 Log.d("PacienteRepository", "No hay pacientes para sincronizar")
@@ -110,6 +110,7 @@ class PacienteRepository @Inject constructor(
     /**
      * Sincronización completa de pacientes desde el backend
      * Recupera todos los pacientes del usuario y los guarda localmente
+     * @param usuarioInstitucionId ID de la institución del usuario
      * @return SyncResult<Int> con el número de registros procesados
      */
     suspend fun fullSyncPacientes(): SyncResult<Int> {

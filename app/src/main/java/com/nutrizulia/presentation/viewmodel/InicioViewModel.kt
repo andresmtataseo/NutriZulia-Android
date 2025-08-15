@@ -102,7 +102,7 @@ class InicioViewModel @Inject constructor(
                     }
                 }
                 
-                // Cargar archivos pendientes (no depende de la institución)
+                // Cargar archivos pendientes para la institución actual
                 loadArchivosPendientes()
                 
             } catch (e: Exception) {
