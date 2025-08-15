@@ -27,6 +27,24 @@ class CatalogRepository @Inject constructor(
             val remoteVersions = versionResponse.body()?.data.orEmpty()
             val allResults = mutableListOf<CatalogSyncResult>()
 
+            // --- PASO 0: Sincronización Prioritaria de la Tabla de Versiones ---
+            // Primero sincronizamos la tabla de versiones para asegurar que esté completamente actualizada
+            val versionTable = remoteVersions.find { it.nombreTabla == "version" }
+            if (versionTable != null) {
+                val versionSyncResult = syncers["version"]?.sync(versionTable)
+                    ?: CatalogSyncResult("version", isSuccess = false, message = "No syncer found for version table.")
+                allResults.add(versionSyncResult)
+                
+                // Si la sincronización de versiones falla, no continuamos con otros catálogos
+                if (!versionSyncResult.isSuccess) {
+                    return@withContext allResults + CatalogSyncResult(
+                        "all_catalogs", 
+                        isSuccess = false, 
+                        message = "Version table sync failed, aborting catalog synchronization."
+                    )
+                }
+            }
+
             // --- Lotes de Sincronización con Orden de Dependencia Corregido ---
 
             // Lote 1: Catálogos verdaderamente independientes.
@@ -55,15 +73,18 @@ class CatalogRepository @Inject constructor(
             )
 
             // --- Ejecución Secuencial de Lotes ---
-            allResults.addAll(syncBatch(remoteVersions.filter { it.nombreTabla in batch1_Independents }))
-            allResults.addAll(syncBatch(remoteVersions.filter { it.nombreTabla in batch2_Locations_L1 }))
-            allResults.addAll(syncBatch(remoteVersions.filter { it.nombreTabla in batch3_Locations_L2 }))
-            allResults.addAll(syncBatch(remoteVersions.filter { it.nombreTabla in batch4_Locations_L3 }))
-            allResults.addAll(syncBatch(remoteVersions.filter { it.nombreTabla in batch5_Dependents }))
+            // Excluimos la tabla "version" ya que fue sincronizada en el paso 0
+            val catalogsToSync = remoteVersions.filter { it.nombreTabla != "version" }
+            
+            allResults.addAll(syncBatch(catalogsToSync.filter { it.nombreTabla in batch1_Independents }))
+            allResults.addAll(syncBatch(catalogsToSync.filter { it.nombreTabla in batch2_Locations_L1 }))
+            allResults.addAll(syncBatch(catalogsToSync.filter { it.nombreTabla in batch3_Locations_L2 }))
+            allResults.addAll(syncBatch(catalogsToSync.filter { it.nombreTabla in batch4_Locations_L3 }))
+            allResults.addAll(syncBatch(catalogsToSync.filter { it.nombreTabla in batch5_Dependents }))
 
-            // Sincronizar cualquier tabla restante que no esté en los lotes.
-            val allBatchedTables = batch1_Independents + batch2_Locations_L1 + batch3_Locations_L2 + batch4_Locations_L3 + batch5_Dependents
-            val remainingTables = remoteVersions.filter { it.nombreTabla !in allBatchedTables }
+            // Sincronizar cualquier tabla restante que no esté en los lotes (excluyendo "version")
+            val allBatchedTables = batch1_Independents + batch2_Locations_L1 + batch3_Locations_L2 + batch4_Locations_L3 + batch5_Dependents + setOf("version")
+            val remainingTables = catalogsToSync.filter { it.nombreTabla !in allBatchedTables }
             if (remainingTables.isNotEmpty()) {
                 allResults.addAll(syncBatch(remainingTables))
             }

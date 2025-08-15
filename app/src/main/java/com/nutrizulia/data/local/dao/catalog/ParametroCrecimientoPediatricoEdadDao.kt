@@ -3,6 +3,7 @@ package com.nutrizulia.data.local.dao.catalog
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.catalog.ParametroCrecimientoPediatricoEdadEntity
 
@@ -24,6 +25,9 @@ interface ParametroCrecimientoPediatricoEdadDao {
     ): List<ParametroCrecimientoPediatricoEdadEntity>
     @Insert
     suspend fun insertAll(parametros: List<ParametroCrecimientoPediatricoEdadEntity>): List<Long>
+
+    @Transaction
+
 
     @Upsert
     suspend fun upsertAll(parametros: List<ParametroCrecimientoPediatricoEdadEntity>): List<Long>

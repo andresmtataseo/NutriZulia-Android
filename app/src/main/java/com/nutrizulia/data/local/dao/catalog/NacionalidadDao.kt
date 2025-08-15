@@ -3,6 +3,7 @@ package com.nutrizulia.data.local.dao.catalog
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.catalog.NacionalidadEntity
 
@@ -17,6 +18,9 @@ interface NacionalidadDao {
 
     @Insert
     suspend fun insertAll(nacionalidades: List<NacionalidadEntity>): List<Long>
+
+    @Transaction
+
 
     @Upsert
     suspend fun upsertAll(nacionalidades: List<NacionalidadEntity>): List<Long>

@@ -3,6 +3,7 @@ package com.nutrizulia.data.local.dao.catalog
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.catalog.ReglaInterpretacionPercentilEntity
 
@@ -14,6 +15,9 @@ interface ReglaInterpretacionPercentilDao {
 
     @Insert
     suspend fun insertAll(reglas: List<ReglaInterpretacionPercentilEntity>): List<Long>
+
+    @Transaction
+
 
     @Upsert
     suspend fun upsertAll(reglas: List<ReglaInterpretacionPercentilEntity>): List<Long>

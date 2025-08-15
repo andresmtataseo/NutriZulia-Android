@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.catalog.VersionEntity
@@ -17,6 +18,7 @@ interface VersionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(version: VersionEntity)
 
+    @Transaction
     @Upsert
     suspend fun upsertAll(version: List<VersionEntity>)
     @Query("DELETE FROM version")

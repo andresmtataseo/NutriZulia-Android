@@ -3,6 +3,7 @@ package com.nutrizulia.data.local.dao.catalog
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.catalog.EstadoEntity
 
@@ -18,6 +19,7 @@ interface EstadoDao {
     @Insert
     suspend fun insertAll(estados: List<EstadoEntity>): List<Long>
 
+    @Transaction
     @Upsert
     suspend fun upsertAll(estados: List<EstadoEntity>): List<Long>
 
