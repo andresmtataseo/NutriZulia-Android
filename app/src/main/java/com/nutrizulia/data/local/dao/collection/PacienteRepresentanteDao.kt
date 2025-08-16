@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 @Dao
 interface PacienteRepresentanteDao {
 
-    @Query("SELECT * FROM pacientes_representantes WHERE paciente_id = :pacienteId")
+    @Query("SELECT * FROM pacientes_representantes WHERE paciente_id = :pacienteId AND is_deleted = 0")
     suspend fun findByPacienteId(pacienteId: String): PacienteRepresentanteEntity?
 
     @Query("SELECT * FROM pacientes_representantes WHERE updated_at > :timestamp")

@@ -464,6 +464,12 @@ class RegistrarPacienteViewModel @Inject constructor(
                     return@launch
                 }
                 _idUsuarioInstitucion.postValue(institutionId)
+                
+                // Marcar representante anterior como eliminado si existe
+                _paciente.value?.let { paciente ->
+                    marcarRepresentanteAnteriorComoEliminado(paciente.id)
+                }
+                
                 coroutineScope {
                     val representanteJob = if (representanteId.isNotBlank()) async { obtenerRepresentante(representanteId, parentescoId) } else null
                     representanteJob?.await()
@@ -558,6 +564,24 @@ class RegistrarPacienteViewModel @Inject constructor(
     fun permitirCambioRepresentante(): Boolean {
         // Permitir cambio de representante si el paciente no es cedulado
         return _esCedulado.value == false
+    }
+    
+    private suspend fun marcarRepresentanteAnteriorComoEliminado(pacienteId: String) {
+        try {
+            val pacienteRepresentanteAnterior = getPacienteRepresentanteByPacienteId(pacienteId)
+            if (pacienteRepresentanteAnterior != null && !pacienteRepresentanteAnterior.isDeleted) {
+                // Marcar como eliminado y no sincronizado
+                val pacienteRepresentanteEliminado = pacienteRepresentanteAnterior.copy(
+                    isDeleted = true,
+                    isSynced = false,
+                    updatedAt = LocalDateTime.now()
+                )
+                savePacienteRepresentante(pacienteRepresentanteEliminado)
+            }
+        } catch (e: Exception) {
+            // Log del error pero no interrumpir el flujo
+            println("Error al marcar representante anterior como eliminado: ${e.message}")
+        }
     }
 
 }
