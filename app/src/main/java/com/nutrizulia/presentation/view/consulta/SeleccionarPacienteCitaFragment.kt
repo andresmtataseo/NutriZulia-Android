@@ -7,9 +7,11 @@ import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.search.SearchView
 import com.nutrizulia.databinding.FragmentSeleccionarPacienteCitaBinding
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.presentation.adapter.PacienteAdapter
@@ -18,6 +20,9 @@ import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SeleccionarPacienteCitaFragment : Fragment() {
@@ -27,6 +32,7 @@ class SeleccionarPacienteCitaFragment : Fragment() {
     private lateinit var binding: FragmentSeleccionarPacienteCitaBinding
     private lateinit var pacienteAdapter: PacienteAdapter
     private lateinit var pacienteFiltradoAdapter: PacienteAdapter
+    private var searchJob: Job? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSeleccionarPacienteCitaBinding.inflate(inflater, container, false)
@@ -70,25 +76,37 @@ class SeleccionarPacienteCitaFragment : Fragment() {
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
+        binding.searchView.addTransitionListener { _, _, newState ->
+            if (newState == SearchView.TransitionState.SHOWN) {
+                if (binding.searchView.getEditText().text.isNullOrBlank()) {
+                    viewModel.buscarPacientes("")
+                }
+            }
+            if (newState == SearchView.TransitionState.HIDDEN) {
+                viewModel.buscarPacientes("")
+            }
+        }
+
         binding.searchView.getEditText().addTextChangedListener { text ->
-            val query = text.toString().trim()
-            viewModel.buscarPacientes(query)
+            val query: String = text?.toString()?.trim().orEmpty()
+            searchJob?.cancel()
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                delay(400)
+                viewModel.buscarPacientes(query)
+            }
         }
     }
 
     private fun setupObservers() {
-        // Pacientes
         viewModel.pacientes.observe(viewLifecycleOwner) { pacientes ->
             pacienteAdapter.updatePacientes(pacientes)
         }
 
-        // Pacientes filtrados
         viewModel.pacientesFiltrados.observe(viewLifecycleOwner) { pacientesFiltrados ->
             pacienteFiltradoAdapter.updatePacientes(pacientesFiltrados)
         }
 
         viewModel.eventoNavegacion.observe(viewLifecycleOwner) { event ->
-            // Consume el evento para evitar la re-navegación
             event.getContentIfNotHandled()?.let { (pacienteId, consultaId) ->
                 findNavController().navigate(
                     SeleccionarPacienteCitaFragmentDirections.actionSeleccionarPacienteCitaFragmentToRegistrarCitaFragment(pacienteId, consultaId)
@@ -121,6 +139,7 @@ class SeleccionarPacienteCitaFragment : Fragment() {
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             mensaje?.let {
                 Utils.mostrarSnackbar(binding.root, it)
+                viewModel.clearMensaje()
             }
         }
 
@@ -142,5 +161,4 @@ class SeleccionarPacienteCitaFragment : Fragment() {
             )
         }
     }
-
 }

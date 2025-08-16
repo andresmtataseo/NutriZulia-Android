@@ -7,7 +7,7 @@
     android:layout_margin="8dp"
     android:clickable="true"
     android:background="?android:attr/selectableItemBackground"
-    app:cardElevation="3dp"
+    app:cardElevation="6dp"
     android:id="@+id/cardPaciente">
 
     <LinearLayout
@@ -16,67 +16,58 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Nombre completo -->
         <TextView
             android:id="@+id/tvNombreCompleto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
             android:text="Nombre"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
-        <!-- Cédula -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:paddingTop="4dp">
-
             <TextView
                 android:id="@+id/tvCedula"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="Cédula: V12345678"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/colorOnSurfaceVariant" />
-
+                android:text="Cédula:"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
             <TextView
-                android:id="@+id/tvGenero"
+                android:id="@+id/tvEdad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Género: DESCONOCIDO"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:text="Edad:"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
         </LinearLayout>
-
-        <!-- Fecha de nacimiento -->
-
-        <!-- Correo o teléfono (opcional) -->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:paddingTop="4dp">
-
             <TextView
                 android:id="@+id/tvFechaNacimiento"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="Fecha de nacimiento: DD/MM/YYYY"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:text="Fecha de nacimiento:"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+        </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingTop="4dp">
             <TextView
-                android:id="@+id/tvEdad"
+                android:id="@+id/tvGenero"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Edad:" />
+                android:text="Género:"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
         </LinearLayout>
 
     </LinearLayout>

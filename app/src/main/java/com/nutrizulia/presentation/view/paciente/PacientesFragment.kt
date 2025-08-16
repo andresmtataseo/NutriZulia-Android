@@ -7,14 +7,19 @@ import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.search.SearchView
 import com.nutrizulia.databinding.FragmentPacientesBinding
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.presentation.adapter.PacienteAdapter
 import com.nutrizulia.presentation.viewmodel.paciente.PacientesViewModel
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PacientesFragment : Fragment() {
@@ -23,6 +28,7 @@ class PacientesFragment : Fragment() {
     private lateinit var binding: FragmentPacientesBinding
     private lateinit var pacienteAdapter: PacienteAdapter
     private lateinit var pacienteFiltradoAdapter: PacienteAdapter
+    private var searchJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,9 +77,24 @@ class PacientesFragment : Fragment() {
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
+        binding.searchView.addTransitionListener { _, _, newState ->
+            if (newState == SearchView.TransitionState.SHOWN) {
+                if (binding.searchView.getEditText().text.isNullOrBlank()) {
+                    viewModel.buscarPacientes("")
+                }
+            }
+            if (newState == SearchView.TransitionState.HIDDEN) {
+                viewModel.buscarPacientes("")
+            }
+        }
+
         binding.searchView.getEditText().addTextChangedListener { text ->
-            val query = text.toString().trim()
-            viewModel.buscarPacientes(query)
+            val query: String = text?.toString()?.trim().orEmpty()
+            searchJob?.cancel()
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                delay(400)
+                viewModel.buscarPacientes(query)
+            }
         }
 
         binding.btnRegistrarPaciente.setOnClickListener {
@@ -86,25 +107,21 @@ class PacientesFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        // Pacientes
         viewModel.pacientes.observe(viewLifecycleOwner) { pacientes ->
             pacienteAdapter.updatePacientes(pacientes)
         }
 
-
-        // Pacientes filtrados
         viewModel.pacientesFiltrados.observe(viewLifecycleOwner) { pacientesFiltrados ->
             pacienteFiltradoAdapter.updatePacientes(pacientesFiltrados)
         }
 
-        // Mensajes
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             mensaje?.let {
                 mostrarSnackbar(binding.root, it)
+                viewModel.clearMensaje()
             }
         }
 
-        // Loading
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.swipeRefreshLayout.isRefreshing = isLoading
         }

@@ -45,7 +45,7 @@ class PacienteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         binding.tvCedula.text = "Cédula: ${paciente.cedula}"
         binding.tvGenero.text = "Género: ${paciente.genero}"
         binding.tvFechaNacimiento.text = "Fecha de nacimiento: ${paciente.fechaNacimiento}"
-        binding.tvEdad.text = "Edad: ${calcularEdad(paciente.fechaNacimiento)}"
+        binding.tvEdad.text = "Edad: ${calcularEdad(paciente.fechaNacimiento)} años"
         binding.cardPaciente.setOnClickListener { onClickListener(paciente) }
     }
 }

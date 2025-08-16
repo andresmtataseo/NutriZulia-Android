@@ -29,8 +29,8 @@ class PacientesViewModel @Inject constructor(
     private val _filtro = MutableLiveData<String>()
     val filtro: LiveData<String> get() = _filtro
 
-    private val _mensaje = MutableLiveData<String>()
-    val mensaje: LiveData<String> get() = _mensaje
+    private val _mensaje = MutableLiveData<String?>()
+    val mensaje: LiveData<String?> get() = _mensaje
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
@@ -45,17 +45,13 @@ class PacientesViewModel @Inject constructor(
     fun obtenerPacientes() {
         viewModelScope.launch {
             _isLoading.value = true
-
             sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
                 _idUsuarioInstitucion.value = institutionId
             } ?: run {
                 _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
             }
-
             val result = getPacientes(idUsuarioInstitucion.value ?: 0)
-            if (result.isNotEmpty()) {
-                _pacientes.value = result
-            }
+            _pacientes.value = result
             _isLoading.value = false
         }
     }
@@ -63,21 +59,31 @@ class PacientesViewModel @Inject constructor(
     fun buscarPacientes(query: String) {
         viewModelScope.launch {
             _isLoading.value = true
-
+            _filtro.value = query
+            if (query.isBlank()) {
+                _pacientesFiltrados.value = emptyList()
+                _isLoading.value = false
+                return@launch
+            }
             sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
                 _idUsuarioInstitucion.value = institutionId
             } ?: run {
                 _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
+                _isLoading.value = false
+                return@launch
             }
-
-            _filtro.value = query
             val result = getPacientesByFiltro(idUsuarioInstitucion.value ?: 0, filtro.value ?: "")
-            if (result.isNotEmpty()) {
-                _pacientesFiltrados.value = result
-            } else {
+            if (result.isEmpty()) {
+                _pacientesFiltrados.value = emptyList()
                 _mensaje.value = "No se encontraron pacientes."
+            } else {
+                _pacientesFiltrados.value = result
             }
             _isLoading.value = false
-            }
+        }
+    }
+
+    fun clearMensaje() {
+        _mensaje.value = null
     }
 }
