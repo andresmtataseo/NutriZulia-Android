@@ -41,8 +41,10 @@ import com.nutrizulia.util.FormatData.formatearCedula
 import com.nutrizulia.util.FormatData.formatearTelefono
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -124,6 +126,19 @@ class RegistrarPacienteViewModel @Inject constructor(
     val selectedMunicipioR: LiveData<Municipio?> = _selectedMunicipioR
     private val _selectedParroquiaR = MutableLiveData<Parroquia?>()
     val selectedParroquiaR: LiveData<Parroquia?> = _selectedParroquiaR
+
+    // Validación en tiempo real de cédula
+    private val _cedulaValidationState = MutableLiveData<CedulaValidationState>()
+    val cedulaValidationState: LiveData<CedulaValidationState> = _cedulaValidationState
+    private var cedulaValidationJob: Job? = null
+
+    enum class CedulaValidationState {
+        IDLE,
+        VALIDATING,
+        VALID,
+        DUPLICATE,
+        INVALID
+    }
 
     fun onCreate(pacienteId: String?, isEditable: Boolean) {
         viewModelScope.launch {
@@ -231,6 +246,52 @@ class RegistrarPacienteViewModel @Inject constructor(
         viewModelScope.launch { _parroquias.value = getParroquias(municipio.id) }
     }
 
+    fun validateCedulaRealTime(tipoCedula: String, cedula: String) {
+        cedulaValidationJob?.cancel()
+        
+        if (cedula.isBlank()) {
+            _cedulaValidationState.value = CedulaValidationState.IDLE
+            return
+        }
+        
+        cedulaValidationJob = viewModelScope.launch {
+            try {
+                _cedulaValidationState.value = CedulaValidationState.VALIDATING
+                delay(500) // Debounce de 500ms
+                
+                // Rellenar con ceros a la izquierda si tiene menos de 8 dígitos
+                val cedulaFormateada = if (cedula.length < 8 && cedula.all { it.isDigit() }) {
+                    cedula.padStart(8, '0')
+                } else {
+                    cedula
+                }
+                
+                val cedulaCompleta = "$tipoCedula-$cedulaFormateada"
+                
+                // Validar formato de cédula
+                if (!esCedulaValida(cedulaCompleta)) {
+                    _cedulaValidationState.value = CedulaValidationState.INVALID
+                    return@launch
+                }
+                
+                // Verificar unicidad
+                val institutionId = getCurrentInstitutionId()
+                if (institutionId != null) {
+                    val pacienteExistente = getPacienteByCedula(institutionId, cedulaCompleta)
+                    if (pacienteExistente != null && pacienteExistente.id != _paciente.value?.id) {
+                        _cedulaValidationState.value = CedulaValidationState.DUPLICATE
+                    } else {
+                        _cedulaValidationState.value = CedulaValidationState.VALID
+                    }
+                } else {
+                    _cedulaValidationState.value = CedulaValidationState.INVALID
+                }
+            } catch (e: Exception) {
+                _cedulaValidationState.value = CedulaValidationState.INVALID
+            }
+        }
+    }
+
     fun onSavePatientClicked(id: String?, esCedulado: Boolean?, tipoCedula: String, cedula: String, nombres: String, apellidos: String, fechaNacimientoStr: String, genero: String, domicilio: String, prefijo: String, telefono: String, correo: String) {
         _errores.value = emptyMap()
         val fechaNacimiento: LocalDate? = try { LocalDate.parse(fechaNacimientoStr) } catch (e: DateTimeParseException) { null }
@@ -240,7 +301,13 @@ class RegistrarPacienteViewModel @Inject constructor(
             if (tipoCedula.isBlank() || cedula.isBlank()) {
                 ""
             } else {
-                "$tipoCedula-$cedula"
+                // Rellenar con ceros a la izquierda si tiene menos de 8 dígitos
+                val cedulaFormateada = if (cedula.length < 8 && cedula.all { it.isDigit() }) {
+                    cedula.padStart(8, '0')
+                } else {
+                    cedula
+                }
+                "$tipoCedula-$cedulaFormateada"
             }
         } else {
             // Para pacientes no cedulados, usar la cédula temporal del representante

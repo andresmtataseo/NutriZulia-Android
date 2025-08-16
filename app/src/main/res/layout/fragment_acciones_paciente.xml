@@ -146,7 +146,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:src="@drawable/ic_paciente" />
+                            android:src="@drawable/ic_paciente"
+                            app:tint="@color/md_theme_primaryContainer" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -186,7 +187,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:src="@drawable/ic_editar_paciente" />
+                            android:src="@drawable/ic_editar_paciente"
+                            app:tint="@color/md_theme_primaryContainer" />
 
                         <TextView
                             android:id="@+id/textView"
@@ -232,7 +234,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:src="@drawable/ic_historia_medica" />
+                            android:src="@drawable/ic_historia_medica"
+                            app:tint="@color/md_theme_primaryContainer" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -271,7 +274,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:src="@drawable/ic_resumen" />
+                            android:src="@drawable/ic_resumen"
+                            app:tint="@color/md_theme_primaryContainer" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -286,6 +290,19 @@
 
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEliminar"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Eliminar paciente"
+                android:textColor="@color/color_cita_cancelada"
+                app:icon="@drawable/ic_limpiar"
+                app:iconGravity="textStart"
+                app:iconTint="@color/color_cita_cancelada" />
 
         </LinearLayout>
     </LinearLayout>

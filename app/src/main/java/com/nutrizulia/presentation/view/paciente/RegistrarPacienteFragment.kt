@@ -3,12 +3,14 @@ package com.nutrizulia.presentation.view.paciente
 import android.R
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -57,6 +59,7 @@ class RegistrarPacienteFragment : Fragment() {
         if (!args.isEditable) {
             deshabilitarCampos()
             binding.btnRegistrar.text = "Salir"
+            binding.btnRegistrar.icon = ContextCompat.getDrawable(requireContext(), com.nutrizulia.R.drawable.ic_atras)
         } else {
             if (args.pacienteId != null) {
                 binding.btnLimpiar.text = "Restaurar"
@@ -101,6 +104,32 @@ class RegistrarPacienteFragment : Fragment() {
                         // Para errores relacionados con representante, mostrar snackbar
                         mostrarSnackbar(binding.root, message)
                     }
+                }
+            }
+        }
+        
+        // Observer para el estado de validación de cédula en tiempo real
+        viewModel.cedulaValidationState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                RegistrarPacienteViewModel.CedulaValidationState.IDLE -> {
+                    binding.tfCedula.error = null
+                    binding.tfCedula.helperText = null
+                }
+                RegistrarPacienteViewModel.CedulaValidationState.VALIDATING -> {
+                    binding.tfCedula.error = null
+                    binding.tfCedula.helperText = "Validando..."
+                }
+                RegistrarPacienteViewModel.CedulaValidationState.VALID -> {
+                    binding.tfCedula.error = null
+                    binding.tfCedula.helperText = "Cédula disponible"
+                }
+                RegistrarPacienteViewModel.CedulaValidationState.DUPLICATE -> {
+                    binding.tfCedula.error = "Esta cédula ya está registrada"
+                    binding.tfCedula.helperText = null
+                }
+                RegistrarPacienteViewModel.CedulaValidationState.INVALID -> {
+                    binding.tfCedula.error = "Formato de cédula inválido"
+                    binding.tfCedula.helperText = null
                 }
             }
         }
@@ -174,6 +203,12 @@ class RegistrarPacienteFragment : Fragment() {
             viewModel.onTipoCedulaSelected(selectedType)
             // Limpiar error al seleccionar
             binding.tfTipoCedula.error = null
+            
+            // Revalidar la cédula actual si hay texto
+            val cedulaActual = obtenerTexto(binding.tfCedula)
+            if (cedulaActual.isNotBlank()) {
+                viewModel.validateCedulaRealTime(selectedType, cedulaActual)
+            }
         }
 
         binding.btnSeleccinarRepresentate.setOnClickListener {
@@ -244,6 +279,19 @@ class RegistrarPacienteFragment : Fragment() {
         binding.tfCedula.editText?.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) binding.tfCedula.error = null
         }
+        
+        // Configurar validación en tiempo real para el campo de cédula
+        binding.tfCedula.editText?.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val cedula = s?.toString() ?: ""
+                val tipoCedula = obtenerTexto(binding.tfTipoCedula)
+                if (tipoCedula.isNotBlank()) {
+                    viewModel.validateCedulaRealTime(tipoCedula, cedula)
+                }
+            }
+        })
         binding.tfNombres.editText?.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) binding.tfNombres.error = null
         }
