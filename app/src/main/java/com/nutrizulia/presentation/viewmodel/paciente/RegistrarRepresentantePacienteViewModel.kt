@@ -29,8 +29,10 @@ import com.nutrizulia.util.CheckData
 import com.nutrizulia.util.FormatData
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -93,6 +95,19 @@ class RegistrarRepresentantePacienteViewModel @Inject constructor(
     val salir: LiveData<Boolean> = _salir
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
+    
+    // Validación en tiempo real de cédula
+    private val _cedulaValidationState = MutableLiveData<CedulaValidationState>()
+    val cedulaValidationState: LiveData<CedulaValidationState> = _cedulaValidationState
+    private var cedulaValidationJob: Job? = null
+    
+    enum class CedulaValidationState {
+        IDLE,
+        VALIDATING,
+        VALID,
+        DUPLICATE,
+        INVALID
+    }
 
     fun onCreate(representanteId: String?, isEditable: Boolean) {
         viewModelScope.launch {
@@ -187,6 +202,57 @@ class RegistrarRepresentantePacienteViewModel @Inject constructor(
             _selectedParroquia.value = null
         }
         viewModelScope.launch { _parroquias.value = getParroquias(municipio.id) }
+    }
+    
+    fun validateCedulaRealTime(tipoCedula: String, cedula: String) {
+        cedulaValidationJob?.cancel()
+        
+        if (cedula.isBlank()) {
+            _cedulaValidationState.value = CedulaValidationState.IDLE
+            return
+        }
+        
+        cedulaValidationJob = viewModelScope.launch {
+            try {
+                _cedulaValidationState.value = CedulaValidationState.VALIDATING
+                delay(500) // Debounce de 500ms
+                
+                // Rellenar con ceros a la izquierda si tiene menos de 8 dígitos
+                val cedulaFormateada = if (cedula.length < 8 && cedula.all { it.isDigit() }) {
+                    cedula.padStart(8, '0')
+                } else {
+                    cedula
+                }
+                
+                val cedulaCompleta = "$tipoCedula-$cedulaFormateada"
+                
+                // Validar formato de cédula
+                if (!CheckData.esCedulaValida(cedulaCompleta)) {
+                    _cedulaValidationState.value = CedulaValidationState.INVALID
+                    return@launch
+                }
+                
+                // Verificar unicidad
+                val institutionId = getCurrentInstitutionId()
+                if (institutionId != null) {
+                    val representanteExistente = getRepresentanteByCedula(institutionId, cedulaCompleta)
+                    if (representanteExistente != null && representanteExistente.id != _representante.value?.id) {
+                        _cedulaValidationState.value = CedulaValidationState.DUPLICATE
+                    } else {
+                        _cedulaValidationState.value = CedulaValidationState.VALID
+                    }
+                } else {
+                    _cedulaValidationState.value = CedulaValidationState.INVALID
+                }
+            } catch (e: Exception) {
+                _cedulaValidationState.value = CedulaValidationState.INVALID
+            }
+        }
+    }
+    
+    fun clearCedulaValidation() {
+        cedulaValidationJob?.cancel()
+        _cedulaValidationState.value = CedulaValidationState.IDLE
     }
 
     fun onSavePatientClicked(id: String?, tipoCedula: String, cedula: String, nombres: String, apellidos: String, fechaNacimientoStr: String, genero: String, domicilio: String, prefijo: String, telefono: String, correo: String) {

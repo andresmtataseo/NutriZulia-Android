@@ -3,6 +3,8 @@ package com.nutrizulia.presentation.view.paciente
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -117,6 +119,32 @@ class RegistrarRepresentantePacienteFragment : Fragment() {
             binding.dropdownEstados.setText(estado?.nombre, false)
             binding.tfMunicipio.visibility = if (estado != null) View.VISIBLE else View.GONE
         }
+        // Observador para el estado de validación de cédula
+        viewModel.cedulaValidationState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                RegistrarRepresentantePacienteViewModel.CedulaValidationState.IDLE -> {
+                    binding.tfCedula.error = null
+                    binding.tfCedula.helperText = null
+                }
+                RegistrarRepresentantePacienteViewModel.CedulaValidationState.VALIDATING -> {
+                    binding.tfCedula.error = null
+                    binding.tfCedula.helperText = "Validando cédula..."
+                }
+                RegistrarRepresentantePacienteViewModel.CedulaValidationState.VALID -> {
+                    binding.tfCedula.error = null
+                    binding.tfCedula.helperText = "Cédula válida"
+                }
+                RegistrarRepresentantePacienteViewModel.CedulaValidationState.DUPLICATE -> {
+                    binding.tfCedula.error = "Esta cédula ya está registrada como representante"
+                    binding.tfCedula.helperText = null
+                }
+                RegistrarRepresentantePacienteViewModel.CedulaValidationState.INVALID -> {
+                    binding.tfCedula.error = "Formato de cédula inválido"
+                    binding.tfCedula.helperText = null
+                }
+            }
+        }
+
         viewModel.selectedMunicipio.observe(viewLifecycleOwner) { municipio ->
             binding.dropdownMunicipios.setText(municipio?.nombre, false)
             binding.tfParroquia.visibility = if (municipio != null) View.VISIBLE else View.GONE
@@ -130,7 +158,28 @@ class RegistrarRepresentantePacienteFragment : Fragment() {
             val adapter = (binding.tfTipoCedula.editText as AutoCompleteTextView).adapter
             val selectedType = adapter.getItem(position) as String
             viewModel.onTipoCedulaSelected(selectedType)
+            
+            // Activar validación cuando cambie el tipo de cédula
+            val cedula = obtenerTexto(binding.tfCedula)
+            if (cedula.isNotBlank()) {
+                viewModel.validateCedulaRealTime(selectedType, cedula)
+            }
         }
+
+        // TextWatcher para validación en tiempo real de cédula
+        binding.tfCedula.editText?.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val cedula = s?.toString() ?: ""
+                val tipoCedula = obtenerTexto(binding.tfTipoCedula)
+                if (cedula.isNotBlank() && tipoCedula.isNotBlank()) {
+                    viewModel.validateCedulaRealTime(tipoCedula, cedula)
+                } else {
+                    viewModel.clearCedulaValidation()
+                }
+            }
+        })
 
         binding.btnRegistrar.setOnClickListener {
             if (true) {
