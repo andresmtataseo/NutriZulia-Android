@@ -1,7 +1,12 @@
 package com.nutrizulia.presentation.viewmodel.paciente
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class HistoriaPacienteViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
+@HiltViewModel
+class HistoriaPacienteViewModel @Inject constructor(
+    
+) : ViewModel() {
+
 }

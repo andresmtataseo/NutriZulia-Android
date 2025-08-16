@@ -45,7 +45,7 @@ class RepresentanteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView
         binding.tvCedula.text = "Cédula: ${representante.cedula}"
         binding.tvGenero.text = "Género: ${representante.genero}"
         binding.tvFechaNacimiento.text = "Fecha de nacimiento: ${representante.fechaNacimiento}"
-        binding.tvEdad.text = "Edad: ${calcularEdad(representante.fechaNacimiento)}"
+        binding.tvEdad.text = "Edad: ${calcularEdad(representante.fechaNacimiento)} años"
         binding.cardRepresentante.setOnClickListener { onClickListener(representante) }
     }
 

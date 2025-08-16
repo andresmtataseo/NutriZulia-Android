@@ -256,7 +256,7 @@
     <fragment
         android:id="@+id/historiaPacienteFragment"
         android:name="com.nutrizulia.presentation.view.paciente.HistoriaPacienteFragment"
-        android:label="Historia Medica"
+        android:label="Historial del Paciente"
         tools:layout="@layout/fragment_historia_paciente">
         <argument
             android:name="idPaciente"

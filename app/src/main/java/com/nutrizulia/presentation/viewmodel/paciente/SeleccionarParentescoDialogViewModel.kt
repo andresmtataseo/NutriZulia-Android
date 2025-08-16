@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.view.paciente
+package com.nutrizulia.presentation.viewmodel.paciente
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

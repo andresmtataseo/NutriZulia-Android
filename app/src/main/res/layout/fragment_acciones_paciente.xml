@@ -242,7 +242,7 @@
                             android:layout_height="match_parent"
                             android:layout_weight="2"
                             android:gravity="center"
-                            android:text="Historia clínica"
+                            android:text="Historial"
                             android:textAlignment="center"
                             android:textAllCaps="true"
                             android:textStyle="bold" />

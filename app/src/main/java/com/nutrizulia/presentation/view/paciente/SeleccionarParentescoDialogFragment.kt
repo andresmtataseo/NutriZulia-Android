@@ -3,22 +3,16 @@ package com.nutrizulia.presentation.view.paciente
 import android.app.Dialog
 import androidx.fragment.app.viewModels
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentSeleccionarParentescoDialogBinding
-import com.nutrizulia.domain.model.catalog.Etnia
 import com.nutrizulia.domain.model.catalog.Parentesco
-import com.nutrizulia.presentation.viewmodel.paciente.RegistrarPacienteViewModel
+import com.nutrizulia.presentation.viewmodel.paciente.SeleccionarParentescoDialogViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
