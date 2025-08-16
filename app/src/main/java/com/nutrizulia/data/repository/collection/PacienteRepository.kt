@@ -3,6 +3,8 @@ package com.nutrizulia.data.repository.collection
 import android.util.Log
 import com.nutrizulia.data.local.dao.PacienteConCitaDao
 import com.nutrizulia.data.local.dao.collection.PacienteDao
+import com.nutrizulia.data.local.dao.collection.ConsultaDao
+import com.nutrizulia.data.local.dao.collection.PacienteRepresentanteDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.view.PacienteConCita
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
@@ -21,6 +23,8 @@ import javax.inject.Inject
 class PacienteRepository @Inject constructor(
     private val pacienteDao: PacienteDao,
     private val pacienteConCitaDao: PacienteConCitaDao,
+    private val consultaDao: ConsultaDao,
+    private val pacienteRepresentanteDao: PacienteRepresentanteDao,
     private val batchApi: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ) {
@@ -145,4 +149,71 @@ class PacienteRepository @Inject constructor(
             e.toSyncResult()
         }
     }
+
+    /**
+     * Verifica si un paciente tiene registros asociados activos (no eliminados)
+     */
+    suspend fun hasActiveAssociatedRecords(pacienteId: String): Boolean {
+        // Verificar si hay consultas activas para este paciente
+        // Las consultas son la entidad principal directamente relacionada con el paciente
+        val consultaCount = consultaDao.countConsultaByPacienteId(pacienteId)
+        if (consultaCount > 0) {
+            return true
+        }
+
+        // Verificar si hay representantes activos asociados al paciente
+        // PacienteRepresentanteEntity es la única otra entidad directamente relacionada
+        val representante = pacienteRepresentanteDao.findByPacienteId(pacienteId)
+        if (representante != null && !representante.isDeleted) {
+            return true
+        }
+
+        // No hay registros activos asociados directamente al paciente
+        return false
+    }
+
+    /**
+     * Realiza un soft delete del paciente si cumple las condiciones
+     * @param usuarioInstitucionId ID del usuario institución
+     * @param pacienteId ID del paciente a eliminar
+     * @return SoftDeleteResult indicando el resultado de la operación
+     */
+    suspend fun softDeletePaciente(usuarioInstitucionId: Int, pacienteId: String): SoftDeleteResult {
+        return try {
+            // Buscar el paciente
+            val paciente = pacienteDao.findById(usuarioInstitucionId, pacienteId)
+                ?: return SoftDeleteResult.Error("Paciente no encontrado")
+
+            // Verificar que esté sincronizado
+            if (!paciente.isSynced) {
+                return SoftDeleteResult.Error("El paciente debe estar sincronizado para poder eliminarlo")
+            }
+
+            // Verificar que no tenga registros asociados activos
+            if (hasActiveAssociatedRecords(pacienteId)) {
+                return SoftDeleteResult.Error("No se puede eliminar el paciente porque tiene registros asociados activos")
+            }
+
+            // Realizar soft delete
+            val updatedPaciente = paciente.copy(
+                isDeleted = true,
+                isSynced = false,
+                updatedAt = java.time.LocalDateTime.now()
+            )
+            
+            pacienteDao.update(updatedPaciente)
+            
+            SoftDeleteResult.Success("Paciente eliminado correctamente")
+        } catch (e: Exception) {
+            SoftDeleteResult.Error("Error al eliminar paciente: ${e.message}")
+        }
+    }
+}
+
+/**
+ * Resultado de la operación de soft delete
+ */
+sealed class SoftDeleteResult {
+    data class Success(val message: String) : SoftDeleteResult()
+    data class Error(val message: String) : SoftDeleteResult()
 }

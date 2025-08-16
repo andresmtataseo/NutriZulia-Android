@@ -14,6 +14,7 @@ import com.nutrizulia.databinding.FragmentAccionesPacienteBinding
 import com.nutrizulia.presentation.viewmodel.paciente.AccionesPacienteViewModel
 import com.nutrizulia.util.Utils.calcularEdadDetallada
 import com.nutrizulia.util.Utils.mostrarSnackbar
+import com.nutrizulia.util.Utils.mostrarDialog
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -89,6 +90,19 @@ class AccionesPacienteFragment : Fragment() {
 //        binding.cardViewResumenMedico.setOnClickListener {
 //            findNavController().navigate(AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentTo(args.idPaciente))
 //        }
+
+        binding.btnEliminar.setOnClickListener {
+            mostrarDialog(
+                requireContext(),
+                "Eliminar paciente",
+                "¿Está seguro que desea eliminar este paciente? Esta acción no se puede deshacer.",
+                "Eliminar",
+                "Cancelar",
+                { viewModel.eliminarPaciente(args.idPaciente) },
+                { },
+                true
+            )
+        }
 
     }
 
