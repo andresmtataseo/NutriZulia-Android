@@ -551,6 +551,10 @@ class RegistrarPacienteViewModel @Inject constructor(
         _selectedParroquiaR.value = null
     }
     
+    fun removerRepresentante() {
+        limpiarRepresentante()
+    }
+    
     fun permitirCambioRepresentante(): Boolean {
         // Permitir cambio de representante si el paciente no es cedulado
         return _esCedulado.value == false

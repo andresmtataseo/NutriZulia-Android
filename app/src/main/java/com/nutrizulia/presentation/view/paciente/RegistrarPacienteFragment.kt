@@ -151,7 +151,11 @@ class RegistrarPacienteFragment : Fragment() {
                 // Paciente cedulado
                 binding.dropdownEsCedulado.setText("Si", false)
                 binding.layoutCedulado.visibility = View.VISIBLE
+                binding.tfCedulaTemporal.visibility = View.GONE
                 binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
+                
+                // Limpiar representante cuando se cambia a cedulado
+                viewModel.limpiarRepresentante()
                 
                 // Mostrar la cédula en los campos correspondientes
                 viewModel.paciente.value?.let { paciente ->
@@ -163,6 +167,7 @@ class RegistrarPacienteFragment : Fragment() {
                 // Paciente no cedulado (con cédula temporal)
                 binding.dropdownEsCedulado.setText("No", false)
                 binding.layoutCedulado.visibility = View.GONE
+                binding.tfCedulaTemporal.visibility = View.VISIBLE
                 binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.VISIBLE
                 
                 // Limpiar campos de cédula
@@ -213,6 +218,10 @@ class RegistrarPacienteFragment : Fragment() {
 
         binding.btnSeleccinarRepresentate.setOnClickListener {
             showRepresentativeDialog()
+        }
+        
+        binding.btnRemoverRepresentante.setOnClickListener {
+            viewModel.removerRepresentante()
         }
 
         binding.btnRegistrar.setOnClickListener {
@@ -279,6 +288,9 @@ class RegistrarPacienteFragment : Fragment() {
         binding.tfCedula.editText?.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) binding.tfCedula.error = null
         }
+        binding.tfCedulaTemporal.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfCedulaTemporal.error = null
+        }
         
         // Configurar validación en tiempo real para el campo de cédula
         binding.tfCedula.editText?.addTextChangedListener(object : TextWatcher {
@@ -336,6 +348,7 @@ class RegistrarPacienteFragment : Fragment() {
         listOf(
             binding.tiFechaNacimiento,
             binding.tiCedula,
+            binding.tiCedulaTemporal,
             binding.tiNombres,
             binding.tiApellidos,
             binding.tiDomicilio,
@@ -359,9 +372,11 @@ class RegistrarPacienteFragment : Fragment() {
         binding.dropdownEsCedulado.setText("", false)
 
         binding.layoutCedulado.visibility = View.GONE
+        binding.tfCedulaTemporal.visibility = View.GONE
         binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
 
         binding.tfTipoCedula.editText?.text = null
+        binding.tfCedulaTemporal.editText?.text = null
         binding.tfCedula.editText?.text = null
         binding.tfNombres.editText?.text = null
         binding.tfApellidos.editText?.text = null
@@ -382,6 +397,7 @@ class RegistrarPacienteFragment : Fragment() {
         binding.tfEsCedulado.error = null
         binding.tfTipoCedula.error = null
         binding.tfCedula.error = null
+        binding.tfCedulaTemporal.error = null
         binding.tfNombres.error = null
         binding.tfApellidos.error = null
         binding.tfFechaNacimiento.error = null
@@ -447,17 +463,20 @@ class RegistrarPacienteFragment : Fragment() {
                 0 -> { // "Si"
                     binding.layoutCedulado.visibility = View.VISIBLE
                     binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
+                    binding.tfCedulaTemporal.visibility = View.GONE
                     limpiarRepresentante()
                 }
                 1 -> { // "No"
                     binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.VISIBLE
                     binding.layoutCedulado.visibility = View.GONE
+                    binding.tfCedulaTemporal.visibility = View.VISIBLE
                     binding.tfCedula.editText?.text = null
                     binding.tfTipoCedula.editText?.text = null
                 }
                 else -> { // vacio
                     binding.layoutNoCeduladoMenorEdadRepresentante.visibility = View.GONE
                     binding.layoutCedulado.visibility = View.GONE
+                    binding.tfCedulaTemporal.visibility = View.GONE
                     limpiarRepresentante()
                     binding.tfCedula.editText?.text = null
                     binding.tfTipoCedula.editText?.text = null
@@ -497,17 +516,20 @@ class RegistrarPacienteFragment : Fragment() {
                 binding.tvEdad.setText("Edad: ${calcularEdad(representante.fechaNacimiento)} años")
                 binding.tvSinRepresentante.visibility = View.GONE
                 
-                // Permitir cambio de representante si es modo edición y el paciente no es cedulado
-                val puedeEditarRepresentante = args.isEditable && viewModel.permitirCambioRepresentante()
-                binding.btnSeleccinarRepresentate.text = if (puedeEditarRepresentante) "Cambiar representante" else "Representante"
-                binding.btnSeleccinarRepresentate.isEnabled = puedeEditarRepresentante || args.pacienteId == null
+                // Mostrar/ocultar botones según el estado del representante
+                binding.btnSeleccinarRepresentate.visibility = View.GONE
+                binding.btnRemoverRepresentante.visibility = View.VISIBLE
             } else {
+                binding.cardPaciente.visibility = View.GONE
+                binding.tvSinRepresentante.visibility = View.VISIBLE
+                binding.btnSeleccinarRepresentate.visibility = View.VISIBLE
+                binding.btnRemoverRepresentante.visibility = View.GONE
                 binding.btnSeleccinarRepresentate.text = "Seleccionar representante"
                 binding.btnSeleccinarRepresentate.isEnabled = true
             }
         }
         viewModel.cedulaTemporal.observe(viewLifecycleOwner) { cedulaTemporal ->
-            binding.tvCedulaTemporal.setText("Cédula temporal: ${cedulaTemporal}")
+            binding.tfCedulaTemporal.editText?.setText(cedulaTemporal)
         }
         viewModel.selectedParentesco.observe(viewLifecycleOwner) { parentesco ->
             binding.tvParentesco.setText("Parentesco: ${parentesco?.nombre}")

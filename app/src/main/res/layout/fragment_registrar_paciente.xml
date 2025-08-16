@@ -26,19 +26,6 @@
             android:orientation="vertical"
             android:visibility="visible">
 
-<!--            <TextView-->
-<!--                android:id="@+id/tvIngreseDatos"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginBottom="8dp"-->
-<!--                android:gravity="center"-->
-<!--                android:text="@string/debe_completar_los_campos_marcados_con" />-->
-
-<!--            <com.google.android.material.divider.MaterialDivider-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="4dp" />-->
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -64,6 +51,23 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Campo de cédula temporal para pacientes no cedulados -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfCedulaTemporal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="Cédula Temporal"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiCedulaTemporal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:id="@+id/layoutCedulado"
@@ -140,7 +144,8 @@
                     style="?attr/materialCardViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -153,21 +158,11 @@
                             android:id="@+id/tvNombreCompleto"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="4dp"
-                            android:text="NOMBRE COMPLETO"
-                            android:textAppearance="?attr/textAppearanceHeadline6"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
+                            android:text="NOMBRE"
+                            android:textColor="@color/md_theme_onPrimaryContainer"
+                            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
-                        <TextView
-                            android:id="@+id/tvCedulaTemporal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="16dp"
-                            android:text="Cédula Temporal:"
-                            android:textAppearance="?attr/textAppearanceBodyLarge"
-                            android:textColor="?attr/colorOnSurfaceVariant" />
+
 
                         <!-- Cédula -->
                         <LinearLayout
@@ -182,16 +177,16 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="16dp"
                                 android:text="Cédula:"
-                                android:textAppearance="?attr/textAppearanceBody2"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
                             <TextView
-                                android:id="@+id/tvGenero"
+                                android:id="@+id/tvEdad"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Género:"
-                                android:textAppearance="?attr/textAppearanceBody2"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
+                                android:text="Edad:"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
                         </LinearLayout>
 
                         <!-- Fecha de nacimiento -->
@@ -208,10 +203,9 @@
                                 android:id="@+id/tvFechaNacimiento"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="16dp"
                                 android:text="Fecha de nacimiento:"
-                                android:textAppearance="?attr/textAppearanceBody2"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -221,10 +215,12 @@
                             android:paddingTop="4dp">
 
                             <TextView
-                                android:id="@+id/tvEdad"
+                                android:id="@+id/tvGenero"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Edad:" />
+                                android:text="Género:"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -237,7 +233,9 @@
                                 android:id="@+id/tvParentesco"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Parentesco:" />
+                                android:text="Parentesco:"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
                         </LinearLayout>
 
                     </LinearLayout>
@@ -262,6 +260,20 @@
                     android:text="@string/designar_representante"
                     app:icon="@drawable/ic_agregar_paciente"
                     app:iconGravity="textStart" />
+
+                <Button
+                    android:id="@+id/btnRemoverRepresentante"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Remover Representante"
+                    android:textColor="?attr/colorError"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_remover"
+                    app:iconGravity="textStart"
+                    app:iconTint="?attr/colorError"
+                    app:strokeColor="?attr/colorError" />
 
             </LinearLayout>
 
