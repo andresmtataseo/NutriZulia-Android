@@ -421,11 +421,14 @@
     <fragment
         android:id="@+id/accionesRepresentanteFragment"
         android:name="com.nutrizulia.presentation.view.representante.AccionesRepresentanteFragment"
-        android:label="fragment_acciones_representante"
-        tools:layout="@layout/fragment_acciones_representante" >
+        android:label="Gestionar Representante"
+        tools:layout="@layout/fragment_acciones_representante">
         <argument
             android:name="representanteId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_accionesRepresentanteFragment_to_registrarRepresentanteFragment"
+            app:destination="@id/registrarRepresentanteFragment" />
     </fragment>
     <fragment
         android:id="@+id/editarClaveFragment"

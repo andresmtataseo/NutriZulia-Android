@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="?attr/materialCardViewElevatedStyle"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="4dp"
+    app:cardElevation="6dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Timeline indicator -->
+        <View
+            android:id="@+id/timelineIndicator"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/circle_timeline_indicator"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvTipoEvento" />
+
+        <!-- Línea vertical del timeline -->
+        <View
+            android:id="@+id/timelineLine"
+            android:layout_width="2dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/md_theme_primaryContainer"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/timelineIndicator"
+            app:layout_constraintStart_toStartOf="@id/timelineIndicator"
+            app:layout_constraintTop_toBottomOf="@id/timelineIndicator" />
+
+        <!-- Icono del tipo de evento -->
+        <ImageView
+            android:id="@+id/ivTipoEvento"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:contentDescription="Tipo de evento"
+            app:layout_constraintStart_toEndOf="@id/timelineIndicator"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/md_theme_primaryContainer"
+            tools:src="@drawable/ic_medical_services" />
+
+        <!-- Tipo de evento -->
+        <TextView
+            android:id="@+id/tvTipoEvento"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/md_theme_primaryContainer"
+            app:layout_constraintEnd_toStartOf="@id/tvFechaEvento"
+            app:layout_constraintStart_toEndOf="@id/ivTipoEvento"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Consulta Médica" />
+
+        <!-- Fecha del evento -->
+        <TextView
+            android:id="@+id/tvFechaEvento"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="15 Ene 2024" />
+
+        <!-- Título del evento -->
+        <TextView
+            android:id="@+id/tvTituloEvento"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/timelineIndicator"
+            app:layout_constraintTop_toBottomOf="@id/tvTipoEvento"
+            tools:text="Control Nutricional Mensual" />
+
+        <!-- Descripción del evento -->
+        <TextView
+            android:id="@+id/tvDescripcionEvento"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/timelineIndicator"
+            app:layout_constraintTop_toBottomOf="@id/tvTituloEvento"
+            tools:text="Evaluación del progreso nutricional del paciente. Peso: 75kg, Talla: 1.70m, IMC: 26.0" />
+
+        <!-- Contenedor para datos específicos -->
+        <LinearLayout
+            android:id="@+id/layoutDatosEspecificos"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/timelineIndicator"
+            app:layout_constraintTop_toBottomOf="@id/tvDescripcionEvento">
+
+            <!-- Chip group para mostrar datos relevantes -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupDatos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="4dp"
+                app:chipSpacingVertical="4dp" />
+
+        </LinearLayout>
+
+        <!-- Profesional responsable -->
+        <LinearLayout
+            android:id="@+id/layoutProfesional"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/timelineIndicator"
+            app:layout_constraintTop_toBottomOf="@id/layoutDatosEspecificos">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="Profesional"
+                android:src="@drawable/ic_person"
+                app:tint="@color/md_theme_primaryContainer" />
+
+            <TextView
+                android:id="@+id/tvProfesional"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+                android:textColor="@color/md_theme_primaryContainer"
+                tools:text="Dr. María González" />
+
+        </LinearLayout>
+
+        <!-- Botón de acciones -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVerDetalles"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:text="Ver detalles"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/timelineIndicator"
+            app:layout_constraintTop_toBottomOf="@id/layoutProfesional" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
