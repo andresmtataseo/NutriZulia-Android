@@ -3,46 +3,62 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group
-        android:id="@+id/menu_principal"
-        android:checkableBehavior="single">
+    <group android:id="@+id/menu_inicio_principal">
         <item
             android:id="@+id/inicioFragment"
             android:icon="@drawable/ic_menu_inicio"
             android:title="@string/menu_inicio" />
-        <item
-            android:id="@+id/consultasFragment"
-            android:icon="@drawable/ic_menu_consultas"
-            android:title="@string/menu_consultas" />
-        <item
-            android:id="@+id/pacientesFragment"
-            android:icon="@drawable/ic_menu_pacientes"
-            android:title="@string/menu_pacientes" />
-        <item
-            android:id="@+id/representantesFragment"
-            android:icon="@drawable/ic_representantes"
-            android:title="@string/menu_representantes" />
-        <item
-            android:id="@+id/actividadFragment"
-            android:icon="@drawable/ic_actividades"
-            android:title="@string/actividades" />
-        <item
-            android:id="@+id/reportesFragment"
-            android:icon="@drawable/ic_menu_reportes"
-            android:title="@string/menu_reportes" />
-        <item
-            android:id="@+id/seleccionarInstitucionFragment"
-            android:icon="@drawable/ic_menu_instituciones"
-            android:title="@string/instituciones" />
-        <item
-            android:id="@+id/syncBatchFragment"
-            android:icon="@drawable/ic_sync"
-            android:title="@string/menu_sincronizacion" />
-        <item
-            android:id="@+id/ayudaFragment"
-            android:icon="@drawable/ic_menu_ayuda"
-            android:title="@string/menu_ayuda" />
     </group>
+
+    <group
+        android:id="@+id/menu_principal"
+        android:checkableBehavior="single"
+        android:enabled="true">
+
+        <item android:title="@string/gesti_n_de_datos">
+            <menu>
+                <item
+                    android:id="@+id/pacientesFragment"
+                    android:icon="@drawable/ic_menu_pacientes"
+                    android:title="@string/menu_pacientes" />
+                <item
+                    android:id="@+id/representantesFragment"
+                    android:icon="@drawable/ic_representantes"
+                    android:title="@string/menu_representantes" />
+                <item
+                    android:id="@+id/consultasFragment"
+                    android:icon="@drawable/ic_menu_consultas"
+                    android:title="@string/menu_consultas" />
+                <item
+                    android:id="@+id/actividadFragment"
+                    android:icon="@drawable/ic_actividades"
+                    android:title="@string/actividades" />
+            </menu>
+        </item>
+
+        <item android:title="@string/herramientas_y_utilidades">
+            <menu>
+                <item
+                    android:id="@+id/reportesFragment"
+                    android:icon="@drawable/ic_menu_reportes"
+                    android:title="@string/menu_reportes" />
+                <item
+                    android:id="@+id/seleccionarInstitucionFragment"
+                    android:icon="@drawable/ic_menu_instituciones"
+                    android:title="@string/instituciones" />
+                <item
+                    android:id="@+id/syncBatchFragment"
+                    android:icon="@drawable/ic_sync"
+                    android:title="@string/menu_sincronizacion" />
+                <item
+                    android:id="@+id/ayudaFragment"
+                    android:icon="@drawable/ic_menu_ayuda"
+                    android:title="@string/menu_ayuda" />
+            </menu>
+        </item>
+
+    </group>
+
     <group
         android:id="@+id/menu_secundario"
         android:checkableBehavior="single">

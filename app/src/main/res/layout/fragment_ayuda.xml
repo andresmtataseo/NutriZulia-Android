@@ -1,77 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_margin="16dp"
+    android:fillViewport="true"
     tools:context=".presentation.view.AyudaFragment">
-
-    <ImageView
-        android:id="@+id/ivLogo"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_marginBottom="36dp"
-        android:contentDescription="@string/logo"
-        app:srcCompat="@drawable/ic_logo" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-        android:textAlignment="center" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:text="@string/version_app"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:textAlignment="center" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="@string/coordinacion_regional"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="@string/manual_usuario"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
-
-    <Button
-        app:icon="@drawable/ic_descargar"
-        app:iconGravity="textStart"
-        style="@style/Widget.Material3.Button"
-        android:layout_gravity="center_horizontal"
-        android:id="@+id/btnContinuar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="@string/manual_de_usuario" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="bottom">
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
 
-        <Button
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_gravity="center_horizontal"
-            android:id="@+id/btnSoporte"
-            android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.Material3.ActionBar.Title" />
+
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="@string/necesitas_ayuda" />
+            android:text="@string/version_app"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.Material3.ActionBar.Subtitle" />
+
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="@string/logo"
+            app:srcCompat="@drawable/ic_logo" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/coordinacion_regional"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/manual_usuario"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        <Button
+            android:id="@+id/btnContinuar"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:text="@string/manual_de_usuario"
+            app:icon="@drawable/ic_descargar"
+            app:iconGravity="textStart" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/para_cualquier_otra_duda_o_problema_cont_ctanos_a_trav_s_del_correo_electr_nico_nutrizulia_gmail_com"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        </LinearLayout>
 
     </LinearLayout>
-
-
-</LinearLayout>
+</ScrollView>

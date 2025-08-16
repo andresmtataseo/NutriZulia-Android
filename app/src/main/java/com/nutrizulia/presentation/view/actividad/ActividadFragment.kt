@@ -7,15 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.search.SearchView
 import com.nutrizulia.data.local.view.ActividadConTipo
 import com.nutrizulia.databinding.FragmentActividadBinding
 import com.nutrizulia.presentation.adapter.ActividadAdapter
-import com.nutrizulia.presentation.view.paciente.PacientesFragmentDirections
 import com.nutrizulia.presentation.viewmodel.actividad.ActividadViewModel
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ActividadFragment : Fragment() {
@@ -24,6 +28,7 @@ class ActividadFragment : Fragment() {
     private val viewModel: ActividadViewModel by viewModels()
     private lateinit var actividadAdapter: ActividadAdapter
     private lateinit var actividadFiltradoAdapter: ActividadAdapter
+    private var searchJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,7 +47,7 @@ class ActividadFragment : Fragment() {
     }
     override fun onResume() {
         super.onResume()
-        viewModel.obtenerRepresentantes()
+        viewModel.obtenerActividades()
     }
 
     private fun setupRecyclerViews() {
@@ -53,12 +58,12 @@ class ActividadFragment : Fragment() {
             emptyList(),
             onClickListener = { actividadConTipo -> onActividadConTipoClick(actividadConTipo) })
 
-        binding.recyclerViewPacientes.apply {
+        binding.recyclerViewActividades.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = actividadAdapter
         }
 
-        binding.recyclerViewPacientesFiltrados.apply {
+        binding.recyclerViewActividadesFiltradas.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = actividadFiltradoAdapter
         }
@@ -66,52 +71,57 @@ class ActividadFragment : Fragment() {
 
     private fun setupListeners() {
         binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.obtenerRepresentantes()
+            viewModel.obtenerActividades()
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
+        binding.searchView.addTransitionListener { _, _, newState ->
+            if (newState == SearchView.TransitionState.SHOWN) {
+                if (binding.searchView.getEditText().text.isNullOrBlank()) {
+                    viewModel.buscarActividades("")
+                }
+            }
+            if (newState == SearchView.TransitionState.HIDDEN) {
+                viewModel.buscarActividades("")
+            }
+        }
+
         binding.searchView.getEditText().addTextChangedListener { text ->
-            val query = text.toString().trim()
-            viewModel.buscarRepresentantes(query)
+            val query: String = text?.toString()?.trim().orEmpty()
+            searchJob?.cancel()
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                delay(400)
+                viewModel.buscarActividades(query)
+            }
         }
 
         binding.btnRegistrarActividad.setOnClickListener {
-//            findNavController().navigate(
-//                PacientesFragmentDirections.actionPacientesFragmentToRegistrarPacienteFragment(
-//                    null, true
-//                )
-//            )
+            // Navegación a futuro: registrar actividad
         }
     }
 
     private fun setupObservers() {
-        // Pacientes
-        viewModel.actividades.observe(viewLifecycleOwner) { pacientes ->
-            actividadAdapter.updateActividades(pacientes)
+        viewModel.actividades.observe(viewLifecycleOwner) { actividades ->
+            actividadAdapter.updateActividades(actividades)
         }
 
-
-        // Pacientes filtrados
-        viewModel.actividadesFiltradas.observe(viewLifecycleOwner) { pacientesFiltrados ->
-            actividadFiltradoAdapter.updateActividades(pacientesFiltrados)
+        viewModel.actividadesFiltradas.observe(viewLifecycleOwner) { actividadesFiltradas ->
+            actividadFiltradoAdapter.updateActividades(actividadesFiltradas)
         }
 
-        // Mensajes
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             mensaje?.let {
                 mostrarSnackbar(binding.root, it)
+                viewModel.clearMensaje()
             }
         }
 
-        // Loading
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.swipeRefreshLayout.isRefreshing = isLoading
         }
     }
 
     private fun onActividadConTipoClick(actividadConTipo: ActividadConTipo) {
-//        findNavController().navigate(
-//            ActividadFragmentDirections.actionPacientesFragmentToAccionesPacienteFragment(actividadConTipo.id)
-//        )
+        // Navegación a futuro: acciones sobre la actividad
     }
 }

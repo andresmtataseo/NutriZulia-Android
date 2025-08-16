@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.search.SearchView
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentConsultasBinding
@@ -16,6 +18,9 @@ import com.nutrizulia.presentation.adapter.PacienteConCitaAdapter
 import com.nutrizulia.presentation.viewmodel.consulta.ConsultasViewModel
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ConsultasFragment : Fragment() {
@@ -24,6 +29,7 @@ class ConsultasFragment : Fragment() {
     private lateinit var binding: FragmentConsultasBinding
     private lateinit var pacienteConCitaAdapter: PacienteConCitaAdapter
     private lateinit var pacienteConCitaFiltradoAdapter: PacienteConCitaAdapter
+    private var searchJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -112,9 +118,24 @@ class ConsultasFragment : Fragment() {
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
+        binding.searchView.addTransitionListener { _, _, newState ->
+            if (newState == SearchView.TransitionState.SHOWN) {
+                if (binding.searchView.getEditText().text.isNullOrBlank()) {
+                    viewModel.buscarConsultas("")
+                }
+            }
+            if (newState == SearchView.TransitionState.HIDDEN) {
+                viewModel.buscarConsultas("")
+            }
+        }
+
         binding.searchView.getEditText().addTextChangedListener { text ->
-            val query = text.toString().trim()
-            viewModel.buscarConsultas(query)
+            val query: String = text?.toString()?.trim().orEmpty()
+            searchJob?.cancel()
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                delay(400)
+                viewModel.buscarConsultas(query)
+            }
         }
 
         binding.btnAgendar.apply {
@@ -167,6 +188,7 @@ class ConsultasFragment : Fragment() {
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             mensaje?.let {
                 Utils.mostrarSnackbar(binding.root, it)
+                viewModel.clearMensaje()
             }
         }
 

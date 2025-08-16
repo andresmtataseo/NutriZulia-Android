@@ -8,7 +8,7 @@
     android:layout_margin="8dp"
     android:clickable="true"
     android:background="?android:attr/selectableItemBackground"
-    app:cardElevation="3dp">
+    app:cardElevation="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,11 +22,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
-            android:text="NOMBRE COMPLETO PACIENTE"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:text="NOMBRE"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
         <!-- Cédula -->
         <LinearLayout
@@ -40,15 +37,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="Cédula: V12345678"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:text="Cédula:"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
             <TextView
                 android:id="@+id/tvEdad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Edad:" />
+                android:text="Edad:"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
         </LinearLayout>
 
 
@@ -64,8 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:text="Fecha: "
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
             <TextView
                 android:id="@+id/tvHoraProgramda"
@@ -73,8 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:text="Hora: "
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
         </LinearLayout>
 
@@ -89,43 +84,40 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Estado: "
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
             <TextView
                 android:id="@+id/tvEstado"
-                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:text="PENDIENTE"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="right"
-            android:visibility="gone">
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:gravity="right"-->
+<!--            android:visibility="gone">-->
 
-            <Button
-                android:id="@+id/btnReagendar"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:text="Modificar" />
+<!--            <Button-->
+<!--                android:id="@+id/btnReagendar"-->
+<!--                style="@style/Widget.Material3.Button.TextButton"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginEnd="4dp"-->
+<!--                android:text="Modificar" />-->
 
-            <Button
-                android:id="@+id/btnVerMas"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ver mas" />
+<!--            <Button-->
+<!--                android:id="@+id/btnVerMas"-->
+<!--                style="@style/Widget.Material3.Button.TextButton"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Ver mas" />-->
 
-        </LinearLayout>
+<!--        </LinearLayout>-->
 
 
     </LinearLayout>

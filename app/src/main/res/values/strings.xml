@@ -137,7 +137,7 @@
     <string name="reintentar">Reintentar</string>
     <string name="corrija_errores_formulario">Por favor, corrija los errores en el formulario.</string>
     <string name="contacto_admin_titulo">¿No puedes recuperar tu contraseña?</string>
-    <string name="contacto_admin_mensaje">Si tienes problemas para recuperar tu contraseña, puedes contactar al administrador del sistema para obtener ayuda.\n\nCorreo: admin@nutrizulia.com\nTeléfono: +58 261 123-4567</string>
+    <string name="contacto_admin_mensaje">Si tienes problemas para recuperar tu contraseña, puedes contactar al administrador del sistema para obtener ayuda.\n\nCorreo: nutrizulia@gmail.com\nTeléfono: No disponible</string>
     <string name="volver_login">Volver al login</string>
     <string name="mensaje_info_recuperacion">💡 Recibirás un enlace de recuperación en tu correo electrónico registrado. Revisa también tu carpeta de spam.</string>
     
@@ -150,4 +150,7 @@
     <string name="error_sincronizacion_red">Error de conexión. Verifique su conexión a internet</string>
     <string name="error_sincronizacion_desconocido">Error inesperado durante la sincronización</string>
     <string name="actividades">Actividades</string>
+    <string name="para_cualquier_otra_duda_o_problema_cont_ctanos_a_trav_s_del_correo_electr_nico_nutrizulia_gmail_com">Para cualquier otra duda o problema, contáctanos a través del correo electrónico nutrizulia@gmail.com</string>
+    <string name="herramientas_y_utilidades">Herramientas y Utilidades</string>
+    <string name="gesti_n_de_datos">Gestión de Datos</string>
 </resources>

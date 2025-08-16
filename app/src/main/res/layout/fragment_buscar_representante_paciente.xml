@@ -24,7 +24,7 @@
             android:id="@+id/recyclerViewRepresentantes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="8dp"
             android:clipToPadding="false"
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -58,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="8dp"
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/item_representante" />

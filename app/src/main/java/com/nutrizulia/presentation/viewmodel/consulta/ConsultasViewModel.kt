@@ -29,8 +29,8 @@ class ConsultasViewModel @Inject constructor(
     private val _filtro = MutableLiveData<String>()
     val filtro: LiveData<String> get() = _filtro
 
-    private val _mensaje = MutableLiveData<String>()
-    val mensaje: LiveData<String> get() = _mensaje
+    private val _mensaje = MutableLiveData<String?>()
+    val mensaje: LiveData<String?> get() = _mensaje
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
@@ -40,6 +40,10 @@ class ConsultasViewModel @Inject constructor(
 
     fun onCreate() {
         obtenerConsultas()
+    }
+
+    fun clearMensaje() {
+        _mensaje.value = null
     }
 
     fun obtenerConsultas() {
@@ -64,15 +68,27 @@ class ConsultasViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
 
+            if (query.isBlank()) {
+                _filtro.value = ""
+                _pacientesConCitasFiltrados.value = emptyList()
+                _isLoading.value = false
+                return@launch
+            }
+
             sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
                 _idUsuarioInstitucion.value = institutionId
             } ?: run {
                 _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
+                _isLoading.value = false
+                return@launch
             }
 
             _filtro.value = query
             val result = getPacientesConCitasByFiltro(idUsuarioInstitucion.value ?: 0, filtro.value ?: "")
-            if (result.isNotEmpty()) {
+            if (result.isEmpty()) {
+                _pacientesConCitasFiltrados.value = emptyList()
+                _mensaje.value = "No se encontraron pacientes con citas."
+            } else {
                 _pacientesConCitasFiltrados.value = result
             }
             _isLoading.value = false

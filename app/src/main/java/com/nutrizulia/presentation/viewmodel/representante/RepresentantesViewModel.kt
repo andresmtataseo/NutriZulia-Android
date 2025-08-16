@@ -55,8 +55,8 @@ class RepresentantesViewModel @Inject constructor(
     // Ui states
     private val _filtro = MutableLiveData<String>()
     val filtro: LiveData<String> get() = _filtro
-    private val _mensaje = MutableLiveData<String>()
-    val mensaje: LiveData<String> get() = _mensaje
+    private val _mensaje = MutableLiveData<String?>()
+    val mensaje: LiveData<String?> get() = _mensaje
     private val _errores = MutableLiveData<Map<String, String>>()
     val errores: LiveData<Map<String, String>> = _errores
     private val _salir = MutableLiveData<Boolean>()
@@ -68,20 +68,23 @@ class RepresentantesViewModel @Inject constructor(
         obtenerRepresentantes()
     }
 
+    fun clearMensaje() {
+        _mensaje.value = null
+    }
+
     fun obtenerRepresentantes() {
         viewModelScope.launch {
             _isLoading.value = true
 
             val institutionId = getCurrentInstitutionId() ?: run {
                 _mensaje.value = "No se ha seleccionado una institución."
+                _isLoading.value = false
                 return@launch
             }
             _idUsuarioInstitucion.value = institutionId
 
             val result = getRepresentantes(idUsuarioInstitucion.value ?: 0)
-            if (result.isNotEmpty()) {
-                _representantes.value = result
-            }
+            _representantes.value = result
             _isLoading.value = false
         }
     }
@@ -90,18 +93,27 @@ class RepresentantesViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
 
+            if (query.isBlank()) {
+                _filtro.value = ""
+                _representantesFiltrados.value = emptyList()
+                _isLoading.value = false
+                return@launch
+            }
+
             val institutionId = getCurrentInstitutionId() ?: run {
                 _mensaje.value = "No se ha seleccionado una institución."
+                _isLoading.value = false
                 return@launch
             }
             _idUsuarioInstitucion.value = institutionId
 
             _filtro.value = query
             val result = getRepresentantesByFiltro(idUsuarioInstitucion.value ?: 0, filtro.value ?: "")
-            if (result.isNotEmpty()) {
-                _representantesFiltrados.value = result
-            } else {
+            if (result.isEmpty()) {
+                _representantesFiltrados.value = emptyList()
                 _mensaje.value = "No se encontraron representantes."
+            } else {
+                _representantesFiltrados.value = result
             }
             _isLoading.value = false
         }

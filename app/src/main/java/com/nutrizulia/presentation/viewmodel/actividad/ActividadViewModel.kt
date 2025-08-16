@@ -29,8 +29,8 @@ class ActividadViewModel @Inject constructor(
     private val _filtro = MutableLiveData<String>()
     val filtro: LiveData<String> get() = _filtro
 
-    private val _mensaje = MutableLiveData<String>()
-    val mensaje: LiveData<String> get() = _mensaje
+    private val _mensaje = MutableLiveData<String?>()
+    val mensaje: LiveData<String?> get() = _mensaje
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
@@ -39,46 +39,52 @@ class ActividadViewModel @Inject constructor(
     val idUsuarioInstitucion: LiveData<Int> get() = _idUsuarioInstitucion
 
     fun onCreate() {
-        obtenerRepresentantes()
+        obtenerActividades()
     }
 
-    fun obtenerRepresentantes() {
+    fun clearMensaje() {
+        _mensaje.value = null
+    }
+
+    fun obtenerActividades() {
         viewModelScope.launch {
             _isLoading.value = true
-
             val institutionId = getCurrentInstitutionId() ?: run {
                 _mensaje.value = "No se ha seleccionado una institución."
+                _isLoading.value = false
                 return@launch
             }
             _idUsuarioInstitucion.value = institutionId
-
             val result = getActividades(idUsuarioInstitucion.value!!)
-            if (result.isNotEmpty()) {
-                _actividades.value = result
-            }
+            _actividades.value = result
             _isLoading.value = false
         }
     }
 
-    fun buscarRepresentantes(query: String) {
+    fun buscarActividades(query: String) {
         viewModelScope.launch {
             _isLoading.value = true
-
+            if (query.isBlank()) {
+                _filtro.value = ""
+                _actividadesFiltradas.value = emptyList()
+                _isLoading.value = false
+                return@launch
+            }
             val institutionId = getCurrentInstitutionId() ?: run {
                 _mensaje.value = "No se ha seleccionado una institución."
+                _isLoading.value = false
                 return@launch
             }
             _idUsuarioInstitucion.value = institutionId
-
             _filtro.value = query
             val result = getActividadesByFiltro(idUsuarioInstitucion.value!!, filtro.value ?: "")
-            if (result.isNotEmpty()) {
-                _actividadesFiltradas.value = result
+            if (result.isEmpty()) {
+                _actividadesFiltradas.value = emptyList()
+                _mensaje.value = "No se encontraron actividades."
             } else {
-                _mensaje.value = "No se encontraron representantes."
+                _actividadesFiltradas.value = result
             }
             _isLoading.value = false
         }
     }
-
 }

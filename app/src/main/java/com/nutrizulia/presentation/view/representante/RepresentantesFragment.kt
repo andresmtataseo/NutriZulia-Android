@@ -8,10 +8,12 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.search.SearchView
 import com.nutrizulia.databinding.FragmentRepresentantesBinding
 import com.nutrizulia.domain.model.collection.Representante
 import com.nutrizulia.presentation.adapter.RepresentanteAdapter
@@ -19,6 +21,9 @@ import com.nutrizulia.presentation.view.paciente.PacientesFragmentDirections
 import com.nutrizulia.presentation.viewmodel.representante.RepresentantesViewModel
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RepresentantesFragment : Fragment() {
@@ -30,6 +35,7 @@ class RepresentantesFragment : Fragment() {
 
     private lateinit var representanteAdapter: RepresentanteAdapter
     private lateinit var representanteFiltradoAdapter: RepresentanteAdapter
+    private var searchJob: Job? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentRepresentantesBinding.inflate(inflater, container, false)
@@ -79,9 +85,24 @@ class RepresentantesFragment : Fragment() {
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
+        binding.searchView.addTransitionListener { _, _, newState ->
+            if (newState == SearchView.TransitionState.SHOWN) {
+                if (binding.searchView.getEditText().text.isNullOrBlank()) {
+                    viewModel.buscarRepresentantes("")
+                }
+            }
+            if (newState == SearchView.TransitionState.HIDDEN) {
+                viewModel.buscarRepresentantes("")
+            }
+        }
+
         binding.searchView.getEditText().addTextChangedListener { text ->
-            val query = text.toString().trim()
-            viewModel.buscarRepresentantes(query)
+            val query: String = text?.toString()?.trim().orEmpty()
+            searchJob?.cancel()
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                delay(400)
+                viewModel.buscarRepresentantes(query)
+            }
         }
 
         binding.btnRegistrarRepresentante.setOnClickListener {
@@ -105,6 +126,7 @@ class RepresentantesFragment : Fragment() {
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
             mensaje?.let {
                 Utils.mostrarSnackbar(binding.root, it)
+                viewModel.clearMensaje()
             }
         }
 

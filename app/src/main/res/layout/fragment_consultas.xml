@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="8dp"
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/item_paciente" />
@@ -87,7 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="8dp"
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/item_cita" />
@@ -103,8 +103,8 @@
         android:layout_margin="16dp"
         app:sdMainFabClosedSrc="@drawable/ic_mas"
         app:sdMainFabOpenedSrc="@drawable/ic_cerrar"
-        app:sdMainFabClosedBackgroundColor="@color/md_theme_primary"
-        app:sdMainFabOpenedBackgroundColor="@color/md_theme_primaryContainer"
+        app:sdMainFabClosedBackgroundColor="@color/md_theme_primaryContainer"
+        app:sdMainFabOpenedBackgroundColor="@color/md_theme_secondaryContainer_highContrast"
         android:contentDescription="" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

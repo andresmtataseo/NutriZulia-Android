@@ -20,14 +20,14 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewPacientes"
+            android:id="@+id/recyclerViewActividades"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="8dp"
             android:clipToPadding="false"
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/item_paciente" />
+            tools:listitem="@layout/item_actividad" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.appbar.AppBarLayout
@@ -51,10 +51,10 @@
         app:layout_anchor="@id/search_bar">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewPacientesFiltrados"
+            android:id="@+id/recyclerViewActividadesFiltradas"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="8dp"
             android:clipToPadding="false"
             android:paddingBottom="88dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
