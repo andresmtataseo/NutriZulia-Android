@@ -61,5 +61,14 @@ class SeleccionarRepresentanteFragment : BottomSheetDialogFragment() {
         parentFragmentManager.setFragmentResult("representante_seleccionado", result)
         dismiss()
     }
+    
+    fun cambiarATabBusqueda() {
+        // Cambiar al tab de búsqueda (posición 0)
+        binding.viewPager.currentItem = 0
+        
+        // Obtener referencia al fragment de búsqueda y actualizar la lista
+        val buscarFragment = childFragmentManager.fragments.find { it is BuscarRepresentantePacienteFragment } as? BuscarRepresentantePacienteFragment
+        buscarFragment?.actualizarListaRepresentantes()
+    }
 
 }

@@ -150,5 +150,9 @@ class BuscarRepresentantePacienteFragment : Fragment() {
         val parentescoDialog = SeleccionarParentescoDialogFragment()
         parentescoDialog.show(parentFragmentManager, "ParentescoSelectionDialog")
     }
+    
+    fun actualizarListaRepresentantes() {
+        viewModel.obtenerRepresentantes()
+    }
 
 }

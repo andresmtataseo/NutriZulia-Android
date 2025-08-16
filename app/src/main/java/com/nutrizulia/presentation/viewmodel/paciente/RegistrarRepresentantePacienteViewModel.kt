@@ -93,6 +93,9 @@ class RegistrarRepresentantePacienteViewModel @Inject constructor(
     val errores: LiveData<Map<String, String>> = _errores
     private val _salir = MutableLiveData<Boolean>()
     val salir: LiveData<Boolean> = _salir
+    
+    private val _registroExitoso = MutableLiveData<Boolean>().apply { value = false }
+    val registroExitoso: LiveData<Boolean> = _registroExitoso
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
     
@@ -302,7 +305,7 @@ class RegistrarRepresentantePacienteViewModel @Inject constructor(
             try {
                 saveRepresentante(representanteToSave)
                 _mensaje.value = "Representante guardado correctamente."
-                _salir.value = true
+                _registroExitoso.value = true
             } catch (e: DomainException) {
                 _mensaje.value = e.message
             } catch (e: Exception) {

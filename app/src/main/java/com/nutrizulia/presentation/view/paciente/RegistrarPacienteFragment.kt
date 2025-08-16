@@ -518,11 +518,13 @@ class RegistrarPacienteFragment : Fragment() {
                 
                 // Mostrar/ocultar botones según el estado del representante
                 binding.btnSeleccinarRepresentate.visibility = View.GONE
-                binding.btnRemoverRepresentante.visibility = View.VISIBLE
+                // Solo mostrar el botón de remover si el fragmento es editable
+                binding.btnRemoverRepresentante.visibility = if (args.isEditable) View.VISIBLE else View.GONE
             } else {
                 binding.cardPaciente.visibility = View.GONE
                 binding.tvSinRepresentante.visibility = View.VISIBLE
-                binding.btnSeleccinarRepresentate.visibility = View.VISIBLE
+                // Solo mostrar el botón de seleccionar si el fragmento es editable
+                binding.btnSeleccinarRepresentate.visibility = if (args.isEditable) View.VISIBLE else View.GONE
                 binding.btnRemoverRepresentante.visibility = View.GONE
                 binding.btnSeleccinarRepresentate.text = "Seleccionar representante"
                 binding.btnSeleccinarRepresentate.isEnabled = true

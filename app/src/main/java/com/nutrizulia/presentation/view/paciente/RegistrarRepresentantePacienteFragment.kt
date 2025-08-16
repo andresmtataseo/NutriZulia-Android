@@ -69,6 +69,13 @@ class RegistrarRepresentantePacienteFragment : Fragment() {
         viewModel.salir.observe(viewLifecycleOwner) { salir ->
             if (salir) findNavController().popBackStack()
         }
+        
+        viewModel.registroExitoso.observe(viewLifecycleOwner) { registroExitoso ->
+            if (registroExitoso) {
+                // Comunicar al fragment padre (SeleccionarRepresentanteFragment) para cambiar al tab de búsqueda
+                (parentFragment as? SeleccionarRepresentanteFragment)?.cambiarATabBusqueda()
+            }
+        }
 
         viewModel.errores.observe(viewLifecycleOwner) { errores ->
             quitarErrores()
