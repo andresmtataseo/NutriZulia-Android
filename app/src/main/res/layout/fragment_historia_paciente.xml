@@ -136,83 +136,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnFiltros"
-            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Filtros"
-            app:icon="@drawable/ic_filter_list" />
-
     </LinearLayout>
-
-    <!-- Chips de filtros rápidos -->
-    <HorizontalScrollView
-        android:id="@+id/scrollChips"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:scrollbars="none"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutFiltros">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupFiltros"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
-            app:chipSpacingHorizontal="8dp"
-            app:selectionRequired="false"
-            app:singleSelection="false">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipTodos"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="Todos" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipConsultas"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Consultas" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipDiagnosticos"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Diagnósticos" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAntropometria"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Antropometría" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipSignosVitales"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Signos Vitales" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipLaboratorio"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Laboratorio" />
-
-        </com.google.android.material.chip.ChipGroup>
-
-    </HorizontalScrollView>
 
     <!-- RecyclerView para la timeline de historia clínica -->
     <androidx.recyclerview.widget.RecyclerView
@@ -225,7 +149,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scrollChips"
+        app:layout_constraintTop_toBottomOf="@id/layoutFiltros"
         tools:listitem="@layout/item_evento_historia_clinica" />
 
     <!-- Estado vacío -->

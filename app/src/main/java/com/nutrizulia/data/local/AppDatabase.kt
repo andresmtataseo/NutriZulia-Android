@@ -13,6 +13,7 @@ import com.nutrizulia.data.local.dao.catalog.*
 import com.nutrizulia.data.local.dao.collection.*
 import com.nutrizulia.data.local.dao.user.*
 
+
 @Database(
     entities = [
         // Catalog
@@ -61,7 +62,8 @@ import com.nutrizulia.data.local.dao.user.*
         PacienteConCita::class,
         PacienteConConsultaYDetalles::class,
         PerfilInstitucional::class,
-        ActividadConTipo::class
+        ActividadConTipo::class,
+        HistorialMedicoCompletoView::class
     ],
     version = 1,
     exportSchema = false
@@ -120,5 +122,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun pacienteConCitaDao(): PacienteConCitaDao
     abstract fun pacienteConConsultaYDetallesDao(): PacienteConConsultaYDetallesDao
     abstract fun perfilInstitucionalDao(): PerfilInstitucionalDao
+    abstract fun historialMedicoDao(): HistorialMedicoDao
 
 }

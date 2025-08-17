@@ -66,19 +66,19 @@ class AccionesRepresentanteFragment : Fragment() {
 
     private fun setupListeners() {
         binding.cardViewInformacionPersonal.setOnClickListener {
-//            findNavController().navigate(
-//                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToRegistrarPacienteFragment(
-//                    args.representanteId, false
-//                )
-//            )
+            findNavController().navigate(
+                AccionesRepresentanteFragmentDirections.actionAccionesRepresentanteFragmentToRegistrarRepresentanteFragment(
+                    args.representanteId, false
+                )
+            )
         }
 
         binding.cardViewEditarInformacionPersonal.setOnClickListener {
-//            findNavController().navigate(
-//                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToRegistrarPacienteFragment(
-//                    args.idPaciente
-//                )
-//            )
+            findNavController().navigate(
+                AccionesRepresentanteFragmentDirections.actionAccionesRepresentanteFragmentToRegistrarRepresentanteFragment(
+                    args.representanteId
+                )
+            )
         }
 
         binding.cardViewPacientesRepresentados.setOnClickListener {

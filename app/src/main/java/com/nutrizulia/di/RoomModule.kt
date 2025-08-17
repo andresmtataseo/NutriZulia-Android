@@ -193,4 +193,8 @@ object RoomModule {
     @Singleton
     @Provides
     fun providePerfilInstitucionalDao(database: AppDatabase) = database.perfilInstitucionalDao()
+
+    @Singleton
+    @Provides
+    fun provideHistorialMedicoDao(database: AppDatabase) = database.historialMedicoDao()
 }
