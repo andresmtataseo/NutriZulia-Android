@@ -1,4 +1,4 @@
-package com.nutrizulia.presentation.view.representante
+package com.nutrizulia.presentation.viewmodel.representante
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -82,11 +82,11 @@ class AccionesRepresentanteFragment : Fragment() {
         }
 
         binding.cardViewPacientesRepresentados.setOnClickListener {
-//            findNavController().navigate(
-//                AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToHistoriaPacienteFragment(
-//                    args.idPaciente
-//                )
-//            )
+            findNavController().navigate(
+                AccionesRepresentanteFragmentDirections.actionAccionesRepresentanteFragmentToPacientesRepresentadosFragment(
+                    args.representanteId
+                )
+            )
         }
 
     }

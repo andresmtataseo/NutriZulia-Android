@@ -20,6 +20,8 @@ import com.nutrizulia.domain.usecase.historial.GetAniosHistorialPacienteUseCase
 import com.nutrizulia.util.SessionManager
 import com.nutrizulia.domain.mapper.HistorialMedicoMapper
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.CancellationException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -146,20 +148,22 @@ class HistoriaPacienteViewModel @Inject constructor(
 
     private suspend fun loadHistorialInicial(pacienteId: String) {
         try {
-            getHistorialCompletoUseCase(pacienteId).collect { historialCompleto ->
-                     val eventos = historialCompleto.map { historial ->
-                         HistorialMedicoMapper.mapToEventoHistoriaClinica(historial)
-                     }.sortedByDescending { it.fechaEvento }
-                
-                updateEstado { 
-                    it.copy(
-                        eventos = eventos,
-                        paginaActual = 0,
-                        hayMasPaginas = eventos.size >= ITEMS_PER_PAGE,
-                        isLoading = false
-                    )
-                }
+            val historialCompleto = getHistorialCompletoUseCase(pacienteId).first()
+            val eventos = historialCompleto.map { historial ->
+                HistorialMedicoMapper.mapToEventoHistoriaClinica(historial)
+            }.sortedByDescending { it.fechaEvento }
+            
+            updateEstado { 
+                it.copy(
+                    eventos = eventos,
+                    paginaActual = 0,
+                    hayMasPaginas = eventos.size >= ITEMS_PER_PAGE,
+                    isLoading = false
+                )
             }
+        } catch (e: CancellationException) {
+            Log.d(TAG, "Carga de historial inicial cancelada (fragmento cerrado)", e)
+            // No lanzar excepción para cancelaciones normales del ciclo de vida
         } catch (e: UnknownHostException) {
             Log.e(TAG, "Error de conexión al cargar historial inicial", e)
             throw HistorialPacienteException.ConexionException("Sin conexión a internet", e)

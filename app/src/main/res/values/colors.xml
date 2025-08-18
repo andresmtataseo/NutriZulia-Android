@@ -6,6 +6,15 @@
     <color name="color_sync_success">#4CAF50</color>
     <color name="color_sync_error">#F44336</color>
     
+    <!-- Colores para estados de consultas -->
+    <color name="estado_completada">#4CAF50</color>
+    <color name="estado_pendiente">#FF9800</color>
+    <color name="estado_cancelada">#F44336</color>
+    <color name="estado_reprogramada">#2196F3</color>
+    <color name="estado_no_asistio">#9C27B0</color>
+    <color name="estado_sin_previa_cita">#607D8B</color>
+    <color name="consulta_general">#757575</color>
+    
     <!-- Colores para mensajes de sincronización por lotes -->
     <color name="success_color">#4CAF50</color>
     <color name="error_color">#F44336</color>

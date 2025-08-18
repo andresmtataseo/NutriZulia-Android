@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import com.nutrizulia.databinding.FragmentPacientesRepresentadosBinding
+import com.nutrizulia.presentation.viewmodel.representante.PacientesRepresentadosViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
