@@ -63,7 +63,8 @@ import com.nutrizulia.data.local.dao.user.*
         PacienteConConsultaYDetalles::class,
         PerfilInstitucional::class,
         ActividadConTipo::class,
-        HistorialMedicoCompletoView::class
+        HistorialMedicoCompletoView::class,
+        PacienteRepresentadoView::class
     ],
     version = 1,
     exportSchema = false
@@ -123,5 +124,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun pacienteConConsultaYDetallesDao(): PacienteConConsultaYDetallesDao
     abstract fun perfilInstitucionalDao(): PerfilInstitucionalDao
     abstract fun historialMedicoDao(): HistorialMedicoDao
+    abstract fun pacienteRepresentadoDao(): PacienteRepresentadoDao
 
 }

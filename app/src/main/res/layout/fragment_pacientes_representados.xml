@@ -21,7 +21,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewRepresentantes"
+            android:id="@+id/recyclerViewPacientesRepresentados"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingHorizontal="8dp"
@@ -53,7 +53,7 @@
         app:layout_anchor="@id/search_bar">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewRepresentantesFiltrados"
+            android:id="@+id/recyclerViewPacientesRepresentadosFiltrados"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"

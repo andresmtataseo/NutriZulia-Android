@@ -1,10 +1,12 @@
 package com.nutrizulia.data.repository.collection
 
 import com.nutrizulia.data.local.dao.collection.PacienteRepresentanteDao
+import com.nutrizulia.data.local.dao.PacienteRepresentadoDao
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.domain.model.SyncResult
 import com.nutrizulia.domain.model.BatchSyncResult
 import com.nutrizulia.domain.model.collection.PacienteRepresentante
+import com.nutrizulia.domain.model.collection.PacienteRepresentado
 import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
@@ -12,11 +14,14 @@ import com.nutrizulia.data.remote.api.collection.IFullSyncService
 import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.toSyncResult
 import com.nutrizulia.domain.model.toBatchSyncResult
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 class PacienteRepresentanteRepository @Inject constructor(
     private val pacienteRepresentanteDao: PacienteRepresentanteDao,
+    private val pacienteRepresentadoDao: PacienteRepresentadoDao,
     private val batchApi: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ){
@@ -30,6 +35,27 @@ class PacienteRepresentanteRepository @Inject constructor(
     
     suspend fun upsert(pacienteRepresentante: PacienteRepresentante) {
         return pacienteRepresentanteDao.upsert(pacienteRepresentante.toEntity())
+    }
+
+    // Métodos para PacienteRepresentado
+    suspend fun findAllPacientesRepresentadosByRepresentanteId(usuarioInstitucionId: Int, representanteId: String): List<PacienteRepresentado> {
+        return pacienteRepresentadoDao.findAllByRepresentanteId(usuarioInstitucionId, representanteId).map { it.toDomain() }
+    }
+
+    suspend fun findAllPacientesRepresentadosByRepresentanteIdAndFilter(usuarioInstitucionId: Int, representanteId: String, query: String): List<PacienteRepresentado> {
+        return pacienteRepresentadoDao.findAllByRepresentanteIdAndFilter(usuarioInstitucionId, representanteId, query).map { it.toDomain() }
+    }
+
+    fun findAllPacientesRepresentadosByRepresentanteIdFlow(usuarioInstitucionId: Int, representanteId: String): Flow<List<PacienteRepresentado>> {
+        return pacienteRepresentadoDao.findAllByRepresentanteIdFlow(usuarioInstitucionId, representanteId).map { list -> list.map { it.toDomain() } }
+    }
+
+    suspend fun findPacienteRepresentadoByPacienteId(usuarioInstitucionId: Int, pacienteId: String): PacienteRepresentado? {
+        return pacienteRepresentadoDao.findByPacienteId(usuarioInstitucionId, pacienteId)?.toDomain()
+    }
+
+    suspend fun countPacientesRepresentadosByRepresentanteId(usuarioInstitucionId: Int, representanteId: String): Int {
+        return pacienteRepresentadoDao.countByRepresentanteId(usuarioInstitucionId, representanteId)
     }
 
     suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {

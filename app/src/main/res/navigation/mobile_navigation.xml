@@ -494,11 +494,18 @@
     <fragment
         android:id="@+id/pacientesRepresentadosFragment"
         android:name="com.nutrizulia.presentation.view.representante.PacientesRepresentadosFragment"
-        android:label="fragment_pacientes_representados"
-        tools:layout="@layout/fragment_pacientes_representados" >
+        android:label="Pacientes Representados"
+        tools:layout="@layout/fragment_pacientes_representados">
         <argument
             android:name="representanteId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_pacientesRepresentadosFragment_to_accionesPacienteFragment"
+            app:destination="@id/accionesPacienteFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
 </navigation>

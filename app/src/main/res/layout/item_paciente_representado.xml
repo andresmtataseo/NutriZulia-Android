@@ -16,22 +16,18 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Nombre completo -->
         <TextView
             android:id="@+id/tvNombreCompleto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="NOMBRE"
+            android:text="Nombre del Paciente"
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
-
-        <!-- Cédula -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:paddingTop="4dp">
-
             <TextView
                 android:id="@+id/tvCedula"
                 android:layout_width="wrap_content"
@@ -39,7 +35,6 @@
                 android:layout_marginEnd="16dp"
                 android:text="Cédula:"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
-
             <TextView
                 android:id="@+id/tvEdad"
                 android:layout_width="wrap_content"
@@ -48,20 +43,16 @@
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
         </LinearLayout>
 
-        <!-- Fecha de nacimiento -->
-
-        <!-- Correo o teléfono (opcional) -->
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:paddingTop="4dp">
-
             <TextView
                 android:id="@+id/tvFechaNacimiento"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
                 android:text="Fecha de nacimiento:"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
         </LinearLayout>
@@ -71,27 +62,45 @@
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:paddingTop="4dp">
-
             <TextView
                 android:id="@+id/tvGenero"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
                 android:text="Género:"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+            <TextView
+                android:id="@+id/tvTelefono"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Teléfono:"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
         </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:paddingTop="4dp">
-
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Parentesco:"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textStyle="bold" />
             <TextView
                 android:id="@+id/tvParentesco"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Parentesco:"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+                android:text="Parentesco"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textColor="?attr/colorPrimary" />
         </LinearLayout>
 
     </LinearLayout>
