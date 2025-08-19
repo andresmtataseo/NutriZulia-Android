@@ -196,9 +196,5 @@ object RoomModule {
 
     @Singleton
     @Provides
-    fun provideHistorialMedicoDao(database: AppDatabase) = database.historialMedicoDao()
-
-    @Singleton
-    @Provides
     fun providePacienteRepresentadoDao(database: AppDatabase) = database.pacienteRepresentadoDao()
 }

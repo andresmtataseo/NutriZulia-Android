@@ -1,279 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".presentation.view.paciente.HistoriaPacienteFragment">
 
-    <!-- Card con información básica del paciente -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardPaciente"
-        style="?attr/materialCardViewElevatedStyle"
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="@color/md_theme_primaryContainer"
-        app:cardElevation="6dp"
-        app:layout_constraintBottom_toTopOf="@+id/layoutFiltros"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:indeterminate="true"
+        android:visibility="gone" />
 
-        <LinearLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHistoriaClinica"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="8dp"
+            android:paddingBottom="88dp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:listitem="@layout/item_historia_paciente" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:hint="Buscar historia"
+            app:liftOnScroll="true"
+            app:liftOnScrollColor="?attr/colorSurfaceContainerHighest" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-            <!-- Nombre completo -->
-            <TextView
-                android:id="@+id/tvNombreCompleto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:text="NOMBRE"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                android:textColor="@color/md_theme_onPrimaryContainer" />
+    <com.google.android.material.search.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="Buscar historia"
+        app:layout_anchor="@id/search_bar">
 
-            <!-- Cédula -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:paddingTop="4dp">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHistoriaClinicaFiltrada"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="8dp"
+            android:paddingBottom="88dp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:listitem="@layout/item_historia_paciente" />
 
-                <TextView
-                    android:id="@+id/tvCedula"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:text="Cédula:"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/md_theme_onPrimaryContainer" />
+    </com.google.android.material.search.SearchView>
 
-                <TextView
-                    android:id="@+id/tvGenero"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Género:"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/md_theme_onPrimaryContainer" />
-            </LinearLayout>
-
-            <!-- Fecha de nacimiento -->
-
-            <!-- Correo o teléfono (opcional) -->
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:paddingTop="4dp">
-
-                <TextView
-                    android:id="@+id/tvFechaNacimiento"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:text="Fecha de nacimiento:"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/md_theme_onPrimaryContainer" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:paddingTop="4dp">
-
-                <TextView
-                    android:id="@+id/tvEdad"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Edad:"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="@color/md_theme_onPrimaryContainer" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-<!--    <androidx.coordinatorlayout.widget.CoordinatorLayout -->
-<!--        xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--        xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--        xmlns:tools="http://schemas.android.com/tools"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        tools:context=".presentation.view.paciente.HistoriaPacienteFragment">-->
-
-<!--        <com.google.android.material.progressindicator.LinearProgressIndicator-->
-<!--            android:id="@+id/progress"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:indeterminate="true"-->
-<!--            android:visibility="gone" />-->
-
-<!--        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
-<!--            android:id="@+id/swipeRefreshLayout"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
-
-<!--            <androidx.recyclerview.widget.RecyclerView-->
-<!--                android:id="@+id/recyclerViewPacientes"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:paddingHorizontal="8dp"-->
-<!--                android:clipToPadding="false"-->
-<!--                android:paddingBottom="88dp"-->
-<!--                app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
-<!--                tools:listitem="@layout/item_paciente" />-->
-<!--        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
-
-<!--        <com.google.android.material.appbar.AppBarLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content">-->
-
-<!--            <com.google.android.material.search.SearchBar-->
-<!--                android:id="@+id/search_bar"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:hint="@string/buscar_paciente"-->
-<!--                app:liftOnScroll="true"-->
-<!--                app:liftOnScrollColor="?attr/colorSurfaceContainerHighest" />-->
-<!--        </com.google.android.material.appbar.AppBarLayout>-->
-
-<!--        <com.google.android.material.search.SearchView-->
-<!--            android:id="@+id/searchView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:hint="@string/buscar_paciente"-->
-<!--            app:layout_anchor="@id/search_bar">-->
-
-<!--            <androidx.recyclerview.widget.RecyclerView-->
-<!--                android:id="@+id/recyclerViewPacientesFiltrados"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:paddingHorizontal="8dp"-->
-<!--                android:clipToPadding="false"-->
-<!--                android:paddingBottom="88dp"-->
-<!--                app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
-<!--                tools:listitem="@layout/item_paciente" />-->
-
-<!--        </com.google.android.material.search.SearchView>-->
-
-<!--        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
-<!--            android:id="@+id/btnRegistrarPaciente"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="bottom|end"-->
-<!--            android:layout_margin="16dp"-->
-<!--            android:contentDescription="@string/icono_de_registrar_paciente_nuevo"-->
-<!--            android:text="@string/registrar"-->
-<!--            app:icon="@drawable/ic_agregar_paciente" />-->
-<!--    </androidx.coordinatorlayout.widget.CoordinatorLayout>-->
-
-
-    <!-- Filtros y búsqueda -->
-    <LinearLayout
-        android:id="@+id/layoutFiltros"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardPaciente">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilBusqueda"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:hint="Buscar en historia clínica"
-            app:endIconDrawable="@drawable/ic_search"
-            app:endIconMode="custom">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etBusqueda"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="1" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-    </LinearLayout>
-
-    <!-- RecyclerView para la timeline de historia clínica -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvHistoriaClinica"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:clipToPadding="false"
-        android:paddingBottom="80dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutFiltros"
-        tools:listitem="@layout/item_evento_historia_clinica" />
-
-    <!-- Estado vacío -->
-    <LinearLayout
-        android:id="@+id/layoutEstadoVacio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:alpha="0.6"
-            android:contentDescription="Sin datos"
-            android:src="@drawable/ic_medical_history_empty" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="No hay información médica disponible"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Los eventos médicos aparecerán aquí"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
-
-    </LinearLayout>
-
-    <!-- ProgressBar para carga -->
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

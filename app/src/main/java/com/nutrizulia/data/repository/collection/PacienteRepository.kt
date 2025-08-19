@@ -5,6 +5,7 @@ import com.nutrizulia.data.local.dao.PacienteConCitaDao
 import com.nutrizulia.data.local.dao.collection.PacienteDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.view.PacienteConCita
+import com.nutrizulia.data.local.view.PacienteConConsultaYDetalles
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
 import com.nutrizulia.data.remote.api.collection.IFullSyncService
 import com.nutrizulia.data.remote.dto.collection.toEntity
@@ -24,6 +25,14 @@ class PacienteRepository @Inject constructor(
     private val batchApi: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ) {
+
+    suspend fun getPacienteConsultaYDetallesByFiltro(pacienteId: String, filtro: String): List<PacienteConConsultaYDetalles> {
+        return pacienteDao.getPacienteConsultaYDetallesByFiltro(pacienteId, filtro)
+    }
+
+    suspend fun getPacienteConsultaYDetallesByPacienteId(pacienteId: String): List<PacienteConConsultaYDetalles> {
+        return pacienteDao.getPacienteConsultaYDetallesByPacienteId(pacienteId)
+    }
 
     suspend fun upsert(paciente: Paciente): Long {
         return pacienteDao.upsert(paciente.toEntity())

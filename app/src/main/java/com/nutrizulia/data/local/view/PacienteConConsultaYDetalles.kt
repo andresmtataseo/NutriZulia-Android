@@ -2,6 +2,7 @@ package com.nutrizulia.data.local.view
 
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
+import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.data.local.enum.TipoConsulta
 import com.nutrizulia.data.local.enum.TipoLactancia
 import com.nutrizulia.data.local.enum.TipoValorCalculado
@@ -25,6 +26,7 @@ import java.time.LocalDateTime
             c.observaciones AS observacionesConsulta,
             c.planes AS planConsulta,
             c.fecha_hora_real AS fechaHoraReal,
+            c.estado AS estadoConsulta,
 
             d.id AS diagnosticoId,
             rb.nombre AS diagnosticoRiesgoBiologicoNombre, -- Nombre del riesgo biológico
@@ -116,6 +118,7 @@ data class PacienteConConsultaYDetalles(
     @ColumnInfo(name = "observacionesConsulta") val observacionesConsulta: String?, // TEXT puede ser null
     @ColumnInfo(name = "planConsulta") val planConsulta: String?, // TEXT puede ser null (c.planes en SQL)
     @ColumnInfo(name = "fechaHoraReal") val fechaHoraReal: LocalDateTime,
+    @ColumnInfo(name = "estadoConsulta") val estadoConsulta: Estado, // Enum
 
     // Datos del Diagnóstico (puede ser nulo)
     @ColumnInfo(name = "diagnosticoId") val diagnosticoId: String?, // UUID, puede ser nulo por LEFT JOIN

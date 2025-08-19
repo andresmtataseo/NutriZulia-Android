@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.PacienteEntity
+import com.nutrizulia.data.local.view.PacienteConConsultaYDetalles
 import java.time.LocalDateTime
 
 @Dao
@@ -62,5 +63,55 @@ interface PacienteDao {
 
     @Query("UPDATE pacientes SET is_synced = 1, updated_at = :updatedAt WHERE id IN (:ids)")
     suspend fun markMultipleAsSynced(ids: List<String>, updatedAt: LocalDateTime): Int
+
+    @Query("""
+        SELECT * FROM pacientes_con_consulta_y_detalles 
+        WHERE pacienteId = :pacienteId 
+        AND nombreCompletoPaciente LIKE '%' || :filtro || '%'
+        OR tipoConsulta = :filtro
+        OR planConsulta LIKE '%' || :filtro || '%'
+        OR tensionSistolica LIKE '%' || :filtro || '%'
+        OR tensionDiastolica LIKE '%' || :filtro || '%'
+        OR frecuenciaCardiaca LIKE '%' || :filtro || '%'
+        OR frecuenciaRespiratoria LIKE '%' || :filtro || '%'
+        OR temperatura LIKE '%' || :filtro || '%'
+        OR saturacionOxigeno LIKE '%' || :filtro || '%'
+        OR pulso LIKE '%' || :filtro || '%'
+        OR glicemiaBasal LIKE '%' || :filtro || '%'
+        OR glicemiaPostprandial LIKE '%' || :filtro || '%'
+        OR glicemiaAleatoria LIKE '%' || :filtro || '%'
+        OR hemoglobinaGlicosilada LIKE '%' || :filtro || '%'
+        OR trigliceridos LIKE '%' || :filtro || '%'
+        OR colesterolTotal LIKE '%' || :filtro || '%'
+        OR colesterolHdl LIKE '%' || :filtro || '%'
+        OR colesterolLdl LIKE '%' || :filtro || '%'
+        OR usaBiberon = :filtro
+        OR tipoLactancia = :filtro
+        OR estaEmbarazada = :filtro
+        OR fechaUltimaMenstruacion LIKE '%' || :filtro || '%'
+        OR semanasGestacion LIKE '%' || :filtro || '%'
+        OR pesoPreEmbarazo LIKE '%' || :filtro || '%'
+        OR pesoAntropometrico LIKE '%' || :filtro || '%'
+        OR alturaAntropometrica LIKE '%' || :filtro || '%'
+        OR tallaAntropometrica LIKE '%' || :filtro || '%'
+        OR circunferenciaBraquial LIKE '%' || :filtro || '%'
+        OR circunferenciaCadera LIKE '%' || :filtro || '%'
+        OR circunferenciaCintura LIKE '%' || :filtro || '%'
+        OR perimetroCefalico LIKE '%' || :filtro || '%'
+        OR pliegueTricipital LIKE '%' || :filtro || '%'
+        OR pliegueSubescapular LIKE '%' || :filtro || '%'
+        OR evaluacionTipoIndicadorNombre LIKE '%' || :filtro || '%'
+        OR evaluacionValorCalculado LIKE '%' || :filtro || '%'
+        OR evaluacionDiagnosticoAntropometrico = :filtro
+        ORDER BY fechaHoraReal DESC
+    """)
+    suspend fun getPacienteConsultaYDetallesByFiltro(pacienteId: String, filtro: String): List<PacienteConConsultaYDetalles>
+
+    @Query("""
+        SELECT * FROM pacientes_con_consulta_y_detalles 
+        WHERE pacienteId = :pacienteId ORDER BY fechaHoraReal DESC
+    """)
+    suspend fun getPacienteConsultaYDetallesByPacienteId(pacienteId: String): List<PacienteConConsultaYDetalles>
+
 
 }

@@ -24,6 +24,7 @@ class ConsultaRepository @Inject constructor(
     private val batchApi: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ) {
+
     suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
         return consultaDao.countNotSynced(usuarioInstitucionId)
     }

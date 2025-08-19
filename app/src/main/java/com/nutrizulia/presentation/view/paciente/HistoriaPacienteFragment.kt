@@ -4,33 +4,39 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.search.SearchView
 import com.nutrizulia.databinding.FragmentHistoriaPacienteBinding
-import com.nutrizulia.presentation.adapter.EventoHistoriaClinicaAdapter
 import com.nutrizulia.presentation.viewmodel.paciente.HistoriaPacienteViewModel
-import com.nutrizulia.util.Utils.calcularEdad
-import com.nutrizulia.util.Utils.mostrarSnackbar
-import com.google.android.material.snackbar.Snackbar
 import com.nutrizulia.util.Utils
+import com.nutrizulia.presentation.adapter.PacienteConCitaAdapter
+import com.nutrizulia.presentation.adapter.PacienteConConsulaYDetalleAdapter
+import com.nutrizulia.presentation.view.consulta.ConsultasFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HistoriaPacienteFragment : Fragment() {
 
-    private val viewModel: HistoriaPacienteViewModel by viewModels()
     private lateinit var binding: FragmentHistoriaPacienteBinding
     private val args: HistoriaPacienteFragmentArgs by navArgs()
-    private lateinit var eventoAdapter: EventoHistoriaClinicaAdapter
+    private val viewModel: HistoriaPacienteViewModel by viewModels()
+
+    private lateinit var pacienteConCitaAdapter: PacienteConConsulaYDetalleAdapter
+    private lateinit var pacienteConCitaFiltradoAdapter: PacienteConConsulaYDetalleAdapter
+    private var searchJob: Job? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHistoriaPacienteBinding.inflate(inflater, container, false)
@@ -39,90 +45,99 @@ class HistoriaPacienteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupRecyclerView()
-        setupObservers()
+        viewModel.onCreate(args.idPaciente)
+        setupRecyclerViews()
         setupListeners()
-        
-        // Inicializar con el ID del paciente
-        viewModel.inicializarHistorial(args.idPaciente)
+        setupObservers()
     }
 
-    private fun setupRecyclerView(): Unit {
-        eventoAdapter = EventoHistoriaClinicaAdapter(
-            eventos = emptyList()
-        ) { evento ->
-            // Navegar a detalles del evento
-            // TODO: Implementar navegación a detalles
-        }
-        
+    override fun onResume() {
+        super.onResume()
+        viewModel.obtenerConsultas(args.idPaciente)
+    }
+
+    private fun setupRecyclerViews() {
+        pacienteConCitaAdapter = PacienteConConsulaYDetalleAdapter(
+            emptyList(),
+            onClickCardConsultaListener = { pacienteConCita ->
+                findNavController().navigate(
+                    ConsultasFragmentDirections.actionConsultasFragmentToAccionesConsultaFragment(
+                        pacienteConCita.consultaId
+                    )
+                )
+            }
+        )
+
+        pacienteConCitaFiltradoAdapter = PacienteConConsulaYDetalleAdapter(
+            emptyList(),
+            onClickCardConsultaListener = { pacienteConCita ->
+                findNavController().navigate(
+                    HistoriaPacienteFragmentDirections.actionHistoriaPacienteFragmentToAccionesConsultaFragment(
+                        pacienteConCita.consultaId
+                    )
+                )
+            }
+        )
+
         binding.rvHistoriaClinica.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = eventoAdapter
+            adapter = pacienteConCitaAdapter
         }
+
+        binding.rvHistoriaClinicaFiltrada.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = pacienteConCitaFiltradoAdapter
+        }
+
     }
 
-    private fun setupObservers(): Unit {
-        // Observar estado del paciente
-        viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
-            paciente?.let {
-                binding.tvNombreCompleto.text = "${it.nombres} ${it.apellidos}"
-                binding.tvCedula.text = "Cédula: ${it.cedula}"
-                binding.tvGenero.text = "Género: ${it.genero}"
-                binding.tvFechaNacimiento.text = "Fecha de nacimiento: ${it.fechaNacimiento}"
-                // Calcular y mostrar edad
-                val edad = Utils.calcularEdadDetallada(it.fechaNacimiento)
-                binding.tvEdad.text = "Edad: ${edad.anios} años, ${edad.meses} meses y ${edad.dias} días"
+    private fun setupListeners() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.obtenerConsultas(args.idPaciente)
+            binding.swipeRefreshLayout.isRefreshing = false
+        }
+
+        binding.searchView.addTransitionListener { _, _, newState ->
+            if (newState == SearchView.TransitionState.SHOWN) {
+                if (binding.searchView.getEditText().text.isNullOrBlank()) {
+                    viewModel.buscarConsultas(args.idPaciente, "")
+                }
+            }
+            if (newState == SearchView.TransitionState.HIDDEN) {
+                viewModel.buscarConsultas(args.idPaciente, "")
             }
         }
 
-        // Observar estado del historial
-        viewModel.estadoHistorial.observe(viewLifecycleOwner) { estado ->
-            binding.progressBar.isVisible = estado.isLoading
-            binding.layoutEstadoVacio.isVisible = estado.eventos.isEmpty() && !estado.isLoading && estado.error == null
-            
-            if (estado.eventos.isNotEmpty()) {
-                eventoAdapter.updateEventos(estado.eventos)
-            }
-            
-            estado.error?.let { error ->
-                mostrarErrorConAccion(error)
+        binding.searchView.getEditText().addTextChangedListener { text ->
+            val query: String = text?.toString()?.trim().orEmpty()
+            searchJob?.cancel()
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                delay(400)
+                viewModel.buscarConsultas(args.idPaciente, query)
             }
         }
 
-        // Observar cambios en la búsqueda
-        viewModel.estadoHistorial.observe(viewLifecycleOwner) { estado ->
-            // Los eventos ya vienen ordenados cronológicamente desde el ViewModel
-            // No necesitamos lógica adicional de filtros aquí
-        }
     }
 
-    private fun setupListeners(): Unit {
-        // Configurar búsqueda
-        binding.etBusqueda.addTextChangedListener { text ->
-            viewModel.buscarTexto(text?.toString()?.takeIf { it.isNotBlank() })
+    private fun setupObservers() {
+        viewModel.consultasDetalladas.observe(viewLifecycleOwner) { it ->
+            pacienteConCitaAdapter.updateCitas(it)
         }
-    }
 
+        viewModel.pacientesConCitasFiltrados.observe(viewLifecycleOwner) { it ->
+            pacienteConCitaFiltradoAdapter.updateCitas(it)
+        }
 
-    
-    private fun mostrarErrorConAccion(error: String) {
-        val snackbar = Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG)
-        
-        // Agregar acción de reintento para errores de conexión
-        if (error.contains("conexión", ignoreCase = true) || 
-            error.contains("internet", ignoreCase = true) ||
-            error.contains("tardó demasiado", ignoreCase = true)) {
-            
-            snackbar.setAction("Reintentar") {
-                viewModel.inicializarHistorial(args.idPaciente)
+        viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
+            mensaje?.let {
+                Utils.mostrarSnackbar(binding.root, it)
+                viewModel.clearMensaje()
             }
         }
-        
-        snackbar.show()
-    }
 
-    override fun onDestroyView(): Unit {
-        super.onDestroyView()
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.swipeRefreshLayout.isRefreshing = isLoading
+        }
     }
 
 }
