@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.nutrizulia"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.nutrizulia"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -33,8 +33,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
     }
     buildFeatures {
         viewBinding = true
@@ -95,11 +97,11 @@ dependencies {
     // lottie
     implementation(libs.lottie)
     // Button speed dial
-    implementation("com.leinardi.android:speed-dial:3.3.0")
+    implementation(libs.speed.dial)
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
     // Hilt Work
     implementation(libs.hilt.work)
-    ksp(libs.hilt.compiler)
+
     ksp(libs.androidx.hilt.compiler)
 }
