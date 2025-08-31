@@ -53,6 +53,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
+                android:id="@+id/layoutInformacionDetallada"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -101,7 +102,8 @@
                         android:id="@+id/tiDireccion"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textMultiLine" />
+                        android:inputType="textMultiLine"
+                        android:maxLength="255" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -117,7 +119,8 @@
                         android:id="@+id/tiDescripcion"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textMultiLine" />
+                        android:inputType="textMultiLine"
+                        android:maxLength="255" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -182,7 +185,8 @@
                         android:id="@+id/tiTemaPrincipal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textMultiLine" />
+                        android:inputType="textMultiLine"
+                        android:maxLength="255" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -198,7 +202,8 @@
                         android:id="@+id/tiProgramaImplementados"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textMultiLine" />
+                        android:inputType="textMultiLine"
+                        android:maxLength="255" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -214,7 +219,8 @@
                         android:id="@+id/tiUrlEvidencia"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:maxLength="255" />
 
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>

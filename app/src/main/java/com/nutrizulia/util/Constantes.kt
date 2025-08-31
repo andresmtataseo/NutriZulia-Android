@@ -1,8 +1,8 @@
 package com.nutrizulia.util
 
 object ApiConstants {
-//    const val BASE_URL: String = "http://192.168.1.100:8080/"
-    const val BASE_URL: String = "https://nutrizulia-backend.onrender.com/"
+    const val BASE_URL: String = "http://192.168.1.100:8080/"
+//    const val BASE_URL: String = "https://nutrizulia-backend.onrender.com/"
 }
 
 // ========== AUTHENTICATION API ==========

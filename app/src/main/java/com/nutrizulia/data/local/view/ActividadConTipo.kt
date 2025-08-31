@@ -24,7 +24,7 @@ import java.time.LocalDateTime
             a.url_evidencia AS urlEvidenciaActividad,
             a.updated_at AS ultimaActualizacionActividad
         FROM actividades AS a
-        INNER JOIN tipos_actividades AS t ON a.id = t.id
+        INNER JOIN tipos_actividades AS t ON a.tipo_actividad_id = t.id
     """
 )
 data class ActividadConTipo(

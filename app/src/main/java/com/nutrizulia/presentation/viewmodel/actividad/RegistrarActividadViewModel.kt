@@ -42,6 +42,9 @@ class RegistrarActividadViewModel @Inject constructor(
     // seleccion
     private val _selectedTipoActividad = MutableLiveData<TipoActividad?>()
     val selectTipoActividad: LiveData<TipoActividad?> = _selectedTipoActividad
+    // visibilidad de campos
+    private val _camposVisibles = MutableLiveData<Set<String>>()
+    val camposVisibles: LiveData<Set<String>> = _camposVisibles
     // Ui states
     private val _filtro = MutableLiveData<String>()
     val filtro: LiveData<String> get() = _filtro
@@ -96,7 +99,10 @@ class RegistrarActividadViewModel @Inject constructor(
         }
     }
 
-    fun onActividadSelected(tipoActividad: TipoActividad) { _selectedTipoActividad.value = tipoActividad }
+    fun onActividadSelected(tipoActividad: TipoActividad) { 
+        _selectedTipoActividad.value = tipoActividad
+        _camposVisibles.value = obtenerCamposVisibles(tipoActividad.nombre)
+    }
 
     fun onSaveActividadClicked(
         id: String?,
@@ -111,6 +117,14 @@ class RegistrarActividadViewModel @Inject constructor(
         urlEvidencia: String?
     ) {
         _errores.value = emptyMap()
+        
+        // Validar que la fecha no esté vacía antes de intentar parsearla
+        if (fechaStr.isBlank()) {
+            _errores.value = mapOf("fecha" to "La fecha es obligatoria.")
+            _mensaje.value = "Corrige los campos en rojo."
+            return
+        }
+        
         val fecha: LocalDate? = try { LocalDate.parse(fechaStr) } catch (e: DateTimeParseException) { null }
 
         val actividadToSave = Actividad(
@@ -164,9 +178,78 @@ class RegistrarActividadViewModel @Inject constructor(
         val erroresActuales = mutableMapOf<String, String>()
 
         if (actvidad.tipoActividadId <= 0) erroresActuales["tipoActividad"] = "Debes seleccionar un tipo de actividad."
-        if (actvidad.fecha.isAfter(LocalDate.now())) erroresActuales["fecha"] = "La fecha no puede ser posterior a la fecha actual."
+        
+        // Validar que la fecha no sea nula (esto no debería pasar si ya validamos el string, pero es una doble verificación)
+        if (actvidad.fecha == null) {
+            erroresActuales["fecha"] = "La fecha es obligatoria."
+        } else if (actvidad.fecha.isAfter(LocalDate.now())) {
+            erroresActuales["fecha"] = "La fecha no puede ser posterior a la fecha actual."
+        }
+        
+        // Validar que descripción no sea nula o vacía
+        if (actvidad.descripcionGeneral.isNullOrBlank()) {
+            erroresActuales["descripcion"] = "La descripción es obligatoria."
+        }
+        
+        // Validar límite de 255 caracteres para campos string
+        actvidad.direccion?.let { if (it.length > 255) erroresActuales["direccion"] = "La dirección no puede exceder 255 caracteres." }
+        actvidad.descripcionGeneral?.let { if (it.length > 255) erroresActuales["descripcion"] = "La descripción no puede exceder 255 caracteres." }
+        actvidad.temaPrincipal?.let { if (it.length > 255) erroresActuales["temaPrincipal"] = "El tema principal no puede exceder 255 caracteres." }
+        actvidad.programasImplementados?.let { if (it.length > 255) erroresActuales["programaImplementados"] = "Los programas implementados no pueden exceder 255 caracteres." }
+        actvidad.urlEvidencia?.let { if (it.length > 255) erroresActuales["urlEvidencia"] = "La URL de evidencia no puede exceder 255 caracteres." }
 
         return erroresActuales
+    }
+
+    private fun obtenerCamposVisibles(nombreTipoActividad: String): Set<String> {
+        return when (nombreTipoActividad) {
+            "SESIÓN EDUCATIVA A NIVEL COMUNITARIO" -> setOf(
+                "fecha", "direccion", "descripcion", "cantidadParticipantes", 
+                "cantidadSesiones", "temaPrincipal", "urlEvidencia"
+            )
+            "SESIÓN EDUCATIVA A NIVEL DEL CENTRO DE SALUD" -> setOf(
+                "fecha", "direccion", "descripcion", "cantidadParticipantes", 
+                "cantidadSesiones", "temaPrincipal", "urlEvidencia"
+            )
+            "TALLER DE CAPACITACIÓN" -> setOf(
+                "fecha", "descripcion", "cantidadParticipantes", "cantidadSesiones", 
+                "duracionMinutos", "temaPrincipal", "urlEvidencia"
+            )
+            "ASESORÍA" -> setOf(
+                "fecha", "direccion", "descripcion", "cantidadParticipantes", 
+                "cantidadSesiones", "urlEvidencia"
+            )
+            "VISITA" -> setOf(
+                "fecha", "direccion", "descripcion", "cantidadSesiones", "urlEvidencia"
+            )
+            "JORNADA" -> setOf(
+                "fecha", "direccion", "descripcion", "cantidadParticipantes", 
+                "cantidadSesiones", "urlEvidencia"
+            )
+            "CLUB" -> setOf(
+                "fecha", "direccion", "descripcion", "cantidadParticipantes", 
+                "cantidadSesiones", "temaPrincipal", "programaImplementados", "urlEvidencia"
+            )
+            "CARTELERA" -> setOf(
+                "fecha", "descripcion", "cantidadSesiones"
+            )
+            "PROGRAMA \"SALUD VA A LA ESCUELA\"" -> setOf(
+                "fecha", "direccion", "descripcion", "cantidadParticipantes", 
+                "cantidadSesiones", "temaPrincipal", "programaImplementados", "urlEvidencia"
+            )
+            "EVENTO DE MEJORAMIENTO PROFESIONAL" -> setOf(
+                "fecha", "descripcion", "cantidadParticipantes", "cantidadSesiones", 
+                "temaPrincipal", "urlEvidencia"
+            )
+            "DISCUSIÓN DE CASOS CLÍNICOS" -> setOf(
+                "fecha", "descripcion", "cantidadSesiones", "temaPrincipal"
+            )
+            "OTRA ACTIVIDAD" -> setOf(
+                "fecha", "direccion", "descripcion", "cantidadParticipantes", 
+                "cantidadSesiones", "duracionMinutos", "temaPrincipal", "programaImplementados", "urlEvidencia"
+            )
+            else -> emptySet()
+        }
     }
 
 }

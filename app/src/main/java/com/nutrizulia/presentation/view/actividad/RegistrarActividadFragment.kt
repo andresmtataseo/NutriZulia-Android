@@ -106,6 +106,9 @@ class RegistrarActividadFragment : Fragment() {
         }
         viewModel.tipoActividades.observe(viewLifecycleOwner) { updateAdapter(binding.dropdownTipoActividad, it.map(TipoActividad::nombre)) }
         viewModel.selectTipoActividad.observe(viewLifecycleOwner) { binding.dropdownTipoActividad.setText(it?.nombre, false) }
+        viewModel.camposVisibles.observe(viewLifecycleOwner) { camposVisibles ->
+            actualizarVisibilidadCampos(camposVisibles)
+        }
     }
 
     private fun setupListeners() {
@@ -141,7 +144,10 @@ class RegistrarActividadFragment : Fragment() {
         }
 
         binding.dropdownTipoActividad.setOnItemClickListener { _, _, position, _ ->
-            viewModel.tipoActividades.value?.get(position)?.let { viewModel.onActividadSelected(it) }
+            viewModel.tipoActividades.value?.get(position)?.let { 
+                limpiarCamposNoVisibles()
+                viewModel.onActividadSelected(it) 
+            }
         }
     }
 
@@ -202,6 +208,43 @@ class RegistrarActividadFragment : Fragment() {
         binding.tfProgramaImplementados.error = null
         binding.tfUrlEvidencia.error = null
         binding.dropdownTipoActividad.error = null
+    }
+
+    private fun actualizarVisibilidadCampos(camposVisibles: Set<String>) {
+        // Mostrar el layout de información detallada solo si hay campos visibles
+        binding.layoutInformacionDetallada.visibility = if (camposVisibles.isNotEmpty()) View.VISIBLE else View.GONE
+        
+        // Mapeo de campos a sus respectivos TextInputLayouts
+        val camposMapeados = mapOf(
+            "fecha" to binding.tfFechaActividad,
+            "direccion" to binding.tfDireccion,
+            "descripcion" to binding.tfDescripcion,
+            "cantidadParticipantes" to binding.tfCantidadParticipantes,
+            "cantidadSesiones" to binding.tfCantidadSesiones,
+            "duracionMinutos" to binding.tfDuracionMinutos,
+            "temaPrincipal" to binding.tfTemaPrincipal,
+            "programaImplementados" to binding.tfProgramaImplementados,
+            "urlEvidencia" to binding.tfUrlEvidencia
+        )
+        
+        // Actualizar visibilidad de cada campo individual
+        camposMapeados.forEach { (campo, textInputLayout) ->
+            textInputLayout.visibility = if (camposVisibles.contains(campo)) View.VISIBLE else View.GONE
+        }
+    }
+    
+    private fun limpiarCamposNoVisibles() {
+        // Limpiar todos los campos antes de cambiar la visibilidad
+        binding.tfFechaActividad.editText?.text = null
+        binding.tfDireccion.editText?.text = null
+        binding.tfDescripcion.editText?.text = null
+        binding.tfCantidadParticipantes.editText?.text = null
+        binding.tfCantidadSesiones.editText?.text = null
+        binding.tfDuracionMinutos.editText?.text = null
+        binding.tfTemaPrincipal.editText?.text = null
+        binding.tfProgramaImplementados.editText?.text = null
+        binding.tfUrlEvidencia.editText?.text = null
+        quitarErrores()
     }
 
     private fun mostrarSelectorFecha(editText: TextInputEditText) {
