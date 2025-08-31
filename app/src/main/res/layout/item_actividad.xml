@@ -45,7 +45,7 @@
                 android:id="@+id/tvDescripcionGeneralActividad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Descripcion:"
+                android:text="Descripción:"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
 
         </LinearLayout>

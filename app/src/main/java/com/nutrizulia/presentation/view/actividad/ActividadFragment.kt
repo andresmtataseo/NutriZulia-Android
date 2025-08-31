@@ -122,6 +122,10 @@ class ActividadFragment : Fragment() {
     }
 
     private fun onActividadConTipoClick(actividadConTipo: ActividadConTipo) {
-        // Navegación a futuro: acciones sobre la actividad
+        findNavController().navigate(
+            ActividadFragmentDirections.actionActividadFragmentToAccionesActividadFragment(
+                actividadConTipo.actividadId
+            )
+        )
     }
 }

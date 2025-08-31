@@ -20,6 +20,9 @@ interface ActividadDao {
     @Query("SELECT * FROM actividades_con_tipos WHERE usuarioInstitucionId = :usuarioInstitucionId AND (direccionActividad LIKE '%' || :filtro || '%' OR descripcionGeneralActividad LIKE '%' || :filtro || '%' OR temaPrincipalActividad LIKE '%' || :filtro || '%') ORDER BY fechaActividad DESC")
     suspend fun findAllByUsuarioInstitucionIdAndFilter(usuarioInstitucionId: Int, filtro: String): List<ActividadConTipo>
 
+    @Query("SELECT * FROM actividades_con_tipos WHERE actividadId = :id AND usuarioInstitucionId = :usuarioInstitucionId")
+    suspend fun findByIdActividadConTipo(id: String, usuarioInstitucionId: Int): ActividadConTipo?
+
     @Query("SELECT * FROM actividades WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<ActividadEntity>
 

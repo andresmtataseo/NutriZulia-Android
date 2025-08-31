@@ -33,6 +33,10 @@ class ActividadRepository @Inject constructor(
         return dao.findAllByUsuarioInstitucionIdAndFilter(usuarioInstitucionId, filtro)
     }
 
+    suspend fun findByIdActividadConTipo(id: String, usuarioInstitucionId: Int): ActividadConTipo? {
+        return dao.findByIdActividadConTipo(id, usuarioInstitucionId)
+    }
+
     suspend fun findById(id: String, usuarioInstitucionId: Int): Actividad? {
         return dao.findById(id, usuarioInstitucionId)?.toDomain()
     }
