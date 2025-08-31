@@ -17,7 +17,7 @@ interface ActividadDao {
     @Query("SELECT * FROM actividades_con_tipos WHERE usuarioInstitucionId = :usuarioInstitucionId ORDER BY fechaActividad DESC")
     suspend fun findAllByUsuarioInstitucionId(usuarioInstitucionId: Int): List<ActividadConTipo>
 
-    @Query("SELECT * FROM actividades_con_tipos WHERE usuarioInstitucionId = :usuarioInstitucionId AND (direccionActividad LIKE '%' || :filtro || '%' OR descripcionGeneralActividad LIKE '%' || :filtro || '%' OR temaPrincipalActividad LIKE '%' || :filtro || '%') ORDER BY fechaActividad DESC")
+    @Query("SELECT * FROM actividades_con_tipos WHERE usuarioInstitucionId = :usuarioInstitucionId AND (nombreActividad LIKE '%' || :filtro || '%' OR direccionActividad LIKE '%' || :filtro || '%' OR descripcionGeneralActividad LIKE '%' || :filtro || '%' OR temaPrincipalActividad LIKE '%' || :filtro || '%') ORDER BY fechaActividad DESC")
     suspend fun findAllByUsuarioInstitucionIdAndFilter(usuarioInstitucionId: Int, filtro: String): List<ActividadConTipo>
 
     @Query("SELECT * FROM actividades_con_tipos WHERE actividadId = :id AND usuarioInstitucionId = :usuarioInstitucionId")

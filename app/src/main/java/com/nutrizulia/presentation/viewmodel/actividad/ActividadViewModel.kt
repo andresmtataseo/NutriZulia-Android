@@ -5,9 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nutrizulia.data.local.view.ActividadConTipo
-import com.nutrizulia.domain.model.collection.Actividad
-import com.nutrizulia.domain.usecase.collection.GetActividades
-import com.nutrizulia.domain.usecase.collection.GetActividadesByFiltro
+import com.nutrizulia.domain.usecase.collection.GetActividadesConTipo
+import com.nutrizulia.domain.usecase.collection.GetActividadesConTipoByFiltro
 import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -15,8 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ActividadViewModel @Inject constructor(
-    private val getActividades: GetActividades,
-    private val getActividadesByFiltro: GetActividadesByFiltro,
+    private val getActividadesConTipo: GetActividadesConTipo,
+    private val getActividadesConTipoByFiltro: GetActividadesConTipoByFiltro,
     private val getCurrentInstitutionId: GetCurrentInstitutionIdUseCase
 ): ViewModel() {
 
@@ -55,7 +54,7 @@ class ActividadViewModel @Inject constructor(
                 return@launch
             }
             _idUsuarioInstitucion.value = institutionId
-            val result = getActividades(idUsuarioInstitucion.value!!)
+            val result = getActividadesConTipo(idUsuarioInstitucion.value!!)
             _actividades.value = result
             _isLoading.value = false
         }
@@ -77,7 +76,7 @@ class ActividadViewModel @Inject constructor(
             }
             _idUsuarioInstitucion.value = institutionId
             _filtro.value = query
-            val result = getActividadesByFiltro(idUsuarioInstitucion.value!!, filtro.value ?: "")
+            val result = getActividadesConTipoByFiltro(idUsuarioInstitucion.value!!, filtro.value ?: "")
             if (result.isEmpty()) {
                 _actividadesFiltradas.value = emptyList()
                 _mensaje.value = "No se encontraron actividades."
