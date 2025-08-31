@@ -70,7 +70,7 @@ class RegistrarActividadViewModel @Inject constructor(
                 _idUsuarioInstitucion.postValue(institutionId)
                 coroutineScope {
                     val catalogsJob = if (isEditable) async { cargarCatalogos() } else null
-                    val actividadJob = if (!actividadId.isNullOrBlank()) async { obtenerActividad(actividadId) } else null
+                    val actividadJob = if (!actividadId.isNullOrBlank()) async { obtenerActividad(actividadId, institutionId) } else null
                     catalogsJob?.await()
                     actividadJob?.await()
                 }
@@ -80,8 +80,8 @@ class RegistrarActividadViewModel @Inject constructor(
         }
     }
 
-    private suspend fun obtenerActividad(actividadId: String) {
-        val loadedActividad = getActividadById(actividadId, _idUsuarioInstitucion.value!!)
+    private suspend fun obtenerActividad(actividadId: String, institutionId: Int) {
+        val loadedActividad = getActividadById(actividadId, institutionId)
         if (loadedActividad == null) {
             _mensaje.postValue("No se encontró la actividad.")
             _salir.postValue(true)
@@ -89,7 +89,13 @@ class RegistrarActividadViewModel @Inject constructor(
         }
         _actividad.postValue(loadedActividad)
 
-        _selectedTipoActividad.postValue(getTipoActividadById(loadedActividad.tipoActividadId))
+        val tipoActividad = getTipoActividadById(loadedActividad.tipoActividadId)
+        _selectedTipoActividad.postValue(tipoActividad)
+        
+        // Establecer los campos visibles basados en el tipo de actividad cargada
+        tipoActividad?.let {
+            _camposVisibles.postValue(obtenerCamposVisibles(it.nombre))
+        }
     }
 
     private suspend fun cargarCatalogos() {

@@ -145,7 +145,10 @@ class RegistrarActividadFragment : Fragment() {
 
         binding.dropdownTipoActividad.setOnItemClickListener { _, _, position, _ ->
             viewModel.tipoActividades.value?.get(position)?.let { 
-                limpiarCamposNoVisibles()
+                // Solo limpiar campos si es una nueva actividad (no edición)
+                if (args.actividadId == null) {
+                    limpiarCamposNoVisibles()
+                }
                 viewModel.onActividadSelected(it) 
             }
         }
