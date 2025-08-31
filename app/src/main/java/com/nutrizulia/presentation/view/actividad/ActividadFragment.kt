@@ -96,7 +96,7 @@ class ActividadFragment : Fragment() {
         }
 
         binding.btnRegistrarActividad.setOnClickListener {
-            // Navegación a futuro: registrar actividad
+            findNavController().navigate(ActividadFragmentDirections.actionActividadFragmentToRegistrarActividadFragment(null, true))
         }
     }
 

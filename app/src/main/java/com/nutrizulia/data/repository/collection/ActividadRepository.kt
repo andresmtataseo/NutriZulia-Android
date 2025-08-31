@@ -2,12 +2,15 @@ package com.nutrizulia.data.repository.collection
 
 import com.nutrizulia.data.local.dao.collection.ActividadDao
 import com.nutrizulia.data.local.entity.collection.toDto
+import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.data.local.view.ActividadConTipo
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
 import com.nutrizulia.data.remote.api.collection.IFullSyncService
 import com.nutrizulia.data.remote.dto.collection.toEntity
 import com.nutrizulia.domain.model.BatchSyncResult
 import com.nutrizulia.domain.model.SyncResult
+import com.nutrizulia.domain.model.collection.Actividad
+import com.nutrizulia.domain.model.collection.toDomain
 import com.nutrizulia.domain.model.toBatchSyncResult
 import com.nutrizulia.domain.model.toSyncResult
 import java.time.LocalDateTime
@@ -28,6 +31,14 @@ class ActividadRepository @Inject constructor(
 
     suspend fun findAllByFiltro(usuarioInstitucionId: Int, filtro: String): List<ActividadConTipo> {
         return dao.findAllByUsuarioInstitucionIdAndFilter(usuarioInstitucionId, filtro)
+    }
+
+    suspend fun findById(id: String, usuarioInstitucionId: Int): Actividad? {
+        return dao.findById(id, usuarioInstitucionId)?.toDomain()
+    }
+
+    suspend fun upsert(actividad: Actividad) {
+        dao.upsert(actividad.toEntity())
     }
 
     suspend fun sincronizarActividadesBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {

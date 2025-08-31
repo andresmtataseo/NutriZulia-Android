@@ -14,14 +14,17 @@ import java.time.LocalDateTime
 @Dao
 interface ActividadDao {
 
-    @Query("SELECT * FROM actividades_con_tipos WHERE usuarioInstitucionId = :usuarioInstitucionId ORDER BY fechaActividad ASC")
+    @Query("SELECT * FROM actividades_con_tipos WHERE usuarioInstitucionId = :usuarioInstitucionId ORDER BY fechaActividad DESC")
     suspend fun findAllByUsuarioInstitucionId(usuarioInstitucionId: Int): List<ActividadConTipo>
 
-    @Query("SELECT * FROM actividades_con_tipos WHERE usuarioInstitucionId = :usuarioInstitucionId AND (direccionActividad LIKE '%' || :filtro || '%' OR descripcionGeneralActividad LIKE '%' || :filtro || '%' OR temaPrincipalActividad LIKE '%' || :filtro || '%') ORDER BY fechaActividad ASC")
+    @Query("SELECT * FROM actividades_con_tipos WHERE usuarioInstitucionId = :usuarioInstitucionId AND (direccionActividad LIKE '%' || :filtro || '%' OR descripcionGeneralActividad LIKE '%' || :filtro || '%' OR temaPrincipalActividad LIKE '%' || :filtro || '%') ORDER BY fechaActividad DESC")
     suspend fun findAllByUsuarioInstitucionIdAndFilter(usuarioInstitucionId: Int, filtro: String): List<ActividadConTipo>
 
     @Query("SELECT * FROM actividades WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<ActividadEntity>
+
+    @Query("SELECT * FROM actividades WHERE id = :id AND usuario_institucion_id = :usuarioInstitucionId")
+    suspend fun findById(id: String, usuarioInstitucionId: Int): ActividadEntity?
 
     @Insert
     suspend fun insertAll(actividades: List<ActividadEntity>): List<Long>

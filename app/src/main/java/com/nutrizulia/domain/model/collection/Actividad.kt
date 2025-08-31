@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 data class Actividad(
     val id: String,
-    val usuarioInstitucionId: Int,
+    var usuarioInstitucionId: Int,
     val tipoActividadId: Int,
     val fecha: LocalDate,
     val direccion: String?,

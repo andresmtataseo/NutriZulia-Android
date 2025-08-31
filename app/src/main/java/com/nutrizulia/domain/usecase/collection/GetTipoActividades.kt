@@ -1,13 +1,13 @@
-package com.nutrizulia.domain.usecase.catalog
+package com.nutrizulia.domain.usecase.collection
 
 import com.nutrizulia.data.repository.catalog.TipoActividadRepository
 import com.nutrizulia.domain.model.catalog.TipoActividad
 import javax.inject.Inject
 
-class GetTipoActividadById @Inject constructor(
+class GetTipoActividades @Inject constructor(
     private val repository: TipoActividadRepository
 ) {
-    suspend operator fun invoke(id: Int) : TipoActividad? {
-        return repository.findById(id)
+    suspend operator fun invoke(): List<TipoActividad> {
+        return repository.findAll()
     }
 }

@@ -492,7 +492,11 @@
         android:id="@+id/actividadFragment"
         android:name="com.nutrizulia.presentation.view.actividad.ActividadFragment"
         android:label="fragment_actividad"
-        tools:layout="@layout/fragment_actividad" />
+        tools:layout="@layout/fragment_actividad" >
+        <action
+            android:id="@+id/action_actividadFragment_to_registrarActividadFragment"
+            app:destination="@id/registrarActividadFragment" />
+    </fragment>
     <fragment
         android:id="@+id/syncBatchFragment"
         android:name="com.nutrizulia.presentation.view.SyncBatchFragment"
@@ -513,6 +517,21 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/registrarActividadFragment"
+        android:name="com.nutrizulia.presentation.view.actividad.RegistrarActividadFragment"
+        android:label="fragment_registrar_actividad"
+        tools:layout="@layout/fragment_registrar_actividad" >
+        <argument
+            android:name="actividadId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="null" />
+        <argument
+            android:name="isEditable"
+            app:argType="boolean"
+            android:defaultValue="true" />
     </fragment>
 
 </navigation>
