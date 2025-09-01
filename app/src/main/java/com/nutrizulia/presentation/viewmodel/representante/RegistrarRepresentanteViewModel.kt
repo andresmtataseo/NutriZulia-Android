@@ -107,7 +107,7 @@ class RegistrarRepresentanteViewModel @Inject constructor(
                 _idUsuarioInstitucion.postValue(institutionId)
                 coroutineScope {
                     val catalogsJob = if (isEditable) async { cargarCatalogos() } else null
-                    val representanteJob = if (!representanteId.isNullOrBlank()) async { obtenerRepresentante(representanteId) } else null
+                    val representanteJob = if (!representanteId.isNullOrBlank()) async { obtenerRepresentante(representanteId, institutionId) } else null
                     catalogsJob?.await()
                     representanteJob?.await()
                 }
@@ -117,8 +117,8 @@ class RegistrarRepresentanteViewModel @Inject constructor(
         }
     }
 
-    private suspend fun obtenerRepresentante(representanteId: String) {
-        val loadedRepresentante = getRepresentanteById(_idUsuarioInstitucion.value!!, representanteId)
+    private suspend fun obtenerRepresentante(representanteId: String, institutionId: Int) {
+        val loadedRepresentante = getRepresentanteById(institutionId, representanteId)
         if (loadedRepresentante == null) {
             _mensaje.postValue("No se encontró el paciente.")
             _salir.postValue(true)
@@ -181,44 +181,44 @@ class RegistrarRepresentanteViewModel @Inject constructor(
     }
 
     fun onSavePatientClicked(id: String?, tipoCedula: String, cedula: String, nombres: String, apellidos: String, fechaNacimientoStr: String, genero: String, domicilio: String, prefijo: String, telefono: String, correo: String) {
-        _errores.value = emptyMap()
-        val fechaNacimiento: LocalDate? = try { LocalDate.parse(fechaNacimientoStr) } catch (e: DateTimeParseException) { null }
-        val representanteToSave = Representante(
-            id = id ?: Utils.generarUUID(),
-            usuarioInstitucionId = _idUsuarioInstitucion.value!!,
-            cedula = "$tipoCedula-$cedula",
-            nombres = nombres,
-            apellidos = apellidos,
-            fechaNacimiento = fechaNacimiento ?: LocalDate.MIN,
-            genero = genero,
-            etniaId = _selectedEtnia.value?.id ?: 0,
-            nacionalidadId = _selectedNacionalidad.value?.id ?: 0,
-            parroquiaId = _selectedParroquia.value?.id ?: 0,
-            domicilio = domicilio,
-            telefono = if (telefono.isNotBlank()) "$prefijo$telefono" else "",
-            correo = correo,
-            updatedAt = LocalDateTime.now(),
-            isDeleted = false,
-            isSynced = false
-        )
-        val erroresMap = validarDatosRepresentante(representanteToSave, fechaNacimiento == null)
-        if (erroresMap.isNotEmpty()) {
-            _errores.value = erroresMap
-            _mensaje.value = "Corrige los campos en rojo."
-            return
-        }
-        formatearDatosRepresentante(representanteToSave)
-
         viewModelScope.launch {
-            _isLoading.value = true
-            val institutionId = getCurrentInstitutionId() ?: run {
-                _mensaje.value = "Error al guardar: No se ha seleccionado una institución."
-                _isLoading.value = false
+            val institutionId = getCurrentInstitutionId()
+            if (institutionId == null) {
+                _mensaje.value = "No se ha seleccionado una institución."
                 return@launch
             }
-            representanteToSave.usuarioInstitucionId = institutionId
+            
+            _errores.value = emptyMap()
+            val fechaNacimiento: LocalDate? = try { LocalDate.parse(fechaNacimientoStr) } catch (e: DateTimeParseException) { null }
+            val representanteToSave = Representante(
+                id = id ?: Utils.generarUUID(),
+                usuarioInstitucionId = institutionId,
+                cedula = "$tipoCedula-$cedula",
+                nombres = nombres,
+                apellidos = apellidos,
+                fechaNacimiento = fechaNacimiento ?: LocalDate.MIN,
+                genero = genero,
+                etniaId = _selectedEtnia.value?.id ?: 0,
+                nacionalidadId = _selectedNacionalidad.value?.id ?: 0,
+                parroquiaId = _selectedParroquia.value?.id ?: 0,
+                domicilio = domicilio,
+                telefono = if (telefono.isNotBlank()) "$prefijo$telefono" else "",
+                correo = correo,
+                updatedAt = LocalDateTime.now(),
+                isDeleted = false,
+                isSynced = false
+            )
+            val erroresMap = validarDatosRepresentante(representanteToSave, fechaNacimiento == null)
+            if (erroresMap.isNotEmpty()) {
+                _errores.value = erroresMap
+                _mensaje.value = "Corrige los campos en rojo."
+                return@launch
+            }
+            formatearDatosRepresentante(representanteToSave)
 
-            val cedulaExistente = getRepresentanteByCedula(institutionId, representanteToSave.cedula)
+            _isLoading.value = true
+            val cedulaExistente =
+                getRepresentanteByCedula(institutionId, representanteToSave.cedula)
             if (cedulaExistente != null && cedulaExistente.id != representanteToSave.id) {
                 _mensaje.value = "Ya existe un paciente con la cédula ${representanteToSave.cedula}."
                 _isLoading.value = false

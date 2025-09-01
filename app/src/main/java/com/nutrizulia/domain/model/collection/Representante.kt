@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 data class Representante(
     val id: String,
-    var usuarioInstitucionId: Int,
+    var usuarioInstitucionId: Int?,
     var cedula: String,
     var nombres: String,
     var apellidos: String,

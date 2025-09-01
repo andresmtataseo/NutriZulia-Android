@@ -101,7 +101,10 @@ class RegistrarActividadViewModel @Inject constructor(
     private suspend fun cargarCatalogos() {
         coroutineScope {
             val getTipoActividadesJob = async { getTipoActividades() }
-            _tipoActividades.postValue(getTipoActividadesJob.await())
+            val tiposActividad = getTipoActividadesJob.await()
+            // Filtrar para excluir el tipo de actividad 'REGULAR'
+            val tiposFiltrados = tiposActividad.filter { it.nombre != "REGULAR" }
+            _tipoActividades.postValue(tiposFiltrados)
         }
     }
 
@@ -192,12 +195,12 @@ class RegistrarActividadViewModel @Inject constructor(
             erroresActuales["fecha"] = "La fecha no puede ser posterior a la fecha actual."
         }
         
-        // Validar que descripción no sea nula o vacía
-        if (actvidad.descripcionGeneral.isNullOrBlank()) {
-            erroresActuales["descripcion"] = "La descripción es obligatoria."
+        // La descripción ahora puede ser null, solo validamos si no está vacía cuando se proporciona
+        if (actvidad.descripcionGeneral != null && actvidad.descripcionGeneral.isBlank()) {
+            erroresActuales["descripcion"] = "La descripción no puede estar vacía si se proporciona."
         }
         
-        // Validar límite de 255 caracteres para campos string
+        // Validar límite de 255 caracteres para campos string (solo si no son null)
         actvidad.direccion?.let { if (it.length > 255) erroresActuales["direccion"] = "La dirección no puede exceder 255 caracteres." }
         actvidad.descripcionGeneral?.let { if (it.length > 255) erroresActuales["descripcion"] = "La descripción no puede exceder 255 caracteres." }
         actvidad.temaPrincipal?.let { if (it.length > 255) erroresActuales["temaPrincipal"] = "El tema principal no puede exceder 255 caracteres." }

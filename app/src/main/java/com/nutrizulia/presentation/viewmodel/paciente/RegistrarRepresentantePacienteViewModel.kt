@@ -238,7 +238,8 @@ class RegistrarRepresentantePacienteViewModel @Inject constructor(
                 // Verificar unicidad
                 val institutionId = getCurrentInstitutionId()
                 if (institutionId != null) {
-                    val representanteExistente = getRepresentanteByCedula(institutionId, cedulaCompleta)
+                    val representanteExistente =
+                        getRepresentanteByCedula(institutionId, cedulaCompleta)
                     if (representanteExistente != null && representanteExistente.id != _representante.value?.id) {
                         _cedulaValidationState.value = CedulaValidationState.DUPLICATE
                     } else {
@@ -296,7 +297,8 @@ class RegistrarRepresentantePacienteViewModel @Inject constructor(
             }
             representanteToSave.usuarioInstitucionId = institutionId
 
-            val cedulaExistente = getRepresentanteByCedula(institutionId, representanteToSave.cedula)
+            val cedulaExistente =
+                getRepresentanteByCedula(institutionId, representanteToSave.cedula)
             if (cedulaExistente != null && cedulaExistente.id != representanteToSave.id) {
                 _mensaje.value = "Ya existe un paciente con la cédula ${representanteToSave.cedula}."
                 _isLoading.value = false

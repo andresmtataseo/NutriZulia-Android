@@ -97,9 +97,9 @@ class RegistrarActividadFragment : Fragment() {
             binding.tfFechaActividad.editText?.setText(actividad.fecha.toString())
             binding.tfDireccion.editText?.setText(actividad.direccion)
             binding.tfDescripcion.editText?.setText(actividad.descripcionGeneral)
-            binding.tfCantidadParticipantes.editText?.setText(actividad.cantidadParticipantes.toString())
-            binding.tfCantidadSesiones.editText?.setText(actividad.cantidadSesiones.toString())
-            binding.tfDuracionMinutos.editText?.setText(actividad.duracionMinutos.toString())
+            binding.tfCantidadParticipantes.editText?.setText(actividad.cantidadParticipantes?.toString() ?: "")
+            binding.tfCantidadSesiones.editText?.setText(actividad.cantidadSesiones?.toString() ?: "")
+            binding.tfDuracionMinutos.editText?.setText(actividad.duracionMinutos?.toString() ?: "")
             binding.tfTemaPrincipal.editText?.setText(actividad.temaPrincipal)
             binding.tfProgramaImplementados.editText?.setText(actividad.programasImplementados)
             binding.tfUrlEvidencia.editText?.setText(actividad.urlEvidencia)
@@ -119,14 +119,14 @@ class RegistrarActividadFragment : Fragment() {
                 viewModel.onSaveActividadClicked(
                     id = args.actividadId,
                     fechaStr = obtenerTexto(binding.tfFechaActividad),
-                    direccion = obtenerTexto(binding.tfDireccion),
-                    descripcionGeneral = obtenerTexto(binding.tfDescripcion),
+                    direccion = obtenerTextoONull(binding.tfDireccion),
+                    descripcionGeneral = obtenerTextoONull(binding.tfDescripcion),
                     cantidadParticipantes = obtenerTexto(binding.tfCantidadParticipantes).toIntOrNull(),
                     cantidadSesiones = obtenerTexto(binding.tfCantidadSesiones).toIntOrNull(),
                     duracionMinutos = obtenerTexto(binding.tfDuracionMinutos).toIntOrNull(),
-                    temaPrincipal = obtenerTexto(binding.tfTemaPrincipal),
-                    programasImplementados = obtenerTexto(binding.tfProgramaImplementados),
-                    urlEvidencia = obtenerTexto(binding.tfUrlEvidencia)
+                    temaPrincipal = obtenerTextoONull(binding.tfTemaPrincipal),
+                    programasImplementados = obtenerTextoONull(binding.tfProgramaImplementados),
+                    urlEvidencia = obtenerTextoONull(binding.tfUrlEvidencia)
                 )
             } else {
                 findNavController().popBackStack()
@@ -288,6 +288,14 @@ class RegistrarActividadFragment : Fragment() {
 
         editText.setOnClickListener { abrirPicker() }
         binding.tfFechaActividad.setStartIconOnClickListener { abrirPicker() }
+    }
+
+    /**
+     * Función auxiliar que convierte strings vacíos o en blanco a null
+     */
+    private fun obtenerTextoONull(textInputLayout: TextInputLayout): String? {
+        val texto = obtenerTexto(textInputLayout)
+        return if (texto.isBlank()) null else texto
     }
 
 }

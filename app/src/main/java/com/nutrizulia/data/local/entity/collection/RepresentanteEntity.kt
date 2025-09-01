@@ -72,7 +72,7 @@ data class RepresentanteEntity(
 
 fun Representante.toEntity() = RepresentanteEntity(
     id = id,
-    usuarioInstitucionId = usuarioInstitucionId,
+    usuarioInstitucionId = usuarioInstitucionId ?: throw IllegalArgumentException("usuarioInstitucionId no puede ser null"),
     cedula = cedula,
     nombres = nombres,
     apellidos = apellidos,
