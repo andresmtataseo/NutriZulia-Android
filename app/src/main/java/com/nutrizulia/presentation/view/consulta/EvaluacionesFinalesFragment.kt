@@ -130,7 +130,7 @@ class EvaluacionesFinalesFragment : Fragment() {
 
         binding.btnRegistrarConsulta.setOnClickListener {
             if (sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
-                findNavController().popBackStack(R.id.consultasFragment, false)
+                findNavController().popBackStack(R.id.consultasFragment, false)  // hay que manejar los casos en donde no esta consulta fragment en el backstack (cuando no esta, es porque el usuario de del historial de consulta del paciente)
                 return@setOnClickListener
             }
 

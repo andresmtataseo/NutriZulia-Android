@@ -263,11 +263,7 @@
             app:argType="string" />
         <action
             android:id="@+id/action_historiaPacienteFragment_to_accionesConsultaFragment"
-            app:destination="@id/accionesConsultaFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/accionesConsultaFragment" />
     </fragment>
     <fragment
         android:id="@+id/accionesCitaFragment"
@@ -328,6 +324,10 @@
                 android:defaultValue="true"
                 app:argType="boolean" />
         </action>
+        <argument
+            android:name="isHistoria"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </fragment>
     <fragment
         android:id="@+id/accionesCitaPerdidaFragment"
@@ -375,6 +375,10 @@
                 app:exitAnim="@anim/nav_default_exit_anim"
                 app:popEnterAnim="@anim/nav_default_pop_enter_anim"
                 app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            <argument
+                android:name="isHistoria"
+                app:argType="boolean"
+                android:defaultValue="false" />
         </fragment>
 
         <fragment
@@ -396,6 +400,10 @@
             android:name="com.nutrizulia.presentation.view.consulta.EvaluacionesFinalesFragment"
             android:label="Evaluacion Finales"
             tools:layout="@layout/fragment_registrar_consulta3"/>
+        <argument
+            android:name="isHistoria"
+            app:argType="boolean"
+            android:defaultValue="false" />
 
     </navigation>
     <fragment
