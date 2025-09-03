@@ -421,17 +421,17 @@
     <fragment
         android:id="@+id/registrarRepresentanteFragment"
         android:name="com.nutrizulia.presentation.view.representante.RegistrarRepresentanteFragment"
-        android:label="fragment_registrar_representante"
-        tools:layout="@layout/fragment_registrar_representante" >
+        android:label="Datos del Representante"
+        tools:layout="@layout/fragment_registrar_representante">
         <argument
             android:name="representanteId"
+            android:defaultValue="null"
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue="null" />
+            app:nullable="true" />
         <argument
             android:name="isEditable"
-            app:argType="boolean"
-            android:defaultValue="true" />
+            android:defaultValue="true"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/accionesRepresentanteFragment"

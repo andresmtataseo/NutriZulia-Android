@@ -101,7 +101,6 @@ class RegistrarPacienteFragment : Fragment() {
                     "telefono" -> mostrarErrorEnCampo(binding.tfTelefono, message)
                     "correo" -> mostrarErrorEnCampo(binding.tfEmail, message)
                     "representante", "parentesco", "cedulaTemporal" -> {
-                        // Para errores relacionados con representante, mostrar snackbar
                         mostrarSnackbar(binding.root, message)
                     }
                 }

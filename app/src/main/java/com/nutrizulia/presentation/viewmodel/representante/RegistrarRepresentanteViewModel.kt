@@ -25,12 +25,16 @@ import com.nutrizulia.domain.usecase.collection.GetRepresentanteByCedula
 import com.nutrizulia.domain.usecase.collection.GetRepresentanteById
 import com.nutrizulia.domain.usecase.collection.SaveRepresentante
 import com.nutrizulia.domain.usecase.user.GetCurrentInstitutionIdUseCase
+import com.nutrizulia.presentation.viewmodel.paciente.RegistrarPacienteViewModel
 import com.nutrizulia.util.CheckData
+import com.nutrizulia.util.CheckData.esCedulaValida
 import com.nutrizulia.util.FormatData
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -93,6 +97,17 @@ class RegistrarRepresentanteViewModel @Inject constructor(
     val salir: LiveData<Boolean> = _salir
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
+    // Validación en tiempo real de cédula
+    private val _cedulaValidationState = MutableLiveData<CedulaValidationState>()
+    val cedulaValidationState: LiveData<CedulaValidationState> = _cedulaValidationState
+    private var cedulaValidationJob: Job? = null
+    enum class CedulaValidationState {
+        IDLE,
+        VALIDATING,
+        VALID,
+        DUPLICATE,
+        INVALID
+    }
 
     fun onCreate(representanteId: String?, isEditable: Boolean) {
         viewModelScope.launch {
@@ -266,6 +281,51 @@ class RegistrarRepresentanteViewModel @Inject constructor(
         representante.apellidos = representante.apellidos.uppercase().trim()
         representante.telefono = FormatData.formatearTelefono(representante.telefono?.trim())
         representante.correo = representante.correo?.lowercase()?.trim()
+    }
+
+    fun validateCedulaRealTime(tipoCedula: String, cedula: String) {
+        cedulaValidationJob?.cancel()
+
+        if (cedula.isBlank()) {
+            _cedulaValidationState.value = RegistrarRepresentanteViewModel.CedulaValidationState.IDLE
+            return
+        }
+
+        cedulaValidationJob = viewModelScope.launch {
+            try {
+                _cedulaValidationState.value = RegistrarRepresentanteViewModel.CedulaValidationState.VALIDATING
+                delay(500)
+
+                val cedulaFormateada = if (cedula.length < 8 && cedula.all { it.isDigit() }) {
+                    cedula.padStart(8, '0')
+                } else {
+                    cedula
+                }
+
+                val cedulaCompleta = "$tipoCedula-$cedulaFormateada"
+
+                // Validar formato de cédula
+                if (!esCedulaValida(cedulaCompleta)) {
+                    _cedulaValidationState.value = RegistrarRepresentanteViewModel.CedulaValidationState.INVALID
+                    return@launch
+                }
+
+                // Verificar unicidad
+                val institutionId = getCurrentInstitutionId()
+                if (institutionId != null) {
+                    val representanteExistente = getRepresentanteByCedula(institutionId, cedulaCompleta)
+                    if (representanteExistente != null && representanteExistente.id != _representante.value?.id) {
+                        _cedulaValidationState.value = RegistrarRepresentanteViewModel.CedulaValidationState.DUPLICATE
+                    } else {
+                        _cedulaValidationState.value = RegistrarRepresentanteViewModel.CedulaValidationState.VALID
+                    }
+                } else {
+                    _cedulaValidationState.value = RegistrarRepresentanteViewModel.CedulaValidationState.INVALID
+                }
+            } catch (e: Exception) {
+                _cedulaValidationState.value = RegistrarRepresentanteViewModel.CedulaValidationState.INVALID
+            }
+        }
     }
 
 }
