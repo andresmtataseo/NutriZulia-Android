@@ -284,6 +284,7 @@ class RegistrarPacienteFragment : Fragment() {
 
     private fun configurarLimpiezaErrores() {
         // Limpiar errores cuando el usuario empieza a escribir
+
         binding.tfCedula.editText?.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) binding.tfCedula.error = null
         }
@@ -312,6 +313,31 @@ class RegistrarPacienteFragment : Fragment() {
         binding.tfFechaNacimiento.editText?.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) binding.tfFechaNacimiento.error = null
         }
+        (binding.tfGenero.editText as? AutoCompleteTextView)?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfGenero.error = null
+        }
+        binding.tfEtnia.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfEtnia.error = null
+        }
+        binding.tfNacionalidad.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfNacionalidad.error = null
+        }
+        binding.tfEstado.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfEstado.error = null
+        }
+        binding.tfMunicipio.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfMunicipio.error = null
+        }
+        binding.tfParroquia.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfParroquia.error = null
+        }
+
+        binding.tfPrefijo.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfPrefijo.error = null
+        }
+        binding.tfDomicilio.editText?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.tfDomicilio.error = null
+        }
         binding.tfTelefono.editText?.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) binding.tfTelefono.error = null
         }
@@ -323,9 +349,7 @@ class RegistrarPacienteFragment : Fragment() {
         binding.dropdownEsCedulado.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) binding.tfEsCedulado.error = null
         }
-        (binding.tfGenero.editText as? AutoCompleteTextView)?.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) binding.tfGenero.error = null
-        }
+
     }
 
     private fun deshabilitarCampos() {
