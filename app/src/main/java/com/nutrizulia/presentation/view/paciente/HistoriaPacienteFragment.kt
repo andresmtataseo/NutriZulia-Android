@@ -61,9 +61,15 @@ class HistoriaPacienteFragment : Fragment() {
         pacienteConCitaAdapter = PacienteConConsulaYDetalleAdapter(
             emptyList(),
             onClickCardConsultaListener = { pacienteConCita ->
+                // Registro del valor de isHistoria antes de la navegación
+                val isHistoria = true
+                val timestamp = System.currentTimeMillis()
+                Log.d("NavFlow", "HistoriaPacienteFragment: Navegando a AccionesConsultaFragment con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${pacienteConCita.consultaId}")
+                
                 findNavController().navigate(
                     HistoriaPacienteFragmentDirections.actionHistoriaPacienteFragmentToAccionesConsultaFragment(
-                        pacienteConCita.consultaId
+                        pacienteConCita.consultaId,
+                        isHistoria
                     )
                 )
             }
@@ -72,9 +78,15 @@ class HistoriaPacienteFragment : Fragment() {
         pacienteConCitaFiltradoAdapter = PacienteConConsulaYDetalleAdapter(
             emptyList(),
             onClickCardConsultaListener = { pacienteConCita ->
+                // Registro del valor de isHistoria antes de la navegación
+                val isHistoria = true
+                val timestamp = System.currentTimeMillis()
+                Log.d("NavFlow", "HistoriaPacienteFragment: Navegando a AccionesConsultaFragment con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${pacienteConCita.consultaId}")
+                
                 findNavController().navigate(
                     HistoriaPacienteFragmentDirections.actionHistoriaPacienteFragmentToAccionesConsultaFragment(
-                        pacienteConCita.consultaId
+                        pacienteConCita.consultaId,
+                        isHistoria
                     )
                 )
             }

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -14,6 +15,7 @@ import com.nutrizulia.R
 import com.nutrizulia.data.local.enum.Estado
 import com.nutrizulia.databinding.FragmentAccionesConsultaBinding
 import com.nutrizulia.presentation.viewmodel.consulta.AccionesConsultaViewModel
+import com.nutrizulia.presentation.viewmodel.consulta.ConsultaSharedViewModel
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.format.DateTimeFormatter
@@ -26,6 +28,7 @@ class AccionesConsultaFragment : Fragment() {
     private lateinit var binding: FragmentAccionesConsultaBinding
     private val args: AccionesConsultaFragmentArgs by navArgs()
     private var pacienteId: String? = null
+    private var isHistoria: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAccionesConsultaBinding.inflate(inflater, container, false)
@@ -34,6 +37,22 @@ class AccionesConsultaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        isHistoria = args.isHistoria
+        val timestamp = System.currentTimeMillis()
+        android.util.Log.d("NavFlow", "AccionesConsultaFragment: onViewCreated con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${args.idConsulta}")
+        
+        // Obtener referencia al SharedViewModel y guardar el valor de isHistoria
+        val sharedViewModel: ConsultaSharedViewModel by activityViewModels()
+        sharedViewModel.setIsHistoria(isHistoria)
+        
+        // Sincronizar con el SharedViewModel en caso de que haya cambiado en otro fragmento
+        sharedViewModel.isHistoria.observe(viewLifecycleOwner) { historiaValue ->
+            if (isHistoria != historiaValue) {
+                isHistoria = historiaValue
+                android.util.Log.d("NavFlow", "AccionesConsultaFragment: isHistoria actualizado desde SharedViewModel: $isHistoria")
+            }
+        }
+        
         setupObservers()
         viewModel.onCreate(args.idConsulta)
         setupListeners()
@@ -83,10 +102,14 @@ class AccionesConsultaFragment : Fragment() {
     fun setupListeners() {
         binding.cardViewDetallesConsulta.setOnClickListener {
             pacienteId?.let { id ->
+                val timestamp = System.currentTimeMillis()
+                android.util.Log.d("NavFlow", "AccionesConsultaFragment: Navegando a RegistrarConsultaGraph (detalles) con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${args.idConsulta}")
+                
                 val action = AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToRegistrarConsultaGraph(
                     idPaciente = id,
                     idConsulta = args.idConsulta,
-                    isEditable = false
+                    isEditable = false,
+                    isHistoria = isHistoria
                 )
                 findNavController().navigate(action)
             } ?: run {
@@ -96,10 +119,14 @@ class AccionesConsultaFragment : Fragment() {
 
         binding.cardViewModificarConsulta.setOnClickListener {
             pacienteId?.let { id ->
+                val timestamp = System.currentTimeMillis()
+                android.util.Log.d("NavFlow", "AccionesConsultaFragment: Navegando a RegistrarConsultaGraph (modificar) con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${args.idConsulta}")
+                
                 val action = AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToRegistrarConsultaGraph(
                     idPaciente = id,
                     idConsulta = args.idConsulta,
-                    isEditable = true
+                    isEditable = true,
+                    isHistoria = isHistoria
                 )
                 findNavController().navigate(action)
             } ?: run {

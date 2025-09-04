@@ -305,6 +305,10 @@
         <argument
             android:name="idConsulta"
             app:argType="string" />
+        <argument
+            android:name="isHistoria"
+            app:argType="boolean"
+            android:defaultValue="false" />
         <action
             android:id="@+id/action_accionesConsultaFragment_to_registrarConsultaGraph"
             app:destination="@id/registrarConsultaGraph"
@@ -323,11 +327,10 @@
                 android:name="isEditable"
                 android:defaultValue="true"
                 app:argType="boolean" />
+            <argument
+                android:name="isHistoria"
+                app:argType="boolean" />
         </action>
-        <argument
-            android:name="isHistoria"
-            app:argType="boolean"
-            android:defaultValue="false" />
     </fragment>
     <fragment
         android:id="@+id/accionesCitaPerdidaFragment"
@@ -368,6 +371,10 @@
             <argument
                 android:name="idPaciente"
                 app:argType="string" />
+            <argument
+                android:name="isHistoria"
+                app:argType="boolean"
+                android:defaultValue="false" />
             <action
                 android:id="@+id/action_registrarConsultaFragment_to_registrarConsulta2Fragment"
                 app:destination="@id/registrarConsulta2Fragment"
@@ -375,10 +382,6 @@
                 app:exitAnim="@anim/nav_default_exit_anim"
                 app:popEnterAnim="@anim/nav_default_pop_enter_anim"
                 app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-            <argument
-                android:name="isHistoria"
-                app:argType="boolean"
-                android:defaultValue="false" />
         </fragment>
 
         <fragment
@@ -399,11 +402,12 @@
             android:id="@+id/registrarConsulta3Fragment"
             android:name="com.nutrizulia.presentation.view.consulta.EvaluacionesFinalesFragment"
             android:label="Evaluacion Finales"
-            tools:layout="@layout/fragment_registrar_consulta3"/>
-        <argument
-            android:name="isHistoria"
-            app:argType="boolean"
-            android:defaultValue="false" />
+            tools:layout="@layout/fragment_registrar_consulta3">
+            <argument
+                android:name="isHistoria"
+                app:argType="boolean"
+                android:defaultValue="false" />
+        </fragment>
 
     </navigation>
     <fragment

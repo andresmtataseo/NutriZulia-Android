@@ -35,6 +35,7 @@ class EvaluacionesFinalesFragment : Fragment() {
     private lateinit var riesgoBiologicoAdapter: RiesgoBiologicoAdapter
     private val decimalFormat = DecimalFormat("#.##")
     private var dataLoadedForUI: Boolean = false
+    private var isHistoria: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentRegistrarConsulta3Binding.inflate(inflater, container, false)
@@ -43,6 +44,20 @@ class EvaluacionesFinalesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Obtener el valor de isHistoria desde el SharedViewModel
+        isHistoria = sharedViewModel.isHistoria.value ?: false
+        val timestamp = System.currentTimeMillis()
+        val consultaId = sharedViewModel.consulta.value?.id ?: ""
+        Log.d("NavFlow", "EvaluacionesFinalesFragment: onViewCreated con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=$consultaId")
+        
+        // Observar cambios en isHistoria desde el SharedViewModel
+        sharedViewModel.isHistoria.observe(viewLifecycleOwner) { historiaValue ->
+            if (isHistoria != historiaValue) {
+                isHistoria = historiaValue
+                Log.d("NavFlow", "EvaluacionesFinalesFragment: isHistoria actualizado desde SharedViewModel: $isHistoria")
+            }
+        }
+        
         setupRecyclerView()
         setupListeners()
         setupObservers()
@@ -62,7 +77,19 @@ class EvaluacionesFinalesFragment : Fragment() {
         }
 
         sharedViewModel.salir.observe(viewLifecycleOwner) { shouldExit: Boolean ->
-            if (shouldExit) findNavController().popBackStack(R.id.consultasFragment, false)
+            if (shouldExit) {
+                if (isHistoria && sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
+                    // Si venimos de la historia del paciente, volvemos a ella
+                    val pacienteId = sharedViewModel.paciente.value?.id
+                    if (pacienteId != null) {
+                        findNavController().popBackStack(R.id.historiaPacienteFragment, false)
+                    } else {
+                        findNavController().popBackStack(R.id.consultasFragment, false)
+                    }
+                } else {
+                    findNavController().popBackStack(R.id.consultasFragment, false)
+                }
+            }
         }
 
         sharedViewModel.modoConsulta.observe(viewLifecycleOwner) { mode: ModoConsulta ->
@@ -130,7 +157,22 @@ class EvaluacionesFinalesFragment : Fragment() {
 
         binding.btnRegistrarConsulta.setOnClickListener {
             if (sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
-                findNavController().popBackStack(R.id.consultasFragment, false)  // hay que manejar los casos en donde no esta consulta fragment en el backstack (cuando no esta, es porque el usuario de del historial de consulta del paciente)
+                val timestamp = System.currentTimeMillis()
+                val consultaId = sharedViewModel.consulta.value?.id ?: sharedViewModel.consultaEditando.value?.id ?: "desconocido"
+                
+                if (isHistoria) {
+                    // Si viene de la historia del paciente, navegar de vuelta a HistoriaPacienteFragment
+                    val pacienteId = sharedViewModel.paciente.value?.id
+                    Log.d("NavFlow", "EvaluacionesFinalesFragment: Saliendo hacia HistoriaPacienteFragment con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=$consultaId")
+                    if (pacienteId != null) {
+                        findNavController().popBackStack(R.id.historiaPacienteFragment, false)
+                    } else {
+                        findNavController().popBackStack(R.id.consultasFragment, false)
+                    }
+                } else {
+                    Log.d("NavFlow", "EvaluacionesFinalesFragment: Saliendo hacia ConsultasFragment con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=$consultaId")
+                    findNavController().popBackStack(R.id.consultasFragment, false)
+                }
                 return@setOnClickListener
             }
 

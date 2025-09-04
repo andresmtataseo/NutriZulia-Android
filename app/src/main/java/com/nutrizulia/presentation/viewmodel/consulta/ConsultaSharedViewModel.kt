@@ -46,6 +46,21 @@ class ConsultaSharedViewModel @Inject constructor(
     private val _modoConsulta = MutableLiveData<ModoConsulta>()
     val modoConsulta: LiveData<ModoConsulta> = _modoConsulta
 
+    // Variable para mantener el estado de isHistoria a través de todo el flujo
+    private val _isHistoria = MutableLiveData<Boolean>()
+    val isHistoria: LiveData<Boolean> = _isHistoria
+    
+    // Método para establecer el valor de isHistoria
+    fun setIsHistoria(value: Boolean) {
+        Log.d("NavFlow", "ConsultaSharedViewModel: setIsHistoria($value)")
+        _isHistoria.value = value
+    }
+    
+    // Método para obtener el valor actual de isHistoria
+    fun getIsHistoriaValue(): Boolean {
+        return _isHistoria.value ?: false
+    }
+
     private val _consultaEditando = MutableLiveData<Consulta>()
     val consultaEditando: LiveData<Consulta> = _consultaEditando
 

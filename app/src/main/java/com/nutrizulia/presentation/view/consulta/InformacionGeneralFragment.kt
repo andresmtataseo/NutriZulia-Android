@@ -46,6 +46,17 @@ class InformacionGeneralFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val timestamp = System.currentTimeMillis()
+        
+        // Obtener isHistoria del SharedViewModel o de los argumentos como fallback
+        val isHistoria = sharedViewModel.isHistoria.value ?: args.isHistoria
+        
+        // Asegurar que el valor esté actualizado en el SharedViewModel
+        if (sharedViewModel.isHistoria.value != isHistoria) {
+            sharedViewModel.setIsHistoria(isHistoria)
+        }
+        
+        android.util.Log.d("NavFlow", "InformacionGeneralFragment: onViewCreated con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${args.idConsulta}")
         setupListeners()
         setupObservers()
         sharedViewModel.initialize(args.idPaciente, args.idConsulta, args.isEditable)
@@ -103,7 +114,13 @@ class InformacionGeneralFragment : Fragment() {
                     tipoConsulta,
                     binding.tfMotivoConsulta.editText?.text?.toString()
                 )
-                findNavController().navigate(InformacionGeneralFragmentDirections.actionRegistrarConsultaFragmentToRegistrarConsulta2Fragment())
+                val timestamp = System.currentTimeMillis()
+                val isHistoria = args.isHistoria
+                android.util.Log.d("NavFlow", "InformacionGeneralFragment: Navegando a DatosClinicosFragment con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${args.idConsulta}")
+                val action = InformacionGeneralFragmentDirections.actionRegistrarConsultaFragmentToRegistrarConsulta2Fragment()
+                // Pasar el argumento isHistoria al siguiente fragmento
+                findNavController().currentBackStackEntry?.arguments?.putBoolean("isHistoria", isHistoria)
+                findNavController().navigate(action)
             } else {
                 mostrarSnackbar(binding.root, "Por favor, complete toda la información requerida.")
             }

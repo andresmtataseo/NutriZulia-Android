@@ -48,6 +48,7 @@ class DatosClinicosFragment : Fragment() {
         defaultViewModelProviderFactory
     }
     private val clinicalDataViewModel: DatosClinicosViewModel by viewModels()
+    private var isHistoria: Boolean = false
     private lateinit var binding: FragmentRegistrarConsulta2Binding
     private var ultimaFechaSeleccionada: Long? = null
     private var wasDataLoaded: Boolean = false
@@ -59,6 +60,19 @@ class DatosClinicosFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Obtener el valor de isHistoria desde el SharedViewModel
+        isHistoria = sharedViewModel.isHistoria.value ?: false
+        val timestamp = System.currentTimeMillis()
+        Log.d("NavFlow", "DatosClinicosFragment: onViewCreated con isHistoria=$isHistoria | timestamp=$timestamp")
+        
+        // Observar cambios en isHistoria desde el SharedViewModel
+        sharedViewModel.isHistoria.observe(viewLifecycleOwner) { historiaValue ->
+            if (isHistoria != historiaValue) {
+                isHistoria = historiaValue
+                Log.d("NavFlow", "DatosClinicosFragment: isHistoria actualizado desde SharedViewModel: $isHistoria")
+            }
+        }
+        
         setupObservers()
         setupListeners()
     }
@@ -327,6 +341,10 @@ class DatosClinicosFragment : Fragment() {
             findNavController().navigate(
                 DatosClinicosFragmentDirections.actionRegistrarConsulta2FragmentToRegistrarConsulta3Fragment()
             )
+            val timestamp = System.currentTimeMillis()
+            // Pasar el argumento isHistoria al siguiente fragmento
+            findNavController().currentBackStackEntry?.arguments?.putBoolean("isHistoria", isHistoria)
+            Log.d("NavFlow", "DatosClinicosFragment: Navegando a EvaluacionesFinalesFragment con isHistoria=$isHistoria | timestamp=$timestamp")
         }
 
         binding.btnLimpiar.setOnClickListener {
