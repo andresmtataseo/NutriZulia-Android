@@ -118,6 +118,11 @@ class ConsultasFragment : Fragment() {
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
+        // Listener para el botón de mostrar/ocultar filtros
+        binding.btnToggleFiltros.setOnClickListener {
+            toggleFiltrosVisibility()
+        }
+
         binding.searchView.addTransitionListener { _, _, newState ->
             if (newState == SearchView.TransitionState.SHOWN) {
                 if (binding.searchView.getEditText().text.isNullOrBlank()) {
@@ -194,6 +199,23 @@ class ConsultasFragment : Fragment() {
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.swipeRefreshLayout.isRefreshing = isLoading
+        }
+    }
+
+    private fun toggleFiltrosVisibility() {
+        val layoutFiltros = binding.layoutFiltros
+        val btnToggle = binding.btnToggleFiltros
+        
+        if (layoutFiltros.visibility == View.GONE) {
+            // Mostrar filtros
+            layoutFiltros.visibility = View.VISIBLE
+            btnToggle.text = "Ocultar filtros"
+            btnToggle.setIconResource(R.drawable.ic_expand_less)
+        } else {
+            // Ocultar filtros
+            layoutFiltros.visibility = View.GONE
+            btnToggle.text = "Mostrar filtros"
+            btnToggle.setIconResource(R.drawable.ic_expand_more)
         }
     }
 

@@ -45,33 +45,231 @@
             app:liftOnScroll="true"
             app:liftOnScrollColor="?attr/colorSurfaceContainerHighest" />
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggleButton"
-            android:layout_width="wrap_content"
+        <!-- Botón para mostrar/ocultar filtros -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnToggleFiltros"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="12dp">
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="4dp"
+            android:text="Mostrar filtros"
+            android:gravity="start|center_vertical"
+            app:icon="@drawable/ic_expand_more"
+            app:iconGravity="end"
+            app:layout_scrollFlags="scroll|enterAlways" />
 
-            <Button
-                android:id="@+id/button1"
-                style="?attr/materialButtonOutlinedStyle"
+        <!-- Sección de filtros con Chips -->
+        <LinearLayout
+            android:id="@+id/layoutFiltros"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:visibility="gone"
+            app:layout_scrollFlags="scroll|enterAlways">
+
+            <!-- Título de filtros -->
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pendientes" />
+                android:text="Filtrar por:"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginBottom="8dp" />
 
-            <Button
-                android:id="@+id/button2"
-                style="?attr/materialButtonOutlinedStyle"
+            <!-- Chips de Estado -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupEstado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:chipSpacingHorizontal="8dp"
+                    app:singleLine="true"
+                    app:selectionRequired="false"
+                    app:singleSelection="false">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipPendientes"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pendientes"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_schedule"
+                        app:chipIconTint="?attr/colorPrimary" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipReprogramdas"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Reprogramadas"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_check_circle"
+                        app:chipIconTint="?attr/colorTertiary" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipCompletadas"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completadas"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_check_circle"
+                        app:chipIconTint="?attr/colorTertiary" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipCanceladas"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Canceladas"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_cancel"
+                        app:chipIconTint="?attr/colorError" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipNoAsistio"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No asistió"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_check_circle"
+                        app:chipIconTint="?attr/colorTertiary" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+            </HorizontalScrollView>
+
+            <!-- Chips de Fecha -->
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Canceladas" />
+                android:text="Período:"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginBottom="8dp" />
 
-            <Button
-                android:id="@+id/button3"
-                style="?attr/materialButtonOutlinedStyle"
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupFecha"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:chipSpacingHorizontal="8dp"
+                    app:singleLine="true"
+                    app:selectionRequired="false"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipHoy"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hoy"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_today" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipSemana"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Esta semana"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_date_range" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipMes"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Este mes"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_calendar_month" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipPersonalizado"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Personalizado"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_tune" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+            </HorizontalScrollView>
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Realizadas" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+                android:text="Tipo de consulta:"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginBottom="8dp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupTipo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:chipSpacingHorizontal="8dp"
+                    app:singleLine="true"
+                    app:selectionRequired="false"
+                    app:singleSelection="false">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipPrimeraVez"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Primera vez"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_person_add" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipSeguimiento"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Seguimiento"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_refresh" />
+
+                </com.google.android.material.chip.ChipGroup>
+
+            </HorizontalScrollView>
+
+            <!-- Botón para limpiar filtros -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLimpiarFiltros"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="Limpiar filtros"
+                app:icon="@drawable/ic_clear_all"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
