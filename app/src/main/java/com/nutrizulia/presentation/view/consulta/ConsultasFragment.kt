@@ -143,6 +143,51 @@ class ConsultasFragment : Fragment() {
             }
         }
 
+        // Listeners para chips de Estado
+        binding.chipPendientes.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleEstadoFilter("PENDIENTE", isChecked)
+        }
+        binding.chipReprogramdas.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleEstadoFilter("REPROGRAMADA", isChecked)
+        }
+        binding.chipCompletadas.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleEstadoFilter("COMPLETADA", isChecked)
+        }
+        binding.chipCanceladas.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleEstadoFilter("CANCELADA", isChecked)
+        }
+        binding.chipNoAsistio.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleEstadoFilter("NO_ASISTIO", isChecked)
+        }
+        binding.chipSinPreviaCita.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleEstadoFilter("SIN_PREVIA_CITA", isChecked)
+        }
+
+        // Listeners para chips de Período
+        binding.chipHoy.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.togglePeriodoFilter("hoy", isChecked)
+        }
+        binding.chipSemana.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.togglePeriodoFilter("esta semana", isChecked)
+        }
+        binding.chipMes.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.togglePeriodoFilter("este mes", isChecked)
+        }
+
+        // Listeners para chips de Tipo de Consulta
+        binding.chipPrimeraVez.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleTipoConsultaFilter("PRIMERA_CONSULTA", isChecked)
+        }
+        binding.chipSeguimiento.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleTipoConsultaFilter("CONSULTA_SUCESIVA", isChecked)
+        }
+
+        // Listener para botón Limpiar filtros
+        binding.btnLimpiarFiltros.setOnClickListener {
+            viewModel.limpiarFiltros()
+            limpiarChipsSeleccionados()
+        }
+
         binding.btnAgendar.apply {
             // Agrega los ítems del FAB expandible
             addActionItem(
@@ -182,12 +227,24 @@ class ConsultasFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.pacientesConCitas.observe(viewLifecycleOwner) { it ->
-            pacienteConCitaAdapter.updateCitas(it)
+        viewModel.pacientesConCitas.observe(viewLifecycleOwner) { consultas ->
+            pacienteConCitaAdapter.updateCitas(consultas)
         }
 
-        viewModel.pacientesConCitasFiltrados.observe(viewLifecycleOwner) { it ->
-            pacienteConCitaFiltradoAdapter.updateCitas(it)
+        viewModel.pacientesConCitasFiltrados.observe(viewLifecycleOwner) { consultasFiltradas ->
+            pacienteConCitaFiltradoAdapter.updateCitas(consultasFiltradas)
+        }
+
+        viewModel.filtrosActivos.observe(viewLifecycleOwner) { filtrosActivos ->
+            if (filtrosActivos) {
+                // Mostrar RecyclerView de consultas filtradas
+                binding.recyclerViewConsultas.visibility = View.GONE
+                binding.recyclerViewCitasFiltradas.visibility = View.VISIBLE
+            } else {
+                // Mostrar RecyclerView de todas las consultas
+                binding.recyclerViewCitasFiltradas.visibility = View.GONE
+                binding.recyclerViewConsultas.visibility = View.VISIBLE
+            }
         }
 
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
@@ -218,5 +275,24 @@ class ConsultasFragment : Fragment() {
             btnToggle.setIconResource(R.drawable.ic_expand_more)
         }
     }
+
+    private fun limpiarChipsSeleccionados() {
+        // Limpiar chips de Estado
+        binding.chipPendientes.isChecked = false
+        binding.chipCompletadas.isChecked = false
+        binding.chipCanceladas.isChecked = false
+        binding.chipReprogramdas.isChecked = false
+
+        // Limpiar chips de Período
+        binding.chipHoy.isChecked = false
+        binding.chipSemana.isChecked = false
+        binding.chipMes.isChecked = false
+
+        // Limpiar chips de Tipo de Consulta
+        binding.chipSeguimiento.isChecked = false
+        binding.chipPrimeraVez.isChecked = false
+    }
+
+
 
 }

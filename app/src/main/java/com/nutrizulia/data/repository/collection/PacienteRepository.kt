@@ -116,6 +116,31 @@ class PacienteRepository @Inject constructor(
         return pacienteConCitaDao.findAllByFiltro(usuarioInstitucionId, filtro)
     }
 
+
+
+    suspend fun findAllPacientesConCitasByCompleteFilters(
+        usuarioInstitucionId: Int,
+        estados: List<String>?,
+        tiposConsulta: List<String>?,
+        fechaInicio: String?,
+        fechaFin: String?
+    ): List<PacienteConCita> {
+        val estadosList = estados ?: emptyList()
+        val tiposConsultaList = tiposConsulta ?: emptyList()
+        val filtrarEstados = if (estados.isNullOrEmpty()) 0 else 1
+        val filtrarTipos = if (tiposConsulta.isNullOrEmpty()) 0 else 1
+        
+        return pacienteConCitaDao.findAllByCompleteFilters(
+            usuarioInstitucionId, 
+            estadosList, 
+            tiposConsultaList, 
+            fechaInicio, 
+            fechaFin,
+            filtrarEstados,
+            filtrarTipos
+        )
+    }
+
     /**
      * Sincronización completa de pacientes desde el backend
      * Recupera todos los pacientes del usuario y los guarda localmente

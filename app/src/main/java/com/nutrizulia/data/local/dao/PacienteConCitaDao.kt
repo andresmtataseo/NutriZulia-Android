@@ -33,4 +33,22 @@ interface PacienteConCitaDao {
 
     @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estado ORDER BY fechaHoraProgramadaConsulta DESC")
     suspend fun getPacientesConCitasByEstado(estado: Estado): List<PacienteConCita>
+
+
+
+    @Query("SELECT * FROM pacientes_con_citas WHERE usuarioInstitucionId = :usuarioInstitucionId " +
+            "AND (:filtrarEstados = 0 OR estadoConsulta IN (:estados)) " +
+            "AND (:filtrarTipos = 0 OR tipoConsulta IN (:tiposConsulta)) " +
+            "AND (:fechaInicio IS NULL OR DATE(fechaHoraProgramadaConsulta) >= :fechaInicio) " +
+            "AND (:fechaFin IS NULL OR DATE(fechaHoraProgramadaConsulta) <= :fechaFin) " +
+            "ORDER BY ultimaActualizacion DESC")
+    suspend fun findAllByCompleteFilters(
+        usuarioInstitucionId: Int,
+        estados: List<String>,
+        tiposConsulta: List<String>,
+        fechaInicio: String?,
+        fechaFin: String?,
+        filtrarEstados: Int,
+        filtrarTipos: Int
+    ): List<PacienteConCita>
 }

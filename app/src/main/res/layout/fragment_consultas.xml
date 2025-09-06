@@ -19,16 +19,32 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewConsultas"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingHorizontal="8dp"
-            android:paddingBottom="88dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/item_paciente" />
+            android:layout_height="match_parent">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewConsultas"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingHorizontal="8dp"
+                android:paddingBottom="88dp"
+                tools:listitem="@layout/item_paciente" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewCitasFiltradas"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingHorizontal="8dp"
+                android:paddingBottom="88dp"
+                android:visibility="gone"
+                tools:listitem="@layout/item_paciente" />
+
+
+
+        </FrameLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -121,6 +137,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Completadas"
+                        android:checkable="true"
+                        app:chipIcon="@drawable/ic_check_circle"
+                        app:chipIconTint="?attr/colorTertiary" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipSinPreviaCita"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sin previa cita"
                         android:checkable="true"
                         app:chipIcon="@drawable/ic_check_circle"
                         app:chipIconTint="?attr/colorTertiary" />
@@ -250,7 +276,7 @@
                         style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Seguimiento"
+                        android:text="Sucesivas"
                         android:checkable="true"
                         app:chipIcon="@drawable/ic_refresh" />
 
@@ -280,15 +306,7 @@
         android:hint="@string/buscar_consulta"
         app:layout_anchor="@id/search_bar">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewCitasFiltradas"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingHorizontal="8dp"
-            android:paddingBottom="88dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/item_cita" />
+
 
     </com.google.android.material.search.SearchView>
 

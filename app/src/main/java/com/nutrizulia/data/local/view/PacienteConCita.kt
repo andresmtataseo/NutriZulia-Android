@@ -3,6 +3,7 @@ package com.nutrizulia.data.local.view
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import com.nutrizulia.data.local.enum.Estado
+import com.nutrizulia.data.local.enum.TipoConsulta
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -19,6 +20,7 @@ import java.time.LocalDateTime
             c.fecha_hora_programada AS fechaHoraProgramadaConsulta,
             c.fecha_hora_real AS fechaHoraRealConsulta,
             c.estado AS estadoConsulta,
+            c.tipo_consulta AS tipoConsulta,
             c.updated_at AS ultimaActualizacion
         FROM pacientes AS p
         INNER JOIN consultas AS c ON p.id = c.paciente_id
@@ -34,5 +36,6 @@ data class PacienteConCita(
     @ColumnInfo(name = "fechaHoraProgramadaConsulta") val fechaHoraProgramadaConsulta: LocalDateTime?,
     @ColumnInfo(name = "fechaHoraRealConsulta") val fechaHoraRealConsulta: LocalDateTime?,
     @ColumnInfo(name = "estadoConsulta") val estadoConsulta: Estado,
+    @ColumnInfo(name = "tipoConsulta") val tipoConsulta: TipoConsulta,
     @ColumnInfo(name = "ultimaActualizacion") val ultimaActualizacion: LocalDateTime
 )
