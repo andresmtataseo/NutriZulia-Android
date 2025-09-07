@@ -16,7 +16,7 @@ import com.nutrizulia.util.SessionManager
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
-class GetArchivosPendientesUseCase @Inject constructor(
+class GetTotalPendingRecordsUseCase @Inject constructor(
     private val pacienteRepository: PacienteRepository,
     private val consultaRepository: ConsultaRepository,
     private val actividadRepository: ActividadRepository,
@@ -50,22 +50,14 @@ class GetArchivosPendientesUseCase @Inject constructor(
             val detalleVitalPendientes = detalleVitalRepository.findAllNotSynced(usuarioInstitucionId)
             val evaluacionAntropometricaPendientes = evaluacionAntropometricaRepository.findAllNotSynced(usuarioInstitucionId)
             
-            listOf(
-                pacientesPendientes,
-                consultasPendientes,
-                actividadesPendientes,
-                representantesPendientes,
-                pacienteRepresentantePendientes,
-                diagnosticosPendientes,
-                detalleAntropometricoPendientes,
-                detalleMetabolicoPendientes,
-                detalleObstetriciaPendientes,
-                detallePediatricoPendientes,
-                detalleVitalPendientes,
-                evaluacionAntropometricaPendientes
-            ).sum()
+            // Calcular el total directamente
+            pacientesPendientes + consultasPendientes + actividadesPendientes + 
+            representantesPendientes + pacienteRepresentantePendientes + diagnosticosPendientes +
+            detalleAntropometricoPendientes + detalleMetabolicoPendientes + detalleObstetriciaPendientes +
+            detallePediatricoPendientes + detalleVitalPendientes + evaluacionAntropometricaPendientes
+            
         } catch (e: Exception) {
-            0 // En caso de error, retornar 0
+            0
         }
     }
 }

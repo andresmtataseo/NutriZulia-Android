@@ -8,7 +8,7 @@ import com.nutrizulia.domain.usecase.dashboard.GetDashboardStatsUseCase
 import com.nutrizulia.domain.usecase.dashboard.GetProximasConsultasUseCase
 import com.nutrizulia.domain.usecase.dashboard.GetCurrentUserDataUseCase
 import com.nutrizulia.domain.usecase.dashboard.GetCitasDelDiaUseCase
-import com.nutrizulia.domain.usecase.dashboard.GetArchivosPendientesUseCase
+import com.nutrizulia.domain.usecase.dashboard.GetTotalPendingRecordsUseCase
 import com.nutrizulia.domain.usecase.dashboard.CurrentUserDataResult
 import com.nutrizulia.domain.model.dashboard.ResumenMensual
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +41,7 @@ class InicioViewModel @Inject constructor(
     private val getProximasConsultasUseCase: GetProximasConsultasUseCase,
     private val getCurrentUserDataUseCase: GetCurrentUserDataUseCase,
     private val getCitasDelDiaUseCase: GetCitasDelDiaUseCase,
-    private val getArchivosPendientesUseCase: GetArchivosPendientesUseCase
+    private val getTotalPendingRecordsUseCase: GetTotalPendingRecordsUseCase
 ) : ViewModel() {
 
     private val _proximaConsulta = MutableLiveData<ProximaConsulta?>()
@@ -151,7 +151,7 @@ class InicioViewModel @Inject constructor(
 
     private suspend fun loadArchivosPendientes() {
         try {
-            val pendientes = getArchivosPendientesUseCase()
+            val pendientes = getTotalPendingRecordsUseCase()
             _archivosPendientes.value = pendientes
         } catch (e: Exception) {
             _archivosPendientes.value = 0

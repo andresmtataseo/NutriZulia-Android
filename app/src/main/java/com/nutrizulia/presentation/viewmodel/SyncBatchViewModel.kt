@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nutrizulia.domain.usecase.SyncCollectionBatch
 import com.nutrizulia.domain.usecase.dashboard.GetPendingRecordsByEntityUseCase
+import com.nutrizulia.domain.usecase.dashboard.GetTotalPendingRecordsUseCase
 import com.nutrizulia.domain.usecase.dashboard.PendingRecordsByEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,10 +16,15 @@ import javax.inject.Inject
 @HiltViewModel
 class SyncBatchViewModel @Inject constructor(
     private val syncCollectionBatch: SyncCollectionBatch,
-    private val getPendingRecordsByEntityUseCase: GetPendingRecordsByEntityUseCase
+    private val getPendingRecordsByEntityUseCase: GetPendingRecordsByEntityUseCase,
+    private val getTotalPendingRecordsUseCase: GetTotalPendingRecordsUseCase
 ) : ViewModel() {
 
-    // StateFlow para los contadores por entidad
+    // StateFlow para el total de registros pendientes
+    private val _totalPendingRecords = MutableStateFlow(0)
+    val totalPendingRecords: StateFlow<Int> = _totalPendingRecords.asStateFlow()
+    
+    // StateFlow para los contadores por entidad (mantenido para compatibilidad con sincronización)
     private val _pendingRecords = MutableStateFlow(PendingRecordsByEntity(0, 0, 0, 0, 0, 0))
     val pendingRecords: StateFlow<PendingRecordsByEntity> = _pendingRecords.asStateFlow()
 
@@ -33,14 +39,20 @@ class SyncBatchViewModel @Inject constructor(
     }
 
     /**
-     * Carga los contadores de registros pendientes por entidad
+     * Carga los contadores de registros pendientes
      */
     fun loadPendingRecords() {
         viewModelScope.launch {
             try {
+                // Cargar total de registros pendientes
+                val totalRecords = getTotalPendingRecordsUseCase()
+                _totalPendingRecords.value = totalRecords
+                
+                // Cargar registros por entidad (para sincronización)
                 val records = getPendingRecordsByEntityUseCase()
                 _pendingRecords.value = records
             } catch (e: Exception) {
+                _totalPendingRecords.value = 0
                 _pendingRecords.value = PendingRecordsByEntity(0, 0, 0, 0, 0, 0)
             }
         }

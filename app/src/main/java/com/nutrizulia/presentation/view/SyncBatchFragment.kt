@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 class SyncBatchFragment : Fragment() {
 
     private var _binding: FragmentSyncBatchBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: throw IllegalStateException("Fragment binding is null")
 
     private val viewModel: SyncBatchViewModel by viewModels()
 
@@ -50,25 +50,14 @@ class SyncBatchFragment : Fragment() {
 
     private fun observePendingRecords() {
         lifecycleScope.launch {
-            viewModel.pendingRecords.collect { pendingRecords ->
-                updatePendingRecordsUI(pendingRecords)
+            viewModel.totalPendingRecords.collect { totalRecords ->
+                updatePendingRecordsUI(totalRecords)
             }
         }
     }
 
-    private fun updatePendingRecordsUI(pendingRecords: com.nutrizulia.domain.usecase.dashboard.PendingRecordsByEntity) {
-        binding.tvPacientesCount.text = pendingRecords.pacientes.toString()
-        binding.tvConsultasCount.text = pendingRecords.consultas.toString()
-        
-        // Calcular total de registros
-        val totalRegistros = pendingRecords.pacientes + pendingRecords.consultas + 
-                           pendingRecords.signosVitales + pendingRecords.antropometricos + 
-                           pendingRecords.diagnosticos + pendingRecords.otros
-        binding.tvTotalCount.text = totalRegistros.toString()
-        
-        binding.tvAntropometricosCount.text = pendingRecords.antropometricos.toString()
-        binding.tvDiagnosticosCount.text = pendingRecords.diagnosticos.toString()
-        binding.tvOtrosCount.text = pendingRecords.otros.toString()
+    private fun updatePendingRecordsUI(totalRecords: Int) {
+        binding.tvTotalCount.text = totalRecords.toString()
     }
 
     private fun setupViewModelCallbacks() {
@@ -93,10 +82,16 @@ class SyncBatchFragment : Fragment() {
      * Maneja el inicio de la sincronización
      */
     private fun onSyncStart(message: String) {
+        // Verificar si el Fragment está en un estado válido
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Fragment not in valid state, skipping UI update")
+            return
+        }
+        
         // Deshabilitar botón del encabezado y mostrar progreso
         binding.cardSyncButton.isEnabled = false
-        binding.cardProgress.visibility = View.VISIBLE
-        binding.progressBar.visibility = View.VISIBLE
+        binding.tvSyncTitle.text = "Sincronizando..."
+        binding.progressBarSync.visibility = View.VISIBLE
         // Mostrar mensaje de inicio
         showInfoMessage(message)
     }
@@ -110,6 +105,12 @@ class SyncBatchFragment : Fragment() {
         message: String,
         detailedReport: String
     ) {
+        // Verificar si el Fragment está en un estado válido
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Fragment not in valid state, skipping UI update")
+            return
+        }
+        
         // Restaurar UI
         restoreUI()
 
@@ -136,6 +137,12 @@ class SyncBatchFragment : Fragment() {
         message: String,
         detailedReport: String
     ) {
+        // Verificar si el Fragment está en un estado válido
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Fragment not in valid state, skipping UI update")
+            return
+        }
+        
         // Restaurar UI
         restoreUI()
 
@@ -154,6 +161,12 @@ class SyncBatchFragment : Fragment() {
      * Maneja los errores de sincronización
      */
     private fun onSyncError(message: String, details: String?) {
+        // Verificar si el Fragment está en un estado válido
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Fragment not in valid state, skipping UI update")
+            return
+        }
+
         // Restaurar UI
         restoreUI()
 
@@ -171,15 +184,26 @@ class SyncBatchFragment : Fragment() {
      * Restaura la UI a su estado inicial
      */
     private fun restoreUI() {
+        // Verificar si el binding está disponible
+        if (_binding == null) {
+            Log.w("SyncBatchFragment", "Binding is null, cannot restore UI")
+            return
+        }
+        
         binding.cardSyncButton.isEnabled = true
-        binding.cardProgress.visibility = View.GONE
-        binding.progressBar.visibility = View.GONE
+        binding.tvSyncTitle.text = "Iniciar sincronización"
+        binding.progressBarSync.visibility = View.GONE
     }
 
     /**
      * Muestra mensaje de información (azul)
      */
     private fun showInfoMessage(message: String) {
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Cannot show info message, Fragment not in valid state")
+            return
+        }
+        
         val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
             ContextCompat.getColor(requireContext(), R.color.info_color)
@@ -191,6 +215,11 @@ class SyncBatchFragment : Fragment() {
      * Muestra mensaje de éxito (verde)
      */
     private fun showSuccessMessage(message: String) {
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Cannot show success message, Fragment not in valid state")
+            return
+        }
+        
         val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
             ContextCompat.getColor(requireContext(), R.color.success_color)
@@ -202,6 +231,11 @@ class SyncBatchFragment : Fragment() {
      * Muestra mensaje de advertencia (amarillo/naranja)
      */
     private fun showWarningMessage(message: String) {
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Cannot show warning message, Fragment not in valid state")
+            return
+        }
+        
         val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
             ContextCompat.getColor(requireContext(), R.color.warning_color)
@@ -213,6 +247,11 @@ class SyncBatchFragment : Fragment() {
      * Muestra mensaje de error (rojo)
      */
     private fun showErrorMessage(message: String) {
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Cannot show error message, Fragment not in valid state")
+            return
+        }
+        
         val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
             ContextCompat.getColor(requireContext(), R.color.error_color)
