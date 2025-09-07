@@ -51,6 +51,11 @@ class ConsultasFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        // Reiniciar filtros al volver a la pantalla
+        viewModel.limpiarFiltros()
+        limpiarChipsSeleccionados()
+        // Limpiar también el SearchView
+        binding.searchView.getEditText().setText("")
         viewModel.obtenerConsultas()
     }
 
@@ -127,11 +132,12 @@ class ConsultasFragment : Fragment() {
         binding.searchView.addTransitionListener { _, _, newState ->
             if (newState == SearchView.TransitionState.SHOWN) {
                 if (binding.searchView.getEditText().text.isNullOrBlank()) {
-                    viewModel.buscarConsultas("")
+                    viewModel.limpiarBusqueda()
                 }
             }
             if (newState == SearchView.TransitionState.HIDDEN) {
-                viewModel.buscarConsultas("")
+                binding.searchView.getEditText().setText("")
+                viewModel.limpiarBusqueda()
             }
         }
 
@@ -194,6 +200,8 @@ class ConsultasFragment : Fragment() {
         binding.btnLimpiarFiltros.setOnClickListener {
             viewModel.limpiarFiltros()
             limpiarChipsSeleccionados()
+            // Limpiar también el texto del SearchView
+            binding.searchView.getEditText().setText("")
         }
 
         binding.btnAgendar.apply {
@@ -241,18 +249,16 @@ class ConsultasFragment : Fragment() {
 
         viewModel.pacientesConCitasFiltrados.observe(viewLifecycleOwner) { consultasFiltradas ->
             pacienteConCitaFiltradoAdapter.updateCitas(consultasFiltradas)
+            // Mostrar RecyclerView filtrado si hay resultados de búsqueda o filtros
+            updateRecyclerViewVisibility()
         }
 
         viewModel.filtrosActivos.observe(viewLifecycleOwner) { filtrosActivos ->
-            if (filtrosActivos) {
-                // Mostrar RecyclerView de consultas filtradas
-                binding.recyclerViewConsultas.visibility = View.GONE
-                binding.recyclerViewCitasFiltradas.visibility = View.VISIBLE
-            } else {
-                // Mostrar RecyclerView de todas las consultas
-                binding.recyclerViewCitasFiltradas.visibility = View.GONE
-                binding.recyclerViewConsultas.visibility = View.VISIBLE
-            }
+            updateRecyclerViewVisibility()
+        }
+
+        viewModel.filtro.observe(viewLifecycleOwner) { filtro ->
+            updateRecyclerViewVisibility()
         }
 
         viewModel.mensaje.observe(viewLifecycleOwner) { mensaje ->
@@ -274,6 +280,21 @@ class ConsultasFragment : Fragment() {
                 binding.chipPersonalizado.text = "Personalizado"
                 binding.chipPersonalizado.isChecked = false
             }
+        }
+    }
+
+    private fun updateRecyclerViewVisibility() {
+        val filtrosActivos = viewModel.filtrosActivos.value ?: false
+        val filtroTexto = viewModel.filtro.value?.isNotBlank() ?: false
+        val hayConsultasFiltradas = viewModel.pacientesConCitasFiltrados.value?.isNotEmpty() ?: false
+        
+        // Mostrar RecyclerView filtrado si hay filtros activos, búsqueda de texto, o resultados filtrados
+        if (filtrosActivos || filtroTexto || hayConsultasFiltradas) {
+            binding.recyclerViewConsultas.visibility = View.GONE
+            binding.recyclerViewCitasFiltradas.visibility = View.VISIBLE
+        } else {
+            binding.recyclerViewCitasFiltradas.visibility = View.GONE
+            binding.recyclerViewConsultas.visibility = View.VISIBLE
         }
     }
 
@@ -300,12 +321,15 @@ class ConsultasFragment : Fragment() {
         binding.chipCompletadas.isChecked = false
         binding.chipCanceladas.isChecked = false
         binding.chipReprogramdas.isChecked = false
+        binding.chipNoAsistio.isChecked = false
+        binding.chipSinPreviaCita.isChecked = false
 
         // Limpiar chips de Período
         binding.chipHoy.isChecked = false
         binding.chipSemana.isChecked = false
         binding.chipMes.isChecked = false
         binding.chipPersonalizado.isChecked = false
+        binding.chipPersonalizado.text = "Personalizado" // Restablecer texto original
 
         // Limpiar chips de Tipo de Consulta
         binding.chipSeguimiento.isChecked = false

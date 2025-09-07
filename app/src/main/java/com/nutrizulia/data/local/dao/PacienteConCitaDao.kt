@@ -12,11 +12,11 @@ interface PacienteConCitaDao {
     suspend fun findAll(usuarioInstitucionId: Int): List<PacienteConCita>
 
     @Query("SELECT * FROM pacientes_con_citas WHERE usuarioInstitucionId = :usuarioInstitucionId " +
-            "AND cedulaPaciente LIKE '%' || :filtro || '%' " +
-            "AND nombreCompleto LIKE '%' || :filtro || '%' " +
-            "AND fechaNacimientoPaciente LIKE '%' || :filtro || '%' " +
-            "AND fechaHoraProgramadaConsulta LIKE '%' || :filtro || '%' " +
-            "AND estadoConsulta LIKE '%' || :filtro || '%' " +
+            "AND (cedulaPaciente LIKE '%' || :filtro || '%' " +
+            "OR nombreCompleto LIKE '%' || :filtro || '%' " +
+            "OR fechaNacimientoPaciente LIKE '%' || :filtro || '%' " +
+            "OR fechaHoraProgramadaConsulta LIKE '%' || :filtro || '%' " +
+            "OR estadoConsulta LIKE '%' || :filtro || '%') " +
             "ORDER BY ultimaActualizacion DESC")
     suspend fun findAllByFiltro(usuarioInstitucionId: Int, filtro: String): List<PacienteConCita>
 

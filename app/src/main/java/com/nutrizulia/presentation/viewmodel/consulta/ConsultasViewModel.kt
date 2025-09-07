@@ -86,9 +86,18 @@ class ConsultasViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
 
+            _filtro.value = query.trim()
+            
             if (query.isBlank()) {
-                _filtro.value = ""
-                _pacientesConCitasFiltrados.value = emptyList()
+                // Si no hay búsqueda de texto, verificar si hay filtros activos
+                val hayFiltrosActivos = (_estadosFiltros.value?.isNotEmpty() == true) ||
+                        (_periodosFiltros.value?.isNotEmpty() == true) ||
+                        (_tiposConsultaFiltros.value?.isNotEmpty() == true) ||
+                        (_customDateRange.value != null)
+                
+                if (!hayFiltrosActivos) {
+                    _pacientesConCitasFiltrados.value = emptyList()
+                }
                 _isLoading.value = false
                 return@launch
             }
@@ -101,13 +110,13 @@ class ConsultasViewModel @Inject constructor(
                 return@launch
             }
 
-            _filtro.value = query
-            val result = getPacientesConCitasByFiltro(idUsuarioInstitucion.value ?: 0, filtro.value ?: "")
+            val result = getPacientesConCitasByFiltro(idUsuarioInstitucion.value ?: 0, _filtro.value ?: "")
+            _pacientesConCitasFiltrados.value = result
+            
             if (result.isEmpty()) {
-                _pacientesConCitasFiltrados.value = emptyList()
-                _mensaje.value = "No se encontraron pacientes con citas."
+                _mensaje.value = "No se encontraron pacientes con citas para la búsqueda: ${_filtro.value}"
             } else {
-                _pacientesConCitasFiltrados.value = result
+                _mensaje.value = null
             }
             _isLoading.value = false
         }
@@ -180,6 +189,20 @@ class ConsultasViewModel @Inject constructor(
         _filtro.value = ""
         _filtrosActivos.value = false
         _pacientesConCitasFiltrados.value = emptyList()
+        _mensaje.value = null
+    }
+    
+    fun limpiarBusqueda() {
+        _filtro.value = ""
+        // Solo limpiar resultados si no hay otros filtros activos
+        val hayFiltrosActivos = (_estadosFiltros.value?.isNotEmpty() == true) ||
+                (_periodosFiltros.value?.isNotEmpty() == true) ||
+                (_tiposConsultaFiltros.value?.isNotEmpty() == true) ||
+                (_customDateRange.value != null)
+        
+        if (!hayFiltrosActivos) {
+            _pacientesConCitasFiltrados.value = emptyList()
+        }
         _mensaje.value = null
     }
 

@@ -30,7 +30,7 @@
                 android:clipToPadding="false"
                 android:paddingHorizontal="8dp"
                 android:paddingBottom="88dp"
-                tools:listitem="@layout/item_paciente" />
+                tools:listitem="@layout/item_cita" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewCitasFiltradas"
@@ -40,7 +40,7 @@
                 android:paddingHorizontal="8dp"
                 android:paddingBottom="88dp"
                 android:visibility="gone"
-                tools:listitem="@layout/item_paciente" />
+                tools:listitem="@layout/item_cita" />
 
 
 
