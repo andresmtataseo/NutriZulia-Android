@@ -144,8 +144,7 @@
                     style="?attr/materialCardViewStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    app:cardBackgroundColor="@color/md_theme_primaryContainer">
+                    android:visibility="gone">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -159,7 +158,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="NOMBRE"
-                            android:textColor="@color/md_theme_onPrimaryContainer"
                             android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
 
@@ -177,7 +175,6 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="16dp"
                                 android:text="Cédula:"
-                                android:textColor="@color/md_theme_onPrimaryContainer"
                                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
                             <TextView
@@ -185,7 +182,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Edad:"
-                                android:textColor="@color/md_theme_onPrimaryContainer"
                                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
                         </LinearLayout>
 
@@ -204,7 +200,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Fecha de nacimiento:"
-                                android:textColor="@color/md_theme_onPrimaryContainer"
                                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
                         </LinearLayout>
 
@@ -219,7 +214,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Género:"
-                                android:textColor="@color/md_theme_onPrimaryContainer"
                                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
                         </LinearLayout>
 
@@ -234,7 +228,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Parentesco:"
-                                android:textColor="@color/md_theme_onPrimaryContainer"
                                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
                         </LinearLayout>
 
