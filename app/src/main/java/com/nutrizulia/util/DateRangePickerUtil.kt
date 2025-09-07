@@ -58,6 +58,7 @@ class DateRangePickerUtil {
          */
         fun formatDateRange(startDate: Long, endDate: Long): String {
             val dateFormat = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
+            dateFormat.timeZone = TimeZone.getTimeZone("UTC") // Configurar UTC para evitar problemas de zona horaria
             val startFormatted = dateFormat.format(Date(startDate))
             val endFormatted = dateFormat.format(Date(endDate))
             
@@ -85,6 +86,7 @@ class DateRangePickerUtil {
          */
         fun formatDateForQuery(timestamp: Long): String {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            dateFormat.timeZone = TimeZone.getTimeZone("UTC") // Configurar UTC para evitar problemas de zona horaria
             return dateFormat.format(Date(timestamp))
         }
 
@@ -94,7 +96,7 @@ class DateRangePickerUtil {
          * @return Timestamp del inicio del día
          */
         fun getStartOfDay(timestamp: Long): Long {
-            val calendar = Calendar.getInstance()
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
             calendar.timeInMillis = timestamp
             calendar.set(Calendar.HOUR_OF_DAY, 0)
             calendar.set(Calendar.MINUTE, 0)
@@ -109,7 +111,7 @@ class DateRangePickerUtil {
          * @return Timestamp del final del día
          */
         fun getEndOfDay(timestamp: Long): Long {
-            val calendar = Calendar.getInstance()
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
             calendar.timeInMillis = timestamp
             calendar.set(Calendar.HOUR_OF_DAY, 23)
             calendar.set(Calendar.MINUTE, 59)

@@ -61,8 +61,25 @@ class PacienteConCitaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         tvNombreCompletoPaciente.text = pacienteConCita.nombreCompleto
         tvCedulaPaciente.text = "Cédula: ${pacienteConCita.cedulaPaciente}"
         tvEdad.text = "Edad: ${calcularEdad(pacienteConCita.fechaNacimientoPaciente)} años"
-        tvFechaProgramada.text = "Fecha: ${pacienteConCita.fechaHoraProgramadaConsulta?.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
-        tvHoraProgramda.text = "Hora: ${pacienteConCita.fechaHoraProgramadaConsulta?.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
+        
+        // Mostrar fecha y hora programada en un solo TextView
+        if (pacienteConCita.fechaHoraProgramadaConsulta != null) {
+            val fechaProgramada = pacienteConCita.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val horaProgramada = pacienteConCita.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))
+            tvFechaProgramada.text = "Fecha programada: $fechaProgramada $horaProgramada"
+        } else {
+            tvFechaProgramada.text = "Fecha programada: No disponible"
+        }
+        
+        // Mostrar fecha y hora realizada en un solo TextView
+        if (pacienteConCita.fechaHoraRealConsulta != null) {
+            val fechaRealizada = pacienteConCita.fechaHoraRealConsulta.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val horaRealizada = pacienteConCita.fechaHoraRealConsulta.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))
+            tvFechaRealizada.text = "Fecha realizada: $fechaRealizada $horaRealizada"
+        } else {
+            tvFechaRealizada.text = "Fecha realizada: No disponible"
+        }
+        
         tvEstado.text = pacienteConCita.estadoConsulta.displayValue
 
         val colorResId = when (pacienteConCita.estadoConsulta.displayValue) {
