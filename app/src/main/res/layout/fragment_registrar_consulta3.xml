@@ -44,12 +44,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
-                android:text="Riesgos biológicos"
+                android:text="Diagnósticos"
                 android:textSize="16sp"
                 android:textStyle="normal|bold" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewRiesgosBiologicos"
+                android:id="@+id/recyclerViewDiagnosticos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
@@ -61,13 +61,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="No hay registros de riesgos biológicos"
+                android:text="No hay registros de diagnósticos"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="?android:attr/textColorSecondary"
                 android:visibility="gone" />
 
             <Button
-                android:id="@+id/btnAgregarRiesgoBiologico"
+                android:id="@+id/btnAgregarDiagnostico"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

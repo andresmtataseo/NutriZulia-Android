@@ -32,7 +32,7 @@ class EvaluacionesFinalesFragment : Fragment() {
     private val viewModel: EvaluacionesFinalesViewModel by viewModels()
 
     private lateinit var binding: FragmentRegistrarConsulta3Binding
-    private lateinit var riesgoBiologicoAdapter: RiesgoBiologicoAdapter
+    private lateinit var diagnosticoAdapter: RiesgoBiologicoAdapter
     private val decimalFormat = DecimalFormat("#.##")
     private var dataLoadedForUI: Boolean = false
     private var isHistoria: Boolean = false
@@ -95,10 +95,10 @@ class EvaluacionesFinalesFragment : Fragment() {
         sharedViewModel.modoConsulta.observe(viewLifecycleOwner) { mode: ModoConsulta ->
             if (mode == ModoConsulta.VER_CONSULTA) {
                 deshabilitarCampos()
-                riesgoBiologicoAdapter.setReadOnly(true)
+                diagnosticoAdapter.setReadOnly(true)
             } else {
                 habilitarCampos()
-                riesgoBiologicoAdapter.setReadOnly(false)
+                diagnosticoAdapter.setReadOnly(false)
             }
         }
 
@@ -121,9 +121,9 @@ class EvaluacionesFinalesFragment : Fragment() {
         }
 
         // --- Observadores de Lógica Local (desde EvaluacionesFinalesViewModel) ---
-        viewModel.riesgosBiologicosSeleccionados.observe(viewLifecycleOwner) { riesgos ->
-            riesgoBiologicoAdapter.updateRiesgosBiologicos(riesgos)
-            binding.tvSinDatos.visibility = if (riesgos.isEmpty()) View.VISIBLE else View.GONE
+        viewModel.diagnosticosSeleccionados.observe(viewLifecycleOwner) { diagnosticos ->
+            diagnosticoAdapter.updateRiesgosBiologicos(diagnosticos)
+            binding.tvSinDatos.visibility = if (diagnosticos.isEmpty()) View.VISIBLE else View.GONE
         }
 
         // Cuando las evaluaciones se calculan, las actualizamos en el sharedViewModel
@@ -145,13 +145,13 @@ class EvaluacionesFinalesFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        binding.btnAgregarRiesgoBiologico.setOnClickListener {
-            // Obtenemos los riesgos disponibles desde el viewModel local
-            val riesgosDisponibles = viewModel.riesgosBiologicosDisponibles.value
-            if (!riesgosDisponibles.isNullOrEmpty()) {
-                mostrarDialogoConRiesgos(riesgosDisponibles)
+        binding.btnAgregarDiagnostico.setOnClickListener {
+            // Obtenemos los diagnósticos disponibles desde el viewModel local
+            val diagnosticosDisponibles = viewModel.diagnosticosDisponibles.value
+            if (!diagnosticosDisponibles.isNullOrEmpty()) {
+                mostrarDialogoConDiagnosticos(diagnosticosDisponibles)
             } else {
-                Utils.mostrarSnackbar(binding.root, "No hay riesgos biológicos disponibles para este paciente.")
+                Utils.mostrarSnackbar(binding.root, "No hay diagnósticos disponibles para este paciente.")
             }
         }
 
@@ -291,11 +291,11 @@ class EvaluacionesFinalesFragment : Fragment() {
 
     // --- Funciones de Ayuda (con cambios mínimos) ---
 
-    private fun onRiesgoBiologicoClick(riesgoBiologico: RiesgoBiologico) {
-        Utils.mostrarDialog(requireContext(), "Eliminar Riesgo Biológico",
-            "¿Desea eliminar el Riesgo Biológico ${riesgoBiologico.nombre}?", "Sí", "No",
+    private fun onDiagnosticoClick(diagnostico: RiesgoBiologico) {
+        Utils.mostrarDialog(requireContext(), "Eliminar Diagnóstico",
+            "¿Desea eliminar el Diagnóstico ${diagnostico.nombre}?", "Sí", "No",
             // Llamamos al método del viewModel local
-            { viewModel.eliminarRiesgoBiologico(riesgoBiologico) }, { }, true
+            { viewModel.eliminarDiagnostico(diagnostico) }, { }, true
         )
     }
 
@@ -316,31 +316,31 @@ class EvaluacionesFinalesFragment : Fragment() {
 //    }
 
     private fun setupRecyclerView() {
-        riesgoBiologicoAdapter = RiesgoBiologicoAdapter(
+        diagnosticoAdapter = RiesgoBiologicoAdapter(
             emptyList(),
-            onClickListener = { riesgoBiologico -> onRiesgoBiologicoClick(riesgoBiologico) })
+            onClickListener = { diagnostico -> onDiagnosticoClick(diagnostico) })
 
-        binding.recyclerViewRiesgosBiologicos.apply {
+        binding.recyclerViewDiagnosticos.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = riesgoBiologicoAdapter
+            adapter = diagnosticoAdapter
         }
 
-        viewModel.riesgosBiologicosSeleccionados.value?.let { riesgos ->
-            riesgoBiologicoAdapter.updateRiesgosBiologicos(riesgos)
+        viewModel.diagnosticosSeleccionados.value?.let { diagnosticos ->
+            diagnosticoAdapter.updateRiesgosBiologicos(diagnosticos)
         }
     }
 
     private fun habilitarCampos() {
         binding.btnRegistrarConsulta.isEnabled = true
         binding.btnLimpiar.isEnabled = true
-        binding.btnAgregarRiesgoBiologico.visibility = View.VISIBLE
+        binding.btnAgregarDiagnostico.visibility = View.VISIBLE
     }
 
     private fun deshabilitarCampos() {
         binding.tfObservaciones.editText?.isEnabled = false
         binding.tfPlanes.editText?.isEnabled = false
         binding.btnLimpiar.visibility = View.GONE
-        binding.btnAgregarRiesgoBiologico.visibility = View.GONE
+        binding.btnAgregarDiagnostico.visibility = View.GONE
         binding.btnRegistrarConsulta.setText("Salir")
     }
 
@@ -349,26 +349,26 @@ class EvaluacionesFinalesFragment : Fragment() {
         binding.tfPlanes.editText?.text = null
     }
 
-    private fun mostrarDialogoConRiesgos(riesgosDisponibles: List<RiesgoBiologico>) {
-        val nombresRiesgos = riesgosDisponibles.map { it.nombre }.toTypedArray()
-        val riesgosSeleccionados = mutableSetOf<Int>()
+    private fun mostrarDialogoConDiagnosticos(diagnosticosDisponibles: List<RiesgoBiologico>) {
+        val nombresDiagnosticos = diagnosticosDisponibles.map { it.nombre }.toTypedArray()
+        val diagnosticosSeleccionados = mutableSetOf<Int>()
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Seleccionar Riesgos Biológicos")
+            .setTitle("Seleccionar Diagnósticos")
             .setMultiChoiceItems(
-                nombresRiesgos,
+                nombresDiagnosticos,
                 null
             ) { _, which, isChecked ->
                 if (isChecked) {
-                    riesgosSeleccionados.add(which)
+                    diagnosticosSeleccionados.add(which)
                 } else {
-                    riesgosSeleccionados.remove(which)
+                    diagnosticosSeleccionados.remove(which)
                 }
             }
             .setPositiveButton("Agregar") { _, _ ->
-                riesgosSeleccionados.forEach { index ->
-                    val riesgoSeleccionado = riesgosDisponibles[index]
-                    viewModel.agregarRiesgoBiologico(riesgoSeleccionado)
+                diagnosticosSeleccionados.forEach { index ->
+                    val diagnosticoSeleccionado = diagnosticosDisponibles[index]
+                    viewModel.agregarDiagnostico(diagnosticoSeleccionado)
                 }
             }
             .setNegativeButton("Cancelar") { dialog, _ ->

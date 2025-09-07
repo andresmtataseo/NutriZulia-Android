@@ -34,7 +34,7 @@ import kotlin.collections.orEmpty
 
 @HiltViewModel
 class EvaluacionesFinalesViewModel @Inject constructor(
-    private val getRiesgosBiologicos: GetRiesgosBiologicos,
+    private val getDiagnosticos: GetRiesgosBiologicos,
     private val getEnfermedades: GetEnfermedades,
     private val getDiagnosticosByConsultaId: GetDiagnosticosByConsultaId,
     private val getEvaluacionesAntropometricasByConsultaId: GetEvaluacionesAntropometricasByConsultaId,
@@ -54,21 +54,21 @@ class EvaluacionesFinalesViewModel @Inject constructor(
     val mensaje: LiveData<String> = _mensaje
 
     // --- Data for UI ---
-    private val _riesgosBiologicosDisponibles = MutableLiveData<List<RiesgoBiologico>>()
-    val riesgosBiologicosDisponibles: LiveData<List<RiesgoBiologico>> = _riesgosBiologicosDisponibles
+    private val _diagnosticosDisponibles = MutableLiveData<List<RiesgoBiologico>>()
+    val diagnosticosDisponibles: LiveData<List<RiesgoBiologico>> = _diagnosticosDisponibles
 
     private val _diagnosticosIniciales = MutableLiveData<List<Diagnostico>>()
 
-    private val _riesgosBiologicosSeleccionados = MediatorLiveData<List<RiesgoBiologico>>()
-    val riesgosBiologicosSeleccionados: LiveData<List<RiesgoBiologico>> = _riesgosBiologicosSeleccionados
+    private val _diagnosticosSeleccionados = MediatorLiveData<List<RiesgoBiologico>>()
+    val diagnosticosSeleccionados: LiveData<List<RiesgoBiologico>> = _diagnosticosSeleccionados
 
     private val _evaluacionesCalculadas = MutableLiveData<List<EvaluacionAntropometrica>>()
     val evaluacionesCalculadas: LiveData<List<EvaluacionAntropometrica>> = _evaluacionesCalculadas
 
     init {
-        // Mapea los riesgos seleccionados cuando cambian los diagnósticos iniciales o el catálogo de riesgos
-        _riesgosBiologicosSeleccionados.addSource(_diagnosticosIniciales) { mapearDiagnosticosYRiesgos() }
-        _riesgosBiologicosSeleccionados.addSource(_riesgosBiologicosDisponibles) { mapearDiagnosticosYRiesgos() }
+        // Mapea los diagnósticos seleccionados cuando cambian los diagnósticos iniciales o el catálogo de diagnósticos
+        _diagnosticosSeleccionados.addSource(_diagnosticosIniciales) { mapearDiagnosticosYDiagnosticos() }
+        _diagnosticosSeleccionados.addSource(_diagnosticosDisponibles) { mapearDiagnosticosYDiagnosticos() }
     }
 
     fun loadInitialData(paciente: Paciente, consultaId: String?) {
@@ -76,9 +76,9 @@ class EvaluacionesFinalesViewModel @Inject constructor(
             _isLoading.value = true
             try {
                 coroutineScope {
-                    val riesgosDisponiblesDeferred = async {
+                    val diagnosticosDisponiblesDeferred = async {
                         val edadMeses = Utils.calcularEdadEnMeses(paciente.fechaNacimiento)
-                        getRiesgosBiologicos(paciente.genero.first().uppercaseChar().toString(), edadMeses)
+                        getDiagnosticos(paciente.genero.first().uppercaseChar().toString(), edadMeses)
                     }
 
                     if (consultaId != null) {
@@ -89,7 +89,7 @@ class EvaluacionesFinalesViewModel @Inject constructor(
                         _evaluacionesCalculadas.value = evaluacionesDeferred.await()
                     }
 
-                    _riesgosBiologicosDisponibles.value = riesgosDisponiblesDeferred.await()
+                    _diagnosticosDisponibles.value = diagnosticosDisponiblesDeferred.await()
                 }
             } catch (e: Exception) {
                 _mensaje.value = "Error al cargar datos de diagnóstico: ${e.localizedMessage}"
@@ -99,41 +99,41 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         }
     }
 
-    private fun mapearDiagnosticosYRiesgos() {
+    private fun mapearDiagnosticosYDiagnosticos() {
         val diagnosticos: List<Diagnostico> = _diagnosticosIniciales.value.orEmpty()
-        val catalogo: List<RiesgoBiologico> = _riesgosBiologicosDisponibles.value.orEmpty()
-        val riesgosSeleccionados: List<RiesgoBiologico> = diagnosticos
+        val catalogo: List<RiesgoBiologico> = _diagnosticosDisponibles.value.orEmpty()
+        val diagnosticosSeleccionados: List<RiesgoBiologico> = diagnosticos
             .mapNotNull { diag -> catalogo.find { it.id == diag.riesgoBiologicoId } }
-        _riesgosBiologicosSeleccionados.value = riesgosSeleccionados
+        _diagnosticosSeleccionados.value = diagnosticosSeleccionados
     }
 
-    fun agregarRiesgoBiologico(riesgoBiologico: RiesgoBiologico) {
-        val riesgosActuales: MutableList<RiesgoBiologico> = _riesgosBiologicosSeleccionados.value.orEmpty().toMutableList()
-        if (!riesgosActuales.any { it.id == riesgoBiologico.id }) {
-            riesgosActuales.add(riesgoBiologico)
-            _riesgosBiologicosSeleccionados.value = riesgosActuales
+    fun agregarDiagnostico(diagnostico: RiesgoBiologico) {
+        val diagnosticosActuales: MutableList<RiesgoBiologico> = _diagnosticosSeleccionados.value.orEmpty().toMutableList()
+        if (!diagnosticosActuales.any { it.id == diagnostico.id }) {
+            diagnosticosActuales.add(diagnostico)
+            _diagnosticosSeleccionados.value = diagnosticosActuales
         }
     }
 
-    fun eliminarRiesgoBiologico(riesgoBiologico: RiesgoBiologico) {
-        val riesgosActuales: MutableList<RiesgoBiologico> = _riesgosBiologicosSeleccionados.value.orEmpty().toMutableList()
-        riesgosActuales.removeAll { it.id == riesgoBiologico.id }
-        _riesgosBiologicosSeleccionados.value = riesgosActuales
+    fun eliminarDiagnostico(diagnostico: RiesgoBiologico) {
+        val diagnosticosActuales: MutableList<RiesgoBiologico> = _diagnosticosSeleccionados.value.orEmpty().toMutableList()
+        diagnosticosActuales.removeAll { it.id == diagnostico.id }
+        _diagnosticosSeleccionados.value = diagnosticosActuales
     }
 
     fun createDiagnosticosEntities(consultaId: String): List<Diagnostico> {
         val diagnosticosExistentes = _diagnosticosIniciales.value.orEmpty()
         
-        return riesgosBiologicosSeleccionados.value.orEmpty().map { riesgo ->
-            // Buscar si ya existe un diagnóstico para este riesgo biológico que NO esté eliminado
+        return diagnosticosSeleccionados.value.orEmpty().map { diagnostico ->
+            // Buscar si ya existe un diagnóstico para este diagnóstico que NO esté eliminado
             val diagnosticoExistente = diagnosticosExistentes.find { 
-                it.riesgoBiologicoId == riesgo.id && !it.isDeleted 
+                it.riesgoBiologicoId == diagnostico.id && !it.isDeleted 
             }
             
             Diagnostico(
                 id = diagnosticoExistente?.id ?: Utils.generarUUID(), // Reutilizar ID existente solo si no está eliminado
                 consultaId = consultaId,
-                riesgoBiologicoId = riesgo.id,
+                riesgoBiologicoId = diagnostico.id,
                 enfermedadId = null,
                 isPrincipal = false,
                 updatedAt = LocalDateTime.now(),
