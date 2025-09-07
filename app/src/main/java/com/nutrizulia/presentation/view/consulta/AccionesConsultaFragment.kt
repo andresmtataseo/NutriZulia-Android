@@ -81,10 +81,31 @@ class AccionesConsultaFragment : Fragment() {
             binding.tvCedulaPaciente.text = "Cédula: ${it.cedulaPaciente}"
             val edad = Utils.calcularEdadDetallada(it.fechaNacimientoPaciente)
             binding.tvEdad.text = "Edad: ${edad.anios} años, ${edad.meses} meses y ${edad.dias} días"
-            binding.tvFechaProgramada.text = "Fecha programada: ${it.fechaHoraProgramadaConsulta?.format(
-                DateTimeFormatter.ISO_LOCAL_DATE)}"
-            binding.tvHoraProgramda.text = "Hora programada: ${it.fechaHoraProgramadaConsulta?.format(
-                DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
+            // Fecha y hora programada
+            binding.tvFechaProgramada.text = if (it.fechaHoraProgramadaConsulta != null) {
+                "Fecha programada: ${it.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+            } else {
+                "Fecha programada: No disponible"
+            }
+            
+            binding.tvHoraProgramda.text = if (it.fechaHoraProgramadaConsulta != null) {
+                "Hora programada: ${it.fechaHoraProgramadaConsulta.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
+            } else {
+                "Hora programada: No disponible"
+            }
+            
+            // Fecha y hora realizada
+            binding.tvFechaRealizada.text = if (it.fechaHoraRealConsulta != null) {
+                "Fecha realizada: ${it.fechaHoraRealConsulta.format(DateTimeFormatter.ISO_LOCAL_DATE)}"
+            } else {
+                "Fecha realizada: No disponible"
+            }
+            
+            binding.tvHoraRealizada.text = if (it.fechaHoraRealConsulta != null) {
+                "Hora realizada: ${it.fechaHoraRealConsulta.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))}"
+            } else {
+                "Hora realizada: No disponible"
+            }
             binding.tvEstado.text = it.estadoConsulta.displayValue
 
             val colorResId = when (it.estadoConsulta) {
