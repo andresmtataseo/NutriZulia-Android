@@ -13,13 +13,23 @@ class GetCitasDelDiaUseCase @Inject constructor(
         val today = LocalDate.now()
         
         return pacientesConCitas
-            .filter { it.fechaHoraProgramadaConsulta != null }
-            .filter { it.fechaHoraProgramadaConsulta!!.toLocalDate() == today }
-            .sortedBy { it.fechaHoraProgramadaConsulta }
+            .filter { pacienteConCita ->
+                // Incluir consultas programadas para hoy
+                (pacienteConCita.fechaHoraProgramadaConsulta != null && 
+                 pacienteConCita.fechaHoraProgramadaConsulta!!.toLocalDate() == today) ||
+                // Incluir consultas sin previa cita realizadas hoy
+                (pacienteConCita.fechaHoraRealConsulta != null && 
+                 pacienteConCita.fechaHoraRealConsulta!!.toLocalDate() == today)
+            }
+            .sortedBy { pacienteConCita ->
+                // Ordenar por fecha programada si existe, sino por fecha real
+                pacienteConCita.fechaHoraProgramadaConsulta ?: pacienteConCita.fechaHoraRealConsulta
+            }
             .map { pacienteConCita ->
+                val fechaHora = pacienteConCita.fechaHoraProgramadaConsulta ?: pacienteConCita.fechaHoraRealConsulta
                 CitaDelDia(
                     nombrePaciente = pacienteConCita.nombreCompleto,
-                    hora = pacienteConCita.fechaHoraProgramadaConsulta!!.toLocalTime().toString(),
+                    hora = fechaHora?.toLocalTime()?.toString() ?: "Sin hora",
                     estado = pacienteConCita.estadoConsulta.name,
                     consultaId = pacienteConCita.consultaId
                 )

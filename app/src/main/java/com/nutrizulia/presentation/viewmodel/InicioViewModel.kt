@@ -135,7 +135,7 @@ class InicioViewModel @Inject constructor(
             val citasHoy = getCitasDelDiaUseCase(usuarioInstitucionId)
             _citasDelDiaDetalle.value = citasHoy
             _citasDelDia.value = CitasDelDia(
-                programadas = citasHoy.size,
+                programadas = citasHoy.count { it.estado == "PENDIENTE" || it.estado == "REPROGRAMADA" },
                 completadas = citasHoy.count { it.estado == "REALIZADA" || it.estado == "COMPLETADA" },
                 sinPreviaCita = citasHoy.count { it.estado == "SIN_PREVIA_CITA" },
                 canceladas = citasHoy.count { it.estado == "CANCELADA" }

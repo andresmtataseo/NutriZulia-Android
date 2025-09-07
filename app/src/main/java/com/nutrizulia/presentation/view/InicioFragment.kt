@@ -7,10 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import com.nutrizulia.databinding.FragmentInicioBinding
 import com.nutrizulia.presentation.view.paciente.AccionesPacienteFragmentDirections
 import com.nutrizulia.presentation.viewmodel.InicioViewModel
+import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 
@@ -34,6 +36,7 @@ class InicioFragment : Fragment() {
         setupGreeting()
         setupObservers()
         setupClickListeners()
+        setupBackPressedCallback()
         
         // Cargar datos iniciales
         viewModel.loadDashboardData()
@@ -136,6 +139,28 @@ class InicioFragment : Fragment() {
             in 12..17 -> "¡Buenas tardes!"
             else -> "¡Buenas noches!"
         }
+    }
+
+    private fun setupBackPressedCallback() {
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Utils.mostrarDialog(
+                    context = requireContext(),
+                    title = "Salir",
+                    message = "¿Estás seguro de que deseas salir de la aplicación?",
+                    positiveButtonText = "Salir",
+                    negativeButtonText = "Cancelar",
+                    onPositiveClick = {
+                        // Salir de la aplicación
+                        requireActivity().finish()
+                    },
+                    onNegativeClick = {
+                        // No hacer nada, el diálogo se cierra automáticamente
+                    }
+                )
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
     }
 
 }
