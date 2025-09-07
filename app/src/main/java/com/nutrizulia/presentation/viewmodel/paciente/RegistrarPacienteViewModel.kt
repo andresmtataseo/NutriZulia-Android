@@ -364,19 +364,34 @@ class RegistrarPacienteViewModel @Inject constructor(
             try {
                 savePaciente(pacienteToSave)
                 
-                // Si el paciente no está cedulado, guardar la relación con el representante
+                // Manejar la relación con el representante
                 if (esCedulado == false && _representante.value != null && _selectedParentesco.value != null) {
-                    val pacienteRepresentante = PacienteRepresentante(
-                        id = Utils.generarUUID(),
-                        usuarioInstitucionId = institutionId,
-                        pacienteId = pacienteToSave.id,
-                        representanteId = _representante.value!!.id,
-                        parentescoId = _selectedParentesco.value!!.id,
-                        updatedAt = LocalDateTime.now(),
-                        isDeleted = false,
-                        isSynced = false
-                    )
-                    savePacienteRepresentante(pacienteRepresentante)
+                    val representanteId = _representante.value!!.id
+                    val parentescoId = _selectedParentesco.value!!.id
+                    
+                    // Verificar si ya existe la misma relación activa
+                    val yaExisteRelacion = verificarYEvitarDuplicados(pacienteToSave.id, representanteId, parentescoId)
+                    
+                    if (!yaExisteRelacion) {
+                        // Marcar relación anterior como eliminada si existe
+                        marcarRepresentanteAnteriorComoEliminado(pacienteToSave.id)
+                        
+                        // Crear nueva relación
+                        val pacienteRepresentante = PacienteRepresentante(
+                            id = Utils.generarUUID(),
+                            usuarioInstitucionId = institutionId,
+                            pacienteId = pacienteToSave.id,
+                            representanteId = representanteId,
+                            parentescoId = parentescoId,
+                            updatedAt = LocalDateTime.now(),
+                            isDeleted = false,
+                            isSynced = false
+                        )
+                        savePacienteRepresentante(pacienteRepresentante)
+                    }
+                } else if (esCedulado == true) {
+                    // Si el paciente cambió a cedulado, marcar relación anterior como eliminada
+                    marcarRepresentanteAnteriorComoEliminado(pacienteToSave.id)
                 }
                 
                 _mensaje.value = "Paciente guardado correctamente."
@@ -465,9 +480,13 @@ class RegistrarPacienteViewModel @Inject constructor(
                 }
                 _idUsuarioInstitucion.postValue(institutionId)
                 
-                // Marcar representante anterior como eliminado si existe
-                _paciente.value?.let { paciente ->
-                    marcarRepresentanteAnteriorComoEliminado(paciente.id)
+                // Solo marcar como eliminado si realmente hay un cambio de representante
+                val representanteActual = _representante.value
+                val parentescoActual = _selectedParentesco.value
+                val hayCambio = representanteActual?.id != representanteId || parentescoActual?.id != parentescoId
+                
+                if (hayCambio && _paciente.value != null) {
+                    marcarRepresentanteAnteriorComoEliminado(_paciente.value!!.id)
                 }
                 
                 coroutineScope {
@@ -581,6 +600,19 @@ class RegistrarPacienteViewModel @Inject constructor(
         } catch (e: Exception) {
             // Log del error pero no interrumpir el flujo
             println("Error al marcar representante anterior como eliminado: ${e.message}")
+        }
+    }
+    
+    private suspend fun verificarYEvitarDuplicados(pacienteId: String, representanteId: String, parentescoId: Int): Boolean {
+        try {
+            val relacionExistente = getPacienteRepresentanteByPacienteId(pacienteId)
+            return relacionExistente != null && 
+                   !relacionExistente.isDeleted && 
+                   relacionExistente.representanteId == representanteId && 
+                   relacionExistente.parentescoId == parentescoId
+        } catch (e: Exception) {
+            println("Error al verificar duplicados: ${e.message}")
+            return false
         }
     }
 
