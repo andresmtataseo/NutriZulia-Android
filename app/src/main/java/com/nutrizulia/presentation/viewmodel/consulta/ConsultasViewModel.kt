@@ -9,6 +9,7 @@ import com.nutrizulia.domain.usecase.collection.GetPacientesConCitas
 import com.nutrizulia.domain.usecase.collection.GetPacientesConCitasByFiltro
 import com.nutrizulia.domain.usecase.collection.GetPacientesConCitasByCompleteFilters
 import com.nutrizulia.util.SessionManager
+import com.nutrizulia.util.DateRangePickerUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -44,6 +45,13 @@ class ConsultasViewModel @Inject constructor(
     private val _estadosFiltros = MutableLiveData<MutableSet<String>>(mutableSetOf())
     private val _periodosFiltros = MutableLiveData<MutableSet<String>>(mutableSetOf())
     private val _tiposConsultaFiltros = MutableLiveData<MutableSet<String>>(mutableSetOf())
+    
+    // Filtro de rango de fechas personalizado
+    private val _customDateRange = MutableLiveData<Pair<Long, Long>?>(null)
+    val customDateRange: LiveData<Pair<Long, Long>?> get() = _customDateRange
+    
+    private val _customDateRangeText = MutableLiveData<String?>(null)
+    val customDateRangeText: LiveData<String?> get() = _customDateRangeText
     
     private val _filtrosActivos = MutableLiveData<Boolean>(false)
     val filtrosActivos: LiveData<Boolean> get() = _filtrosActivos
@@ -138,10 +146,37 @@ class ConsultasViewModel @Inject constructor(
         aplicarFiltros()
     }
 
+    /**
+     * Establece un rango de fechas personalizado para el filtrado
+     * @param startDate Fecha de inicio en milisegundos
+     * @param endDate Fecha de fin en milisegundos
+     * @param displayText Texto a mostrar en el chip
+     */
+    fun setCustomDateRange(startDate: Long, endDate: Long, displayText: String) {
+        _customDateRange.value = Pair(startDate, endDate)
+        _customDateRangeText.value = displayText
+        
+        // Limpiar otros filtros de período cuando se selecciona personalizado
+        _periodosFiltros.value = mutableSetOf()
+        
+        aplicarFiltros()
+    }
+
+    /**
+     * Limpia el rango de fechas personalizado
+     */
+    fun clearCustomDateRange() {
+        _customDateRange.value = null
+        _customDateRangeText.value = null
+        aplicarFiltros()
+    }
+
     fun limpiarFiltros() {
         _estadosFiltros.value = mutableSetOf()
         _periodosFiltros.value = mutableSetOf()
         _tiposConsultaFiltros.value = mutableSetOf()
+        _customDateRange.value = null
+        _customDateRangeText.value = null
         _filtro.value = ""
         _filtrosActivos.value = false
         _pacientesConCitasFiltrados.value = emptyList()
@@ -152,8 +187,9 @@ class ConsultasViewModel @Inject constructor(
         val estados = _estadosFiltros.value ?: mutableSetOf()
         val periodos = _periodosFiltros.value ?: mutableSetOf()
         val tiposConsulta = _tiposConsultaFiltros.value ?: mutableSetOf()
+        val customRange = _customDateRange.value
         
-        val hayFiltrosActivos = estados.isNotEmpty() || periodos.isNotEmpty() || tiposConsulta.isNotEmpty()
+        val hayFiltrosActivos = estados.isNotEmpty() || periodos.isNotEmpty() || tiposConsulta.isNotEmpty() || customRange != null
         _filtrosActivos.value = hayFiltrosActivos
         
         if (!hayFiltrosActivos) {
@@ -174,8 +210,12 @@ class ConsultasViewModel @Inject constructor(
             }
             
             try {
-                // Convertir períodos a fechas
-                val (fechaInicio, fechaFin) = convertirPeriodosAFechas(periodos)
+                // Convertir períodos a fechas (priorizar rango personalizado)
+                val (fechaInicio, fechaFin) = if (customRange != null) {
+                    convertirCustomDateRangeAFechas(customRange)
+                } else {
+                    convertirPeriodosAFechas(periodos)
+                }
                 
                 // Preparar listas de filtros (null si están vacías)
                 val estadosList = if (estados.isNotEmpty()) estados.toList() else null
@@ -249,5 +289,11 @@ class ConsultasViewModel @Inject constructor(
             fechaFin?.toString()
         )
     }
-
+    
+    private fun convertirCustomDateRangeAFechas(dateRange: Pair<Long, Long>): Pair<String?, String?> {
+        return Pair(
+            DateRangePickerUtil.formatDateForQuery(dateRange.first),
+            DateRangePickerUtil.formatDateForQuery(dateRange.second)
+        )
+    }
 }

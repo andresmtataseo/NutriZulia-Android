@@ -17,6 +17,7 @@ import com.nutrizulia.databinding.FragmentConsultasBinding
 import com.nutrizulia.presentation.adapter.PacienteConCitaAdapter
 import com.nutrizulia.presentation.viewmodel.consulta.ConsultasViewModel
 import com.nutrizulia.util.Utils
+import com.nutrizulia.util.DateRangePickerUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -173,6 +174,13 @@ class ConsultasFragment : Fragment() {
         binding.chipMes.setOnCheckedChangeListener { _, isChecked ->
             viewModel.togglePeriodoFilter("este mes", isChecked)
         }
+        binding.chipPersonalizado.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                mostrarSelectorRangoFechas()
+            } else {
+                viewModel.clearCustomDateRange()
+            }
+        }
 
         // Listeners para chips de Tipo de Consulta
         binding.chipPrimeraVez.setOnCheckedChangeListener { _, isChecked ->
@@ -257,6 +265,16 @@ class ConsultasFragment : Fragment() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.swipeRefreshLayout.isRefreshing = isLoading
         }
+
+        viewModel.customDateRangeText.observe(viewLifecycleOwner) { rangeText ->
+            if (rangeText != null) {
+                binding.chipPersonalizado.text = rangeText
+                binding.chipPersonalizado.isChecked = true
+            } else {
+                binding.chipPersonalizado.text = "Personalizado"
+                binding.chipPersonalizado.isChecked = false
+            }
+        }
     }
 
     private fun toggleFiltrosVisibility() {
@@ -287,12 +305,20 @@ class ConsultasFragment : Fragment() {
         binding.chipHoy.isChecked = false
         binding.chipSemana.isChecked = false
         binding.chipMes.isChecked = false
+        binding.chipPersonalizado.isChecked = false
 
         // Limpiar chips de Tipo de Consulta
         binding.chipSeguimiento.isChecked = false
         binding.chipPrimeraVez.isChecked = false
     }
 
-
+    private fun mostrarSelectorRangoFechas() {
+        DateRangePickerUtil.showDateRangePicker(
+            fragmentManager = parentFragmentManager,
+            onDateRangeSelected = { startDate, endDate, displayText ->
+                viewModel.setCustomDateRange(startDate, endDate, displayText)
+            }
+        )
+    }
 
 }

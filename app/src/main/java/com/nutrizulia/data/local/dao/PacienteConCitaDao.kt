@@ -39,8 +39,12 @@ interface PacienteConCitaDao {
     @Query("SELECT * FROM pacientes_con_citas WHERE usuarioInstitucionId = :usuarioInstitucionId " +
             "AND (:filtrarEstados = 0 OR estadoConsulta IN (:estados)) " +
             "AND (:filtrarTipos = 0 OR tipoConsulta IN (:tiposConsulta)) " +
-            "AND (:fechaInicio IS NULL OR DATE(fechaHoraProgramadaConsulta) >= :fechaInicio) " +
-            "AND (:fechaFin IS NULL OR DATE(fechaHoraProgramadaConsulta) <= :fechaFin) " +
+            "AND (:fechaInicio IS NULL OR " +
+            "    (fechaHoraProgramadaConsulta IS NOT NULL AND DATE(fechaHoraProgramadaConsulta) >= :fechaInicio) OR " +
+            "    (fechaHoraRealConsulta IS NOT NULL AND DATE(fechaHoraRealConsulta) >= :fechaInicio)) " +
+            "AND (:fechaFin IS NULL OR " +
+            "    (fechaHoraProgramadaConsulta IS NOT NULL AND DATE(fechaHoraProgramadaConsulta) <= :fechaFin) OR " +
+            "    (fechaHoraRealConsulta IS NOT NULL AND DATE(fechaHoraRealConsulta) <= :fechaFin)) " +
             "ORDER BY ultimaActualizacion DESC")
     suspend fun findAllByCompleteFilters(
         usuarioInstitucionId: Int,
