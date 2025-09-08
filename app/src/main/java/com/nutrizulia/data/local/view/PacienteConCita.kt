@@ -24,6 +24,7 @@ import java.time.LocalDateTime
             c.updated_at AS ultimaActualizacion
         FROM pacientes AS p
         INNER JOIN consultas AS c ON p.id = c.paciente_id
+        WHERE c.is_deleted = 0
     """
 )
 data class PacienteConCita(

@@ -9,7 +9,18 @@ class DateConverters {
     // --- Convertidores para LocalDateTime (similar a MySQL DATETIME) ---
     @TypeConverter
     fun fromLocalDateTime(value: String?): LocalDateTime? {
-        return value?.let { LocalDateTime.parse(it) } // Parsea String ISO 8601 a LocalDateTime
+        return value?.let { 
+            try {
+                LocalDateTime.parse(it) // Parsea String ISO 8601 a LocalDateTime
+            } catch (e: Exception) {
+                // Si falla, intenta parsear como LocalDate y agregar tiempo por defecto
+                try {
+                    LocalDate.parse(it).atStartOfDay() // Convierte LocalDate a LocalDateTime con tiempo 00:00:00
+                } catch (e2: Exception) {
+                    null // Si ambos fallan, retorna null
+                }
+            }
+        }
     }
 
     @TypeConverter

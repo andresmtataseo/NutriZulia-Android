@@ -7,13 +7,13 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import com.nutrizulia.data.local.entity.collection.PacienteEntity
-import com.nutrizulia.data.local.view.PacienteConConsultaYDetalles
+
 import java.time.LocalDateTime
 
 @Dao
 interface PacienteDao {
 
-    @Query("SELECT * FROM pacientes WHERE usuario_institucion_id = :usuarioInstitucionId ORDER BY updated_at DESC LIMIT 50")
+    @Query("SELECT * FROM pacientes WHERE usuario_institucion_id = :usuarioInstitucionId ORDER BY updated_at DESC")
     suspend fun findAllByUsuarioInstitucionId(usuarioInstitucionId: Int): List<PacienteEntity>
 
     @Query("SELECT * FROM pacientes WHERE usuario_institucion_id = :usuarioInstitucionId " +
@@ -25,7 +25,7 @@ interface PacienteDao {
             "ORDER BY updated_at DESC")
     suspend fun findAllByUsuarioInstitucionIdAndFilter(usuarioInstitucionId: Int, query: String): List<PacienteEntity>
     
-    @Query("SELECT * FROM pacientes WHERE usuario_institucion_id = :usuarioInstitucionId AND cedula = :cedula")
+    @Query("SELECT * FROM pacientes WHERE usuario_institucion_id = :usuarioInstitucionId AND cedula = :cedula ORDER BY updated_at DESC")
     suspend fun findByCedula( usuarioInstitucionId: Int, cedula: String): PacienteEntity?
 
     @Query("SELECT * FROM pacientes WHERE id = :id AND usuario_institucion_id = :usuarioInstitucionId")
@@ -64,19 +64,7 @@ interface PacienteDao {
     @Query("UPDATE pacientes SET is_synced = 1, updated_at = :updatedAt WHERE id IN (:ids)")
     suspend fun markMultipleAsSynced(ids: List<String>, updatedAt: LocalDateTime): Int
 
-    @Query("""
-        SELECT * FROM pacientes_con_consulta_y_detalles 
-        WHERE pacienteId = :pacienteId 
-        AND nombreCompletoPaciente LIKE '%' || :filtro || '%'
-        ORDER BY fechaHoraReal DESC
-    """)
-    suspend fun getPacienteConsultaYDetallesByFiltro(pacienteId: String, filtro: String): List<PacienteConConsultaYDetalles>
 
-    @Query("""
-        SELECT * FROM pacientes_con_consulta_y_detalles 
-        WHERE pacienteId = :pacienteId ORDER BY fechaHoraReal DESC
-    """)
-    suspend fun getPacienteConsultaYDetallesByPacienteId(pacienteId: String): List<PacienteConConsultaYDetalles>
 
 
 }

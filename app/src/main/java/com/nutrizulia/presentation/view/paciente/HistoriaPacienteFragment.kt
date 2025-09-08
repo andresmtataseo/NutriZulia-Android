@@ -17,7 +17,6 @@ import com.nutrizulia.databinding.FragmentHistoriaPacienteBinding
 import com.nutrizulia.presentation.viewmodel.paciente.HistoriaPacienteViewModel
 import com.nutrizulia.util.Utils
 import com.nutrizulia.presentation.adapter.PacienteConCitaAdapter
-import com.nutrizulia.presentation.adapter.PacienteConConsulaYDetalleAdapter
 import com.nutrizulia.presentation.view.consulta.ConsultasFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -31,8 +30,8 @@ class HistoriaPacienteFragment : Fragment() {
     private val args: HistoriaPacienteFragmentArgs by navArgs()
     private val viewModel: HistoriaPacienteViewModel by viewModels()
 
-    private lateinit var pacienteConCitaAdapter: PacienteConConsulaYDetalleAdapter
-    private lateinit var pacienteConCitaFiltradoAdapter: PacienteConConsulaYDetalleAdapter
+    private lateinit var pacienteConCitaAdapter: PacienteConCitaAdapter
+    private lateinit var pacienteConCitaFiltradoAdapter: PacienteConCitaAdapter
     private var searchJob: Job? = null
 
     override fun onCreateView(
@@ -58,8 +57,11 @@ class HistoriaPacienteFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        pacienteConCitaAdapter = PacienteConConsulaYDetalleAdapter(
+        pacienteConCitaAdapter = PacienteConCitaAdapter(
             emptyList(),
+            onClickCardCitaListener = { pacienteConCita ->
+                // No se usa para historial ya que solo mostramos consultas completadas
+            },
             onClickCardConsultaListener = { pacienteConCita ->
                 // Registro del valor de isHistoria antes de la navegación
                 val isHistoria = true
@@ -72,11 +74,17 @@ class HistoriaPacienteFragment : Fragment() {
                         isHistoria
                     )
                 )
+            },
+            onClickCitaPerdidaListener = { pacienteConCita ->
+                // No se usa para historial ya que solo mostramos consultas completadas
             }
         )
 
-        pacienteConCitaFiltradoAdapter = PacienteConConsulaYDetalleAdapter(
+        pacienteConCitaFiltradoAdapter = PacienteConCitaAdapter(
             emptyList(),
+            onClickCardCitaListener = { pacienteConCita ->
+                // No se usa para historial ya que solo mostramos consultas completadas
+            },
             onClickCardConsultaListener = { pacienteConCita ->
                 // Registro del valor de isHistoria antes de la navegación
                 val isHistoria = true
@@ -89,6 +97,9 @@ class HistoriaPacienteFragment : Fragment() {
                         isHistoria
                     )
                 )
+            },
+            onClickCitaPerdidaListener = { pacienteConCita ->
+                // No se usa para historial ya que solo mostramos consultas completadas
             }
         )
 

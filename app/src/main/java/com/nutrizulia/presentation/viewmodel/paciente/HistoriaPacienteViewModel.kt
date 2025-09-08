@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nutrizulia.data.local.view.PacienteConConsultaYDetalles
-import com.nutrizulia.domain.usecase.collection.GetConsultasByPacienteId
-import com.nutrizulia.domain.usecase.collection.GetConsultasByPacienteIdAndFiltro
+import com.nutrizulia.data.local.view.PacienteConCita
+import com.nutrizulia.domain.usecase.collection.GetHistorialConsultasByPacienteId
+import com.nutrizulia.domain.usecase.collection.GetHistorialConsultasByPacienteIdAndFiltro
 import com.nutrizulia.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
@@ -15,16 +15,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HistoriaPacienteViewModel @Inject constructor(
-    private val getConsultasDetalladasByPacienteId: GetConsultasByPacienteId,
-    private val getConsultasDetalladasByPacienteIdAndFiltro: GetConsultasByPacienteIdAndFiltro,
+    private val getHistorialConsultasByPacienteId: GetHistorialConsultasByPacienteId,
+    private val getHistorialConsultasByPacienteIdAndFiltro: GetHistorialConsultasByPacienteIdAndFiltro,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
-    private val _consultasDetalladas = MutableLiveData<List<PacienteConConsultaYDetalles>>()
-    val consultasDetalladas: LiveData<List<PacienteConConsultaYDetalles>> get() = _consultasDetalladas
+    private val _consultasDetalladas = MutableLiveData<List<PacienteConCita>>()
+    val consultasDetalladas: LiveData<List<PacienteConCita>> get() = _consultasDetalladas
 
-    private val _consultasDetalladasFiltradas = MutableLiveData<List<PacienteConConsultaYDetalles>>()
-    val pacientesConCitasFiltrados: LiveData<List<PacienteConConsultaYDetalles>> get() = _consultasDetalladasFiltradas
+    private val _consultasDetalladasFiltradas = MutableLiveData<List<PacienteConCita>>()
+    val pacientesConCitasFiltrados: LiveData<List<PacienteConCita>> get() = _consultasDetalladasFiltradas
 
     private val _filtro = MutableLiveData<String>()
     val filtro: LiveData<String> get() = _filtro
@@ -49,47 +49,37 @@ class HistoriaPacienteViewModel @Inject constructor(
     fun obtenerConsultas(pacienteId: String) {
         viewModelScope.launch {
             _isLoading.value = true
-
-            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
-                _idUsuarioInstitucion.value = institutionId
-            } ?: run {
-                _mensaje.value = "Error al buscar consultas. No se ha seleccionado una institución."
-            }
-
-            val result = getConsultasDetalladasByPacienteId(pacienteId)
-            if (result.isNotEmpty()) {
+            try {
+                val result = getHistorialConsultasByPacienteId(pacienteId)
                 _consultasDetalladas.value = result
+                if (result.isEmpty()) {
+                    _mensaje.value = "No se encontraron consultas completadas para este paciente."
+                } else {
+                    _mensaje.value = null
+                }
+            } catch (e: Exception) {
+                _mensaje.value = "Error al obtener las consultas: ${e.message}"
+                _consultasDetalladas.value = emptyList()
             }
             _isLoading.value = false
         }
     }
 
-    fun buscarConsultas(pacienteId: String, query: String) {
+    fun buscarConsultas(pacienteId: String, filtro: String) {
         viewModelScope.launch {
             _isLoading.value = true
-
-            if (query.isBlank()) {
-                _filtro.value = ""
-                _consultasDetalladasFiltradas.value = emptyList()
-                _isLoading.value = false
-                return@launch
-            }
-
-            sessionManager.currentInstitutionIdFlow.firstOrNull()?.let { institutionId ->
-                _idUsuarioInstitucion.value = institutionId
-            } ?: run {
-                _mensaje.value = "Error al buscar pacientes. No se ha seleccionado una institución."
-                _isLoading.value = false
-                return@launch
-            }
-
-            _filtro.value = query
-            val result = getConsultasDetalladasByPacienteIdAndFiltro(pacienteId, filtro.value ?: "")
-            if (result.isEmpty()) {
-                _consultasDetalladasFiltradas.value = emptyList()
-                _mensaje.value = "No se encontraron las consultas."
-            } else {
+            _filtro.value = filtro
+            try {
+                val result = getHistorialConsultasByPacienteIdAndFiltro(pacienteId, filtro)
                 _consultasDetalladasFiltradas.value = result
+                if (result.isEmpty() && filtro.isNotBlank()) {
+                    _mensaje.value = "No se encontraron consultas que coincidan con la búsqueda."
+                } else {
+                    _mensaje.value = null
+                }
+            } catch (e: Exception) {
+                _mensaje.value = "Error al buscar consultas: ${e.message}"
+                _consultasDetalladasFiltradas.value = emptyList()
             }
             _isLoading.value = false
         }

@@ -34,6 +34,10 @@ class DiagnosticoRepository @Inject constructor(
         return dao.findByConsultaId(consultaId).map { it.toDomain() }
     }
 
+    suspend fun findHistoricosByPacienteId(pacienteId: String): List<Diagnostico> {
+        return dao.findHistoricosByPacienteId(pacienteId).map { it.toDomain() }
+    }
+
     suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
         return dao.countNotSynced(usuarioInstitucionId)
     }

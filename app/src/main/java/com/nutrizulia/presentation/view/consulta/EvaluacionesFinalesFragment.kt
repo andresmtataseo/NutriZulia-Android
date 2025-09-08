@@ -64,46 +64,119 @@ class EvaluacionesFinalesFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        // --- Observadores de Estado Global (desde SharedViewModel) ---
-        sharedViewModel.isLoading.observe(viewLifecycleOwner) { isLoading: Boolean ->
+        setupSharedViewModelObservers()
+        setupLocalViewModelObservers()
+        setupDataLoadingObserver()
+    }
+    
+    /**
+     * Configura los observadores del SharedViewModel para estado global
+     */
+    private fun setupSharedViewModelObservers() {
+        // Estado de carga
+        sharedViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
 
-        sharedViewModel.mensaje.observe(viewLifecycleOwner) { message: String ->
+        // Mensajes globales
+        sharedViewModel.mensaje.observe(viewLifecycleOwner) { message ->
             if (message.isNotBlank()) {
                 Utils.mostrarSnackbar(binding.root, message)
             }
         }
 
-        sharedViewModel.salir.observe(viewLifecycleOwner) { shouldExit: Boolean ->
+        // Navegación de salida
+        sharedViewModel.salir.observe(viewLifecycleOwner) { shouldExit ->
             if (shouldExit) {
-                if (isHistoria && sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
-                    // Si venimos de la historia del paciente, volvemos a ella
-                    val pacienteId = sharedViewModel.paciente.value?.id
-                    if (pacienteId != null) {
-                        findNavController().popBackStack(R.id.historiaPacienteFragment, false)
-                    } else {
-                        findNavController().popBackStack(R.id.consultasFragment, false)
-                    }
-                } else {
-                    findNavController().popBackStack(R.id.consultasFragment, false)
-                }
+                handleNavigation()
             }
         }
 
-        sharedViewModel.modoConsulta.observe(viewLifecycleOwner) { mode: ModoConsulta ->
-            if (mode == ModoConsulta.VER_CONSULTA) {
+        // Modo de consulta (ver/editar)
+        sharedViewModel.modoConsulta.observe(viewLifecycleOwner) { mode ->
+            val isReadOnly = mode == ModoConsulta.VER_CONSULTA
+            if (isReadOnly) {
                 deshabilitarCampos()
-                diagnosticoAdapter.setReadOnly(true)
             } else {
                 habilitarCampos()
-                diagnosticoAdapter.setReadOnly(false)
             }
+            diagnosticoAdapter.setReadOnly(isReadOnly)
+        }
+        
+        // Evaluaciones antropométricas
+        sharedViewModel.evaluacionesAntropometricas.observe(viewLifecycleOwner) { evaluaciones ->
+            renderEvaluations(evaluaciones)
         }
 
-        // --- Orquestación de Carga de Datos ---
-        // Observamos los datos del sharedViewModel para iniciar la lógica del viewModel local.
+        // Datos de la consulta
+        sharedViewModel.consulta.observe(viewLifecycleOwner) { consulta ->
+            consulta?.let {
+                binding.tfObservaciones.editText?.setText(it.observaciones.orEmpty())
+                binding.tfPlanes.editText?.setText(it.planes.orEmpty())
+            }
+        }
+    }
+    
+    /**
+     * Maneja la navegación de salida según el contexto
+     */
+    private fun handleNavigation() {
+        val destinationId = if (isHistoria && sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
+            val pacienteId = sharedViewModel.paciente.value?.id
+            if (pacienteId != null) R.id.historiaPacienteFragment else R.id.consultasFragment
+        } else {
+            R.id.consultasFragment
+        }
+        findNavController().popBackStack(destinationId, false)
+    }
+
+    /**
+     * Configura los observadores del ViewModel local para diagnósticos y evaluaciones
+     */
+    private fun setupLocalViewModelObservers() {
+        // Mensajes locales
+        viewModel.mensaje.observe(viewLifecycleOwner) { message ->
+            if (message.isNotBlank()) {
+                Utils.mostrarSnackbar(binding.root, message)
+            }
+        }
+        
+        // Diagnósticos seleccionados (actuales)
+        viewModel.diagnosticosSeleccionados.observe(viewLifecycleOwner) { diagnosticos ->
+            diagnosticoAdapter.updateRiesgosBiologicos(diagnosticos)
+            updateSinDatosVisibility()
+        }
+        
+        // Diagnósticos históricos
+        viewModel.diagnosticosHistoricosRiesgo.observe(viewLifecycleOwner) { diagnosticosHistoricos ->
+            diagnosticoAdapter.updateDiagnosticosHistoricos(diagnosticosHistoricos)
+            updateSinDatosVisibility()
+        }
+
+        // Estado de primera consulta y visibilidad de información
+        viewModel.esPrimeraConsulta.observe(viewLifecycleOwner) { esPrimera ->
+            // Mostrar información sobre diagnósticos históricos solo si no es primera consulta
+            binding.tvInfoDiagnosticos.visibility = if (esPrimera) View.GONE else View.VISIBLE
+            diagnosticoAdapter.setEsPrimeraConsulta(esPrimera)
+        }
+
+        // Estado de diagnóstico principal
+        viewModel.tieneDiagnosticoPrincipal.observe(viewLifecycleOwner) { tienePrincipal ->
+            diagnosticoAdapter.setTieneDiagnosticoPrincipal(tienePrincipal)
+        }
+
+        // Evaluaciones calculadas localmente - se actualizan en el SharedViewModel
+        viewModel.evaluacionesCalculadas.observe(viewLifecycleOwner) { evaluaciones ->
+            sharedViewModel.updateEvaluacionesAntropometricas(evaluaciones)
+        }
+    }
+    
+    /**
+     * Configura el observador para la carga inicial de datos
+     */
+    private fun setupDataLoadingObserver() {
+        // Orquestación de carga de datos
         sharedViewModel.paciente.observe(viewLifecycleOwner) { paciente ->
             if (paciente != null && !dataLoadedForUI) {
                 val consulta = sharedViewModel.consulta.value ?: sharedViewModel.consultaEditando.value
@@ -119,33 +192,15 @@ class EvaluacionesFinalesFragment : Fragment() {
                 dataLoadedForUI = true
             }
         }
-
-        // --- Observadores de Lógica Local (desde EvaluacionesFinalesViewModel) ---
-        viewModel.diagnosticosSeleccionados.observe(viewLifecycleOwner) { diagnosticos ->
-            diagnosticoAdapter.updateRiesgosBiologicos(diagnosticos)
-            binding.tvSinDatos.visibility = if (diagnosticos.isEmpty()) View.VISIBLE else View.GONE
-        }
-
-        // Cuando las evaluaciones se calculan, las actualizamos en el sharedViewModel
-        viewModel.evaluacionesCalculadas.observe(viewLifecycleOwner) { evaluaciones ->
-            sharedViewModel.updateEvaluacionesAntropometricas(evaluaciones)
-        }
-
-        // --- Observadores de UI (leen desde SharedViewModel que ahora tiene los datos actualizados) ---
-        sharedViewModel.evaluacionesAntropometricas.observe(viewLifecycleOwner) { evaluaciones ->
-            renderEvaluations(evaluaciones)
-        }
-
-        sharedViewModel.consulta.observe(viewLifecycleOwner) { consulta ->
-            if (consulta != null) {
-                binding.tfObservaciones.editText?.setText(consulta.observaciones.orEmpty())
-                binding.tfPlanes.editText?.setText(consulta.planes.orEmpty())
-            }
-        }
     }
 
     private fun setupListeners() {
         binding.btnAgregarDiagnostico.setOnClickListener {
+            // Validar si se puede agregar el diagnóstico
+            if (!puedeAgregarDiagnostico()) {
+                return@setOnClickListener
+            }
+            
             // Obtenemos los diagnósticos disponibles desde el viewModel local
             val diagnosticosDisponibles = viewModel.diagnosticosDisponibles.value
             if (!diagnosticosDisponibles.isNullOrEmpty()) {
@@ -154,6 +209,8 @@ class EvaluacionesFinalesFragment : Fragment() {
                 Utils.mostrarSnackbar(binding.root, "No hay diagnósticos disponibles para este paciente.")
             }
         }
+
+
 
         binding.btnRegistrarConsulta.setOnClickListener {
             if (sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
@@ -329,19 +386,64 @@ class EvaluacionesFinalesFragment : Fragment() {
             diagnosticoAdapter.updateRiesgosBiologicos(diagnosticos)
         }
     }
+    
+    private fun updateSinDatosVisibility() {
+        val diagnosticosActuales = viewModel.diagnosticosSeleccionados.value ?: emptyList()
+        val diagnosticosHistoricos = viewModel.diagnosticosHistoricosRiesgo.value ?: emptyList()
+        val totalDiagnosticos = diagnosticosActuales.size + diagnosticosHistoricos.size
+        
+        binding.tvSinDatos.visibility = if (totalDiagnosticos == 0) View.VISIBLE else View.GONE
+        binding.tvInfoDiagnosticos.visibility = if (diagnosticosHistoricos.isNotEmpty()) View.VISIBLE else View.GONE
+    }
 
+    /**
+     * Valida si se puede agregar un diagnóstico según el contexto actual
+     */
+    private fun puedeAgregarDiagnostico(): Boolean {
+        return when {
+            sharedViewModel.paciente.value == null -> {
+                Utils.mostrarSnackbar(binding.root, "No se ha seleccionado un paciente")
+                false
+            }
+            sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA -> {
+                Utils.mostrarSnackbar(binding.root, "No se pueden agregar diagnósticos en modo consulta")
+                false
+            }
+            else -> {
+                val esPrimeraConsulta = viewModel.esPrimeraConsulta.value ?: false
+                val tieneDiagnosticoPrincipal = viewModel.tieneDiagnosticoPrincipal.value ?: false
+                val diagnosticosActuales = viewModel.diagnosticosSeleccionados.value ?: emptyList()
+                
+                if (esPrimeraConsulta && tieneDiagnosticoPrincipal && diagnosticosActuales.isNotEmpty()) {
+                    Utils.mostrarSnackbar(binding.root, "En primera consulta solo se permite un diagnóstico principal.")
+                    false
+                } else {
+                    true
+                }
+            }
+        }
+    }
+
+    /**
+     * Habilita o deshabilita los campos de entrada según el modo de consulta
+     */
     private fun habilitarCampos() {
+        setCamposEnabled(true)
         binding.btnRegistrarConsulta.isEnabled = true
         binding.btnLimpiar.isEnabled = true
         binding.btnAgregarDiagnostico.visibility = View.VISIBLE
     }
 
     private fun deshabilitarCampos() {
-        binding.tfObservaciones.editText?.isEnabled = false
-        binding.tfPlanes.editText?.isEnabled = false
+        setCamposEnabled(false)
         binding.btnLimpiar.visibility = View.GONE
         binding.btnAgregarDiagnostico.visibility = View.GONE
         binding.btnRegistrarConsulta.setText("Salir")
+    }
+    
+    private fun setCamposEnabled(enabled: Boolean) {
+        binding.tfObservaciones.editText?.isEnabled = enabled
+        binding.tfPlanes.editText?.isEnabled = enabled
     }
 
     private fun limpiarCampos() {
@@ -352,9 +454,18 @@ class EvaluacionesFinalesFragment : Fragment() {
     private fun mostrarDialogoConDiagnosticos(diagnosticosDisponibles: List<RiesgoBiologico>) {
         val nombresDiagnosticos = diagnosticosDisponibles.map { it.nombre }.toTypedArray()
         val diagnosticosSeleccionados = mutableSetOf<Int>()
+        
+        val esPrimeraConsulta = viewModel.esPrimeraConsulta.value ?: false
+        val tieneDiagnosticoPrincipal = viewModel.tieneDiagnosticoPrincipal.value ?: false
+        
+        val titulo = when {
+            esPrimeraConsulta && !tieneDiagnosticoPrincipal -> "Seleccionar Diagnóstico Principal"
+            esPrimeraConsulta && tieneDiagnosticoPrincipal -> "Seleccionar Diagnósticos Adicionales"
+            else -> "Seleccionar Diagnósticos Adicionales"
+        }
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Seleccionar Diagnósticos")
+            .setTitle(titulo)
             .setMultiChoiceItems(
                 nombresDiagnosticos,
                 null

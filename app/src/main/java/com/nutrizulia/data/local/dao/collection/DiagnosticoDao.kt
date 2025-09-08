@@ -14,6 +14,12 @@ interface DiagnosticoDao {
     @Query("SELECT * FROM diagnosticos WHERE consulta_id = :consultaId AND is_deleted = 0")
     suspend fun findByConsultaId(consultaId: String): List<DiagnosticoEntity>
 
+    @Query("""SELECT d.* FROM diagnosticos d 
+        INNER JOIN consultas c ON d.consulta_id = c.id 
+        WHERE c.paciente_id = :pacienteId AND d.is_deleted = 0 
+        ORDER BY c.fecha_hora_real DESC, c.fecha_hora_programada DESC""")
+    suspend fun findHistoricosByPacienteId(pacienteId: String): List<DiagnosticoEntity>
+
     @Query("SELECT d.* FROM diagnosticos d INNER JOIN consultas c ON d.consulta_id = c.id WHERE d.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
     suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<DiagnosticoEntity>
 

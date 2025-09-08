@@ -22,6 +22,12 @@ interface PacienteConCitaDao {
 
     @Query("SELECT * FROM pacientes_con_citas WHERE usuarioInstitucionId = :usuarioInstitucionId AND consultaId = :consultaId")
     suspend fun findById(usuarioInstitucionId: Int, consultaId: String): PacienteConCita?
+
+    @Query("SELECT * FROM pacientes_con_citas WHERE pacienteId = :pacienteId AND (estadoConsulta = 'COMPLETADA' OR estadoConsulta = 'SIN_PREVIA_CITA') ORDER BY ultimaActualizacion DESC")
+    suspend fun findHistorialByPacienteId(pacienteId: String): List<PacienteConCita>
+
+    @Query("SELECT * FROM pacientes_con_citas WHERE pacienteId = :pacienteId AND (estadoConsulta = 'COMPLETADA' OR estadoConsulta = 'SIN_PREVIA_CITA') AND (cedulaPaciente LIKE '%' || :filtro || '%' OR nombreCompleto LIKE '%' || :filtro || '%' OR fechaHoraProgramadaConsulta LIKE '%' || :filtro || '%' OR fechaHoraRealConsulta LIKE '%' || :filtro || '%') ORDER BY ultimaActualizacion DESC")
+    suspend fun findHistorialByPacienteIdAndFiltro(pacienteId: String, filtro: String): List<PacienteConCita>
     @Query("SELECT * FROM pacientes_con_citas WHERE estadoConsulta = :estadoPendiente ORDER BY fechaHoraProgramadaConsulta ASC")
     suspend fun getPacientesConCitasPendientes(estadoPendiente: Estado = Estado.PENDIENTE): List<PacienteConCita>
 

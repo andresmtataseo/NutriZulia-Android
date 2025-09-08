@@ -186,9 +186,7 @@ object RoomModule {
     @Provides
     fun providePacienteConCitaDao(database: AppDatabase) = database.pacienteConCitaDao()
 
-    @Singleton
-    @Provides
-    fun providePacienteConConsultaYDetallesDao(database: AppDatabase) = database.pacienteConConsultaYDetallesDao()
+    
 
     @Singleton
     @Provides
