@@ -1109,6 +1109,41 @@
                     app:icon="@drawable/ic_agregar_datos"
                     app:iconGravity="textStart" />
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tfUsaBiberon"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:hint="¿Usa biberón?"
+                    android:visibility="gone">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropdownUsaBiberon"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        app:simpleItems="@array/SioNo" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tfTipoLactancia"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:hint="Tipo de lactancia"
+                    android:visibility="gone">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropdownTipoLactancia"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
             </LinearLayout>
 
             <!--            detalles de embarazo-->
@@ -1134,13 +1169,24 @@
                     android:textSize="16sp"
                     android:textStyle="normal|bold" />
 
+                <TextView
+                    android:id="@+id/tvSinDatosEmbarazo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No hay registros de datos de embarazo"
+                    android:gravity="center"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:visibility="gone"
+                    android:textColor="?android:attr/textColorSecondary" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tfIsEmbarazo"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:hint="¿Pacienta embarazada? *">
+                    android:hint="¿Pacienta embarazada? *"
+                    android:visibility="visible">
 
                     <AutoCompleteTextView
                         android:id="@+id/dropdownIsEmbarazo"
@@ -1173,7 +1219,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             android:hint="Fecha de la última menstruación *"
-                            app:startIconDrawable="@drawable/ic_calendario">
+                            app:startIconDrawable="@drawable/ic_calendario"
+                            android:visibility="gone">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/tiFechaUltimaMenstruacion"
@@ -1192,7 +1239,8 @@
                             android:layout_marginBottom="8dp"
                             android:hint="Semanas de gestación *"
                             app:endIconMode="clear_text"
-                            app:suffixText="semanas">
+                            app:suffixText="semanas"
+                            android:visibility="gone">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/tiSemanasGestacion"
@@ -1210,7 +1258,8 @@
                             android:layout_marginBottom="8dp"
                             android:hint="Peso antes del embarazo *"
                             app:endIconMode="clear_text"
-                            app:suffixText="kg">
+                            app:suffixText="kg"
+                            android:visibility="gone">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/tiPesoPreEmbarazo"

@@ -67,7 +67,8 @@ class RegistrarCitaFragment : Fragment() {
 
         binding.dropdownTipoActividad.bind(viewLifecycleOwner, viewModel.tiposActividades,
             toText = { it.nombre },
-            onItemSelected = { et -> tipoActividadSel = et }
+            onItemSelected = { et -> tipoActividadSel = et },
+            filter = { it.id in listOf(1, 7, 10) }
         )
 
         binding.dropdownEspecialidades.bind(viewLifecycleOwner, viewModel.especialidades,
@@ -392,14 +393,20 @@ class RegistrarCitaFragment : Fragment() {
         lifecycleOwner: LifecycleOwner,
         itemsLive: LiveData<List<T>>,
         toText: (T) -> String,
-        onItemSelected: (T) -> Unit
+        onItemSelected: (T) -> Unit,
+        filter: ((T) -> Boolean)? = null
     ) {
         var currentItems: List<T> = emptyList()
 
         itemsLive.observe(lifecycleOwner) { items ->
             items?.let {
-                currentItems = it
-                val names = it.map(toText)
+                // Aplicar filtro si se proporciona
+                currentItems = if (filter != null) {
+                    it.filter(filter)
+                } else {
+                    it
+                }
+                val names = currentItems.map(toText)
                 val adapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, names)
                 setAdapter(adapter)
                 if (text.toString() !in names) {

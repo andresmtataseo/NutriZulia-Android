@@ -108,9 +108,11 @@ class DatosClinicosFragment : Fragment() {
         }
 
         sharedViewModel.paciente.observe(viewLifecycleOwner) { paciente: Paciente ->
-            binding.layoutDetallesEmbarazo.isVisible = paciente.genero.equals("FEMENINO", ignoreCase = true)
             val edad: Int = Utils.calcularEdad(paciente.fechaNacimiento)
-            binding.layoutSignosPediatricos.isVisible = edad in 0..4
+            // Mostrar detalles de embarazo solo para mujeres mayores de 9 años
+            binding.layoutDetallesEmbarazo.isVisible = paciente.genero.equals("FEMENINO", ignoreCase = true) && edad > 9
+            // Ocultar signos pediátricos y campo Talla para pacientes de 5 años o más
+            binding.layoutSignosPediatricos.isVisible = edad < 5
         }
 
         // --- Carga de Datos Iniciales ---
@@ -173,7 +175,10 @@ class DatosClinicosFragment : Fragment() {
                     tfAltura.editText?.setText(it.altura?.toString() ?: "")
                     layoutAltura.isVisible = it.altura != null
                     tfTalla.editText?.setText(it.talla?.toString() ?: "")
-                    layoutTalla.isVisible = it.talla != null
+                    // Solo mostrar Talla si hay datos Y el paciente es menor de 5 años
+                    val paciente = sharedViewModel.paciente.value
+                    val edad = paciente?.let { Utils.calcularEdad(it.fechaNacimiento) } ?: 0
+                    layoutTalla.isVisible = it.talla != null && edad < 5
                     tfCircuferenciaBraquial.editText?.setText(it.circunferenciaBraquial?.toString() ?: "")
                     layoutCircuferenciaBraquial.isVisible = it.circunferenciaBraquial != null
                     tfCircuferenciaCadera.editText?.setText(it.circunferenciaCadera?.toString() ?: "")
@@ -217,34 +222,44 @@ class DatosClinicosFragment : Fragment() {
 
         sharedViewModel.detalleObstetricia.observe(viewLifecycleOwner) { detail: DetalleObstetricia? ->
             detail?.let {
-                val embarazo: String = if (it.estaEmbarazada == true) "Sí" else "No"
+                val embarazo: String = if (it.estaEmbarazada == true) "Si" else "No"
                 (binding.tfIsEmbarazo.editText as? AutoCompleteTextView)?.setText(embarazo, false)
+                binding.tfIsEmbarazo.isVisible = it.estaEmbarazada != null
                 binding.layoutSiEmbarazo.isVisible = it.estaEmbarazada == true
 
                 if (it.estaEmbarazada == true) {
                     binding.tfFechaUltimaMenstruacion.editText?.setText(it.fechaUltimaMenstruacion?.toString() ?: "")
+                    binding.tfFechaUltimaMenstruacion.isVisible = it.fechaUltimaMenstruacion != null
                     binding.tfSemanasGestacion.editText?.setText(it.semanasGestacion?.toString() ?: "")
+                    binding.tfSemanasGestacion.isVisible = it.semanasGestacion != null
                     binding.tfPesoPreEmbarazo.editText?.setText(it.pesoPreEmbarazo?.toString() ?: "")
+                    binding.tfPesoPreEmbarazo.isVisible = it.pesoPreEmbarazo != null
                 }
             }
             if (sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) verificarYMostrarMensajesSinDatos()
         }
 
         sharedViewModel.detallePediatrico.observe(viewLifecycleOwner) { detail: DetallePediatrico? ->
-//            detail?.let {
-//                val biberonTexto: String = if (it.usaBiberon == true) "Sí" else "No"
-//                (binding.tfUsaBiberon.editText as? AutoCompleteTextView)?.setText(biberonTexto, false)
-//                if (it.tipoLactancia != null) {
-//                    (binding.tfTipoLactancia.editText as? AutoCompleteTextView)?.setText(it.tipoLactancia.name, false)
-//                }
-//            }
+            detail?.let {
+                with(binding) {
+                    if (it.usaBiberon != null) {
+                        val biberonTexto: String = if (it.usaBiberon == true) "Si" else "No"
+                        (tfUsaBiberon.editText as? AutoCompleteTextView)?.setText(biberonTexto, false)
+                        tfUsaBiberon.isVisible = true
+                    }
+                    if (it.tipoLactancia != null) {
+                        (tfTipoLactancia.editText as? AutoCompleteTextView)?.setText(it.tipoLactancia.name, false)
+                        tfTipoLactancia.isVisible = true
+                    }
+                }
+            }
             if (sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) verificarYMostrarMensajesSinDatos()
         }
     }
 
     private fun setupListeners() {
-//        configurarDropdownEmbarazada()
-//        configurarDropdownPediatricos()
+        configurarDropdownEmbarazada()
+        configurarDropdownPediatricos()
         mostrarSelectorFecha(binding.tfFechaUltimaMenstruacion.editText as TextInputEditText)
 
         binding.btnSiguiente.setOnClickListener {
@@ -303,7 +318,7 @@ class DatosClinicosFragment : Fragment() {
 
             // Crear y actualizar Detalle Obstétrico
             val estaEmbarazada: Boolean? = when (binding.tfIsEmbarazo.editText?.text.toString().lowercase()) {
-                "sí" -> true
+                "si" -> true
                 "no" -> false
                 else -> null
             }
@@ -323,20 +338,22 @@ class DatosClinicosFragment : Fragment() {
             sharedViewModel.updateDetalleObstetricia(detalleObstetricia)
 
             // Crear y actualizar Detalle Pediátrico
-//            val usaBiberon: Boolean? = when(binding.tfUsaBiberon.editText?.text.toString().lowercase()) {
-//                "sí" -> true
-//                "no" -> false
-//                else -> null
-//            }
-//            val tipoLactanciaStr: String = binding.tfTipoLactancia.editText?.text.toString()
-//            val tipoLactancia: TipoLactancia? = TipoLactancia.values().find { it.nombre.equals(tipoLactanciaStr, ignoreCase = true) }
-//            val detallePediatrico: DetallePediatrico = clinicalDataViewModel.createDetallePediatrico(
-//                idConsulta = consultaId,
-//                existingId = sharedViewModel.detallePediatrico.value?.id,
-//                usaBiberon = usaBiberon,
-//                tipoLactancia = tipoLactancia
-//            )
-//            sharedViewModel.updateDetallePediatrico(detallePediatrico)
+            val usaBiberon: Boolean? = when(binding.tfUsaBiberon.editText?.text.toString().lowercase()) {
+                "si" -> true
+                "no" -> false
+                else -> null
+            }
+            val tipoLactanciaStr: String = binding.tfTipoLactancia.editText?.text.toString()
+            val tipoLactancia: TipoLactancia? = TipoLactancia.values().find { it.name.equals(tipoLactanciaStr, ignoreCase = true) }
+            val detallePediatrico: DetallePediatrico? = clinicalDataViewModel.createDetallePediatrico(
+                idConsulta = consultaId,
+                existingId = sharedViewModel.detallePediatrico.value?.id,
+                usaBiberon = usaBiberon,
+                tipoLactancia = tipoLactancia
+            )
+            if (detallePediatrico != null) {
+                sharedViewModel.updateDetallePediatrico(detallePediatrico)
+            }
 
             findNavController().navigate(
                 DatosClinicosFragmentDirections.actionRegistrarConsulta2FragmentToRegistrarConsulta3Fragment()
@@ -363,6 +380,7 @@ class DatosClinicosFragment : Fragment() {
         binding.btnAgregarVital.setOnClickListener { showVitalDialog() }
         binding.btnAgregarMetabolico.setOnClickListener { showMetabolicoDialog() }
         binding.btnAgregarAntropometrico.setOnClickListener { showAntropometricoDialog() }
+        binding.btnAgregarPediatrico.setOnClickListener { showPediatricoDialog() }
 
         // --- Listeners para remover campos (Corregidos) ---
         // Signos Vitales
@@ -405,15 +423,15 @@ class DatosClinicosFragment : Fragment() {
 //        }
 //    }
 
-//    private fun configurarDropdownPediatricos() {
-//        val biberonItems: List<String> = listOf("Sí", "No")
-//        val biberonAdapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), R.layout.list_item, biberonItems)
-//        (binding.tfUsaBiberon.editText as? AutoCompleteTextView)?.setAdapter(biberonAdapter)
-//
-//        val lactanciaItems: List<String> = TipoLactancia.values().map { it.nombre }
-//        val lactanciaAdapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), R.layout.list_item, lactanciaItems)
-//        (binding.tfTipoLactancia.editText as? AutoCompleteTextView)?.setAdapter(lactanciaAdapter)
-//    }
+    private fun configurarDropdownPediatricos() {
+        val biberonItems: List<String> = listOf("Si", "No")
+        val biberonAdapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), R.layout.list_item, biberonItems)
+        (binding.tfUsaBiberon.editText as? AutoCompleteTextView)?.setAdapter(biberonAdapter)
+
+        val lactanciaItems: List<String> = TipoLactancia.values().map { it.name }
+        val lactanciaAdapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), R.layout.list_item, lactanciaItems)
+        (binding.tfTipoLactancia.editText as? AutoCompleteTextView)?.setAdapter(lactanciaAdapter)
+    }
 
     private fun configurarRemoverCampo(button: View, layout: View, editText: EditText?) {
         button.setOnClickListener {
@@ -454,8 +472,8 @@ class DatosClinicosFragment : Fragment() {
         binding.tfColesterolLdl.isEnabled = false
         binding.btnAgregarMetabolico.visibility = View.GONE
         // Pediátrico
-//        binding.tfUsaBiberon.isEnabled = false
-//        binding.tfTipoLactancia.isEnabled = false
+        binding.tfUsaBiberon.isEnabled = false
+        binding.tfTipoLactancia.isEnabled = false
         binding.btnAgregarPediatrico.visibility = View.GONE
         // Obstetricia
         binding.tfIsEmbarazo.isEnabled = false
@@ -510,6 +528,38 @@ class DatosClinicosFragment : Fragment() {
             .show()
     }
 
+    private fun showPediatricoDialog() {
+        val opciones = arrayOf(
+            "¿Usa biberón?",
+            "Tipo de lactancia"
+        )
+
+        val layouts = listOf(
+            binding.tfUsaBiberon,
+            binding.tfTipoLactancia
+        )
+
+        val dropdowns = listOf(
+            binding.dropdownUsaBiberon,
+            binding.dropdownTipoLactancia
+        )
+
+        val checks = layouts.map { it.isVisible }.toBooleanArray()
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Selecciona los datos pediátricos")
+            .setMultiChoiceItems(opciones, checks) { _, index, isChecked ->
+                layouts[index].isVisible = isChecked
+                if (!isChecked) {
+                    dropdowns[index].setText("", false)
+                }
+            }
+            .setPositiveButton("Aceptar", null)
+            .show()
+    }
+
+
+
     private fun showVitalDialog() {
         val opciones = arrayOf(
             "Tensión arterial sistólica",
@@ -556,7 +606,13 @@ class DatosClinicosFragment : Fragment() {
     }
 
     private fun showAntropometricoDialog() {
-        val opciones = arrayOf(
+        // Obtener la edad del paciente para filtrar campos según la edad
+        val edad = sharedViewModel.paciente.value?.fechaNacimiento?.let { 
+            Utils.calcularEdad(it) 
+        } ?: 0
+        
+        // Lista completa de opciones
+        val opcionesCompletas = arrayOf(
             "Peso",
             "Altura (De pie)",
             "Talla (Acostado)",
@@ -568,7 +624,7 @@ class DatosClinicosFragment : Fragment() {
             "Pliegue subescapular"
         )
 
-        val layouts = listOf(
+        val layoutsCompletos = listOf(
             binding.layoutPeso,
             binding.layoutAltura,
             binding.layoutTalla,
@@ -580,7 +636,7 @@ class DatosClinicosFragment : Fragment() {
             binding.layoutPliegueSubescapular
         )
 
-        val editTexts = listOf(
+        val editTextsCompletos = listOf(
             binding.tfPeso.editText,
             binding.tfAltura.editText,
             binding.tfTalla.editText,
@@ -591,6 +647,19 @@ class DatosClinicosFragment : Fragment() {
             binding.tfPliegueTricipital.editText,
             binding.tfPliegueSubescapular.editText
         )
+
+        // Filtrar opciones según la edad (excluir Talla para pacientes >= 5 años)
+        val indicesValidos = opcionesCompletas.indices.filter { index ->
+            if (index == 2) { // Índice de "Talla (Acostado)"
+                edad < 5 // Solo mostrar si el paciente es menor de 5 años
+            } else {
+                true // Mostrar todas las demás opciones
+            }
+        }
+
+        val opciones = indicesValidos.map { opcionesCompletas[it] }.toTypedArray()
+        val layouts = indicesValidos.map { layoutsCompletos[it] }
+        val editTexts = indicesValidos.map { editTextsCompletos[it] }
 
         val checks = layouts.map { it.isVisible }.toBooleanArray()
 
@@ -611,11 +680,22 @@ class DatosClinicosFragment : Fragment() {
         dropdown.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> {
+                    // Mostrar todos los campos de embarazo cuando se selecciona "Sí"
+                    binding.layoutEmbarazo.visibility = View.VISIBLE
                     binding.layoutSiEmbarazo.visibility = View.VISIBLE
+                    binding.tfFechaUltimaMenstruacion.visibility = View.VISIBLE
+                    binding.tfSemanasGestacion.visibility = View.VISIBLE
+                    binding.tfPesoPreEmbarazo.visibility = View.VISIBLE
                 }
 
                 1 -> {
+                    // Ocultar todos los campos de embarazo cuando se selecciona "No"
+                    binding.layoutEmbarazo.visibility = View.GONE
                     binding.layoutSiEmbarazo.visibility = View.GONE
+                    binding.tfFechaUltimaMenstruacion.visibility = View.GONE
+                    binding.tfSemanasGestacion.visibility = View.GONE
+                    binding.tfPesoPreEmbarazo.visibility = View.GONE
+                    // Limpiar los campos
                     binding.tfFechaUltimaMenstruacion.editText?.text = null
                     binding.tfSemanasGestacion.editText?.text = null
                     binding.tfPesoPreEmbarazo.editText?.text = null
@@ -743,6 +823,8 @@ class DatosClinicosFragment : Fragment() {
         binding.tfSemanasGestacion.editText?.text = null
         binding.tfPesoPreEmbarazo.editText?.text = null
         // Pediatrico
+        binding.tfUsaBiberon.editText?.text = null
+        binding.tfTipoLactancia.editText?.text = null
 
     }
 
