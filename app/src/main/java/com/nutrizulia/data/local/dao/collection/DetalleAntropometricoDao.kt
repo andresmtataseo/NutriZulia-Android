@@ -14,6 +14,15 @@ interface DetalleAntropometricoDao {
     @Query("SELECT * FROM detalles_antropometricos WHERE consulta_id = :consultaId")
     suspend fun findByConsultaId(consultaId: String): DetalleAntropometricoEntity?
 
+    @Query("""
+        SELECT da.* FROM detalles_antropometricos da 
+        INNER JOIN consultas c ON da.consulta_id = c.id 
+        WHERE c.paciente_id = :pacienteId AND da.is_deleted = 0 AND c.is_deleted = 0
+        ORDER BY da.updated_at DESC 
+        LIMIT 1
+    """)
+    suspend fun findLatestByPacienteId(pacienteId: String): DetalleAntropometricoEntity?
+
     @Query("SELECT * FROM detalles_antropometricos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleAntropometricoEntity>
 

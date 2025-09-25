@@ -14,6 +14,15 @@ interface DetalleMetabolicoDao {
     @Query("SELECT * FROM detalles_metabolicos WHERE consulta_id = :consultaId")
     suspend fun findByConsultaId(consultaId: String): DetalleMetabolicoEntity?
 
+    @Query("""
+        SELECT dm.* FROM detalles_metabolicos dm 
+        INNER JOIN consultas c ON dm.consulta_id = c.id 
+        WHERE c.paciente_id = :pacienteId AND dm.is_deleted = 0 AND c.is_deleted = 0
+        ORDER BY dm.updated_at DESC 
+        LIMIT 1
+    """)
+    suspend fun findLatestByPacienteId(pacienteId: String): DetalleMetabolicoEntity?
+
     @Query("SELECT * FROM detalles_metabolicos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleMetabolicoEntity>
 

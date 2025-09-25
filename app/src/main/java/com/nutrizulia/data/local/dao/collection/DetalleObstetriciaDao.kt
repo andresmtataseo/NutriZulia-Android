@@ -14,6 +14,15 @@ interface DetalleObstetriciaDao {
     @Query("SELECT * FROM detalles_obstetricias WHERE consulta_id = :consultaId")
     suspend fun findByConsultaId(consultaId: String): DetalleObstetriciaEntity?
 
+    @Query("""
+        SELECT dob.* FROM detalles_obstetricias dob 
+        INNER JOIN consultas c ON dob.consulta_id = c.id 
+        WHERE c.paciente_id = :pacienteId AND dob.is_deleted = 0 AND c.is_deleted = 0
+        ORDER BY dob.updated_at DESC 
+        LIMIT 1
+    """)
+    suspend fun findLatestByPacienteId(pacienteId: String): DetalleObstetriciaEntity?
+
     @Query("SELECT * FROM detalles_obstetricias WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleObstetriciaEntity>
 

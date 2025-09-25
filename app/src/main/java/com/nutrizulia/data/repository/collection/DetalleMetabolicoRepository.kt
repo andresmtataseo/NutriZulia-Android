@@ -27,6 +27,10 @@ class DetalleMetabolicoRepository @Inject constructor(
         return dao.findByConsultaId(consultaId)?.toDomain()
     }
 
+    suspend fun findLatestByPacienteId(pacienteId: String): DetalleMetabolico? {
+        return dao.findLatestByPacienteId(pacienteId)?.toDomain()
+    }
+
     suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
         return dao.countNotSynced(usuarioInstitucionId)
     }

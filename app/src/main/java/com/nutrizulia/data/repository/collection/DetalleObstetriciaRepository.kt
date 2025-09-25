@@ -23,8 +23,12 @@ class DetalleObstetriciaRepository @Inject constructor(
     suspend fun upsert(it: DetalleObstetricia) {
         dao.upsert(it.toEntity())
     }
-    suspend fun findByConsultaId(ConsultaId: String): DetalleObstetricia? {
-        return dao.findByConsultaId(ConsultaId)?.toDomain()
+    suspend fun findByConsultaId(consultaId: String): DetalleObstetricia? {
+        return dao.findByConsultaId(consultaId)?.toDomain()
+    }
+
+    suspend fun findLatestByPacienteId(pacienteId: String): DetalleObstetricia? {
+        return dao.findLatestByPacienteId(pacienteId)?.toDomain()
     }
 
     suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {

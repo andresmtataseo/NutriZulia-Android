@@ -14,6 +14,15 @@ interface DetallePediatricoDao {
     @Query("SELECT * FROM detalles_pediatricos WHERE consulta_id = :consultaId")
     suspend fun findByConsultaId(consultaId: String): DetallePediatricoEntity?
 
+    @Query("""
+        SELECT dp.* FROM detalles_pediatricos dp 
+        INNER JOIN consultas c ON dp.consulta_id = c.id 
+        WHERE c.paciente_id = :pacienteId AND dp.is_deleted = 0 AND c.is_deleted = 0
+        ORDER BY dp.updated_at DESC 
+        LIMIT 1
+    """)
+    suspend fun findLatestByPacienteId(pacienteId: String): DetallePediatricoEntity?
+
     @Query("SELECT * FROM detalles_pediatricos WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetallePediatricoEntity>
 

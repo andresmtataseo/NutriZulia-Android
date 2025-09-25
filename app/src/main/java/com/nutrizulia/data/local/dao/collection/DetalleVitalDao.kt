@@ -14,6 +14,15 @@ interface DetalleVitalDao {
     @Query("SELECT * FROM detalles_vitales WHERE consulta_id = :consultaId")
     suspend fun findByConsultaId(consultaId: String): DetalleVitalEntity?
 
+    @Query("""
+        SELECT dv.* FROM detalles_vitales dv 
+        INNER JOIN consultas c ON dv.consulta_id = c.id 
+        WHERE c.paciente_id = :pacienteId AND dv.is_deleted = 0 AND c.is_deleted = 0
+        ORDER BY dv.updated_at DESC 
+        LIMIT 1
+    """)
+    suspend fun findLatestByPacienteId(pacienteId: String): DetalleVitalEntity?
+
     @Query("SELECT * FROM detalles_vitales WHERE updated_at > :timestamp")
     suspend fun findPendingChanges(timestamp: LocalDateTime): List<DetalleVitalEntity>
 

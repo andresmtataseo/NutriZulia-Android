@@ -4,8 +4,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nutrizulia.domain.model.collection.DetalleAntropometrico
+import com.nutrizulia.domain.model.collection.DetalleMetabolico
+import com.nutrizulia.domain.model.collection.DetalleObstetricia
+import com.nutrizulia.domain.model.collection.DetallePediatrico
+import com.nutrizulia.domain.model.collection.DetalleVital
 import com.nutrizulia.domain.model.collection.Paciente
 import com.nutrizulia.domain.usecase.collection.GetPacienteById
+import com.nutrizulia.domain.usecase.collection.GetLatestDetalleAntropometricoByPacienteId
+import com.nutrizulia.domain.usecase.collection.GetLatestDetalleMetabolicoByPacienteId
+import com.nutrizulia.domain.usecase.collection.GetLatestDetalleVitalByPacienteId
+import com.nutrizulia.domain.usecase.collection.GetLatestDetalleObstetriciaByPacienteId
+import com.nutrizulia.domain.usecase.collection.GetLatestDetallePediatricoByPacienteId
 import com.nutrizulia.util.SessionManager
 import com.nutrizulia.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +26,11 @@ import javax.inject.Inject
 @HiltViewModel
 class ResumenMedicoViewModel @Inject constructor(
     private val getPaciente: GetPacienteById,
+    private val getLatestDetalleAntropometrico: GetLatestDetalleAntropometricoByPacienteId,
+    private val getLatestDetalleMetabolico: GetLatestDetalleMetabolicoByPacienteId,
+    private val getLatestDetalleVital: GetLatestDetalleVitalByPacienteId,
+    private val getLatestDetalleObstetricia: GetLatestDetalleObstetriciaByPacienteId,
+    private val getLatestDetallePediatrico: GetLatestDetallePediatricoByPacienteId,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -23,6 +38,21 @@ class ResumenMedicoViewModel @Inject constructor(
     val paciente: LiveData<Paciente> = _paciente
     private var _idUsuarioInstitucion = MutableLiveData<Int>()
     val idUsuarioInstitucion: LiveData<Int> get() = _idUsuarioInstitucion
+
+    private val _antropometricos = MutableLiveData<DetalleAntropometrico?>()
+    val antropometricos: LiveData<DetalleAntropometrico?> = _antropometricos
+
+    private val _metabolicos = MutableLiveData<DetalleMetabolico?>()
+    val metabolicos: LiveData<DetalleMetabolico?> = _metabolicos
+
+    private val _vitales = MutableLiveData<DetalleVital?>()
+    val vitales: LiveData<DetalleVital?> = _vitales
+
+    private val _obstetricos = MutableLiveData<DetalleObstetricia?>()
+    val obstetricos: LiveData<DetalleObstetricia?> = _obstetricos
+
+    private val _pediatricos = MutableLiveData<DetallePediatrico?>()
+    val pediatricos: LiveData<DetallePediatrico?> = _pediatricos
 
     private val _mensaje = MutableLiveData<Event<String>>()
     val mensaje: LiveData<Event<String>> get() = _mensaje
@@ -38,14 +68,24 @@ class ResumenMedicoViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val pacienteJob = launch { obtenerPaciente(id) }
+                val antropometricoJob = launch { obtenerAntropometrico(id) }
+                val metabolicoJob = launch { obtenerMetabolico(id) }
+                val vitalJob = launch { obtenerVital(id) }
+                val obstetricoJob = launch { obtenerObstetrico(id) }
+                val pediatricoJob = launch { obtenerPediátrico(id) }
                 pacienteJob.join()
+                antropometricoJob.join()
+                metabolicoJob.join()
+                vitalJob.join()
+                obstetricoJob.join()
+                pediatricoJob.join()
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
-    fun obtenerPaciente(id: String) {
+    private fun obtenerPaciente(id: String) {
         viewModelScope.launch {
             _isLoading.value = true
 
@@ -67,6 +107,61 @@ class ResumenMedicoViewModel @Inject constructor(
                 return@launch
             }
             _isLoading.value = false
+        }
+    }
+
+    private fun obtenerAntropometrico(id: String) {
+        viewModelScope.launch {
+            try {
+                val detalle = getLatestDetalleAntropometrico(id)
+                _antropometricos.value = detalle
+            } catch (e: Exception) {
+                // Manejo silencioso del error - el detalle simplemente no estará disponible
+            }
+        }
+    }
+
+    private fun obtenerMetabolico(id: String) {
+        viewModelScope.launch {
+            try {
+                val detalle = getLatestDetalleMetabolico(id)
+                _metabolicos.value = detalle
+            } catch (e: Exception) {
+                // Manejo silencioso del error - el detalle simplemente no estará disponible
+            }
+        }
+    }
+
+    private fun obtenerVital(id: String) {
+        viewModelScope.launch {
+            try {
+                val detalle = getLatestDetalleVital(id)
+                _vitales.value = detalle
+            } catch (e: Exception) {
+                // Manejo silencioso del error - el detalle simplemente no estará disponible
+            }
+        }
+    }
+
+    private fun obtenerObstetrico(id: String) {
+        viewModelScope.launch {
+            try {
+                val detalle = getLatestDetalleObstetricia(id)
+                _obstetricos.value = detalle
+            } catch (e: Exception) {
+                // Manejo silencioso del error - el detalle simplemente no estará disponible
+            }
+        }
+    }
+
+    private fun obtenerPediátrico(id: String) {
+        viewModelScope.launch {
+            try {
+                val detalle = getLatestDetallePediatrico(id)
+                _pediatricos.value = detalle
+            } catch (e: Exception) {
+                // Manejo silencioso del error - el detalle simplemente no estará disponible
+            }
         }
     }
 

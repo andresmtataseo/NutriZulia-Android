@@ -27,6 +27,10 @@ class DetalleAntropometricoRepository @Inject constructor(
         return dao.findByConsultaId(consultaId)?.toDomain()
     }
 
+    suspend fun findLatestByPacienteId(pacienteId: String): DetalleAntropometrico? {
+        return dao.findLatestByPacienteId(pacienteId)?.toDomain()
+    }
+
     suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {
         return dao.countNotSynced(usuarioInstitucionId)
     }
