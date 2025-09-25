@@ -20,6 +20,27 @@ interface EvaluacionAntropometricaDao {
     @Query("SELECT COUNT(*) FROM evaluaciones_antropometricas ea INNER JOIN consultas c ON ea.consulta_id = c.id WHERE ea.is_synced = 0 AND c.usuario_institucion_id = :usuarioInstitucionId")
     suspend fun countNotSynced(usuarioInstitucionId: Int): Int
 
+    @Query("""
+        SELECT ea.* FROM evaluaciones_antropometricas ea 
+        INNER JOIN consultas c ON ea.consulta_id = c.id 
+        WHERE c.paciente_id = :pacienteId 
+        AND ea.tipo_indicador_id = :tipoIndicadorId 
+        AND ea.is_deleted = 0 
+        AND c.is_deleted = 0
+        ORDER BY ea.fecha_evaluacion DESC, ea.updated_at DESC 
+        LIMIT 1
+    """)
+    suspend fun findLatestByPacienteIdAndTipoIndicador(pacienteId: String, tipoIndicadorId: Int): EvaluacionAntropometricaEntity?
+
+    @Query("""
+        SELECT DISTINCT ea.tipo_indicador_id FROM evaluaciones_antropometricas ea 
+        INNER JOIN consultas c ON ea.consulta_id = c.id 
+        WHERE c.paciente_id = :pacienteId 
+        AND ea.is_deleted = 0 
+        AND c.is_deleted = 0
+    """)
+    suspend fun findDistinctTipoIndicadorIdsByPacienteId(pacienteId: String): List<Int>
+
     @Insert
     suspend fun insert(evaluacionAntropometrica: EvaluacionAntropometricaEntity): Long
 

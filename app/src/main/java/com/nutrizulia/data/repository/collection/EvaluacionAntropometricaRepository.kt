@@ -1,12 +1,15 @@
 package com.nutrizulia.data.repository.collection
 
 import com.nutrizulia.data.local.dao.collection.EvaluacionAntropometricaDao
+import com.nutrizulia.data.local.dao.catalog.TipoIndicadorDao
 import com.nutrizulia.data.local.entity.collection.toEntity
 import com.nutrizulia.domain.model.SyncResult
 import com.nutrizulia.domain.model.BatchSyncResult
 import com.nutrizulia.domain.model.toBatchSyncResult
 import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import com.nutrizulia.domain.model.collection.toDomain
+import com.nutrizulia.domain.model.catalog.TipoIndicador
+import com.nutrizulia.domain.model.catalog.toDomain
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
 import com.nutrizulia.data.remote.api.collection.IFullSyncService
@@ -17,9 +20,36 @@ import javax.inject.Inject
 
 class EvaluacionAntropometricaRepository @Inject constructor(
     private val dao: EvaluacionAntropometricaDao,
+    private val tipoIndicadorDao: TipoIndicadorDao,
     private val batchApi: IBatchSyncService,
     private val fullSyncApi: IFullSyncService
 ) {
+
+    suspend fun findLatestEvaluacionesByPacienteId(pacienteId: String): Map<TipoIndicador, EvaluacionAntropometrica> {
+        // Obtener todos los tipos de indicadores únicos para este paciente
+        val tipoIndicadorIds = dao.findDistinctTipoIndicadorIdsByPacienteId(pacienteId)
+        
+        val result = mutableMapOf<TipoIndicador, EvaluacionAntropometrica>()
+        
+        // Para cada tipo de indicador, obtener la evaluación más reciente
+        for (tipoIndicadorId in tipoIndicadorIds) {
+            val evaluacion = dao.findLatestByPacienteIdAndTipoIndicador(pacienteId, tipoIndicadorId)
+            val tipoIndicador = tipoIndicadorDao.findById(tipoIndicadorId)
+            
+            if (evaluacion != null && tipoIndicador != null) {
+                result[tipoIndicador.toDomain()] = evaluacion.toDomain()
+            }
+        }
+        
+        return result
+    }
+
+    suspend fun findLatestEvaluacionByPacienteIdAndTipoIndicador(
+        pacienteId: String, 
+        tipoIndicadorId: Int
+    ): EvaluacionAntropometrica? {
+        return dao.findLatestByPacienteIdAndTipoIndicador(pacienteId, tipoIndicadorId)?.toDomain()
+    }
 
     suspend fun upsertAll(evaluacionAntropometrica: List<EvaluacionAntropometrica>) {
         dao.upsertAll(evaluacionAntropometrica.map { it.toEntity() })

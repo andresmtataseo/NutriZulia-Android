@@ -349,6 +349,65 @@ class ResumenMedicoFragment : Fragment() {
             }
         }
 
+        viewModel.evaluacionesAntropometricas.observe(viewLifecycleOwner) { evaluaciones ->
+            if (evaluaciones.isNotEmpty()) {
+                binding.tvSinEvaluacionesAntropometricas.visibility = View.GONE
+                
+                // Buscar y mostrar cada tipo de evaluación
+                evaluaciones.forEach { (tipoIndicador, evaluacion) ->
+                    when (tipoIndicador.nombre.uppercase()) {
+                        "IMC" -> {
+                            binding.tvImc.text = "IMC: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                            binding.tvImc.visibility = View.VISIBLE
+                        }
+                        "IMC/EDAD" -> {
+                            binding.tvImcEdad.text = "IMC/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                            binding.tvImcEdad.visibility = View.VISIBLE
+                        }
+                        "CIRCUNFERENCIA CEFÁLICA/EDAD", "CIRCUFERENCIA CEFÁLICA/EDAD" -> {
+                            binding.tvCircuferenciaEdad.text = "Circunferencia cefálica/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                            binding.tvCircuferenciaEdad.visibility = View.VISIBLE
+                        }
+                        "PESO/ALTURA" -> {
+                            binding.tvPesoAltura.text = "Peso/Altura: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                            binding.tvPesoAltura.visibility = View.VISIBLE
+                        }
+                        "PESO/EDAD" -> {
+                            binding.tvPesoEdad.text = "Peso/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                            binding.tvPesoEdad.visibility = View.VISIBLE
+                        }
+                        "PESO/TALLA" -> {
+                            binding.tvPesoTalla.text = "Peso/Talla: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                            binding.tvPesoTalla.visibility = View.VISIBLE
+                        }
+                        "TALLA/EDAD" -> {
+                            binding.tvTallaEdad.text = "Talla/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                            binding.tvTallaEdad.visibility = View.VISIBLE
+                        }
+                        "ALTURA/EDAD" -> {
+                            binding.tvAlturaEdad.text = "Altura/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                            binding.tvAlturaEdad.visibility = View.VISIBLE
+                        }
+                    }
+                }
+                
+                // Mostrar la fecha de la evaluación más reciente
+                val fechaMasReciente = evaluaciones.values.maxByOrNull { it.updatedAt }?.updatedAt
+                binding.tvUltFechaEvaluacion.text = fechaMasReciente?.toLocalDate()?.toString() ?: "No disponible"
+            } else {
+                // Ocultar todas las evaluaciones si no hay datos
+                binding.tvImc.visibility = View.GONE
+                binding.tvImcEdad.visibility = View.GONE
+                binding.tvCircuferenciaEdad.visibility = View.GONE
+                binding.tvPesoAltura.visibility = View.GONE
+                binding.tvPesoEdad.visibility = View.GONE
+                binding.tvPesoTalla.visibility = View.GONE
+                binding.tvTallaEdad.visibility = View.GONE
+                binding.tvAlturaEdad.visibility = View.GONE
+                binding.tvUltFechaEvaluacion.text = "No disponible"
+            }
+        }
+
     }
 
 }

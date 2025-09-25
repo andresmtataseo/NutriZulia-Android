@@ -9,13 +9,16 @@ import com.nutrizulia.domain.model.collection.DetalleMetabolico
 import com.nutrizulia.domain.model.collection.DetalleObstetricia
 import com.nutrizulia.domain.model.collection.DetallePediatrico
 import com.nutrizulia.domain.model.collection.DetalleVital
+import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import com.nutrizulia.domain.model.collection.Paciente
+import com.nutrizulia.domain.model.catalog.TipoIndicador
 import com.nutrizulia.domain.usecase.collection.GetPacienteById
 import com.nutrizulia.domain.usecase.collection.GetLatestDetalleAntropometricoByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetLatestDetalleMetabolicoByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetLatestDetalleVitalByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetLatestDetalleObstetriciaByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetLatestDetallePediatricoByPacienteId
+import com.nutrizulia.domain.usecase.collection.GetLatestEvaluacionesAntropometricasByPacienteId
 import com.nutrizulia.util.SessionManager
 import com.nutrizulia.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +34,7 @@ class ResumenMedicoViewModel @Inject constructor(
     private val getLatestDetalleVital: GetLatestDetalleVitalByPacienteId,
     private val getLatestDetalleObstetricia: GetLatestDetalleObstetriciaByPacienteId,
     private val getLatestDetallePediatrico: GetLatestDetallePediatricoByPacienteId,
+    private val getLatestEvaluacionesAntropometricas: GetLatestEvaluacionesAntropometricasByPacienteId,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -54,6 +58,9 @@ class ResumenMedicoViewModel @Inject constructor(
     private val _pediatricos = MutableLiveData<DetallePediatrico?>()
     val pediatricos: LiveData<DetallePediatrico?> = _pediatricos
 
+    private val _evaluacionesAntropometricas = MutableLiveData<Map<TipoIndicador, EvaluacionAntropometrica>>()
+    val evaluacionesAntropometricas: LiveData<Map<TipoIndicador, EvaluacionAntropometrica>> = _evaluacionesAntropometricas
+
     private val _mensaje = MutableLiveData<Event<String>>()
     val mensaje: LiveData<Event<String>> get() = _mensaje
 
@@ -73,12 +80,14 @@ class ResumenMedicoViewModel @Inject constructor(
                 val vitalJob = launch { obtenerVital(id) }
                 val obstetricoJob = launch { obtenerObstetrico(id) }
                 val pediatricoJob = launch { obtenerPediátrico(id) }
+                val evaluacionesJob = launch { obtenerEvaluacionesAntropometricas(id) }
                 pacienteJob.join()
                 antropometricoJob.join()
                 metabolicoJob.join()
                 vitalJob.join()
                 obstetricoJob.join()
                 pediatricoJob.join()
+                evaluacionesJob.join()
             } finally {
                 _isLoading.value = false
             }
@@ -161,6 +170,17 @@ class ResumenMedicoViewModel @Inject constructor(
                 _pediatricos.value = detalle
             } catch (e: Exception) {
                 // Manejo silencioso del error - el detalle simplemente no estará disponible
+            }
+        }
+    }
+
+    private fun obtenerEvaluacionesAntropometricas(id: String) {
+        viewModelScope.launch {
+            try {
+                val evaluaciones = getLatestEvaluacionesAntropometricas(id)
+                _evaluacionesAntropometricas.value = evaluaciones
+            } catch (e: Exception) {
+                // Manejo silencioso del error - las evaluaciones simplemente no estarán disponibles
             }
         }
     }

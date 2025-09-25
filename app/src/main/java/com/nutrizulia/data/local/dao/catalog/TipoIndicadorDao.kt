@@ -13,6 +13,9 @@ interface TipoIndicadorDao {
     @Query("SELECT * FROM tipos_indicadores")
     suspend fun findAll(): List<TipoIndicadorEntity>
 
+    @Query("SELECT * FROM tipos_indicadores WHERE id = :id")
+    suspend fun findById(id: Int): TipoIndicadorEntity?
+
     @Insert
     suspend fun insertAll(tiposIndicadores: List<TipoIndicadorEntity>): List<Long>
 
