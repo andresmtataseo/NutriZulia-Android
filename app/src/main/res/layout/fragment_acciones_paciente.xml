@@ -282,7 +282,7 @@
                             android:layout_height="match_parent"
                             android:layout_weight="2"
                             android:gravity="center"
-                            android:text="Resumen medico"
+                            android:text="Resumen médico"
                             android:textAlignment="center"
                             android:textAllCaps="true"
                             android:textStyle="bold" />

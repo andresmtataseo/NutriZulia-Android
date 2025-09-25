@@ -1,32 +1,72 @@
 package com.nutrizulia.presentation.view.paciente
 
+import android.annotation.SuppressLint
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.nutrizulia.R
+import com.nutrizulia.databinding.FragmentResumenMedicoBinding
 import com.nutrizulia.presentation.viewmodel.paciente.ResumenMedicoViewModel
+import com.nutrizulia.util.Utils.calcularEdadDetallada
+import com.nutrizulia.util.Utils.mostrarDialog
+import com.nutrizulia.util.Utils.mostrarSnackbar
+import dagger.hilt.android.AndroidEntryPoint
+import kotlin.getValue
 
+@AndroidEntryPoint
 class ResumenMedicoFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = ResumenMedicoFragment()
-    }
-
     private val viewModel: ResumenMedicoViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // TODO: Use the ViewModel
-    }
+    private lateinit var binding: FragmentResumenMedicoBinding
+    private val args: ResumenMedicoFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.fragment_resumen_medico, container, false)
+        binding = FragmentResumenMedicoBinding.inflate(inflater, container, false)
+        return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupObservers()
+        viewModel.onCreate(args.pacienteId)
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setupObservers() {
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progress.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
+        }
+
+        viewModel.mensaje.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { mensaje ->
+                mostrarSnackbar(requireView(), mensaje)
+            }
+        }
+
+        viewModel.salir.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { salir ->
+                if (salir) findNavController().popBackStack()
+            }
+        }
+
+        viewModel.paciente.observe(viewLifecycleOwner) { paciente ->
+            binding.tvNombreCompleto.text = "${paciente.nombres} ${paciente.apellidos}"
+            binding.tvCedula.text = "Cédula: ${paciente.cedula}"
+            binding.tvGenero.text = "Género: ${paciente.genero}"
+            binding.tvFechaNacimiento.text = "Fecha de nacimiento: ${paciente.fechaNacimiento}"
+            val edad = calcularEdadDetallada(paciente.fechaNacimiento)
+            binding.tvEdad.text = "Edad: ${edad.anios} años, ${edad.meses} meses y ${edad.dias} días"
+        }
+
+    }
+
 }

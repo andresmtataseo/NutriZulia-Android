@@ -254,7 +254,11 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/action_accionesPacienteFragment_to_resumenMedicoFragment"
-            app:destination="@id/resumenMedicoFragment" />
+            app:destination="@id/resumenMedicoFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/historiaPacienteFragment"
@@ -573,8 +577,8 @@
     <fragment
         android:id="@+id/resumenMedicoFragment"
         android:name="com.nutrizulia.presentation.view.paciente.ResumenMedicoFragment"
-        android:label="fragment_resumen_medico"
-        tools:layout="@layout/fragment_resumen_medico" >
+        android:label="Resumen Médico"
+        tools:layout="@layout/fragment_resumen_medico">
         <argument
             android:name="pacienteId"
             app:argType="string" />

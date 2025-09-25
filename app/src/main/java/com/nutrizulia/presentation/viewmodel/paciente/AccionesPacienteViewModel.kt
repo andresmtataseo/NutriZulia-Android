@@ -9,27 +9,11 @@ import com.nutrizulia.domain.usecase.collection.GetPacienteById
 import com.nutrizulia.domain.usecase.collection.ValidatePacienteCanBeEditedUseCase
 import com.nutrizulia.domain.usecase.collection.DeletePacienteUseCase
 import com.nutrizulia.util.SessionManager
+import com.nutrizulia.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-// Clase para eventos de un solo uso
-class Event<out T>(private val content: T) {
-    var hasBeenHandled = false
-        private set
-
-    fun getContentIfNotHandled(): T? {
-        return if (hasBeenHandled) {
-            null
-        } else {
-            hasBeenHandled = true
-            content
-        }
-    }
-
-    fun peekContent(): T = content
-}
 
 @HiltViewModel
 class AccionesPacienteViewModel @Inject constructor(
