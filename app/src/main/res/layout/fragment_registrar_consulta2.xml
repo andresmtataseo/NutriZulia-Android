@@ -386,21 +386,21 @@
                     android:id="@+id/tvSinDatosAntropometricos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No hay registros de datos antropométricos"
                     android:gravity="center"
+                    android:text="No hay registros de datos antropométricos"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:visibility="gone"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/btnAgregarAntropometrico"
-                    android:visibility="visible"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="8dp"
                     android:text="Añadir"
+                    android:visibility="visible"
                     app:icon="@drawable/ic_agregar_datos"
                     app:iconGravity="textStart" />
 
@@ -697,11 +697,11 @@
                     android:id="@+id/tvSinDatosVitales"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No hay registros de signos vitales"
                     android:gravity="center"
+                    android:text="No hay registros de signos vitales"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:visibility="gone"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/btnAgregarVital"
@@ -1047,11 +1047,11 @@
                     android:id="@+id/tvSinDatosMetabolicos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No hay registros de datos metabólicos"
                     android:gravity="center"
+                    android:text="No hay registros de datos metabólicos"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:visibility="gone"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/btnAgregarMetabolico"
@@ -1092,11 +1092,11 @@
                     android:id="@+id/tvSinDatosPediatricos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No hay registros de datos pediátricos"
                     android:gravity="center"
+                    android:text="No hay registros de datos pediátricos"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:visibility="gone"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/btnAgregarPediatrico"
@@ -1173,11 +1173,11 @@
                     android:id="@+id/tvSinDatosEmbarazo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No hay registros de datos de embarazo"
                     android:gravity="center"
+                    android:text="No hay registros de datos de embarazo"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:visibility="gone"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:visibility="gone" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tfIsEmbarazo"
@@ -1198,91 +1198,71 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
-                    android:id="@+id/layoutEmbarazo"
+                    android:id="@+id/layoutSiEmbarazo"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:baselineAligned="false"
                     android:orientation="vertical"
                     android:visibility="gone">
 
-
-                    <LinearLayout
-                        android:id="@+id/layoutSiEmbarazo"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tfFechaUltimaMenstruacion"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:baselineAligned="false"
-                        android:orientation="vertical"
-                        android:visibility="gone">
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="Fecha de la última menstruación *"
+                        android:visibility="gone"
+                        app:startIconDrawable="@drawable/ic_calendario">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tfFechaUltimaMenstruacion"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tiFechaUltimaMenstruacion"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:hint="Fecha de la última menstruación *"
-                            app:startIconDrawable="@drawable/ic_calendario"
-                            android:visibility="gone">
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:inputType="none"
+                            android:maxLength="10" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/tiFechaUltimaMenstruacion"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:clickable="true"
-                                android:focusable="false"
-                                android:inputType="none"
-                                android:maxLength="10" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tfSemanasGestacion"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="Semanas de gestación *"
+                        android:visibility="gone"
+                        app:endIconMode="clear_text"
+                        app:suffixText="semanas">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tfSemanasGestacion"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tiSemanasGestacion"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:hint="Semanas de gestación *"
-                            app:endIconMode="clear_text"
-                            app:suffixText="semanas"
-                            android:visibility="gone">
+                            android:inputType="number"
+                            android:maxLength="2" />
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/tiSemanasGestacion"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="number"
-                                android:maxLength="2" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                        </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tfPesoPreEmbarazo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="Peso antes del embarazo *"
+                        android:visibility="gone"
+                        app:endIconMode="clear_text"
+                        app:suffixText="kg">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tfPesoPreEmbarazo"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tiPesoPreEmbarazo"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:hint="Peso antes del embarazo *"
-                            app:endIconMode="clear_text"
-                            app:suffixText="kg"
-                            android:visibility="gone">
+                            android:inputType="numberDecimal"
+                            android:maxLength="6" />
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/tiPesoPreEmbarazo"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="numberDecimal"
-                                android:maxLength="6" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                    </LinearLayout>
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvSinDatosObstetricos"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="No hay registros de datos obstétricos"
-                    android:gravity="center"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:visibility="gone"
-                    android:textColor="?android:attr/textColorSecondary" />
-
             </LinearLayout>
 
             <LinearLayout
