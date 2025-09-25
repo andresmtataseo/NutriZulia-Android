@@ -110,7 +110,7 @@ class AccionesPacienteFragment : Fragment() {
         }
 
         binding.cardViewResumenMedico.setOnClickListener {
-            findNavController().navigate(AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToHistoriaPacienteFragment(args.idPaciente))
+            findNavController().navigate(AccionesPacienteFragmentDirections.actionAccionesPacienteFragmentToResumenMedicoFragment(args.idPaciente))
         }
 
         binding.btnEliminar.setOnClickListener {

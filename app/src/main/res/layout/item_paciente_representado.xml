@@ -92,8 +92,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="Parentesco:"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
             <TextView
                 android:id="@+id/tvParentesco"
                 android:layout_width="wrap_content"
