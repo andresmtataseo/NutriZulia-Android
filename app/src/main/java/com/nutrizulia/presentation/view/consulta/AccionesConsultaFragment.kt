@@ -38,6 +38,7 @@ class AccionesConsultaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         isHistoria = args.isHistoria
+        if (isHistoria) binding.line.visibility = View.GONE
         val timestamp = System.currentTimeMillis()
         android.util.Log.d("NavFlow", "AccionesConsultaFragment: onViewCreated con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${args.idConsulta}")
         
@@ -148,6 +149,19 @@ class AccionesConsultaFragment : Fragment() {
                     idConsulta = args.idConsulta,
                     isEditable = true,
                     isHistoria = isHistoria
+                )
+                findNavController().navigate(action)
+            } ?: run {
+                Utils.mostrarSnackbar(requireView(), "Cargando datos, por favor espere...")
+            }
+        }
+        binding.cardViewDetallesPaciente.setOnClickListener {
+            pacienteId?.let { id ->
+                val timestamp = System.currentTimeMillis()
+                android.util.Log.d("NavFlow", "AccionesConsultaFragment: Navegando a RegistrarConsultaGraph (modificar) con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${args.idConsulta}")
+
+                val action = AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToAccionesPacienteFragment(
+                    idPaciente = id,
                 )
                 findNavController().navigate(action)
             } ?: run {

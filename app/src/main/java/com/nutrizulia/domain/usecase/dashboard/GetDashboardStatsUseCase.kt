@@ -16,17 +16,7 @@ class GetDashboardStatsUseCase @Inject constructor(
         val consultasDelMes = consultaRepository.getConsultasDelMesActual(usuarioInstitucionId)
         val totalConsultas = consultasDelMes.size
         
-        // Obtener los IDs únicos de pacientes que tuvieron consultas este mes
-        val pacienteIdsDelMes = consultasDelMes.map { it.pacienteId }.distinct()
-        
-        // Obtener los datos de los pacientes que tuvieron consultas este mes
-        val pacientesDelMes = mutableListOf<com.nutrizulia.domain.model.collection.Paciente>()
-        pacienteIdsDelMes.forEach { pacienteId ->
-            val paciente = pacienteRepository.findById(usuarioInstitucionId, pacienteId)
-            paciente?.let { pacientesDelMes.add(it) }
-        }
-        
-        // Calcular estadísticas por género y edad de los pacientes que tuvieron consultas este mes
+        // Calcular estadísticas por género y edad para cada consulta (incluyendo repetidas)
         var totalHombres = 0
         var totalMujeres = 0
         var totalNinos = 0
@@ -34,23 +24,27 @@ class GetDashboardStatsUseCase @Inject constructor(
         
         val fechaActual = LocalDate.now()
         
-        pacientesDelMes.forEach { paciente ->
-            val edad = Period.between(paciente.fechaNacimiento, fechaActual).years
-            val isMenorDeEdad = edad < 19
-            
-            when {
-                paciente.genero.equals("MASCULINO", ignoreCase = true) -> {
-                    if (isMenorDeEdad) {
-                        totalNinos++
-                    } else {
-                        totalHombres++
+        // Iterar sobre todas las consultas del mes (incluyendo pacientes repetidos)
+        consultasDelMes.forEach { consulta ->
+            val paciente = pacienteRepository.findById(usuarioInstitucionId, consulta.pacienteId)
+            paciente?.let { p ->
+                val edad = Period.between(p.fechaNacimiento, fechaActual).years
+                val isMenorDeEdad = edad < 19
+                
+                when {
+                    p.genero.equals("MASCULINO", ignoreCase = true) -> {
+                        if (isMenorDeEdad) {
+                            totalNinos++
+                        } else {
+                            totalHombres++
+                        }
                     }
-                }
-                paciente.genero.equals("FEMENINO", ignoreCase = true) -> {
-                    if (isMenorDeEdad) {
-                        totalNinas++
-                    } else {
-                        totalMujeres++
+                    p.genero.equals("FEMENINO", ignoreCase = true) -> {
+                        if (isMenorDeEdad) {
+                            totalNinas++
+                        } else {
+                            totalMujeres++
+                        }
                     }
                 }
             }

@@ -265,12 +265,13 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardViewBorrarConsulta"
+                    android:id="@+id/cardViewDetallesPaciente"
                     style="?attr/materialCardViewElevatedStyle"
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
@@ -284,7 +285,7 @@
                     app:cardElevation="6dp">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="177dp"
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="8dp">
@@ -293,14 +294,14 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:src="@drawable/ic_cancelar_cita" />
+                            android:src="@drawable/ic_paciente" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="2"
                             android:gravity="center"
-                            android:text="Borrar consulta"
+                            android:text="Detalles del paciente"
                             android:textAlignment="center"
                             android:textAllCaps="true"
                             android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
@@ -351,6 +352,18 @@
                 </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cardViewBorrarConsulta"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Eliminar consulta"
+                android:textColor="@color/color_cita_cancelada"
+                app:icon="@drawable/ic_limpiar"
+                app:iconGravity="textStart"
+                app:iconTint="@color/color_cita_cancelada" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

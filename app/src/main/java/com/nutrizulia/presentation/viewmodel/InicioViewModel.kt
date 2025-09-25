@@ -21,8 +21,6 @@ data class ProximaConsulta(
     val consultaId: String
 )
 
-
-
 data class DatosUsuario(
     val nombreUsuario: String,
     val nombreInstitucion: String
