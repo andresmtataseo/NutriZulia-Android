@@ -10,13 +10,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentResumenMedicoBinding
+import com.nutrizulia.presentation.adapter.DiagnosticoAdapter
+import com.nutrizulia.presentation.model.DiagnosticoItem
 import com.nutrizulia.presentation.viewmodel.paciente.ResumenMedicoViewModel
 import com.nutrizulia.util.Utils.calcularEdadDetallada
 import com.nutrizulia.util.Utils.mostrarDialog
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDateTime
 import kotlin.getValue
 
 @AndroidEntryPoint
@@ -25,6 +29,7 @@ class ResumenMedicoFragment : Fragment() {
     private val viewModel: ResumenMedicoViewModel by viewModels()
     private lateinit var binding: FragmentResumenMedicoBinding
     private val args: ResumenMedicoFragmentArgs by navArgs()
+    private lateinit var diagnosticoAdapter: DiagnosticoAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,8 +41,17 @@ class ResumenMedicoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
         setupObservers()
         viewModel.onCreate(args.pacienteId)
+    }
+
+    private fun setupRecyclerView() {
+        diagnosticoAdapter = DiagnosticoAdapter()
+        binding.rvDiagnosticos.apply {
+            adapter = diagnosticoAdapter
+            layoutManager = LinearLayoutManager(context)
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -353,7 +367,6 @@ class ResumenMedicoFragment : Fragment() {
             if (evaluaciones.isNotEmpty()) {
                 binding.tvSinEvaluacionesAntropometricas.visibility = View.GONE
                 
-                // Buscar y mostrar cada tipo de evaluación
                 evaluaciones.forEach { (tipoIndicador, evaluacion) ->
                     when (tipoIndicador.nombre.uppercase()) {
                         "IMC" -> {
@@ -405,6 +418,25 @@ class ResumenMedicoFragment : Fragment() {
                 binding.tvTallaEdad.visibility = View.GONE
                 binding.tvAlturaEdad.visibility = View.GONE
                 binding.tvUltFechaEvaluacion.text = "No disponible"
+            }
+        }
+
+        viewModel.diagnosticos.observe(viewLifecycleOwner) { diagnosticos ->
+            if (diagnosticos.isNotEmpty()) {
+                val diagnosticosItems = diagnosticos.map { diagnostico ->
+                    val descripcion = when {
+                        !diagnostico.riesgoBiologicoNombre.isNullOrEmpty() -> diagnostico.riesgoBiologicoNombre
+                        !diagnostico.enfermedadNombre.isNullOrEmpty() -> diagnostico.enfermedadNombre
+                        else -> "Diagnóstico sin descripción"
+                    }
+                    DiagnosticoItem(descripcion, diagnostico.fechaConsulta)
+                }
+                diagnosticoAdapter.submitList(diagnosticosItems)
+                binding.rvDiagnosticos.visibility = View.VISIBLE
+                binding.tvSinDiagnosticos.visibility = View.GONE
+            } else {
+                binding.rvDiagnosticos.visibility = View.GONE
+                binding.tvSinDiagnosticos.visibility = View.VISIBLE
             }
         }
 

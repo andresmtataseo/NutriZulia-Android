@@ -3,6 +3,7 @@ package com.nutrizulia.data.repository.collection
 import com.nutrizulia.data.local.dao.collection.DiagnosticoDao
 import com.nutrizulia.data.local.entity.collection.toDto
 import com.nutrizulia.data.local.entity.collection.toEntity
+import com.nutrizulia.data.local.pojo.DiagnosticoConDescripcion
 import com.nutrizulia.data.remote.api.collection.IBatchSyncService
 import com.nutrizulia.data.remote.api.collection.IFullSyncService
 import com.nutrizulia.data.remote.dto.collection.toEntity
@@ -36,6 +37,10 @@ class DiagnosticoRepository @Inject constructor(
 
     suspend fun findHistoricosByPacienteId(pacienteId: String): List<Diagnostico> {
         return dao.findHistoricosByPacienteId(pacienteId).map { it.toDomain() }
+    }
+
+    suspend fun findDiagnosticosConDescripcionesByPacienteId(pacienteId: String): List<DiagnosticoConDescripcion> {
+        return dao.findDiagnosticosConDescripcionesByPacienteId(pacienteId)
     }
 
     suspend fun findAllNotSynced(usuarioInstitucionId: Int): Int {

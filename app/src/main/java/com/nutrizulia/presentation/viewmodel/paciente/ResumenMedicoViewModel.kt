@@ -19,6 +19,8 @@ import com.nutrizulia.domain.usecase.collection.GetLatestDetalleVitalByPacienteI
 import com.nutrizulia.domain.usecase.collection.GetLatestDetalleObstetriciaByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetLatestDetallePediatricoByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetLatestEvaluacionesAntropometricasByPacienteId
+import com.nutrizulia.domain.usecase.collection.GetDiagnosticosConDescripcionesByPacienteIdUseCase
+import com.nutrizulia.data.local.pojo.DiagnosticoConDescripcion
 import com.nutrizulia.util.SessionManager
 import com.nutrizulia.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +37,7 @@ class ResumenMedicoViewModel @Inject constructor(
     private val getLatestDetalleObstetricia: GetLatestDetalleObstetriciaByPacienteId,
     private val getLatestDetallePediatrico: GetLatestDetallePediatricoByPacienteId,
     private val getLatestEvaluacionesAntropometricas: GetLatestEvaluacionesAntropometricasByPacienteId,
+    private val getDiagnosticosConDescripciones: GetDiagnosticosConDescripcionesByPacienteIdUseCase,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -61,6 +64,9 @@ class ResumenMedicoViewModel @Inject constructor(
     private val _evaluacionesAntropometricas = MutableLiveData<Map<TipoIndicador, EvaluacionAntropometrica>>()
     val evaluacionesAntropometricas: LiveData<Map<TipoIndicador, EvaluacionAntropometrica>> = _evaluacionesAntropometricas
 
+    private val _diagnosticos = MutableLiveData<List<DiagnosticoConDescripcion>>()
+    val diagnosticos: LiveData<List<DiagnosticoConDescripcion>> = _diagnosticos
+
     private val _mensaje = MutableLiveData<Event<String>>()
     val mensaje: LiveData<Event<String>> get() = _mensaje
 
@@ -81,6 +87,7 @@ class ResumenMedicoViewModel @Inject constructor(
                 val obstetricoJob = launch { obtenerObstetrico(id) }
                 val pediatricoJob = launch { obtenerPediátrico(id) }
                 val evaluacionesJob = launch { obtenerEvaluacionesAntropometricas(id) }
+                val diagnosticosJob = launch { obtenerDiagnosticos(id) }
                 pacienteJob.join()
                 antropometricoJob.join()
                 metabolicoJob.join()
@@ -88,6 +95,7 @@ class ResumenMedicoViewModel @Inject constructor(
                 obstetricoJob.join()
                 pediatricoJob.join()
                 evaluacionesJob.join()
+                diagnosticosJob.join()
             } finally {
                 _isLoading.value = false
             }
@@ -185,4 +193,14 @@ class ResumenMedicoViewModel @Inject constructor(
         }
     }
 
+    private fun obtenerDiagnosticos(id: String) {
+        viewModelScope.launch {
+            try {
+                val diagnosticos = getDiagnosticosConDescripciones(id)
+                _diagnosticos.value = diagnosticos
+            } catch (e: Exception) {
+                // Manejo silencioso del error - los diagnósticos simplemente no estarán disponibles
+            }
+        }
+    }
 }
