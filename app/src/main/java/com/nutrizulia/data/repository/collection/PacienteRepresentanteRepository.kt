@@ -37,6 +37,10 @@ class PacienteRepresentanteRepository @Inject constructor(
         return pacienteRepresentanteDao.upsert(pacienteRepresentante.toEntity())
     }
 
+    suspend fun delete(pacienteRepresentante: PacienteRepresentante): Int {
+        return pacienteRepresentanteDao.delete(pacienteRepresentante.toEntity())
+    }
+
     // Métodos para PacienteRepresentado
     suspend fun findAllPacientesRepresentadosByRepresentanteId(usuarioInstitucionId: Int, representanteId: String): List<PacienteRepresentado> {
         return pacienteRepresentadoDao.findAllByRepresentanteId(usuarioInstitucionId, representanteId).map { it.toDomain() }

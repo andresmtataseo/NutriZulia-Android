@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -15,6 +16,7 @@ import com.nutrizulia.R
 import com.nutrizulia.data.local.enum.TipoValorCalculado
 import com.nutrizulia.databinding.FragmentRegistrarConsulta3Binding
 import com.nutrizulia.domain.model.catalog.RiesgoBiologico
+import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import com.nutrizulia.presentation.adapter.RiesgoBiologicoAdapter
 import com.nutrizulia.presentation.viewmodel.consulta.ConsultaSharedViewModel
 import com.nutrizulia.presentation.viewmodel.consulta.EvaluacionesFinalesViewModel
@@ -259,7 +261,7 @@ class EvaluacionesFinalesFragment : Fragment() {
         }
     }
 
-    private fun renderEvaluations(evaluaciones: List<com.nutrizulia.domain.model.collection.EvaluacionAntropometrica>) {
+    private fun renderEvaluations(evaluaciones: List<EvaluacionAntropometrica>) {
         // Lógica de pintado de UI sin cambios, ya que solo depende de la lista de evaluaciones
         binding.contentImcEdad.visibility = View.GONE
         binding.contentCircunferenciaCefalicaEdad.visibility = View.GONE
@@ -269,6 +271,13 @@ class EvaluacionesFinalesFragment : Fragment() {
         binding.contentTallaEdad.visibility = View.GONE
         binding.contentAlturaEdad.visibility = View.GONE
         binding.contentImc.visibility = View.GONE
+
+        // Mostrar/ocultar el TextView de "sin datos antropométricos" según si hay evaluaciones
+        if (evaluaciones.isEmpty()) {
+            binding.tvSinDatosAntropometricos.visibility = View.VISIBLE
+        } else {
+            binding.tvSinDatosAntropometricos.visibility = View.GONE
+        }
 
         for (evaluacion in evaluaciones) {
             val formattedValue = decimalFormat.format(evaluacion.valorCalculado)
@@ -351,26 +360,9 @@ class EvaluacionesFinalesFragment : Fragment() {
     private fun onDiagnosticoClick(diagnostico: RiesgoBiologico) {
         Utils.mostrarDialog(requireContext(), "Eliminar Diagnóstico",
             "¿Desea eliminar el Diagnóstico ${diagnostico.nombre}?", "Sí", "No",
-            // Llamamos al método del viewModel local
             { viewModel.eliminarDiagnostico(diagnostico) }, { }, true
         )
     }
-
-//    private fun mostrarDialogoConRiesgos(riesgosDisponibles: List<RiesgoBiologico>) {
-//        val nombresRiesgos = riesgosDisponibles.map { it.nombre }.toTypedArray()
-//        val riesgosSeleccionados = mutableSetOf<Int>()
-//        MaterialAlertDialogBuilder(requireContext()).setTitle("Seleccionar Riesgos Biológicos")
-//            .setMultiChoiceItems(nombresRiesgos, null) { _, which, isChecked ->
-//                if (isChecked) riesgosSeleccionados.add(which) else riesgosSeleccionados.remove(which)
-//            }
-//            .setPositiveButton("Agregar") { _, _ ->
-//                riesgosSeleccionados.forEach { index ->
-//                    // Llamamos al método del viewModel local
-//                    viewModel.agregarRiesgoBiologico(riesgosDisponibles[index])
-//                }
-//            }
-//            .setNegativeButton("Cancelar", null).show()
-//    }
 
     private fun setupRecyclerView() {
         diagnosticoAdapter = RiesgoBiologicoAdapter(
@@ -439,6 +431,7 @@ class EvaluacionesFinalesFragment : Fragment() {
         binding.btnLimpiar.visibility = View.GONE
         binding.btnAgregarDiagnostico.visibility = View.GONE
         binding.btnRegistrarConsulta.setText("Salir")
+        binding.btnRegistrarConsulta.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_atras)
     }
     
     private fun setCamposEnabled(enabled: Boolean) {

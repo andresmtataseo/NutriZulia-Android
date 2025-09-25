@@ -97,12 +97,12 @@ class RiesgoBiologicoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
         
         // Cambiar apariencia visual para diagnósticos históricos
         if (esHistorico) {
-            binding.tfRiesgoBiologico.alpha = 0.7f
+            binding.tiRiesgoBiologico.alpha = 0.7f
             binding.tfRiesgoBiologico.editText?.setTextColor(
                 ContextCompat.getColor(itemView.context, android.R.color.darker_gray)
             )
         } else {
-            binding.tfRiesgoBiologico.alpha = 1.0f
+            binding.tiRiesgoBiologico.alpha = 1.0f
             binding.tfRiesgoBiologico.editText?.setTextColor(
                 ContextCompat.getColor(itemView.context, android.R.color.black)
             )

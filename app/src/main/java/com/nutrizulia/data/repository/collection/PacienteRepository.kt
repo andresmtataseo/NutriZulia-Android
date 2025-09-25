@@ -32,6 +32,10 @@ class PacienteRepository @Inject constructor(
         return pacienteDao.upsert(paciente.toEntity())
     }
 
+    suspend fun delete(paciente: Paciente): Int {
+        return pacienteDao.delete(paciente.toEntity())
+    }
+
     suspend fun findById(usuarioInstitucionId: Int, idPaciente: String): Paciente? {
         return pacienteDao.findById(usuarioInstitucionId, idPaciente)?.toDomain()
     }

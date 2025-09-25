@@ -91,6 +91,16 @@
                 android:textSize="16sp"
                 android:textStyle="normal|bold" />
 
+            <TextView
+                android:id="@+id/tvSinDatosAntropometricos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="No hay registros de diagnósticos antropométricos"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?android:attr/textColorSecondary"
+                android:visibility="gone" />
+
             <!-- 1. IMC/Edad -->
             <LinearLayout
                 android:id="@+id/contentImcEdad"
@@ -763,7 +773,7 @@
                 android:layout_marginBottom="24dp"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLimpiar"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="match_parent"
@@ -777,7 +787,7 @@
                     app:iconTint="@color/color_cita_cancelada"
                     tools:ignore="TouchTargetSizeCheck" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRegistrarConsulta"
                     style="?attr/materialButtonStyle"
                     android:layout_width="match_parent"
