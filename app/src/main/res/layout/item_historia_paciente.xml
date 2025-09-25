@@ -56,26 +56,26 @@
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
         </LinearLayout>
 
+        <!-- Fechas y horas -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:paddingTop="4dp">
 
             <TextView
                 android:id="@+id/tvFechaProgramada"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="Fecha: "
+                android:text="Fecha programada: "
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
             <TextView
-                android:id="@+id/tvHoraProgramda"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvFechaRealizada"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="Hora: "
+                android:text="Fecha realizada: "
+                android:paddingTop="4dp"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
         </LinearLayout>

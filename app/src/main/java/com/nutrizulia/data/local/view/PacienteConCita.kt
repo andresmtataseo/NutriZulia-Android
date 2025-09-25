@@ -21,9 +21,13 @@ import java.time.LocalDateTime
             c.fecha_hora_real AS fechaHoraRealConsulta,
             c.estado AS estadoConsulta,
             c.tipo_consulta AS tipoConsulta,
-            c.updated_at AS ultimaActualizacion
+            c.updated_at AS ultimaActualizacion,
+            e.nombre AS nombreEspecialidadRemitente,
+            t.nombre AS nombreTipoActividad
         FROM pacientes AS p
         INNER JOIN consultas AS c ON p.id = c.paciente_id
+        LEFT JOIN especialidades AS e ON e.id = c.especialidad_remitente_id
+        LEFT JOIN tipos_actividades AS t ON t.id = c.tipo_actividad_id
         WHERE c.is_deleted = 0
     """
 )
@@ -38,5 +42,7 @@ data class PacienteConCita(
     @ColumnInfo(name = "fechaHoraRealConsulta") val fechaHoraRealConsulta: LocalDateTime?,
     @ColumnInfo(name = "estadoConsulta") val estadoConsulta: Estado,
     @ColumnInfo(name = "tipoConsulta") val tipoConsulta: TipoConsulta,
-    @ColumnInfo(name = "ultimaActualizacion") val ultimaActualizacion: LocalDateTime
+    @ColumnInfo(name = "ultimaActualizacion") val ultimaActualizacion: LocalDateTime,
+    @ColumnInfo(name = "nombreEspecialidadRemitente") val nombreEspecialidadRemitente: String?,
+    @ColumnInfo(name = "nombreTipoActividad") val nombreTipoActividad: String?
 )
