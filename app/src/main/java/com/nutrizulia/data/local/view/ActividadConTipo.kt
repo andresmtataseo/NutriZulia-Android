@@ -22,7 +22,8 @@ import java.time.LocalDateTime
             a.tema_principal AS temaPrincipalActividad,
             a.programas_implementados AS programasImplementadosActividad,
             a.url_evidencia AS urlEvidenciaActividad,
-            a.updated_at AS ultimaActualizacionActividad
+            a.updated_at AS ultimaActualizacionActividad,
+            a.is_synced AS isSynced
         FROM actividades AS a
         INNER JOIN tipos_actividades AS t ON a.tipo_actividad_id = t.id
     """
@@ -55,5 +56,7 @@ data class ActividadConTipo(
     @ColumnInfo(name = "urlEvidenciaActividad")
     val urlEvidenciaActividad: String?,
     @ColumnInfo(name = "ultimaActualizacionActividad")
-    val ultimaActualizacionActividad: LocalDateTime
+    val ultimaActualizacionActividad: LocalDateTime,
+    @ColumnInfo(name = "isSynced")
+    val isSynced: Boolean
 )

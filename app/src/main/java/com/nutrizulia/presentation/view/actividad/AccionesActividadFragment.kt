@@ -12,6 +12,7 @@ import androidx.navigation.fragment.navArgs
 import com.nutrizulia.databinding.FragmentAccionesActividadBinding
 import com.nutrizulia.presentation.viewmodel.actividad.AccionesActividadViewModel
 import com.nutrizulia.util.Utils.mostrarSnackbar
+import com.nutrizulia.util.Utils.mostrarDialog
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -43,18 +44,42 @@ class AccionesActividadFragment : Fragment() {
             binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
 
-        viewModel.mensaje.observe(viewLifecycleOwner) {
-            mostrarSnackbar(requireView(), it)
+        viewModel.mensaje.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { mensaje ->
+                mostrarSnackbar(requireView(), mensaje)
+            }
         }
 
-        viewModel.salir.observe(viewLifecycleOwner) {
-            if (it) findNavController().popBackStack()
+        viewModel.salir.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { salir ->
+                if (salir) findNavController().popBackStack()
+            }
         }
 
         viewModel.actividad.observe(viewLifecycleOwner) { actividad ->
             binding.tvNombreTipoActividad.text = actividad.nombreActividad
             binding.tvFechaActividad.text = "Fecha: ${actividad.fechaActividad}"
             binding.tvDescripcionGeneralActividad.text = "Descripción: ${actividad.descripcionGeneralActividad}"
+        }
+
+        viewModel.canEditActividad.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { canEdit ->
+                if (canEdit) {
+                    findNavController().navigate(
+                        AccionesActividadFragmentDirections.actionAccionesActividadFragmentToRegistrarActividadFragment(
+                            args.actividadId, true
+                        )
+                    )
+                }
+            }
+        }
+
+        viewModel.deletionResult.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { success ->
+                if (success) {
+                    findNavController().popBackStack()
+                }
+            }
         }
     }
 
@@ -68,13 +93,26 @@ class AccionesActividadFragment : Fragment() {
         }
 
         binding.cardViewEditarInformacionPersonal.setOnClickListener {
-            findNavController().navigate(
-                AccionesActividadFragmentDirections.actionAccionesActividadFragmentToRegistrarActividadFragment(
-                    args.actividadId, true
-                )
-            )
+            // Validar si la actividad puede ser editada antes de navegar
+            viewModel.validateCanEditActividad(args.actividadId)
         }
 
+        binding.btnEliminar.setOnClickListener {
+            eliminarActividad(args.actividadId)
+        }
+    }
+
+    private fun eliminarActividad(actividadId: String) {
+        mostrarDialog(
+            requireContext(),
+            "Eliminar actividad",
+            "¿Está seguro de que desea eliminar permanentemente esta actividad? Esta acción no se puede deshacer.",
+            "Sí",
+            "Cancelar",
+            onPositiveClick = {
+                viewModel.deleteActividadPermanently(actividadId)
+            }
+        )
     }
 
 }
