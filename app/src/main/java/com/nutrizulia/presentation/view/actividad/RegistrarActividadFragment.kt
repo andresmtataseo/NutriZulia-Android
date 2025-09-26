@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.CalendarConstraints
@@ -15,6 +16,7 @@ import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentRegistrarActividadBinding
 import com.nutrizulia.domain.model.catalog.TipoActividad
 import com.nutrizulia.presentation.viewmodel.actividad.RegistrarActividadViewModel
@@ -54,6 +56,7 @@ class RegistrarActividadFragment : Fragment() {
         if (!args.isEditable) {
             deshabilitarCampos()
             binding.btnRegistrar.text = "Salir"
+            binding.btnRegistrar.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_atras)
         } else {
             if (args.actividadId != null) {
                 binding.btnLimpiar.text = "Restaurar"

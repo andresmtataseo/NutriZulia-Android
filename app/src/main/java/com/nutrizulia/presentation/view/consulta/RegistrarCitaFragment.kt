@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
@@ -161,7 +162,10 @@ class RegistrarCitaFragment : Fragment() {
                     DateTimeFormatter.ISO_LOCAL_DATE))
                 binding.tfHoraCita.editText?.setText(it.fechaHoraProgramada?.format(
                     DateTimeFormatter.ofPattern("h:mm a", Locale.US)))
-                binding.btnRegistrarCita.text = "Reprogramar"
+                // Solo cambiar el texto del botón a "Reprogramar" si la cita es editable
+                if (args.isEditable) {
+                    binding.btnRegistrarCita.text = "Reprogramar"
+                }
             }
         }
 
@@ -291,13 +295,20 @@ class RegistrarCitaFragment : Fragment() {
     }
 
     private fun deshabilitarCampos() {
-        binding.tfMotivoConsulta.isEnabled = false
-        binding.tfFechaCita.isEnabled = false
-        binding.tfHoraCita.isEnabled = false
-        binding.tfTipoConsulta.isEnabled = false
-        binding.btnRegistrarCita.visibility = View.GONE
+        binding.tiMotivoConsulta.isEnabled = false
+        binding.tiFechaCita.isEnabled = false
+        binding.tiHoraCita.isEnabled = false
+        binding.btnRegistrarCita.text = "Salir"
+        binding.btnRegistrarCita.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_atras)
         binding.btnLimpiar.visibility = View.GONE
+        
+        // Configurar click listener para navegar hacia atrás cuando no es editable
+        binding.btnRegistrarCita.setOnClickListener {
+            findNavController().popBackStack()
+        }
+        
         listOf(
+            binding.dropdownTipoConsulta,
             binding.dropdownTipoActividad,
             binding.dropdownEspecialidades
         ).forEach {

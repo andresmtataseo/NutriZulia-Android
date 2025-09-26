@@ -50,7 +50,7 @@
             android:text="@string/manual_usuario"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnContinuar"
             style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
@@ -59,6 +59,8 @@
             android:layout_marginBottom="8dp"
             android:text="@string/manual_de_usuario"
             app:icon="@drawable/ic_descargar"
+            android:textColor="@color/md_theme_onPrimaryContainer"
+            app:iconTint="@color/md_theme_onPrimaryContainer"
             app:iconGravity="textStart" />
 
         <LinearLayout

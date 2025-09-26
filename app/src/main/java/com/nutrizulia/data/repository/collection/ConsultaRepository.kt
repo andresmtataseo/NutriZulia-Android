@@ -51,6 +51,10 @@ class ConsultaRepository @Inject constructor(
     suspend fun findConsultaProgramadaById(id: String): Consulta? {
         return consultaDao.findConsultaProgramadaById(id)?.toDomain()
     }
+    
+    suspend fun getUltimaConsultaRealizada(usuarioInstitucionId: Int): Consulta? {
+        return consultaDao.findUltimaConsultaRealizada(usuarioInstitucionId)?.toDomain()
+    }
     suspend fun updateEstadoById(id: String, estado: Estado) {
         return consultaDao.updateEstadoById(id, estado)
     }

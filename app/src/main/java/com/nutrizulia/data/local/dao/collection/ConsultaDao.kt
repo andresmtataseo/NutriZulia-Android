@@ -79,6 +79,14 @@ interface ConsultaDao {
     """)
     suspend fun findConsultasDelMesActual(usuarioInstitucionId: Int): List<ConsultaEntity>
 
+    @Query("""
+        SELECT * FROM consultas 
+        WHERE usuario_institucion_id = :usuarioInstitucionId 
+        ORDER BY updated_at DESC 
+        LIMIT 1
+    """)
+    suspend fun findUltimaConsultaRealizada(usuarioInstitucionId: Int): ConsultaEntity?
+
     @Upsert
     suspend fun upsertAll(consultas: List<ConsultaEntity>)
 

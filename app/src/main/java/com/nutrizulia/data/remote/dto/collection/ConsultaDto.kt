@@ -38,5 +38,5 @@ fun ConsultaDto.toEntity() = ConsultaEntity(
     estado = estado,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

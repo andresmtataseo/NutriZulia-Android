@@ -52,7 +52,7 @@
             android:layout_marginBottom="24dp"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRestaurar"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
@@ -65,7 +65,7 @@
                 app:iconGravity="textStart"
                 app:iconTint="@color/color_cita_cancelada" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGuardar"
                 style="?attr/materialButtonStyle"
                 android:layout_width="match_parent"
@@ -73,6 +73,8 @@
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:text="@string/guardar"
+                android:textColor="@color/md_theme_onPrimaryContainer"
+                app:iconTint="@color/md_theme_onPrimaryContainer"
                 app:icon="@drawable/ic_guardar"
                 app:iconGravity="textStart" />
         </LinearLayout>

@@ -44,6 +44,10 @@ class RepresentanteRepository @Inject constructor(
         return dao.findById(usuarioInstitucionId, representanteId)?.toDomain()
     }
 
+    suspend fun delete(representante: Representante): Int {
+        return dao.delete(representante.toEntity())
+    }
+
     suspend fun sincronizarRepresentantesBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
             val representantesPendientes = dao.findAllNotSynced(usuarioInstitucionId)

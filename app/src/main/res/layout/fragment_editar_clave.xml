@@ -91,13 +91,15 @@
             android:layout_marginBottom="24dp"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGuardar"
                 style="?attr/materialButtonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:text="@string/guardar"
+                android:textColor="@color/md_theme_onPrimaryContainer"
+                app:iconTint="@color/md_theme_onPrimaryContainer"
                 app:icon="@drawable/ic_guardar"
                 app:iconGravity="textStart" />
         </LinearLayout>

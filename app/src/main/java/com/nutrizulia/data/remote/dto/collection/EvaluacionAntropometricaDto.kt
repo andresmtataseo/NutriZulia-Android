@@ -30,5 +30,5 @@ fun EvaluacionAntropometricaDto.toEntity() = EvaluacionAntropometricaEntity(
     fechaEvaluacion = fechaEvaluacion,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

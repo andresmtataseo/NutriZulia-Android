@@ -1293,6 +1293,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
+                    android:textColor="@color/md_theme_onPrimaryContainer"
+                    app:iconTint="@color/md_theme_onPrimaryContainer"
                     android:text="@string/siguiente"
                     app:icon="@drawable/ic_siguiente"
                     app:iconGravity="end"

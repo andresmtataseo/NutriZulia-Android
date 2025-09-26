@@ -1,6 +1,7 @@
 package com.nutrizulia.data.local.dao.collection
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
@@ -49,5 +50,8 @@ interface RepresentanteDao {
 
     @Upsert
     suspend fun upsertAll(representantes: List<RepresentanteEntity>)
+
+    @Delete
+    suspend fun delete(representante: RepresentanteEntity): Int
 
 }

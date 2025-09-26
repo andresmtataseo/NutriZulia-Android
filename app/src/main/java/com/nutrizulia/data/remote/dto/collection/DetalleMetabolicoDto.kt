@@ -32,5 +32,5 @@ fun DetalleMetabolicoDto.toEntity() = DetalleMetabolicoEntity(
     colesterolLdl = colesterolLdl,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

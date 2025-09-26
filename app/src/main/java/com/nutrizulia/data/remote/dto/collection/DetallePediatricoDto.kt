@@ -21,5 +21,5 @@ fun DetallePediatricoDto.toEntity() = DetallePediatricoEntity(
     tipoLactancia = tipoLactancia,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

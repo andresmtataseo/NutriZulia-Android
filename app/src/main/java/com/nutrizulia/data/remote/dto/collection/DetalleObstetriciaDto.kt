@@ -25,5 +25,5 @@ fun DetalleObstetriciaDto.toEntity() = DetalleObstetriciaEntity(
     pesoPreEmbarazo = pesoPreEmbarazo,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

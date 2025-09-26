@@ -121,9 +121,9 @@ class AccionesPacienteFragment : Fragment() {
     private fun eliminarPaciente(pacienteId: String) {
         mostrarDialog(
             requireContext(),
-            "Confirmar eliminación",
+            "Eliminar paciente",
             "¿Está seguro de que desea eliminar permanentemente este paciente? Esta acción no se puede deshacer.",
-            "Eliminar",
+            "Sí",
             "Cancelar",
             onPositiveClick = {
                 viewModel.deletePacientePermanently(pacienteId)

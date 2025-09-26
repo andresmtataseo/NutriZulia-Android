@@ -44,6 +44,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
+        android:textColor="@color/md_theme_onPrimaryContainer"
+        app:iconTint="@color/md_theme_onPrimaryContainer"
         android:text="@string/aceptar"
         android:visibility="visible" />
 

@@ -22,5 +22,5 @@ fun PacienteRepresentanteDto.toEntity() = PacienteRepresentanteEntity(
     parentescoId = parentescoId,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

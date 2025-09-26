@@ -20,7 +20,7 @@
             android:background="?attr/colorPrimary"
             app:title="Seleccionar institución"
             app:titleCentered="true"
-            app:titleTextColor="?attr/colorOnPrimary" />
+            app:titleTextColor="@color/md_theme_surface" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -103,12 +103,14 @@
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAceptar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
+        android:textColor="@color/md_theme_onPrimaryContainer"
+        app:iconTint="@color/md_theme_onPrimaryContainer"
         android:text="@string/aceptar"
         android:visibility="visible" />
 

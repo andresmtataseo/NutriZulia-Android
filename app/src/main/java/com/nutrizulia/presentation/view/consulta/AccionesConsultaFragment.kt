@@ -66,12 +66,36 @@ class AccionesConsultaFragment : Fragment() {
             binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
 
-        viewModel.mensaje.observe(viewLifecycleOwner) {
-            Utils.mostrarSnackbar(requireView(), it)
+        viewModel.mensaje.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { mensaje ->
+                Utils.mostrarSnackbar(requireView(), mensaje)
+            }
         }
 
-        viewModel.salir.observe(viewLifecycleOwner) {
-            if (it) findNavController().popBackStack()
+        viewModel.salir.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { salir ->
+                if (salir) {
+                    findNavController().popBackStack()
+                }
+            }
+        }
+
+        viewModel.canEditConsulta.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { canEdit ->
+                if (canEdit) {
+                    pacienteId?.let { id ->
+                        val action = AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToRegistrarConsultaGraph(
+                            idPaciente = id,
+                            idConsulta = args.idConsulta,
+                            isEditable = true,
+                            isHistoria = isHistoria
+                        )
+                        findNavController().navigate(action)
+                    } ?: run {
+                        Utils.mostrarSnackbar(requireView(), "Cargando datos, por favor espere...")
+                    }
+                }
+            }
         }
 
         viewModel.pacienteConCita.observe(viewLifecycleOwner) {
@@ -140,20 +164,8 @@ class AccionesConsultaFragment : Fragment() {
         }
 
         binding.cardViewModificarConsulta.setOnClickListener {
-            pacienteId?.let { id ->
-                val timestamp = System.currentTimeMillis()
-                android.util.Log.d("NavFlow", "AccionesConsultaFragment: Navegando a RegistrarConsultaGraph (modificar) con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=${args.idConsulta}")
-                
-                val action = AccionesConsultaFragmentDirections.actionAccionesConsultaFragmentToRegistrarConsultaGraph(
-                    idPaciente = id,
-                    idConsulta = args.idConsulta,
-                    isEditable = true,
-                    isHistoria = isHistoria
-                )
-                findNavController().navigate(action)
-            } ?: run {
-                Utils.mostrarSnackbar(requireView(), "Cargando datos, por favor espere...")
-            }
+            // Validar si la consulta puede ser editada antes de navegar
+            viewModel.validateCanEditConsulta(args.idConsulta)
         }
         binding.cardViewDetallesPaciente.setOnClickListener {
             pacienteId?.let { id ->
@@ -169,17 +181,5 @@ class AccionesConsultaFragment : Fragment() {
             }
         }
 
-        binding.cardViewBorrarConsulta.setOnClickListener {
-            Utils.mostrarDialog(
-                requireContext(),
-                "Borrar consulta",
-                "¿Está seguro que desea borrar la consulta?",
-                "Borrar",
-                "No",
-                { },
-                { },
-                true
-            )
-        }
     }
 }

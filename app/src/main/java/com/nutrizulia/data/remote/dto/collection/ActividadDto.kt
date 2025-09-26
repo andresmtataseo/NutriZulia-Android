@@ -37,5 +37,5 @@ fun ActividadDto.toEntity() = ActividadEntity(
     urlEvidencia = urlEvidencia,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

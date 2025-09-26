@@ -29,19 +29,6 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvIngreseDatos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:gravity="center"
-                android:text="@string/debe_completar_los_campos_marcados_con" />
-
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp" />
-
-            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -264,7 +251,7 @@
                 android:layout_marginBottom="24dp"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLimpiar"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="match_parent"
@@ -277,12 +264,14 @@
                     app:iconGravity="textStart"
                     app:iconTint="@color/color_cita_cancelada" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRegistrarCita"
                     style="?attr/materialButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
+                    android:textColor="@color/md_theme_onPrimaryContainer"
+                    app:iconTint="@color/md_theme_onPrimaryContainer"
                     android:layout_weight="1"
                     android:text="@string/agendar"
                     app:icon="@drawable/ic_guardar"

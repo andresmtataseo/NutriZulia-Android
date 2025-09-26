@@ -108,7 +108,7 @@
 
             </LinearLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNoPuedesRecuperar"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
@@ -116,14 +116,16 @@
                 android:layout_marginBottom="8dp"
                 android:text="@string/no_puedes_recuperar_tu_contrase_a" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRecuperar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:textColor="@color/md_theme_onPrimaryContainer"
+                app:iconTint="@color/md_theme_onPrimaryContainer"
                 android:text="@string/recuperar" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnVolver"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="match_parent"

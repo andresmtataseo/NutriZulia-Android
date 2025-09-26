@@ -44,7 +44,6 @@ class AccionesActividadViewModel @Inject constructor(
     fun obtenerActividad(id: String) {
         viewModelScope.launch {
             _isLoading.value = true
-
             try {
                 val institutionId = currentInstitutionId() ?: throw IllegalStateException(
                     "No se ha seleccionado una institución."

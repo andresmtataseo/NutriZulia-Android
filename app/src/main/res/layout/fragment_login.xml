@@ -128,7 +128,7 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOlvidasteContrasena"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
@@ -136,16 +136,18 @@
                 android:layout_marginBottom="8dp"
                 android:text="@string/olvidaste_tu_contrasena" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnContinuar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:text="@string/continuar"
+                android:textColor="@color/md_theme_onPrimaryContainer"
+                app:iconTint="@color/md_theme_onPrimaryContainer"
                 app:icon="@drawable/ic_iniciar_sesion"
                 app:iconGravity="textStart" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSalir"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="match_parent"
@@ -157,7 +159,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAyuda"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"

@@ -30,5 +30,5 @@ fun DetalleVitalDto.toEntity() = DetalleVitalEntity(
     pulso = pulso,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

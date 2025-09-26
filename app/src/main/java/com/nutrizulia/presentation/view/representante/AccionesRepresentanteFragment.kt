@@ -14,6 +14,7 @@ import com.nutrizulia.databinding.FragmentAccionesRepresentanteBinding
 import com.nutrizulia.presentation.view.paciente.AccionesPacienteFragmentDirections
 import com.nutrizulia.presentation.viewmodel.representante.AccionesRepresentanteViewModel
 import com.nutrizulia.util.Utils.calcularEdadDetallada
+import com.nutrizulia.util.Utils.mostrarDialog
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -46,12 +47,16 @@ class AccionesRepresentanteFragment : Fragment() {
             binding.content.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
 
-        viewModel.mensaje.observe(viewLifecycleOwner) {
-            mostrarSnackbar(requireView(), it)
+        viewModel.mensaje.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { mensaje ->
+                mostrarSnackbar(requireView(), mensaje)
+            }
         }
 
-        viewModel.salir.observe(viewLifecycleOwner) {
-            if (it) findNavController().popBackStack()
+        viewModel.salir.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { salir ->
+                if (salir) findNavController().popBackStack()
+            }
         }
 
         viewModel.representante.observe(viewLifecycleOwner) { representante ->
@@ -86,6 +91,19 @@ class AccionesRepresentanteFragment : Fragment() {
                 AccionesRepresentanteFragmentDirections.actionAccionesRepresentanteFragmentToPacientesRepresentadosFragment(
                     args.representanteId
                 )
+            )
+        }
+
+        binding.btnEliminar.setOnClickListener {
+            mostrarDialog(
+                requireContext(),
+                "Eliminar representante",
+                "¿Está seguro de que desea eliminar permanentemente este representante? Esta acción no se puede deshacer.",
+                "Sí",
+                "Cancelar",
+                onPositiveClick = {
+                    viewModel.eliminarRepresentante()
+                }
             )
         }
 

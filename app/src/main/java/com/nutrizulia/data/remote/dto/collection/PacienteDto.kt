@@ -39,5 +39,5 @@ fun PacienteDto.toEntity() = PacienteEntity(
     correo = correo,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

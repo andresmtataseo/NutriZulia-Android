@@ -34,5 +34,5 @@ fun DetalleAntropometricoDto.toEntity() = DetalleAntropometricoEntity(
     pliegueSubescapular = pliegueSubescapular,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

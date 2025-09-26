@@ -22,5 +22,5 @@ fun DiagnosticoDto.toEntity() = DiagnosticoEntity(
     isPrincipal = isPrincipal,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )

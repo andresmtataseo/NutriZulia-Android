@@ -45,6 +45,10 @@ class ActividadRepository @Inject constructor(
         dao.upsert(actividad.toEntity())
     }
 
+    suspend fun delete(actividad: Actividad) {
+        dao.delete(actividad.toEntity())
+    }
+
     suspend fun sincronizarActividadesBatch(usuarioInstitucionId: Int): SyncResult<BatchSyncResult> {
         return try {
             val actividadesPendientes = dao.findAllNotSynced(usuarioInstitucionId)

@@ -39,5 +39,5 @@ fun RepresentanteDto.toEntity() = RepresentanteEntity(
     correo = correo,
     updatedAt = updatedAt,
     isDeleted = isDeleted,
-    isSynced = false
+    isSynced = true
 )
