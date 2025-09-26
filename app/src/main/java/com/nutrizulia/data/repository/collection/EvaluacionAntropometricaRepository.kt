@@ -26,7 +26,6 @@ class EvaluacionAntropometricaRepository @Inject constructor(
 ) {
 
     suspend fun findLatestEvaluacionesByPacienteId(pacienteId: String): Map<TipoIndicador, EvaluacionAntropometrica> {
-        // Obtener todos los tipos de indicadores únicos para este paciente
         val tipoIndicadorIds = dao.findDistinctTipoIndicadorIdsByPacienteId(pacienteId)
         
         val result = mutableMapOf<TipoIndicador, EvaluacionAntropometrica>()
@@ -42,6 +41,10 @@ class EvaluacionAntropometricaRepository @Inject constructor(
         }
         
         return result
+    }
+
+    suspend fun findEvaluacionesByLatestConsultaWithAntropometricData(pacienteId: String): List<EvaluacionAntropometrica> {
+        return dao.findAllByLatestConsultaWithAntropometricData(pacienteId).map { it.toDomain() }
     }
 
     suspend fun findLatestEvaluacionByPacienteIdAndTipoIndicador(

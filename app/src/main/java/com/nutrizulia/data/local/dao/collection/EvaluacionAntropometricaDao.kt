@@ -41,6 +41,23 @@ interface EvaluacionAntropometricaDao {
     """)
     suspend fun findDistinctTipoIndicadorIdsByPacienteId(pacienteId: String): List<Int>
 
+    @Query("""
+        SELECT ea.* FROM evaluaciones_antropometricas ea 
+        INNER JOIN consultas c ON ea.consulta_id = c.id 
+        WHERE ea.consulta_id = (
+            SELECT c2.id FROM consultas c2 
+            INNER JOIN evaluaciones_antropometricas ea2 ON c2.id = ea2.consulta_id 
+            WHERE c2.paciente_id = :pacienteId 
+            AND ea2.is_deleted = 0 
+            AND c2.is_deleted = 0
+            ORDER BY COALESCE(c2.fecha_hora_real, c2.fecha_hora_programada) DESC 
+            LIMIT 1
+        )
+        AND ea.is_deleted = 0
+        ORDER BY ea.tipo_indicador_id ASC
+    """)
+    suspend fun findAllByLatestConsultaWithAntropometricData(pacienteId: String): List<EvaluacionAntropometricaEntity>
+
     @Insert
     suspend fun insert(evaluacionAntropometrica: EvaluacionAntropometricaEntity): Long
 

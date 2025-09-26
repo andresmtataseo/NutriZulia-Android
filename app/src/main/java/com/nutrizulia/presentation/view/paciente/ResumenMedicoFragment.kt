@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nutrizulia.R
+import com.nutrizulia.data.local.enum.TipoValorCalculado
 import com.nutrizulia.databinding.FragmentResumenMedicoBinding
 import com.nutrizulia.presentation.adapter.DiagnosticoAdapter
 import com.nutrizulia.presentation.model.DiagnosticoItem
@@ -367,45 +368,57 @@ class ResumenMedicoFragment : Fragment() {
             if (evaluaciones.isNotEmpty()) {
                 binding.tvSinEvaluacionesAntropometricas.visibility = View.GONE
                 
-                evaluaciones.forEach { (tipoIndicador, evaluacion) ->
-                    when (tipoIndicador.nombre.uppercase()) {
-                        "IMC" -> {
-                            binding.tvImc.text = "IMC: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
-                            binding.tvImc.visibility = View.VISIBLE
+                // Agrupar evaluaciones por tipo de indicador
+                val evaluacionesPorTipo = evaluaciones.groupBy { it.tipoIndicadorId }
+                
+                evaluacionesPorTipo.forEach { (tipoIndicadorId, evaluacionesDelTipo) ->
+                    val textoEvaluaciones = evaluacionesDelTipo.joinToString(" | ") { evaluacion ->
+                        val prefijo = when (evaluacion.tipoValorCalculado) {
+                            TipoValorCalculado.PERCENTIL -> "P"
+                            TipoValorCalculado.Z_SCORE -> "Z"
+                            TipoValorCalculado.IMC -> ""
                         }
-                        "IMC/EDAD" -> {
-                            binding.tvImcEdad.text = "IMC/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                        "$prefijo${evaluacion.valorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                    }
+                    
+                    when (tipoIndicadorId) {
+                        1 -> { // IMC-EDAD
+                            binding.tvImcEdad.text = "IMC/Edad: $textoEvaluaciones"
                             binding.tvImcEdad.visibility = View.VISIBLE
                         }
-                        "CIRCUNFERENCIA CEFÁLICA/EDAD", "CIRCUFERENCIA CEFÁLICA/EDAD" -> {
-                            binding.tvCircuferenciaEdad.text = "Circunferencia cefálica/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                        2 -> { // CIRCUNFERENCIA CEFALICA-EDAD
+                            binding.tvCircuferenciaEdad.text = "Circunferencia cefálica/Edad: $textoEvaluaciones"
                             binding.tvCircuferenciaEdad.visibility = View.VISIBLE
                         }
-                        "PESO/ALTURA" -> {
-                            binding.tvPesoAltura.text = "Peso/Altura: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                        3 -> { // PESO-ALTURA
+                            binding.tvPesoAltura.text = "Peso/Altura: $textoEvaluaciones"
                             binding.tvPesoAltura.visibility = View.VISIBLE
                         }
-                        "PESO/EDAD" -> {
-                            binding.tvPesoEdad.text = "Peso/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                        4 -> { // PESO-EDAD
+                            binding.tvPesoEdad.text = "Peso/Edad: $textoEvaluaciones"
                             binding.tvPesoEdad.visibility = View.VISIBLE
                         }
-                        "PESO/TALLA" -> {
-                            binding.tvPesoTalla.text = "Peso/Talla: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                        5 -> { // PESO-TALLA
+                            binding.tvPesoTalla.text = "Peso/Talla: $textoEvaluaciones"
                             binding.tvPesoTalla.visibility = View.VISIBLE
                         }
-                        "TALLA/EDAD" -> {
-                            binding.tvTallaEdad.text = "Talla/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                        6 -> { // TALLA-EDAD
+                            binding.tvTallaEdad.text = "Talla/Edad: $textoEvaluaciones"
                             binding.tvTallaEdad.visibility = View.VISIBLE
                         }
-                        "ALTURA/EDAD" -> {
-                            binding.tvAlturaEdad.text = "Altura/Edad: ${evaluacion.valorCalculado} ${evaluacion.tipoValorCalculado} - ${evaluacion.diagnosticoAntropometrico}"
+                        7 -> { // ALTURA-EDAD
+                            binding.tvAlturaEdad.text = "Altura/Edad: $textoEvaluaciones"
                             binding.tvAlturaEdad.visibility = View.VISIBLE
+                        }
+                        8 -> { // IMC
+                            binding.tvImc.text = "IMC: $textoEvaluaciones"
+                            binding.tvImc.visibility = View.VISIBLE
                         }
                     }
                 }
                 
                 // Mostrar la fecha de la evaluación más reciente
-                val fechaMasReciente = evaluaciones.values.maxByOrNull { it.updatedAt }?.updatedAt
+                val fechaMasReciente = evaluaciones.maxByOrNull { it.updatedAt }?.updatedAt
                 binding.tvUltFechaEvaluacion.text = fechaMasReciente?.toLocalDate()?.toString() ?: "No disponible"
             } else {
                 // Ocultar todas las evaluaciones si no hay datos
@@ -418,6 +431,7 @@ class ResumenMedicoFragment : Fragment() {
                 binding.tvTallaEdad.visibility = View.GONE
                 binding.tvAlturaEdad.visibility = View.GONE
                 binding.tvUltFechaEvaluacion.text = "No disponible"
+                binding.tvSinEvaluacionesAntropometricas.visibility = View.VISIBLE
             }
         }
 

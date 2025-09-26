@@ -18,7 +18,7 @@ import com.nutrizulia.domain.usecase.collection.GetLatestDetalleMetabolicoByPaci
 import com.nutrizulia.domain.usecase.collection.GetLatestDetalleVitalByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetLatestDetalleObstetriciaByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetLatestDetallePediatricoByPacienteId
-import com.nutrizulia.domain.usecase.collection.GetLatestEvaluacionesAntropometricasByPacienteId
+import com.nutrizulia.domain.usecase.collection.GetEvaluacionesAntropometricasByLatestConsulta
 import com.nutrizulia.domain.usecase.collection.GetDiagnosticosConDescripcionesByPacienteIdUseCase
 import com.nutrizulia.data.local.pojo.DiagnosticoConDescripcion
 import com.nutrizulia.util.SessionManager
@@ -36,7 +36,7 @@ class ResumenMedicoViewModel @Inject constructor(
     private val getLatestDetalleVital: GetLatestDetalleVitalByPacienteId,
     private val getLatestDetalleObstetricia: GetLatestDetalleObstetriciaByPacienteId,
     private val getLatestDetallePediatrico: GetLatestDetallePediatricoByPacienteId,
-    private val getLatestEvaluacionesAntropometricas: GetLatestEvaluacionesAntropometricasByPacienteId,
+    private val getLatestEvaluacionesAntropometricas: GetEvaluacionesAntropometricasByLatestConsulta,
     private val getDiagnosticosConDescripciones: GetDiagnosticosConDescripcionesByPacienteIdUseCase,
     private val sessionManager: SessionManager
 ) : ViewModel() {
@@ -61,8 +61,8 @@ class ResumenMedicoViewModel @Inject constructor(
     private val _pediatricos = MutableLiveData<DetallePediatrico?>()
     val pediatricos: LiveData<DetallePediatrico?> = _pediatricos
 
-    private val _evaluacionesAntropometricas = MutableLiveData<Map<TipoIndicador, EvaluacionAntropometrica>>()
-    val evaluacionesAntropometricas: LiveData<Map<TipoIndicador, EvaluacionAntropometrica>> = _evaluacionesAntropometricas
+    private val _evaluacionesAntropometricas = MutableLiveData<List<EvaluacionAntropometrica>>()
+    val evaluacionesAntropometricas: LiveData<List<EvaluacionAntropometrica>> = _evaluacionesAntropometricas
 
     private val _diagnosticos = MutableLiveData<List<DiagnosticoConDescripcion>>()
     val diagnosticos: LiveData<List<DiagnosticoConDescripcion>> = _diagnosticos
