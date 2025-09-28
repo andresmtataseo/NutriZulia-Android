@@ -20,6 +20,7 @@ import com.nutrizulia.domain.usecase.collection.GetLatestDetalleObstetriciaByPac
 import com.nutrizulia.domain.usecase.collection.GetLatestDetallePediatricoByPacienteId
 import com.nutrizulia.domain.usecase.collection.GetEvaluacionesAntropometricasByLatestConsulta
 import com.nutrizulia.domain.usecase.collection.GetDiagnosticosConDescripcionesByPacienteIdUseCase
+import com.nutrizulia.domain.usecase.catalog.GetEnfermedadById
 import com.nutrizulia.data.local.pojo.DiagnosticoConDescripcion
 import com.nutrizulia.util.SessionManager
 import com.nutrizulia.util.Event
@@ -38,6 +39,7 @@ class ResumenMedicoViewModel @Inject constructor(
     private val getLatestDetallePediatrico: GetLatestDetallePediatricoByPacienteId,
     private val getLatestEvaluacionesAntropometricas: GetEvaluacionesAntropometricasByLatestConsulta,
     private val getDiagnosticosConDescripciones: GetDiagnosticosConDescripcionesByPacienteIdUseCase,
+    private val getEnfermedadById: GetEnfermedadById,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -197,9 +199,37 @@ class ResumenMedicoViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val diagnosticos = getDiagnosticosConDescripciones(id)
-                _diagnosticos.value = diagnosticos
+                val diagnosticosProcesados = procesarDiagnosticos(diagnosticos)
+                _diagnosticos.value = diagnosticosProcesados
             } catch (e: Exception) {
                 // Manejo silencioso del error - los diagnósticos simplemente no estarán disponibles
+            }
+        }
+    }
+
+    private suspend fun procesarDiagnosticos(diagnosticos: List<DiagnosticoConDescripcion>): List<DiagnosticoConDescripcion> {
+        return diagnosticos.map { diagnostico ->
+            // Si el diagnóstico es "OTROS" y tiene enfermedadId, buscar el nombre de la enfermedad
+            if (diagnostico.riesgoBiologicoNombre?.uppercase()?.contains("OTROS") == true && 
+                diagnostico.enfermedadId != null && 
+                diagnostico.enfermedadNombre.isNullOrEmpty()) {
+                
+                try {
+                    val enfermedad = getEnfermedadById(diagnostico.enfermedadId)
+                    if (enfermedad != null) {
+                        // Crear una copia del diagnóstico con el nombre de la enfermedad actualizado
+                        diagnostico.copy(
+                            enfermedadNombre = enfermedad.nombre
+                        )
+                    } else {
+                        diagnostico
+                    }
+                } catch (e: Exception) {
+                    // Si hay error al obtener la enfermedad, devolver el diagnóstico original
+                    diagnostico
+                }
+            } else {
+                diagnostico
             }
         }
     }

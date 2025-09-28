@@ -1,10 +1,14 @@
 package com.nutrizulia.presentation.view.consulta
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -12,10 +16,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputLayout
 import com.nutrizulia.R
 import com.nutrizulia.data.local.enum.TipoValorCalculado
 import com.nutrizulia.databinding.FragmentRegistrarConsulta3Binding
 import com.nutrizulia.domain.model.catalog.RiesgoBiologico
+import com.nutrizulia.domain.model.catalog.Enfermedad
 import com.nutrizulia.domain.model.collection.EvaluacionAntropometrica
 import com.nutrizulia.presentation.adapter.RiesgoBiologicoAdapter
 import com.nutrizulia.presentation.viewmodel.consulta.ConsultaSharedViewModel
@@ -103,7 +109,12 @@ class EvaluacionesFinalesFragment : Fragment() {
             } else {
                 habilitarCampos()
             }
-            diagnosticoAdapter.setReadOnly(isReadOnly)
+            
+            // Actualizar el estado del adaptador cuando cambie el modo de consulta
+            if (::diagnosticoAdapter.isInitialized) {
+                val isReadOnlyMode = isHistoria || mode == ModoConsulta.VER_CONSULTA
+                diagnosticoAdapter.updateReadOnlyMode(isReadOnlyMode)
+            }
         }
         
         // Evaluaciones antropométricas
@@ -146,13 +157,13 @@ class EvaluacionesFinalesFragment : Fragment() {
         
         // Diagnósticos seleccionados (actuales)
         viewModel.diagnosticosSeleccionados.observe(viewLifecycleOwner) { diagnosticos ->
-            diagnosticoAdapter.updateRiesgosBiologicos(diagnosticos)
+            diagnosticoAdapter.submitList(diagnosticos)
             updateSinDatosVisibility()
         }
         
         // Diagnósticos históricos
         viewModel.diagnosticosHistoricosRiesgo.observe(viewLifecycleOwner) { diagnosticosHistoricos ->
-            diagnosticoAdapter.updateDiagnosticosHistoricos(diagnosticosHistoricos)
+            // Historical diagnoses are now handled differently - they are part of the initial data
             updateSinDatosVisibility()
         }
 
@@ -160,12 +171,12 @@ class EvaluacionesFinalesFragment : Fragment() {
         viewModel.esPrimeraConsulta.observe(viewLifecycleOwner) { esPrimera ->
             // Mostrar información sobre diagnósticos históricos solo si no es primera consulta
             binding.tvInfoDiagnosticos.visibility = if (esPrimera) View.GONE else View.VISIBLE
-            diagnosticoAdapter.setEsPrimeraConsulta(esPrimera)
+            // Note: First consultation state is now handled in the ViewModel
         }
 
         // Estado de diagnóstico principal
         viewModel.tieneDiagnosticoPrincipal.observe(viewLifecycleOwner) { tienePrincipal ->
-            diagnosticoAdapter.setTieneDiagnosticoPrincipal(tienePrincipal)
+            // Note: Principal diagnosis state is now handled in the ViewModel
         }
 
         // Evaluaciones calculadas localmente - se actualizan en el SharedViewModel
@@ -357,17 +368,22 @@ class EvaluacionesFinalesFragment : Fragment() {
 
     // --- Funciones de Ayuda (con cambios mínimos) ---
 
-    private fun onDiagnosticoClick(diagnostico: RiesgoBiologico) {
+    private fun onDiagnosticoClick(diagnostico: com.nutrizulia.presentation.viewmodel.consulta.DiagnosticoParaUI) {
+        val nombreDiagnostico = diagnostico.nombreCompleto
         Utils.mostrarDialog(requireContext(), "Eliminar Diagnóstico",
-            "¿Desea eliminar el Diagnóstico ${diagnostico.nombre}?", "Sí", "No",
+            "¿Desea eliminar el Diagnóstico $nombreDiagnostico?", "Sí", "No",
             { viewModel.eliminarDiagnostico(diagnostico) }, { }, true
         )
     }
 
     private fun setupRecyclerView() {
+        // Determinar si está en modo de solo lectura basado en isHistoria o VER_CONSULTA
+        val isReadOnlyMode = isHistoria || sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA
+        
         diagnosticoAdapter = RiesgoBiologicoAdapter(
-            emptyList(),
-            onClickListener = { diagnostico -> onDiagnosticoClick(diagnostico) })
+            onEliminarClick = { diagnostico -> onDiagnosticoClick(diagnostico) },
+            isReadOnlyMode = isReadOnlyMode
+        )
 
         binding.recyclerViewDiagnosticos.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -375,7 +391,7 @@ class EvaluacionesFinalesFragment : Fragment() {
         }
 
         viewModel.diagnosticosSeleccionados.value?.let { diagnosticos ->
-            diagnosticoAdapter.updateRiesgosBiologicos(diagnosticos)
+            diagnosticoAdapter.submitList(diagnosticos)
         }
     }
     
@@ -448,21 +464,33 @@ class EvaluacionesFinalesFragment : Fragment() {
         val nombresDiagnosticos = diagnosticosDisponibles.map { it.nombre }.toTypedArray()
         val diagnosticosSeleccionados = mutableSetOf<Int>()
         
+        val titulo = obtenerTituloDialogo()
+        
+        crearDialogoDiagnosticos(nombresDiagnosticos, titulo, diagnosticosSeleccionados) { indices ->
+            procesarDiagnosticosSeleccionados(diagnosticosDisponibles, indices)
+        }
+    }
+    
+    private fun obtenerTituloDialogo(): String {
         val esPrimeraConsulta = viewModel.esPrimeraConsulta.value ?: false
         val tieneDiagnosticoPrincipal = viewModel.tieneDiagnosticoPrincipal.value ?: false
         
-        val titulo = when {
+        return when {
             esPrimeraConsulta && !tieneDiagnosticoPrincipal -> "Seleccionar Diagnóstico Principal"
             esPrimeraConsulta && tieneDiagnosticoPrincipal -> "Seleccionar Diagnósticos Adicionales"
             else -> "Seleccionar Diagnósticos Adicionales"
         }
-
+    }
+    
+    private fun crearDialogoDiagnosticos(
+        nombresDiagnosticos: Array<String>,
+        titulo: String,
+        diagnosticosSeleccionados: MutableSet<Int>,
+        onConfirmar: (Set<Int>) -> Unit
+    ) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(titulo)
-            .setMultiChoiceItems(
-                nombresDiagnosticos,
-                null
-            ) { _, which, isChecked ->
+            .setMultiChoiceItems(nombresDiagnosticos, null) { _, which, isChecked ->
                 if (isChecked) {
                     diagnosticosSeleccionados.add(which)
                 } else {
@@ -470,14 +498,134 @@ class EvaluacionesFinalesFragment : Fragment() {
                 }
             }
             .setPositiveButton("Agregar") { _, _ ->
-                diagnosticosSeleccionados.forEach { index ->
-                    val diagnosticoSeleccionado = diagnosticosDisponibles[index]
-                    viewModel.agregarDiagnostico(diagnosticoSeleccionado)
-                }
+                onConfirmar(diagnosticosSeleccionados)
             }
             .setNegativeButton("Cancelar") { dialog, _ ->
                 dialog.dismiss()
             }
             .show()
+    }
+    
+    private fun procesarDiagnosticosSeleccionados(
+        diagnosticosDisponibles: List<RiesgoBiologico>,
+        indices: Set<Int>
+    ) {
+        indices.forEach { index ->
+            val diagnosticoSeleccionado = diagnosticosDisponibles[index]
+            
+            if (esDiagnosticoOtros(diagnosticoSeleccionado)) {
+                mostrarDialogoSeleccionEnfermedad(diagnosticoSeleccionado)
+            } else {
+                viewModel.agregarDiagnostico(diagnosticoSeleccionado)
+            }
+        }
+    }
+    
+    private fun esDiagnosticoOtros(diagnostico: RiesgoBiologico): Boolean {
+        return diagnostico.nombre.uppercase().contains("OTROS")
+    }
+
+    private fun mostrarDialogoSeleccionEnfermedad(diagnosticoOtros: RiesgoBiologico) {
+        val dialogView = crearVistaDialogoEnfermedad()
+        val autoCompleteTextView = dialogView.findViewWithTag<AutoCompleteTextView>("autocomplete")
+        
+        val enfermedadSeleccionada = configurarSeleccionEnfermedad(autoCompleteTextView)
+        
+        crearDialogoSeleccionEnfermedad(diagnosticoOtros, dialogView, enfermedadSeleccionada)
+    }
+    
+    private fun crearVistaDialogoEnfermedad(): android.widget.LinearLayout {
+        val linearLayout = android.widget.LinearLayout(requireContext()).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 24)
+        }
+        
+        val textInputLayout = TextInputLayout(requireContext()).apply {
+            hint = "Buscar enfermedad..."
+            boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
+        }
+        
+        val autoCompleteTextView = AutoCompleteTextView(requireContext()).apply {
+            threshold = 1
+            setDropDownBackgroundResource(android.R.color.white)
+            tag = "autocomplete"
+        }
+        
+        textInputLayout.addView(autoCompleteTextView)
+        linearLayout.addView(textInputLayout)
+        
+        return linearLayout
+    }
+    
+    private fun configurarSeleccionEnfermedad(autoCompleteTextView: AutoCompleteTextView): Array<Enfermedad?> {
+        val enfermedadSeleccionada = arrayOf<Enfermedad?>(null)
+        
+        // Cargar enfermedades iniciales
+        viewModel.loadEnfermedades()
+        
+        // Configurar adaptador y observador
+        configurarAdaptadorEnfermedades(autoCompleteTextView)
+        configurarFiltroEnfermedades(autoCompleteTextView)
+        configurarSeleccionItem(autoCompleteTextView, enfermedadSeleccionada)
+        
+        return enfermedadSeleccionada
+    }
+    
+    private fun configurarAdaptadorEnfermedades(autoCompleteTextView: AutoCompleteTextView) {
+        viewModel.enfermedadesDisponibles.observe(viewLifecycleOwner) { enfermedades ->
+            val nombresEnfermedades = enfermedades.map { "${it.nombre} (${it.codigoInternacional})" }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombresEnfermedades)
+            autoCompleteTextView.setAdapter(adapter)
+        }
+    }
+    
+    private fun configurarFiltroEnfermedades(autoCompleteTextView: AutoCompleteTextView) {
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val filtro = s?.toString() ?: ""
+                if (filtro.length >= 1) {
+                    viewModel.loadEnfermedades(filtro)
+                }
+            }
+        }
+        autoCompleteTextView.addTextChangedListener(textWatcher)
+    }
+    
+    private fun configurarSeleccionItem(autoCompleteTextView: AutoCompleteTextView, enfermedadSeleccionada: Array<Enfermedad?>) {
+        autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+            val enfermedades = viewModel.enfermedadesDisponibles.value ?: emptyList()
+            if (position < enfermedades.size) {
+                enfermedadSeleccionada[0] = enfermedades[position]
+            }
+        }
+    }
+    
+    private fun crearDialogoSeleccionEnfermedad(
+        diagnosticoOtros: RiesgoBiologico, 
+        dialogView: android.widget.LinearLayout, 
+        enfermedadSeleccionada: Array<Enfermedad?>
+    ) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Seleccionar Enfermedad Específica")
+            .setMessage("Diagnóstico: ${diagnosticoOtros.nombre}")
+            .setView(dialogView)
+            .setPositiveButton("Agregar") { _, _ ->
+                procesarSeleccionEnfermedad(diagnosticoOtros, enfermedadSeleccionada[0])
+            }
+            .setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+    
+    private fun procesarSeleccionEnfermedad(diagnosticoOtros: RiesgoBiologico, enfermedad: Enfermedad?) {
+        enfermedad?.let {
+            viewModel.agregarDiagnosticoConEnfermedad(diagnosticoOtros, it)
+            Utils.mostrarSnackbar(binding.root, "Diagnóstico agregado: ${diagnosticoOtros.nombre} - ${it.nombre}")
+        } ?: run {
+            Utils.mostrarSnackbar(binding.root, "Debe seleccionar una enfermedad específica")
+        }
     }
 }

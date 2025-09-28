@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.nutrizulia.data.local.enum.TipoValorCalculado
 import com.nutrizulia.domain.model.catalog.GrupoEtario
 import com.nutrizulia.domain.model.catalog.RiesgoBiologico
+import com.nutrizulia.domain.model.catalog.Enfermedad
 import com.nutrizulia.domain.model.collection.Consulta
 import com.nutrizulia.domain.model.collection.DetalleAntropometrico
 import com.nutrizulia.domain.model.collection.Diagnostico
@@ -34,6 +35,23 @@ import javax.inject.Inject
 import kotlin.collections.orEmpty
 import com.nutrizulia.domain.usecase.collection.CountConsultaByPacienteIdUseCase
 
+/**
+ * Clase que representa un diagnóstico para mostrar en la UI
+ * Puede ser un diagnóstico normal o uno con enfermedad específica
+ */
+data class DiagnosticoParaUI(
+    val riesgoBiologico: RiesgoBiologico,
+    val enfermedad: Enfermedad? = null,
+    val diagnosticoCompleto: Diagnostico? = null // Para diagnósticos con enfermedad específica
+) {
+    val nombreCompleto: String
+        get() = if (enfermedad != null) {
+            "${riesgoBiologico.nombre} - ${enfermedad.nombre}"
+        } else {
+            riesgoBiologico.nombre
+        }
+}
+
 @HiltViewModel
 class EvaluacionesFinalesViewModel @Inject constructor(
     private val getDiagnosticos: GetRiesgosBiologicos,
@@ -61,14 +79,15 @@ class EvaluacionesFinalesViewModel @Inject constructor(
     private val _diagnosticosDisponibles = MutableLiveData<List<RiesgoBiologico>>()
     val diagnosticosDisponibles: LiveData<List<RiesgoBiologico>> = _diagnosticosDisponibles
 
+    private val _enfermedadesDisponibles = MutableLiveData<List<Enfermedad>>()
+    val enfermedadesDisponibles: LiveData<List<Enfermedad>> = _enfermedadesDisponibles
+
     private val _diagnosticosIniciales = MutableLiveData<List<Diagnostico>>()
     private val _diagnosticosHistoricos = MutableLiveData<List<Diagnostico>>()
     private val _consultaActualId = MutableLiveData<String?>()
-    
-    val diagnosticosHistoricos: LiveData<List<Diagnostico>> = _diagnosticosHistoricos
 
-    private val _diagnosticosSeleccionados = MediatorLiveData<List<RiesgoBiologico>>()
-    val diagnosticosSeleccionados: LiveData<List<RiesgoBiologico>> = _diagnosticosSeleccionados
+    private val _diagnosticosSeleccionados = MediatorLiveData<List<DiagnosticoParaUI>>()
+    val diagnosticosSeleccionados: LiveData<List<DiagnosticoParaUI>> = _diagnosticosSeleccionados
     
     private val _diagnosticosHistoricosRiesgo = MediatorLiveData<List<RiesgoBiologico>>()
     val diagnosticosHistoricosRiesgo: LiveData<List<RiesgoBiologico>> = _diagnosticosHistoricosRiesgo
@@ -82,12 +101,16 @@ class EvaluacionesFinalesViewModel @Inject constructor(
     private val _tieneDiagnosticoPrincipal = MutableLiveData<Boolean>()
     val tieneDiagnosticoPrincipal: LiveData<Boolean> = _tieneDiagnosticoPrincipal
 
+    // Almacenar el género del paciente para búsquedas de enfermedades
+    private var generoActual: String = ""
+
     init {
-        // Mapea los diagnósticos seleccionados cuando cambian los diagnósticos iniciales o el catálogo de diagnósticos
+        // Configurar MediatorLiveData para mapear diagnósticos seleccionados
         _diagnosticosSeleccionados.addSource(_diagnosticosIniciales) { mapearDiagnosticosSeleccionados() }
         _diagnosticosSeleccionados.addSource(_diagnosticosDisponibles) { mapearDiagnosticosSeleccionados() }
+        _diagnosticosSeleccionados.addSource(_enfermedadesDisponibles) { mapearDiagnosticosSeleccionados() }
         
-        // Mapea los diagnósticos históricos cuando cambian los diagnósticos históricos, el catálogo o la consulta actual
+        // Configurar MediatorLiveData para mapear diagnósticos históricos
         _diagnosticosHistoricosRiesgo.addSource(_diagnosticosHistoricos) { mapearDiagnosticosHistoricos() }
         _diagnosticosHistoricosRiesgo.addSource(_diagnosticosDisponibles) { mapearDiagnosticosHistoricos() }
         _diagnosticosHistoricosRiesgo.addSource(_consultaActualId) { mapearDiagnosticosHistoricos() }
@@ -97,18 +120,24 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Guardar el ID de la consulta actual
+                // Guardar el ID de la consulta actual y el género del paciente
                 _consultaActualId.value = consultaId
+                generoActual = paciente.genero.first().uppercaseChar().toString()
                 
                 coroutineScope {
                     val diagnosticosDisponiblesDeferred = async {
                         val edadMeses = Utils.calcularEdadEnMeses(paciente.fechaNacimiento)
-                        getDiagnosticos(paciente.genero.first().uppercaseChar().toString(), edadMeses)
+                        getDiagnosticos(generoActual, edadMeses)
                     }
                     
                     // Cargar diagnósticos históricos del paciente
                     val diagnosticosHistoricosDeferred = async {
                         getDiagnosticosHistoricosByPacienteId(paciente.id)
+                    }
+                    
+                    // Cargar enfermedades para mapear diagnósticos existentes
+                    val enfermedadesDeferred = async {
+                        getEnfermedades(generoActual, "")
                     }
 
                     if (consultaId != null) {
@@ -121,6 +150,7 @@ class EvaluacionesFinalesViewModel @Inject constructor(
 
                     _diagnosticosDisponibles.value = diagnosticosDisponiblesDeferred.await()
                     _diagnosticosHistoricos.value = diagnosticosHistoricosDeferred.await()
+                    _enfermedadesDisponibles.value = enfermedadesDeferred.await()
                     
                     // Verificar si es primera consulta para determinar si se puede registrar diagnóstico principal
                     verificarTipoConsulta(paciente.id)
@@ -133,6 +163,20 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Carga las enfermedades disponibles filtradas por género y nombre
+     */
+    fun loadEnfermedades(nombreFiltro: String = "") {
+        viewModelScope.launch {
+            try {
+                val enfermedades = getEnfermedades(generoActual, nombreFiltro)
+                _enfermedadesDisponibles.value = enfermedades
+            } catch (e: Exception) {
+                _mensaje.value = "Error al cargar enfermedades: ${e.localizedMessage}"
+            }
+        }
+    }
+
     private suspend fun verificarTipoConsulta(pacienteId: String) {
         // Verificar si es primera consulta del paciente
         val esPrimeraConsulta = !countConsultaByPacienteIdUseCase(pacienteId)
@@ -140,15 +184,27 @@ class EvaluacionesFinalesViewModel @Inject constructor(
     }
 
     /**
-     * Mapea los diagnósticos iniciales de la consulta actual a objetos RiesgoBiologico
+     * Mapea los diagnósticos iniciales de la consulta actual a objetos DiagnosticoParaUI
      */
     private fun mapearDiagnosticosSeleccionados() {
         val diagnosticosIniciales = _diagnosticosIniciales.value.orEmpty()
         val catalogo = _diagnosticosDisponibles.value.orEmpty()
+        val enfermedades = _enfermedadesDisponibles.value.orEmpty()
         
         val diagnosticosSeleccionados = diagnosticosIniciales
             .mapNotNull { diagnostico -> 
-                catalogo.find { it.id == diagnostico.riesgoBiologicoId }
+                val riesgoBiologico = catalogo.find { it.id == diagnostico.riesgoBiologicoId }
+                if (riesgoBiologico != null) {
+                    val enfermedad = if (diagnostico.enfermedadId != null) {
+                        enfermedades.find { it.id == diagnostico.enfermedadId }
+                    } else null
+                    
+                    DiagnosticoParaUI(
+                        riesgoBiologico = riesgoBiologico,
+                        enfermedad = enfermedad,
+                        diagnosticoCompleto = diagnostico
+                    )
+                } else null
             }
         
         _diagnosticosSeleccionados.value = diagnosticosSeleccionados
@@ -196,30 +252,62 @@ class EvaluacionesFinalesViewModel @Inject constructor(
             return
         }
         
-        // Agregar el diagnóstico
         val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty().toMutableList()
-        diagnosticosActuales.add(diagnostico)
+        diagnosticosActuales.add(DiagnosticoParaUI(riesgoBiologico = diagnostico))
         _diagnosticosSeleccionados.value = diagnosticosActuales
         
-        // Actualizar estado de diagnóstico principal
         actualizarEstadoDiagnosticoPrincipal()
     }
     
     /**
-     * Valida si se puede agregar un nuevo diagnóstico según las reglas de negocio
+     * Agrega un diagnóstico con enfermedad específica
      */
-    private fun puedeAgregarDiagnostico(): Boolean {
-        val esPrimeraConsulta = _esPrimeraConsulta.value == true
-        val tieneDiagnosticoPrincipal = _tieneDiagnosticoPrincipal.value == true
-        val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty()
-        
-        // En primera consulta, solo se permite un diagnóstico principal
-        if (esPrimeraConsulta && tieneDiagnosticoPrincipal && diagnosticosActuales.isNotEmpty()) {
-            _mensaje.value = "En primera consulta solo se permite un diagnóstico principal"
-            return false
+    fun agregarDiagnosticoConEnfermedad(riesgoBiologico: RiesgoBiologico, enfermedad: Enfermedad) {
+        // Validar que no sea duplicado
+        if (esDiagnosticoDuplicado(riesgoBiologico)) {
+            return
         }
         
-        return true
+        // Validar reglas de primera consulta
+        if (!puedeAgregarDiagnostico()) {
+            return
+        }
+        
+        val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty().toMutableList()
+        diagnosticosActuales.add(
+            DiagnosticoParaUI(
+                riesgoBiologico = riesgoBiologico,
+                enfermedad = enfermedad
+            )
+        )
+        _diagnosticosSeleccionados.value = diagnosticosActuales
+        
+        actualizarEstadoDiagnosticoPrincipal()
+    }
+    
+    companion object {
+        private const val DIAGNOSTICO_OTROS_KEYWORD = "OTROS"
+        private const val FILTRO_MINIMO_CARACTERES = 1
+        private const val MAX_DIAGNOSTICOS_ADICIONALES = 5
+    }
+    
+    /**
+     * Valida si se puede agregar un nuevo diagnóstico
+     */
+    private fun puedeAgregarDiagnostico(): Boolean {
+        val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty()
+        val esPrimera = _esPrimeraConsulta.value ?: false
+        val tienePrincipal = _tieneDiagnosticoPrincipal.value ?: false
+        
+        return when {
+            !esPrimera -> true // En consultas de seguimiento siempre se pueden agregar
+            !tienePrincipal -> true // En primera consulta sin diagnóstico principal
+            diagnosticosActuales.size < MAX_DIAGNOSTICOS_ADICIONALES -> true // Límite de diagnósticos adicionales
+            else -> {
+                _mensaje.value = "No se pueden agregar más diagnósticos adicionales (máximo $MAX_DIAGNOSTICOS_ADICIONALES)"
+                false
+            }
+        }
     }
     
     /**
@@ -229,31 +317,42 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty()
         val diagnosticosHistoricos = _diagnosticosHistoricosRiesgo.value.orEmpty()
         
-        // Verificar si ya existe en diagnósticos actuales
-        val existeEnActuales = diagnosticosActuales.any { it.id == diagnostico.id }
-        
-        // Verificar si ya existe en diagnósticos históricos
+        val existeEnActuales = diagnosticosActuales.any { it.riesgoBiologico.id == diagnostico.id }
         val existeEnHistoricos = diagnosticosHistoricos.any { it.id == diagnostico.id }
         
         val esDuplicado = existeEnActuales || existeEnHistoricos
         
         if (esDuplicado) {
-            val tipoExistente = if (existeEnActuales) "actual" else "histórico"
-            _mensaje.value = "El diagnóstico '${diagnostico.nombre}' ya está registrado como $tipoExistente para este paciente"
+            mostrarMensajeDiagnosticoDuplicado(diagnostico, existeEnActuales)
         }
         
         return esDuplicado
+    }
+    
+    private fun mostrarMensajeDiagnosticoDuplicado(diagnostico: RiesgoBiologico, existeEnActuales: Boolean) {
+        val tipoExistente = if (existeEnActuales) "actual" else "histórico"
+        _mensaje.value = "El diagnóstico '${diagnostico.nombre}' ya está registrado como $tipoExistente para este paciente"
     }
 
     /**
      * Elimina un diagnóstico de la lista de seleccionados
      */
-    fun eliminarDiagnostico(diagnostico: RiesgoBiologico) {
+    fun eliminarDiagnostico(diagnostico: DiagnosticoParaUI) {
         val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty().toMutableList()
-        diagnosticosActuales.removeAll { it.id == diagnostico.id }
+        diagnosticosActuales.removeAll { it.riesgoBiologico.id == diagnostico.riesgoBiologico.id }
         _diagnosticosSeleccionados.value = diagnosticosActuales
         
-        // Actualizar estado de diagnóstico principal
+        actualizarEstadoDiagnosticoPrincipal()
+    }
+    
+    /**
+     * Elimina un diagnóstico por RiesgoBiologico (para compatibilidad)
+     */
+    fun eliminarDiagnostico(diagnostico: RiesgoBiologico) {
+        val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty().toMutableList()
+        diagnosticosActuales.removeAll { it.riesgoBiologico.id == diagnostico.id }
+        _diagnosticosSeleccionados.value = diagnosticosActuales
+        
         actualizarEstadoDiagnosticoPrincipal()
     }
     
@@ -280,10 +379,12 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         val esPrimeraConsulta = _esPrimeraConsulta.value ?: false
         val diagnosticosSeleccionados = _diagnosticosSeleccionados.value.orEmpty()
         
-        return diagnosticosSeleccionados.mapIndexed { index, diagnostico ->
+        return diagnosticosSeleccionados.mapIndexed { index, diagnosticoUI ->
             // Buscar si ya existe un diagnóstico para este diagnóstico que NO esté eliminado
             val diagnosticoExistente = diagnosticosExistentes.find { 
-                it.riesgoBiologicoId == diagnostico.id && !it.isDeleted 
+                it.riesgoBiologicoId == diagnosticoUI.riesgoBiologico.id && 
+                it.enfermedadId == diagnosticoUI.enfermedad?.id &&
+                !it.isDeleted 
             }
             
             // Determinar si es principal: solo en primera consulta y solo el primero
@@ -292,14 +393,40 @@ class EvaluacionesFinalesViewModel @Inject constructor(
             Diagnostico(
                 id = diagnosticoExistente?.id ?: Utils.generarUUID(), // Reutilizar ID existente solo si no está eliminado
                 consultaId = consultaId,
-                riesgoBiologicoId = diagnostico.id,
-                enfermedadId = null,
+                riesgoBiologicoId = diagnosticoUI.riesgoBiologico.id,
+                enfermedadId = diagnosticoUI.enfermedad?.id, // Incluir ID de enfermedad si existe
                 isPrincipal = esPrincipal,
                 updatedAt = LocalDateTime.now(),
                 isDeleted = false,
                 isSynced = false
             )
         }
+    }
+
+    /**
+     * Crea un diagnóstico específico con enfermedad asociada (para el caso "OTROS")
+     */
+    fun createDiagnosticoConEnfermedad(
+        consultaId: String,
+        riesgoBiologicoId: Int,
+        enfermedadId: Int
+    ): Diagnostico {
+        val esPrimeraConsulta = _esPrimeraConsulta.value ?: false
+        val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty()
+        
+        // Determinar si es principal: solo en primera consulta y si no hay otros diagnósticos
+        val esPrincipal = esPrimeraConsulta && diagnosticosActuales.isEmpty() && !(_tieneDiagnosticoPrincipal.value ?: false)
+        
+        return Diagnostico(
+            id = Utils.generarUUID(),
+            consultaId = consultaId,
+            riesgoBiologicoId = riesgoBiologicoId,
+            enfermedadId = enfermedadId,
+            isPrincipal = esPrincipal,
+            updatedAt = LocalDateTime.now(),
+            isDeleted = false,
+            isSynced = false
+        )
     }
 
     fun createEvaluacionesAntropometricasEntities(): List<EvaluacionAntropometrica> {

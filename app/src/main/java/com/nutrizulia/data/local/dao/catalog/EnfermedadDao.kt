@@ -10,6 +10,9 @@ import com.nutrizulia.data.local.entity.catalog.EnfermedadEntity
 @Dao
 interface EnfermedadDao {
 
+    @Query("SELECT * FROM enfermedades WHERE id = :id")
+    suspend fun findById(id: Int): EnfermedadEntity?
+
     @Query("SELECT * FROM enfermedades WHERE genero = :genero AND nombre LIKE '%' || :nombre || '%'")
     suspend fun findAllByGeneroAndNombreLike(genero: String, nombre: String): List<EnfermedadEntity>
 

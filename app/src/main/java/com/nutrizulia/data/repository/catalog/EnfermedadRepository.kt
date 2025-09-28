@@ -10,6 +10,10 @@ class EnfermedadRepository @Inject constructor(
     private val dao: EnfermedadDao
 ) {
 
+    suspend fun findById(id: Int): Enfermedad? {
+        return dao.findById(id)?.toDomain()
+    }
+
     suspend fun findAllByGeneroAndNombreLike(genero: String, nombre: String): List<Enfermedad> {
         return dao.findAllByGeneroAndNombreLike(genero, nombre).map { it.toDomain() }
     }

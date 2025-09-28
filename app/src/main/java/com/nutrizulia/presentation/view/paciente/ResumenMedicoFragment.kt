@@ -439,8 +439,17 @@ class ResumenMedicoFragment : Fragment() {
             if (diagnosticos.isNotEmpty()) {
                 val diagnosticosItems = diagnosticos.map { diagnostico ->
                     val descripcion = when {
+                        // Si es un diagnóstico "OTROS" y tiene nombre de enfermedad, mostrar formato especial
+                        !diagnostico.riesgoBiologicoNombre.isNullOrEmpty() && 
+                        diagnostico.riesgoBiologicoNombre.uppercase().contains("OTROS") &&
+                        !diagnostico.enfermedadNombre.isNullOrEmpty() -> {
+                            "OTROS - ${diagnostico.enfermedadNombre}"
+                        }
+                        // Si solo tiene nombre de riesgo biológico
                         !diagnostico.riesgoBiologicoNombre.isNullOrEmpty() -> diagnostico.riesgoBiologicoNombre
+                        // Si solo tiene nombre de enfermedad
                         !diagnostico.enfermedadNombre.isNullOrEmpty() -> diagnostico.enfermedadNombre
+                        // Fallback
                         else -> "Diagnóstico sin descripción"
                     }
                     DiagnosticoItem(descripcion, diagnostico.fechaConsulta)
