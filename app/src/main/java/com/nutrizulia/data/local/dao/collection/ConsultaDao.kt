@@ -17,7 +17,7 @@ interface ConsultaDao {
 
     @Query("""
         SELECT * FROM consultas 
-        WHERE DATE(fecha_hora_programada) = DATE('now', '-1 day') 
+        WHERE DATE(fecha_hora_programada) <= DATE('now', '-1 day') 
         AND (estado = 'PENDIENTE' OR estado = 'REPROGRAMADA')
         ORDER BY fecha_hora_programada ASC
     """)
@@ -56,7 +56,7 @@ interface ConsultaDao {
     @Query("""
         UPDATE consultas 
         SET estado = 'NO_ASISTIO', updated_at = :timestamp, is_synced = 0 
-        WHERE DATE(fecha_hora_programada) = DATE('now', '-1 day') 
+        WHERE DATE(fecha_hora_programada) <= DATE('now', '-1 day') 
         AND (estado = 'PENDIENTE' OR estado = 'REPROGRAMADA')
     """)
     suspend fun updatePreviousDayPendingAppointmentsToNoShow(timestamp: LocalDateTime): Int
