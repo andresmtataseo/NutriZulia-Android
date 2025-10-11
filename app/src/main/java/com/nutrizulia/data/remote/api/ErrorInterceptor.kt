@@ -48,7 +48,8 @@ class ErrorInterceptor : Interceptor {
             }
 
             Log.e(TAG, "HTTP Error ${response.code}: $errorMessage")
-            throw IOException(errorMessage)
+            // Lanzar excepción con código de estado para manejo diferenciado (e.g., 403)
+            throw ApiHttpException(response.code, errorMessage)
         }
 
         return response
@@ -62,6 +63,7 @@ class ErrorInterceptor : Interceptor {
             404 -> "Recurso no encontrado."
             409 -> "Conflicto. Los datos ya existen o están en uso."
             422 -> "Datos no válidos. Verifique la información enviada."
+            423 -> "Cuenta bloqueada temporalmente. Recupere su cuenta."
             500 -> "Error interno del servidor. Intente nuevamente más tarde."
             502 -> "Error de conexión con el servidor."
             503 -> "Servicio no disponible temporalmente."

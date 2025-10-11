@@ -1,8 +1,8 @@
 package com.nutrizulia.util
 
 object ApiConstants {
-    const val BASE_URL: String = "http://192.168.1.164:8080/"
-//    const val BASE_URL: String = "https://nutrizulia-backend.onrender.com/"
+//    const val BASE_URL: String = "http://192.168.1.164:8080/"
+    const val BASE_URL: String = "https://nutrizulia-backend.onrender.com/"
 }
 
 // ========== AUTHENTICATION API ==========
@@ -76,12 +76,6 @@ object CollectionSyncEndpoints {
     const val FULL_SYNC_PEDIATRIC_DETAILS: String = "$COLLECTION_BASE_URL/sync/pediatric-details/full"
     const val FULL_SYNC_OBSTETRIC_DETAILS: String = "$COLLECTION_BASE_URL/sync/obstetric-details/full"
     const val FULL_SYNC_ACTIVITIES: String = "$COLLECTION_BASE_URL/sync/activities/full"
-}
-
-// ========== USERS API ==========
-object UserEndpoints {
-    private const val USERS_BASE_URL: String = "/api/v1/users"
-    
 }
 
 // ========== USER-INSTITUTIONS API ==========

@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentLoginBinding
 import com.nutrizulia.presentation.viewmodel.LoginViewModel
+import com.nutrizulia.presentation.viewmodel.SignInError
 import com.nutrizulia.util.Utils.mostrarSnackbar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,18 +44,16 @@ class LoginFragment : Fragment() {
 
         // Limpia error al modificar texto en cédula
         binding.tfCedula.editText?.doOnTextChanged { _, _, _, _ ->
-            binding.tfTipoCedula.error = null
-            binding.tfCedula.error = null
+            clearInputErrors()
         }
 
         binding.tfTipoCedula.editText?.doOnTextChanged { _, _, _, _ ->
-            binding.tfTipoCedula.error = null
-            binding.tfCedula.error = null
+            clearInputErrors()
         }
 
         // Limpia error al modificar texto en contraseña
         binding.tfContrasena.editText?.doOnTextChanged { _, _, _, _ ->
-            binding.tfContrasena.error = null
+            clearInputErrors()
         }
 
         // Observa estado de carga para mostrar/hide progress bar y habilitar botones
@@ -63,12 +62,10 @@ class LoginFragment : Fragment() {
             binding.btnContinuar.isEnabled = !isLoading
         }
 
-        // Observa resultado de autenticación
+        // Observa resultado de autenticación exitosa
         viewModel.signInResult.observe(viewLifecycleOwner) { result ->
             // Limpia errores previos
-            binding.tfTipoCedula.error = null
-            binding.tfCedula.error = null
-            binding.tfContrasena.error = null
+            clearInputErrors()
 
             result.onSuccess {
                 // Login exitoso, navega a siguiente pantalla y limpia back stack
@@ -76,22 +73,30 @@ class LoginFragment : Fragment() {
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             }
+        }
 
-            result.onFailure { error ->
-                mostrarSnackbar(binding.root, error.message ?: "Error desconocido")
-
-                // Opcional: si error es por campos vacíos, muestra error en inputs
-                if (error.message == "Completa los campos.") {
+        // Observa errores diferenciados
+        viewModel.signInError.observe(viewLifecycleOwner) { error ->
+            when (error) {
+                is SignInError.InvalidInput -> {
+                    mostrarSnackbar(binding.root, error.message)
+                    // Marcar inputs específicos si están vacíos
                     if (binding.tfCedula.editText?.text.isNullOrBlank()) {
                         binding.tfCedula.error = "Requerido"
                     }
                     if (binding.tfContrasena.editText?.text.isNullOrBlank()) {
                         binding.tfContrasena.error = "Requerido"
                     }
-                } else {
-                    binding.tfTipoCedula.error = " "
-                    binding.tfCedula.error = "Verifica la cédula"
-                    binding.tfContrasena.error = "Verifica la contraseña"
+                }
+                is SignInError.Forbidden -> {
+                    // Errores 403: marcar campos y mostrar mensaje del servidor
+                    setCredentialErrors()
+                    mostrarSnackbar(binding.root, error.message)
+                }
+                is SignInError.Other -> {
+                    // Otros errores: solo mostrar mensaje, sin marcar campos
+                    clearInputErrors()
+                    mostrarSnackbar(binding.root, error.message)
                 }
             }
         }
@@ -107,6 +112,17 @@ class LoginFragment : Fragment() {
             val clave = binding.tfContrasena.editText?.text.toString()
             viewModel.logearUsuario(cedulaCompleta, clave)
         }
+    }
 
+    private fun clearInputErrors() {
+        binding.tfTipoCedula.error = null
+        binding.tfCedula.error = null
+        binding.tfContrasena.error = null
+    }
+
+    private fun setCredentialErrors() {
+        binding.tfTipoCedula.error = " "
+        binding.tfCedula.error = "Verifica la cédula"
+        binding.tfContrasena.error = "Verifica la contraseña"
     }
 }

@@ -10,6 +10,14 @@ import com.nutrizulia.util.CheckData.esCedulaValida
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.nutrizulia.data.remote.api.ApiHttpException
+
+// Manejo de errores específico para la UI de login
+sealed class SignInError {
+    data class Forbidden(val message: String) : SignInError()
+    data class Other(val message: String) : SignInError()
+    data class InvalidInput(val message: String) : SignInError()
+}
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -21,11 +29,15 @@ class LoginViewModel @Inject constructor(
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> get() = _loading
 
+    // LiveData para errores diferenciados
+    private val _signInError = MutableLiveData<SignInError>()
+    val signInError: LiveData<SignInError> get() = _signInError
+
     fun logearUsuario(cedula: String, clave: String) {
         val cedulaLimpia = cedula.trim().uppercase()
 
         if (esCedulaValida(cedulaLimpia).not() || clave.isEmpty()) {
-            _signInResult.value = Result.failure(Exception("Completa los campos correctamente."))
+            _signInError.value = SignInError.InvalidInput("Completa los campos correctamente.")
             return
         }
 
@@ -33,7 +45,26 @@ class LoginViewModel @Inject constructor(
             _loading.value = true
             val result = signInUseCase(cedulaLimpia, clave)
             _loading.value = false
-            _signInResult.value = result
+
+            if (result.isSuccess) {
+                _signInResult.value = result
+            } else {
+                val ex = result.exceptionOrNull()
+                val message = ex?.message ?: "Error desconocido"
+
+                when (ex) {
+                    is ApiHttpException -> {
+                        if (ex.statusCode == 401) {
+                            _signInError.value = SignInError.Forbidden(message)
+                        } else {
+                            _signInError.value = SignInError.Other(message)
+                        }
+                    }
+                    else -> {
+                        _signInError.value = SignInError.Other(message)
+                    }
+                }
+            }
         }
     }
 }
