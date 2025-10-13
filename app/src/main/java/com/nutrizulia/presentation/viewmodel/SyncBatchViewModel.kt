@@ -3,6 +3,7 @@ package com.nutrizulia.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nutrizulia.domain.usecase.SyncCollectionBatch
+import com.nutrizulia.domain.usecase.auth.CheckAuthUseCase
 import com.nutrizulia.domain.usecase.dashboard.GetPendingRecordsByEntityUseCase
 import com.nutrizulia.domain.usecase.dashboard.GetTotalPendingRecordsUseCase
 import com.nutrizulia.domain.usecase.dashboard.PendingRecordsByEntity
@@ -17,7 +18,8 @@ import javax.inject.Inject
 class SyncBatchViewModel @Inject constructor(
     private val syncCollectionBatch: SyncCollectionBatch,
     private val getPendingRecordsByEntityUseCase: GetPendingRecordsByEntityUseCase,
-    private val getTotalPendingRecordsUseCase: GetTotalPendingRecordsUseCase
+    private val getTotalPendingRecordsUseCase: GetTotalPendingRecordsUseCase,
+    private val checkAuthUseCase: CheckAuthUseCase
 ) : ViewModel() {
 
     // StateFlow para el total de registros pendientes
@@ -33,6 +35,8 @@ class SyncBatchViewModel @Inject constructor(
     var onSyncSuccess: ((successCount: Int, totalProcessed: Int, message: String, detailedReport: String) -> Unit)? = null
     var onSyncPartialSuccess: ((successCount: Int, totalProcessed: Int, failureCount: Int, message: String, detailedReport: String) -> Unit)? = null
     var onSyncError: ((message: String, details: String?) -> Unit)? = null
+    // Callback para solicitar mostrar un diálogo de sesión expirada desde la UI usando Utils.mostrarDialog
+    var onShowAuthExpiredDialog: ((title: String, message: String) -> Unit)? = null
 
     init {
         loadPendingRecords()
@@ -60,6 +64,7 @@ class SyncBatchViewModel @Inject constructor(
 
     /**
      * Inicia la sincronización siguiendo todos los requerimientos del usuario:
+     * - Validar el token llamando al endpoint /auth/check
      * - Mostrar mensaje de inicio
      * - Procesar tablas en orden específico
      * - Manejar success/failed por UUID
@@ -69,6 +74,17 @@ class SyncBatchViewModel @Inject constructor(
     fun iniciarSincronizacion() {
         viewModelScope.launch {
             try {
+                // Paso 0: Validar sesión y token antes de sincronizar
+                val isSessionValid = checkAuthUseCase.invoke()
+                if (!isSessionValid) {
+                    // Notificar a la UI para que muestre el diálogo usando Utils.mostrarDialog
+                    onShowAuthExpiredDialog?.invoke(
+                        "Sesión expirada",
+                        "Tu sesión ha caducado o es inválida. Por favor, inicia sesión nuevamente para continuar con el proceso de sincronización de manera segura."
+                    )
+                    return@launch
+                }
+
                 // Paso 1: Mostrar mensaje de inicio
                 onSyncStart?.invoke("Iniciando sincronización con el servidor...")
                 

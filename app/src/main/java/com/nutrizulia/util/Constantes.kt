@@ -13,6 +13,7 @@ object AuthEndpoints {
     const val CHECK_AUTH: String = "$AUTH_BASE_URL/check"
     const val FORGOT_PASSWORD: String = "$AUTH_BASE_URL/forgot-password"
     const val CHANGE_PASSWORD: String = "$AUTH_BASE_URL/change-password"
+    const val LOGOUT: String = "$AUTH_BASE_URL/logout"
 }
 
 // ========== CATALOG API ==========

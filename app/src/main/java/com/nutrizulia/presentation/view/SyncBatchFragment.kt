@@ -14,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentSyncBatchBinding
 import com.nutrizulia.presentation.viewmodel.SyncBatchViewModel
+import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -75,6 +76,27 @@ class SyncBatchFragment : Fragment() {
 
         viewModel.onSyncError = { message, details ->
             onSyncError(message, details)
+        }
+
+        // Mostrar diálogo de sesión expirada/invalidada
+        viewModel.onShowAuthExpiredDialog = dialogCallback@ { title, message ->
+            if (_binding == null || !isAdded) return@dialogCallback
+            Utils.mostrarDialog(
+                requireContext(),
+                title,
+                message,
+                positiveButtonText = "Ir al inicio de sesión",
+                negativeButtonText = "Cancelar",
+                onPositiveClick = {
+                    val intent = android.content.Intent(requireContext(), LoginActivity::class.java)
+                    intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                },
+                onNegativeClick = {
+                    Log.i("SyncBatchFragment", "Sesión expirada: usuario canceló")
+                },
+                isCancelable = true
+            )
         }
     }
 
@@ -204,9 +226,9 @@ class SyncBatchFragment : Fragment() {
             return
         }
         
-        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val snackbar = com.google.android.material.snackbar.Snackbar.make(binding.root, message, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.info_color)
+            androidx.core.content.ContextCompat.getColor(requireContext(), R.color.info_color)
         )
         snackbar.show()
     }
@@ -220,9 +242,9 @@ class SyncBatchFragment : Fragment() {
             return
         }
         
-        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val snackbar = com.google.android.material.snackbar.Snackbar.make(binding.root, message, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.success_color)
+            androidx.core.content.ContextCompat.getColor(requireContext(), R.color.success_color)
         )
         snackbar.show()
     }
@@ -236,9 +258,9 @@ class SyncBatchFragment : Fragment() {
             return
         }
         
-        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val snackbar = com.google.android.material.snackbar.Snackbar.make(binding.root, message, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.warning_color)
+            androidx.core.content.ContextCompat.getColor(requireContext(), R.color.warning_color)
         )
         snackbar.show()
     }
@@ -252,9 +274,9 @@ class SyncBatchFragment : Fragment() {
             return
         }
         
-        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        val snackbar = com.google.android.material.snackbar.Snackbar.make(binding.root, message, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.error_color)
+            androidx.core.content.ContextCompat.getColor(requireContext(), R.color.error_color)
         )
         snackbar.show()
     }
@@ -274,7 +296,7 @@ class SyncBatchFragment : Fragment() {
      * Opcional: Método para mostrar el reporte en un dialog
      */
     private fun showReportDialog(title: String, report: String) {
-        AlertDialog.Builder(requireContext())
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle(title)
             .setMessage(report)
             .setPositiveButton("Cerrar") { dialog, _ ->

@@ -36,7 +36,19 @@ class AuthRepository @Inject constructor(
 
     suspend fun checkAuth(): Boolean {
         val response = api.checkAuth()
-        return response.isSuccessful
+        if (!response.isSuccessful) return false
+        val body = response.body()
+        val authenticated = body?.data?.authenticated == true
+        val tokenValid = body?.data?.tokenValid == true
+        return authenticated && tokenValid
     }
 
+    suspend fun logoutInBackground(): Unit {
+        try {
+            // Ejecutar la invalidación del token en servidor sin afectar el flujo local
+            api.logout()
+        } catch (_: Exception) {
+            // Silenciar errores: el flujo local de logout continúa
+        }
+    }
 }

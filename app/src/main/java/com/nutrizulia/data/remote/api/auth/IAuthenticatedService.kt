@@ -20,4 +20,7 @@ interface IAuthenticatedService {
     suspend fun checkAuth(
     ): Response<ApiResponseDto<CheckAuthResponseDto>>
 
+    @POST(AuthEndpoints.LOGOUT)
+    suspend fun logout(
+    ): Response<ApiResponseDto<Any>>
 }

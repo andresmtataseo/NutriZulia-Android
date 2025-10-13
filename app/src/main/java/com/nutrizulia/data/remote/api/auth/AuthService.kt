@@ -32,4 +32,8 @@ class AuthService @Inject constructor(
     suspend fun checkAuth(): Response<ApiResponseDto<CheckAuthResponseDto>> {
         return authenticatedApi.checkAuth()
     }
+
+    suspend fun logout(): Response<ApiResponseDto<Any>> {
+        return authenticatedApi.logout()
+    }
 }
