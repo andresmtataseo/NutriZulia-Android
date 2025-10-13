@@ -153,4 +153,16 @@ class ConsultaRepository @Inject constructor(
         }
     }
 
+    // ===== Nuevos métodos para recordatorios locales =====
+    suspend fun countPendingOrRescheduled(usuarioInstitucionId: Int): Int {
+        return consultaDao.countPendingOrRescheduled(usuarioInstitucionId)
+    }
+
+    suspend fun findUpcomingPendingOrRescheduled(usuarioInstitucionId: Int, start: LocalDateTime): List<Consulta> {
+        return consultaDao.findUpcomingPendingOrRescheduled(usuarioInstitucionId, start).map { it.toDomain() }
+    }
+
+    suspend fun countPendingOrRescheduledBetween(usuarioInstitucionId: Int, start: LocalDateTime, end: LocalDateTime): Int {
+        return consultaDao.countPendingOrRescheduledBetween(usuarioInstitucionId, start, end)
+    }
 }

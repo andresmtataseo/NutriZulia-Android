@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
+
 @HiltViewModel
 class AccionesConsultaViewModel @Inject constructor(
     private val getPacienteConCitaById: GetPacienteConCitaById,
@@ -41,6 +43,8 @@ class AccionesConsultaViewModel @Inject constructor(
 
     private val _canEditConsulta = MutableLiveData<Event<Boolean>>()
     val canEditConsulta: LiveData<Event<Boolean>> get() = _canEditConsulta
+
+
 
     fun onCreate(id: String) {
         _isLoading.value = true
@@ -69,6 +73,7 @@ class AccionesConsultaViewModel @Inject constructor(
             val result = getPacienteConCitaById(idUsuarioInstitucion.value ?: 0, consultaId)
             if (result != null) {
                 _pacienteConCita.value = result
+
             } else {
                 _mensaje.value = Event("No se encontraron datos.")
                 _isLoading.value = false
@@ -115,4 +120,6 @@ class AccionesConsultaViewModel @Inject constructor(
             }
         }
     }
+
+
 }

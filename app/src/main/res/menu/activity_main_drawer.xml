@@ -38,10 +38,10 @@
 
         <item android:title="@string/herramientas_y_utilidades">
             <menu>
-                <item
-                    android:id="@+id/reportesFragment"
-                    android:icon="@drawable/ic_menu_reportes"
-                    android:title="@string/menu_reportes" />
+<!--                <item-->
+<!--                    android:id="@+id/reportesFragment"-->
+<!--                    android:icon="@drawable/ic_menu_reportes"-->
+<!--                    android:title="@string/menu_reportes" />-->
                 <item
                     android:id="@+id/seleccionarInstitucionFragment"
                     android:icon="@drawable/ic_menu_instituciones"

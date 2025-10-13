@@ -20,6 +20,10 @@ import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import com.google.android.material.snackbar.Snackbar
 
 @AndroidEntryPoint
 class AccionesConsultaFragment : Fragment() {
@@ -143,6 +147,8 @@ class AccionesConsultaFragment : Fragment() {
             }
             binding.tvEstado.setTextColor(ContextCompat.getColor(requireContext(), colorResId))
         }
+
+
     }
 
     fun setupListeners() {
@@ -180,6 +186,7 @@ class AccionesConsultaFragment : Fragment() {
                 Utils.mostrarSnackbar(requireView(), "Cargando datos, por favor espere...")
             }
         }
+
 
     }
 }

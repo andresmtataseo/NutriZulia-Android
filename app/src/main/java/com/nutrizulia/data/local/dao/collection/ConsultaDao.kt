@@ -68,15 +68,17 @@ interface ConsultaDao {
     @Query("SELECT * FROM consultas WHERE is_synced = 0 AND usuario_institucion_id = :usuarioInstitucionId")
     suspend fun findAllNotSynced(usuarioInstitucionId: Int): List<ConsultaEntity>
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM consultas 
         WHERE usuario_institucion_id = :usuarioInstitucionId 
         AND (
-            (fecha_hora_programada IS NOT NULL AND strftime('%Y-%m', fecha_hora_programada) = strftime('%Y-%m', 'now')) OR
-            (fecha_hora_programada IS NULL AND fecha_hora_real IS NOT NULL AND strftime('%Y-%m', fecha_hora_real) = strftime('%Y-%m', 'now'))
+            (fecha_hora_programada IS NOT NULL AND DATE(fecha_hora_programada) = DATE('now'))
+            OR (fecha_hora_real IS NOT NULL AND DATE(fecha_hora_real) = DATE('now'))
         )
-        AND (estado = 'COMPLETADA' OR estado = 'SIN_PREVIA_CITA')
-    """)
+        ORDER BY fecha_hora_programada ASC
+        """
+    )
     suspend fun findConsultasDelMesActual(usuarioInstitucionId: Int): List<ConsultaEntity>
 
     @Query("""
@@ -90,4 +92,28 @@ interface ConsultaDao {
     @Upsert
     suspend fun upsertAll(consultas: List<ConsultaEntity>)
 
+    // ===== Nuevas consultas para recordatorios locales =====
+    @Query("SELECT COUNT(*) FROM consultas WHERE usuario_institucion_id = :usuarioInstitucionId AND (estado = 'PENDIENTE' OR estado = 'REPROGRAMADA')")
+    suspend fun countPendingOrRescheduled(usuarioInstitucionId: Int): Int
+
+    @Query("""
+        SELECT * FROM consultas
+        WHERE usuario_institucion_id = :usuarioInstitucionId 
+        AND (estado = 'PENDIENTE' OR estado = 'REPROGRAMADA')
+        AND fecha_hora_programada IS NOT NULL
+        AND fecha_hora_programada > :start
+        ORDER BY fecha_hora_programada ASC
+    """)
+    suspend fun findUpcomingPendingOrRescheduled(usuarioInstitucionId: Int, start: LocalDateTime): List<ConsultaEntity>
+
+    @Query(
+        """
+        SELECT COUNT(*) FROM consultas
+        WHERE usuario_institucion_id = :usuarioInstitucionId 
+        AND (estado = 'PENDIENTE' OR estado = 'REPROGRAMADA')
+        AND fecha_hora_programada IS NOT NULL
+        AND fecha_hora_programada >= :start AND fecha_hora_programada <= :end
+        """
+    )
+    suspend fun countPendingOrRescheduledBetween(usuarioInstitucionId: Int, start: LocalDateTime, end: LocalDateTime): Int
 }

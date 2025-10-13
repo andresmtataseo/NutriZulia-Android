@@ -10,6 +10,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.nutrizulia.util.UpdatePreviousDayAppointmentsWorker
+import com.nutrizulia.util.ScheduleAppointmentRemindersWorker
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -27,6 +28,9 @@ class NutriZuliaApp : Application(), Configuration.Provider {
         scheduleUpdatePreviousDayAppointmentsWork()
         // Ejecutar inmediatamente al iniciar la app para actualizar citas del día anterior
         triggerImmediateUpdatePreviousDayAppointmentsWork()
+        // Programar recordatorios de citas (diario a las 00:00) y ejecución inmediata
+        scheduleAppointmentRemindersDailyWork()
+        triggerImmediateScheduleAppointmentRemindersWork()
     }
 
     private fun scheduleUpdatePreviousDayAppointmentsWork() {
@@ -73,6 +77,54 @@ class NutriZuliaApp : Application(), Configuration.Provider {
 
         WorkManager.getInstance(this).enqueueUniqueWork(
             UpdatePreviousDayAppointmentsWorker.WORK_NAME + "_startup",
+            ExistingWorkPolicy.KEEP,
+            oneTimeRequest
+        )
+    }
+
+    private fun scheduleAppointmentRemindersDailyWork() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+            .setRequiresBatteryNotLow(false)
+            .setRequiresCharging(false)
+            .setRequiresDeviceIdle(false)
+            .setRequiresStorageNotLow(false)
+            .build()
+
+        val now = ZonedDateTime.now()
+        val nextRun = now.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0)
+        val initialDelayMillis = Duration.between(now, nextRun).toMillis()
+
+        val workRequest = PeriodicWorkRequestBuilder<ScheduleAppointmentRemindersWorker>(
+            repeatInterval = 1,
+            repeatIntervalTimeUnit = TimeUnit.DAYS
+        )
+            .setConstraints(constraints)
+            .setInitialDelay(initialDelayMillis, TimeUnit.MILLISECONDS)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            ScheduleAppointmentRemindersWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+    }
+
+    private fun triggerImmediateScheduleAppointmentRemindersWork() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+            .setRequiresBatteryNotLow(false)
+            .setRequiresCharging(false)
+            .setRequiresDeviceIdle(false)
+            .setRequiresStorageNotLow(false)
+            .build()
+
+        val oneTimeRequest = OneTimeWorkRequestBuilder<ScheduleAppointmentRemindersWorker>()
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            ScheduleAppointmentRemindersWorker.WORK_NAME + "_startup",
             ExistingWorkPolicy.KEEP,
             oneTimeRequest
         )

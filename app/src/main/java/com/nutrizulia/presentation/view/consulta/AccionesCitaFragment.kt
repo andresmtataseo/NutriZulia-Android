@@ -21,6 +21,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import com.google.android.material.snackbar.Snackbar
+
 @AndroidEntryPoint
 class AccionesCitaFragment : Fragment() {
 
@@ -78,6 +83,23 @@ class AccionesCitaFragment : Fragment() {
             }
             binding.tvEstado.setTextColor(ContextCompat.getColor(requireContext(), colorResId))
         }
+
+        // Observa evento para abrir WhatsApp
+        viewModel.openWhatsApp.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { uriString ->
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    Snackbar.make(requireView(), "No se encontró WhatsApp instalado.", Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        // Ocultar/mostrar botón de WhatsApp según disponibilidad
+        viewModel.canSendWhatsApp.observe(viewLifecycleOwner) { canSend ->
+            binding.cardViewWhatsApp.visibility = if (canSend == true) View.VISIBLE else View.GONE
+        }
     }
 
     fun setupListeners() {
@@ -131,6 +153,11 @@ class AccionesCitaFragment : Fragment() {
                 { },
                 true
             )
+        }
+
+        // Listener del botón de WhatsApp
+        binding.cardViewWhatsApp.setOnClickListener {
+            viewModel.enviarRecordatorioWhatsApp()
         }
     }
 }

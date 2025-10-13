@@ -20,7 +20,7 @@
             android:background="?attr/colorPrimary"
             app:title="Seleccionar institución"
             app:titleCentered="true"
-            app:titleTextColor="@color/md_theme_surface" />
+            app:titleTextColor="@color/md_theme_onPrimaryContainer" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
