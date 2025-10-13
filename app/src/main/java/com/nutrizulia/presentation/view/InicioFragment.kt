@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import com.nutrizulia.databinding.FragmentInicioBinding
-import com.nutrizulia.presentation.view.paciente.AccionesPacienteFragmentDirections
 import com.nutrizulia.presentation.viewmodel.InicioViewModel
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint

@@ -51,7 +51,7 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnContinuar"
+            android:id="@+id/btnDescargar"
             style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
