@@ -5,6 +5,14 @@ object ApiConstants {
     const val BASE_URL: String = "https://nutrizulia-backend.onrender.com/"
 }
 
+// ========== PUBLIC API ==========
+object PublicEndpoints {
+    const val PUBLIC_BASE_URL: String = "/api/v1/public"
+    const val MANUAL_APP: String = "$PUBLIC_BASE_URL/manual-app"
+    const val MANUAL_WEB: String = "$PUBLIC_BASE_URL/manual-web"
+    const val APK: String = "$PUBLIC_BASE_URL/apk"
+}
+
 // ========== AUTHENTICATION API ==========
 object AuthEndpoints {
     private const val AUTH_BASE_URL: String = "/api/v1/auth"
