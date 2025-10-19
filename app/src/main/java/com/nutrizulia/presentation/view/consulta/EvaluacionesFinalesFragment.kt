@@ -45,7 +45,11 @@ class EvaluacionesFinalesFragment : Fragment() {
     private var dataLoadedForUI: Boolean = false
     private var isHistoria: Boolean = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = FragmentRegistrarConsulta3Binding.inflate(inflater, container, false)
         return binding.root
     }
@@ -56,16 +60,22 @@ class EvaluacionesFinalesFragment : Fragment() {
         isHistoria = sharedViewModel.isHistoria.value ?: false
         val timestamp = System.currentTimeMillis()
         val consultaId = sharedViewModel.consulta.value?.id ?: ""
-        Log.d("NavFlow", "EvaluacionesFinalesFragment: onViewCreated con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=$consultaId")
-        
+        Log.d(
+            "NavFlow",
+            "EvaluacionesFinalesFragment: onViewCreated con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=$consultaId"
+        )
+
         // Observar cambios en isHistoria desde el SharedViewModel
         sharedViewModel.isHistoria.observe(viewLifecycleOwner) { historiaValue ->
             if (isHistoria != historiaValue) {
                 isHistoria = historiaValue
-                Log.d("NavFlow", "EvaluacionesFinalesFragment: isHistoria actualizado desde SharedViewModel: $isHistoria")
+                Log.d(
+                    "NavFlow",
+                    "EvaluacionesFinalesFragment: isHistoria actualizado desde SharedViewModel: $isHistoria"
+                )
             }
         }
-        
+
         setupRecyclerView()
         setupListeners()
         setupObservers()
@@ -76,7 +86,7 @@ class EvaluacionesFinalesFragment : Fragment() {
         setupLocalViewModelObservers()
         setupDataLoadingObserver()
     }
-    
+
     /**
      * Configura los observadores del SharedViewModel para estado global
      */
@@ -109,14 +119,14 @@ class EvaluacionesFinalesFragment : Fragment() {
             } else {
                 habilitarCampos()
             }
-            
+
             // Actualizar el estado del adaptador cuando cambie el modo de consulta
             if (::diagnosticoAdapter.isInitialized) {
                 val isReadOnlyMode = isHistoria || mode == ModoConsulta.VER_CONSULTA
                 diagnosticoAdapter.updateReadOnlyMode(isReadOnlyMode)
             }
         }
-        
+
         // Evaluaciones antropométricas
         sharedViewModel.evaluacionesAntropometricas.observe(viewLifecycleOwner) { evaluaciones ->
             renderEvaluations(evaluaciones)
@@ -130,17 +140,18 @@ class EvaluacionesFinalesFragment : Fragment() {
             }
         }
     }
-    
+
     /**
      * Maneja la navegación de salida según el contexto
      */
     private fun handleNavigation() {
-        val destinationId = if (isHistoria && sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
-            val pacienteId = sharedViewModel.paciente.value?.id
-            if (pacienteId != null) R.id.historiaPacienteFragment else R.id.consultasFragment
-        } else {
-            R.id.consultasFragment
-        }
+        val destinationId =
+            if (isHistoria && sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
+                val pacienteId = sharedViewModel.paciente.value?.id
+                if (pacienteId != null) R.id.historiaPacienteFragment else R.id.consultasFragment
+            } else {
+                R.id.consultasFragment
+            }
         findNavController().popBackStack(destinationId, false)
     }
 
@@ -154,13 +165,13 @@ class EvaluacionesFinalesFragment : Fragment() {
                 Utils.mostrarSnackbar(binding.root, message)
             }
         }
-        
+
         // Diagnósticos seleccionados (actuales)
         viewModel.diagnosticosSeleccionados.observe(viewLifecycleOwner) { diagnosticos ->
             diagnosticoAdapter.submitList(diagnosticos)
             updateSinDatosVisibility()
         }
-        
+
         // Diagnósticos históricos
         viewModel.diagnosticosHistoricosRiesgo.observe(viewLifecycleOwner) { diagnosticosHistoricos ->
             // Historical diagnoses are now handled differently - they are part of the initial data
@@ -184,7 +195,7 @@ class EvaluacionesFinalesFragment : Fragment() {
             sharedViewModel.updateEvaluacionesAntropometricas(evaluaciones)
         }
     }
-    
+
     /**
      * Configura el observador para la carga inicial de datos
      */
@@ -192,7 +203,8 @@ class EvaluacionesFinalesFragment : Fragment() {
         // Orquestación de carga de datos
         sharedViewModel.paciente.observe(viewLifecycleOwner) { paciente ->
             if (paciente != null && !dataLoadedForUI) {
-                val consulta = sharedViewModel.consulta.value ?: sharedViewModel.consultaEditando.value
+                val consulta =
+                    sharedViewModel.consulta.value ?: sharedViewModel.consultaEditando.value
                 val detalleAntro = sharedViewModel.detalleAntropometrico.value
 
                 viewModel.loadInitialData(paciente, consulta?.id)
@@ -213,13 +225,16 @@ class EvaluacionesFinalesFragment : Fragment() {
             if (!puedeAgregarDiagnostico()) {
                 return@setOnClickListener
             }
-            
+
             // Obtenemos los diagnósticos disponibles desde el viewModel local
             val diagnosticosDisponibles = viewModel.diagnosticosDisponibles.value
             if (!diagnosticosDisponibles.isNullOrEmpty()) {
                 mostrarDialogoConDiagnosticos(diagnosticosDisponibles)
             } else {
-                Utils.mostrarSnackbar(binding.root, "No hay diagnósticos disponibles para este paciente.")
+                Utils.mostrarSnackbar(
+                    binding.root,
+                    "No hay diagnósticos disponibles para este paciente."
+                )
             }
         }
 
@@ -228,26 +243,36 @@ class EvaluacionesFinalesFragment : Fragment() {
         binding.btnRegistrarConsulta.setOnClickListener {
             if (sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA) {
                 val timestamp = System.currentTimeMillis()
-                val consultaId = sharedViewModel.consulta.value?.id ?: sharedViewModel.consultaEditando.value?.id ?: "desconocido"
-                
+                val consultaId =
+                    sharedViewModel.consulta.value?.id ?: sharedViewModel.consultaEditando.value?.id
+                    ?: "desconocido"
+
                 if (isHistoria) {
                     // Si viene de la historia del paciente, navegar de vuelta a HistoriaPacienteFragment
                     val pacienteId = sharedViewModel.paciente.value?.id
-                    Log.d("NavFlow", "EvaluacionesFinalesFragment: Saliendo hacia HistoriaPacienteFragment con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=$consultaId")
+                    Log.d(
+                        "NavFlow",
+                        "EvaluacionesFinalesFragment: Saliendo hacia HistoriaPacienteFragment con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=$consultaId"
+                    )
                     if (pacienteId != null) {
                         findNavController().popBackStack(R.id.historiaPacienteFragment, false)
                     } else {
                         findNavController().popBackStack(R.id.consultasFragment, false)
                     }
                 } else {
-                    Log.d("NavFlow", "EvaluacionesFinalesFragment: Saliendo hacia ConsultasFragment con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=$consultaId")
+                    Log.d(
+                        "NavFlow",
+                        "EvaluacionesFinalesFragment: Saliendo hacia ConsultasFragment con isHistoria=$isHistoria | timestamp=$timestamp | consultaId=$consultaId"
+                    )
                     findNavController().popBackStack(R.id.consultasFragment, false)
                 }
                 return@setOnClickListener
             }
 
             // 1. Obtener la lista de diagnósticos finales desde el viewModel local
-            val consultaId = sharedViewModel.consulta.value?.id ?: sharedViewModel.consultaEditando.value?.id ?: return@setOnClickListener
+            val consultaId =
+                sharedViewModel.consulta.value?.id ?: sharedViewModel.consultaEditando.value?.id
+                ?: return@setOnClickListener
             val diagnosticosFinales = viewModel.createDiagnosticosEntities(consultaId)
 
             // 2. Actualizar la lista de diagnósticos en el viewModel compartido
@@ -302,11 +327,14 @@ class EvaluacionesFinalesFragment : Fragment() {
                         binding.tiImcEdadPercentil.setText(formattedValue)
                     }
                 }
+
                 2 -> { // Circunferencia Cefálica/Edad
                     binding.contentCircunferenciaCefalicaEdad.visibility = View.VISIBLE
                     if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
                         binding.tiCircunferenciaCefalicaEdadZscore.setText(formattedValue)
-                        binding.tiDiagnosticoAntropometricoCircunferenciaCefalicaEdad.setText(evaluacion.diagnosticoAntropometrico)
+                        binding.tiDiagnosticoAntropometricoCircunferenciaCefalicaEdad.setText(
+                            evaluacion.diagnosticoAntropometrico
+                        )
                     } else if (evaluacion.tipoValorCalculado == TipoValorCalculado.PERCENTIL) {
                         binding.tiCircunferenciaCefalicaEdadPercentil.setText(formattedValue)
                     }
@@ -321,6 +349,7 @@ class EvaluacionesFinalesFragment : Fragment() {
                         binding.tiPesoAlturaPercentil.setText(formattedValue)
                     }
                 }
+
                 4 -> { // Peso/Edad
                     binding.contentPesoEdad.visibility = View.VISIBLE
                     if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
@@ -330,6 +359,7 @@ class EvaluacionesFinalesFragment : Fragment() {
                         binding.tiPesoEdadPercentil.setText(formattedValue)
                     }
                 }
+
                 5 -> { // Peso/Talla
                     binding.contentPesoTalla.visibility = View.VISIBLE
                     if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
@@ -339,6 +369,7 @@ class EvaluacionesFinalesFragment : Fragment() {
                         binding.tiPesoTallaPercentil.setText(formattedValue)
                     }
                 }
+
                 6 -> { // Talla/Edad
                     binding.contentTallaEdad.visibility = View.VISIBLE
                     if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
@@ -348,6 +379,7 @@ class EvaluacionesFinalesFragment : Fragment() {
                         binding.tiTallaEdadPercentil.setText(formattedValue)
                     }
                 }
+
                 7 -> { // Altura/Edad
                     binding.contentAlturaEdad.visibility = View.VISIBLE
                     if (evaluacion.tipoValorCalculado == TipoValorCalculado.Z_SCORE) {
@@ -357,6 +389,7 @@ class EvaluacionesFinalesFragment : Fragment() {
                         binding.tiAlturaEdadPercentil.setText(formattedValue)
                     }
                 }
+
                 8 -> { // IMC Adulto
                     binding.contentImc.visibility = View.VISIBLE
                     binding.tiImc.setText(formattedValue)
@@ -370,7 +403,8 @@ class EvaluacionesFinalesFragment : Fragment() {
 
     private fun onDiagnosticoClick(diagnostico: com.nutrizulia.presentation.viewmodel.consulta.DiagnosticoParaUI) {
         val nombreDiagnostico = diagnostico.nombreCompleto
-        Utils.mostrarDialog(requireContext(), "Eliminar Diagnóstico",
+        Utils.mostrarDialog(
+            requireContext(), "Eliminar Diagnóstico",
             "¿Desea eliminar el Diagnóstico $nombreDiagnostico?", "Sí", "No",
             { viewModel.eliminarDiagnostico(diagnostico) }, { }, true
         )
@@ -378,8 +412,9 @@ class EvaluacionesFinalesFragment : Fragment() {
 
     private fun setupRecyclerView() {
         // Determinar si está en modo de solo lectura basado en isHistoria o VER_CONSULTA
-        val isReadOnlyMode = isHistoria || sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA
-        
+        val isReadOnlyMode =
+            isHistoria || sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA
+
         diagnosticoAdapter = RiesgoBiologicoAdapter(
             onEliminarClick = { diagnostico -> onDiagnosticoClick(diagnostico) },
             isReadOnlyMode = isReadOnlyMode
@@ -394,14 +429,15 @@ class EvaluacionesFinalesFragment : Fragment() {
             diagnosticoAdapter.submitList(diagnosticos)
         }
     }
-    
+
     private fun updateSinDatosVisibility() {
         val diagnosticosActuales = viewModel.diagnosticosSeleccionados.value ?: emptyList()
         val diagnosticosHistoricos = viewModel.diagnosticosHistoricosRiesgo.value ?: emptyList()
         val totalDiagnosticos = diagnosticosActuales.size + diagnosticosHistoricos.size
-        
+
         binding.tvSinDatos.visibility = if (totalDiagnosticos == 0) View.VISIBLE else View.GONE
-        binding.tvInfoDiagnosticos.visibility = if (diagnosticosHistoricos.isNotEmpty()) View.VISIBLE else View.GONE
+        binding.tvInfoDiagnosticos.visibility =
+            if (diagnosticosHistoricos.isNotEmpty()) View.VISIBLE else View.GONE
     }
 
     /**
@@ -413,17 +449,25 @@ class EvaluacionesFinalesFragment : Fragment() {
                 Utils.mostrarSnackbar(binding.root, "No se ha seleccionado un paciente")
                 false
             }
+
             sharedViewModel.modoConsulta.value == ModoConsulta.VER_CONSULTA -> {
-                Utils.mostrarSnackbar(binding.root, "No se pueden agregar diagnósticos en modo consulta")
+                Utils.mostrarSnackbar(
+                    binding.root,
+                    "No se pueden agregar diagnósticos en modo consulta"
+                )
                 false
             }
+
             else -> {
                 val esPrimeraConsulta = viewModel.esPrimeraConsulta.value ?: false
                 val tieneDiagnosticoPrincipal = viewModel.tieneDiagnosticoPrincipal.value ?: false
                 val diagnosticosActuales = viewModel.diagnosticosSeleccionados.value ?: emptyList()
-                
+
                 if (esPrimeraConsulta && tieneDiagnosticoPrincipal && diagnosticosActuales.isNotEmpty()) {
-                    Utils.mostrarSnackbar(binding.root, "En primera consulta solo se permite un diagnóstico principal.")
+                    Utils.mostrarSnackbar(
+                        binding.root,
+                        "En primera consulta solo se permite un diagnóstico principal."
+                    )
                     false
                 } else {
                     true
@@ -447,9 +491,10 @@ class EvaluacionesFinalesFragment : Fragment() {
         binding.btnLimpiar.visibility = View.GONE
         binding.btnAgregarDiagnostico.visibility = View.GONE
         binding.btnRegistrarConsulta.setText("Salir")
-        binding.btnRegistrarConsulta.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_atras)
+        binding.btnRegistrarConsulta.icon =
+            ContextCompat.getDrawable(requireContext(), R.drawable.ic_atras)
     }
-    
+
     private fun setCamposEnabled(enabled: Boolean) {
         binding.tfObservaciones.editText?.isEnabled = enabled
         binding.tfPlanes.editText?.isEnabled = enabled
@@ -463,41 +508,45 @@ class EvaluacionesFinalesFragment : Fragment() {
     private fun mostrarDialogoConDiagnosticos(diagnosticosDisponibles: List<RiesgoBiologico>) {
         val nombresDiagnosticos = diagnosticosDisponibles.map { it.nombre }.toTypedArray()
         val diagnosticosSeleccionados = mutableSetOf<Int>()
-        
+
         val titulo = obtenerTituloDialogo()
-        
-        crearDialogoDiagnosticos(nombresDiagnosticos, titulo, diagnosticosSeleccionados) { indices ->
+
+        crearDialogoDiagnosticos(
+            nombresDiagnosticos,
+            titulo,
+            diagnosticosSeleccionados
+        ) { indices ->
             procesarDiagnosticosSeleccionados(diagnosticosDisponibles, indices)
         }
     }
-    
+
     private fun obtenerTituloDialogo(): String {
         val esPrimeraConsulta = viewModel.esPrimeraConsulta.value ?: false
         val tieneDiagnosticoPrincipal = viewModel.tieneDiagnosticoPrincipal.value ?: false
-        
+
         return when {
             esPrimeraConsulta && !tieneDiagnosticoPrincipal -> "Seleccionar Diagnóstico Principal"
             esPrimeraConsulta && tieneDiagnosticoPrincipal -> "Seleccionar Diagnósticos Adicionales"
             else -> "Seleccionar Diagnósticos Adicionales"
         }
     }
-    
+
     private fun crearDialogoDiagnosticos(
         nombresDiagnosticos: Array<String>,
         titulo: String,
         diagnosticosSeleccionados: MutableSet<Int>,
         onConfirmar: (Set<Int>) -> Unit
     ) {
+        val preseleccion = diagnosticosSeleccionados.firstOrNull() ?: -1
+        var seleccionado = preseleccion
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(titulo)
-            .setMultiChoiceItems(nombresDiagnosticos, null) { _, which, isChecked ->
-                if (isChecked) {
-                    diagnosticosSeleccionados.add(which)
-                } else {
-                    diagnosticosSeleccionados.remove(which)
-                }
+            .setSingleChoiceItems(nombresDiagnosticos, preseleccion) { _, which ->
+                seleccionado = which
             }
             .setPositiveButton("Agregar") { _, _ ->
+                diagnosticosSeleccionados.clear()
+                if (seleccionado >= 0) diagnosticosSeleccionados.add(seleccionado)
                 onConfirmar(diagnosticosSeleccionados)
             }
             .setNegativeButton("Cancelar") { dialog, _ ->
@@ -505,14 +554,14 @@ class EvaluacionesFinalesFragment : Fragment() {
             }
             .show()
     }
-    
+
     private fun procesarDiagnosticosSeleccionados(
         diagnosticosDisponibles: List<RiesgoBiologico>,
         indices: Set<Int>
     ) {
         indices.forEach { index ->
             val diagnosticoSeleccionado = diagnosticosDisponibles[index]
-            
+
             if (esDiagnosticoOtros(diagnosticoSeleccionado)) {
                 mostrarDialogoSeleccionEnfermedad(diagnosticoSeleccionado)
             } else {
@@ -520,7 +569,7 @@ class EvaluacionesFinalesFragment : Fragment() {
             }
         }
     }
-    
+
     private fun esDiagnosticoOtros(diagnostico: RiesgoBiologico): Boolean {
         return diagnostico.nombre.uppercase().contains("OTROS")
     }
@@ -528,83 +577,77 @@ class EvaluacionesFinalesFragment : Fragment() {
     private fun mostrarDialogoSeleccionEnfermedad(diagnosticoOtros: RiesgoBiologico) {
         val dialogView = crearVistaDialogoEnfermedad()
         val autoCompleteTextView = dialogView.findViewWithTag<AutoCompleteTextView>("autocomplete")
-        
-        val enfermedadSeleccionada = configurarSeleccionEnfermedad(autoCompleteTextView)
-        
+
+        val enfermedadSeleccionada =
+            configurarSeleccionEnfermedad(autoCompleteTextView, diagnosticoOtros)
+
         crearDialogoSeleccionEnfermedad(diagnosticoOtros, dialogView, enfermedadSeleccionada)
     }
-    
-    private fun crearVistaDialogoEnfermedad(): android.widget.LinearLayout {
-        val linearLayout = android.widget.LinearLayout(requireContext()).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
-        }
-        
-        val textInputLayout = TextInputLayout(requireContext()).apply {
-            hint = "Buscar enfermedad..."
-            boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
-        }
-        
-        val autoCompleteTextView = AutoCompleteTextView(requireContext()).apply {
-            threshold = 1
-            setDropDownBackgroundResource(android.R.color.white)
-            tag = "autocomplete"
-        }
-        
-        textInputLayout.addView(autoCompleteTextView)
-        linearLayout.addView(textInputLayout)
-        
-        return linearLayout
-    }
-    
-    private fun configurarSeleccionEnfermedad(autoCompleteTextView: AutoCompleteTextView): Array<Enfermedad?> {
+
+    private fun configurarSeleccionEnfermedad(
+        autoCompleteTextView: AutoCompleteTextView,
+        riesgoBiologico: RiesgoBiologico
+    ): Array<Enfermedad?> {
         val enfermedadSeleccionada = arrayOf<Enfermedad?>(null)
-        
+        val enfermedadesFiltradas = mutableListOf<Enfermedad>()
+
         // Cargar enfermedades iniciales
         viewModel.loadEnfermedades()
-        
-        // Configurar adaptador y observador
-        configurarAdaptadorEnfermedades(autoCompleteTextView)
+
+        // Configurar adaptador y observador con filtro por riesgo
+        configurarAdaptadorEnfermedades(
+            autoCompleteTextView,
+            riesgoBiologico,
+            enfermedadesFiltradas
+        )
         configurarFiltroEnfermedades(autoCompleteTextView)
-        configurarSeleccionItem(autoCompleteTextView, enfermedadSeleccionada)
-        
+        configurarSeleccionItem(autoCompleteTextView, enfermedadesFiltradas, enfermedadSeleccionada)
+
         return enfermedadSeleccionada
     }
-    
-    private fun configurarAdaptadorEnfermedades(autoCompleteTextView: AutoCompleteTextView) {
+
+    private fun configurarAdaptadorEnfermedades(
+        autoCompleteTextView: AutoCompleteTextView,
+        riesgoBiologico: RiesgoBiologico,
+        enfermedadesFiltradas: MutableList<Enfermedad>
+    ) {
         viewModel.enfermedadesDisponibles.observe(viewLifecycleOwner) { enfermedades ->
-            val nombresEnfermedades = enfermedades.map { "${it.nombre} (${it.codigoInternacional})" }
-            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombresEnfermedades)
+            // Excluir enfermedades ya seleccionadas para el mismo riesgo
+            val seleccionadosMismoRiesgo = viewModel.diagnosticosSeleccionados.value.orEmpty()
+                .filter { it.riesgoBiologico.id == riesgoBiologico.id && it.enfermedad != null }
+                .mapNotNull { it.enfermedad?.id }
+                .toSet()
+            val listaFiltrada = enfermedades.filter { it.id !in seleccionadosMismoRiesgo }
+
+            enfermedadesFiltradas.clear()
+            enfermedadesFiltradas.addAll(listaFiltrada)
+
+            val nombresEnfermedades =
+                listaFiltrada.map { "${it.nombre} (${it.codigoInternacional})" }
+            val adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                nombresEnfermedades
+            )
             autoCompleteTextView.setAdapter(adapter)
         }
     }
-    
-    private fun configurarFiltroEnfermedades(autoCompleteTextView: AutoCompleteTextView) {
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                val filtro = s?.toString() ?: ""
-                if (filtro.length >= 1) {
-                    viewModel.loadEnfermedades(filtro)
-                }
-            }
-        }
-        autoCompleteTextView.addTextChangedListener(textWatcher)
-    }
-    
-    private fun configurarSeleccionItem(autoCompleteTextView: AutoCompleteTextView, enfermedadSeleccionada: Array<Enfermedad?>) {
+
+    private fun configurarSeleccionItem(
+        autoCompleteTextView: AutoCompleteTextView,
+        enfermedadesFiltradas: MutableList<Enfermedad>,
+        enfermedadSeleccionada: Array<Enfermedad?>
+    ) {
         autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
-            val enfermedades = viewModel.enfermedadesDisponibles.value ?: emptyList()
-            if (position < enfermedades.size) {
-                enfermedadSeleccionada[0] = enfermedades[position]
+            if (position < enfermedadesFiltradas.size) {
+                enfermedadSeleccionada[0] = enfermedadesFiltradas[position]
             }
         }
     }
-    
+
     private fun crearDialogoSeleccionEnfermedad(
-        diagnosticoOtros: RiesgoBiologico, 
-        dialogView: android.widget.LinearLayout, 
+        diagnosticoOtros: RiesgoBiologico,
+        dialogView: android.widget.LinearLayout,
         enfermedadSeleccionada: Array<Enfermedad?>
     ) {
         MaterialAlertDialogBuilder(requireContext())
@@ -619,13 +662,78 @@ class EvaluacionesFinalesFragment : Fragment() {
             }
             .show()
     }
-    
-    private fun procesarSeleccionEnfermedad(diagnosticoOtros: RiesgoBiologico, enfermedad: Enfermedad?) {
+
+    private fun procesarSeleccionEnfermedad(
+        diagnosticoOtros: RiesgoBiologico,
+        enfermedad: Enfermedad?
+    ) {
         enfermedad?.let {
             viewModel.agregarDiagnosticoConEnfermedad(diagnosticoOtros, it)
-            Utils.mostrarSnackbar(binding.root, "Diagnóstico agregado: ${diagnosticoOtros.nombre} - ${it.nombre}")
+            Utils.mostrarSnackbar(
+                binding.root,
+                "Diagnóstico agregado: ${diagnosticoOtros.nombre} - ${it.nombre}"
+            )
         } ?: run {
             Utils.mostrarSnackbar(binding.root, "Debe seleccionar una enfermedad específica")
         }
+    }
+
+    private fun crearVistaDialogoEnfermedad(): android.widget.LinearLayout {
+        val linearLayout = android.widget.LinearLayout(requireContext()).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 24)
+        }
+
+        val textInputLayout =
+            com.google.android.material.textfield.TextInputLayout(requireContext()).apply {
+                hint = "Buscar enfermedad..."
+                boxBackgroundMode =
+                    com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE
+            }
+
+        val autoCompleteTextView =
+            com.google.android.material.textfield.MaterialAutoCompleteTextView(requireContext())
+                .apply {
+                    threshold = 1
+                    val typedValue = android.util.TypedValue()
+                    requireContext().theme.resolveAttribute(
+                        com.google.android.material.R.attr.colorSurface,
+                        typedValue,
+                        true
+                    )
+                    val surfaceColor = if (typedValue.resourceId != 0) {
+                        androidx.core.content.ContextCompat.getColor(
+                            requireContext(),
+                            typedValue.resourceId
+                        )
+                    } else {
+                        typedValue.data
+                    }
+                    setDropDownBackgroundDrawable(
+                        android.graphics.drawable.ColorDrawable(
+                            surfaceColor
+                        )
+                    )
+                    tag = "autocomplete"
+                }
+
+        textInputLayout.addView(autoCompleteTextView)
+        linearLayout.addView(textInputLayout)
+
+        return linearLayout
+    }
+
+    private fun configurarFiltroEnfermedades(autoCompleteTextView: android.widget.AutoCompleteTextView) {
+        val textWatcher = object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val filtro = s?.toString() ?: ""
+                if (filtro.length >= 1) {
+                    viewModel.loadEnfermedades(filtro)
+                }
+            }
+        }
+        autoCompleteTextView.addTextChangedListener(textWatcher)
     }
 }

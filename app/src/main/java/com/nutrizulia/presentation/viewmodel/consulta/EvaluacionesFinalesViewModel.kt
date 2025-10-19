@@ -190,15 +190,15 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         val diagnosticosIniciales = _diagnosticosIniciales.value.orEmpty()
         val catalogo = _diagnosticosDisponibles.value.orEmpty()
         val enfermedades = _enfermedadesDisponibles.value.orEmpty()
+        val existentesUI = _diagnosticosSeleccionados.value.orEmpty()
         
-        val diagnosticosSeleccionados = diagnosticosIniciales
-            .mapNotNull { diagnostico -> 
+        val mapeadosIniciales = diagnosticosIniciales
+            .mapNotNull { diagnostico ->
                 val riesgoBiologico = catalogo.find { it.id == diagnostico.riesgoBiologicoId }
                 if (riesgoBiologico != null) {
                     val enfermedad = if (diagnostico.enfermedadId != null) {
                         enfermedades.find { it.id == diagnostico.enfermedadId }
                     } else null
-                    
                     DiagnosticoParaUI(
                         riesgoBiologico = riesgoBiologico,
                         enfermedad = enfermedad,
@@ -207,9 +207,19 @@ class EvaluacionesFinalesViewModel @Inject constructor(
                 } else null
             }
         
-        _diagnosticosSeleccionados.value = diagnosticosSeleccionados
+        val combinados = mapeadosIniciales.toMutableList()
+        existentesUI.forEach { existente ->
+            val yaExiste = combinados.any {
+                it.riesgoBiologico.id == existente.riesgoBiologico.id &&
+                (it.enfermedad?.id ?: -1) == (existente.enfermedad?.id ?: -1)
+            }
+            if (!yaExiste) {
+                combinados.add(existente)
+            }
+        }
         
-        // Verificar si ya existe un diagnóstico principal
+        _diagnosticosSeleccionados.value = combinados
+        
         val tieneDiagnosticoPrincipal = diagnosticosIniciales.any { it.isPrincipal }
         _tieneDiagnosticoPrincipal.value = tieneDiagnosticoPrincipal
     }
@@ -243,12 +253,7 @@ class EvaluacionesFinalesViewModel @Inject constructor(
      */
     fun agregarDiagnostico(diagnostico: RiesgoBiologico) {
         // Validar que no sea duplicado
-        if (esDiagnosticoDuplicado(diagnostico)) {
-            return
-        }
-        
-        // Validar reglas de primera consulta
-        if (!puedeAgregarDiagnostico()) {
+        if (esDiagnosticoDuplicado(diagnostico, null)) {
             return
         }
         
@@ -264,12 +269,7 @@ class EvaluacionesFinalesViewModel @Inject constructor(
      */
     fun agregarDiagnosticoConEnfermedad(riesgoBiologico: RiesgoBiologico, enfermedad: Enfermedad) {
         // Validar que no sea duplicado
-        if (esDiagnosticoDuplicado(riesgoBiologico)) {
-            return
-        }
-        
-        // Validar reglas de primera consulta
-        if (!puedeAgregarDiagnostico()) {
+        if (esDiagnosticoDuplicado(riesgoBiologico, enfermedad)) {
             return
         }
         
@@ -285,53 +285,39 @@ class EvaluacionesFinalesViewModel @Inject constructor(
         actualizarEstadoDiagnosticoPrincipal()
     }
     
-    companion object {
-        private const val DIAGNOSTICO_OTROS_KEYWORD = "OTROS"
-        private const val FILTRO_MINIMO_CARACTERES = 1
-        private const val MAX_DIAGNOSTICOS_ADICIONALES = 5
-    }
-    
-    /**
-     * Valida si se puede agregar un nuevo diagnóstico
-     */
-    private fun puedeAgregarDiagnostico(): Boolean {
-        val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty()
-        val esPrimera = _esPrimeraConsulta.value ?: false
-        val tienePrincipal = _tieneDiagnosticoPrincipal.value ?: false
-        
-        return when {
-            !esPrimera -> true // En consultas de seguimiento siempre se pueden agregar
-            !tienePrincipal -> true // En primera consulta sin diagnóstico principal
-            diagnosticosActuales.size < MAX_DIAGNOSTICOS_ADICIONALES -> true // Límite de diagnósticos adicionales
-            else -> {
-                _mensaje.value = "No se pueden agregar más diagnósticos adicionales (máximo $MAX_DIAGNOSTICOS_ADICIONALES)"
-                false
-            }
-        }
-    }
-    
-    /**
-     * Valida si un diagnóstico ya está seleccionado (actual o histórico)
-     */
-    private fun esDiagnosticoDuplicado(diagnostico: RiesgoBiologico): Boolean {
+    private fun esDiagnosticoDuplicado(riesgo: RiesgoBiologico, enfermedad: Enfermedad?): Boolean {
         val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty()
         val diagnosticosHistoricos = _diagnosticosHistoricosRiesgo.value.orEmpty()
         
-        val existeEnActuales = diagnosticosActuales.any { it.riesgoBiologico.id == diagnostico.id }
-        val existeEnHistoricos = diagnosticosHistoricos.any { it.id == diagnostico.id }
+        val existeEnActuales = diagnosticosActuales.any { 
+            it.riesgoBiologico.id == riesgo.id &&
+            (it.enfermedad?.id ?: -1) == (enfermedad?.id ?: -1)
+        }
+        
+        val existeEnHistoricos = if (enfermedad == null) {
+            diagnosticosHistoricos.any { it.id == riesgo.id }
+        } else {
+            false
+        }
         
         val esDuplicado = existeEnActuales || existeEnHistoricos
         
         if (esDuplicado) {
-            mostrarMensajeDiagnosticoDuplicado(diagnostico, existeEnActuales)
+            mostrarMensajeDiagnosticoDuplicado(riesgo, existeEnActuales, enfermedad)
         }
         
         return esDuplicado
     }
     
-    private fun mostrarMensajeDiagnosticoDuplicado(diagnostico: RiesgoBiologico, existeEnActuales: Boolean) {
+    // Compatibilidad
+    private fun esDiagnosticoDuplicado(diagnostico: RiesgoBiologico): Boolean {
+        return esDiagnosticoDuplicado(diagnostico, null)
+    }
+    
+    private fun mostrarMensajeDiagnosticoDuplicado(diagnostico: RiesgoBiologico, existeEnActuales: Boolean, enfermedad: Enfermedad?) {
+        val detalle = enfermedad?.let { " - ${it.nombre}" } ?: ""
         val tipoExistente = if (existeEnActuales) "actual" else "histórico"
-        _mensaje.value = "El diagnóstico '${diagnostico.nombre}' ya está registrado como $tipoExistente para este paciente"
+        _mensaje.value = "El diagnóstico '${diagnostico.nombre}${detalle}' ya está registrado como ${tipoExistente} para este paciente"
     }
 
     /**
@@ -339,7 +325,10 @@ class EvaluacionesFinalesViewModel @Inject constructor(
      */
     fun eliminarDiagnostico(diagnostico: DiagnosticoParaUI) {
         val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty().toMutableList()
-        diagnosticosActuales.removeAll { it.riesgoBiologico.id == diagnostico.riesgoBiologico.id }
+        diagnosticosActuales.removeAll { 
+            it.riesgoBiologico.id == diagnostico.riesgoBiologico.id &&
+            (it.enfermedad?.id ?: -1) == (diagnostico.enfermedad?.id ?: -1)
+        }
         _diagnosticosSeleccionados.value = diagnosticosActuales
         
         actualizarEstadoDiagnosticoPrincipal()
@@ -350,7 +339,10 @@ class EvaluacionesFinalesViewModel @Inject constructor(
      */
     fun eliminarDiagnostico(diagnostico: RiesgoBiologico) {
         val diagnosticosActuales = _diagnosticosSeleccionados.value.orEmpty().toMutableList()
-        diagnosticosActuales.removeAll { it.riesgoBiologico.id == diagnostico.id }
+        // Solo elimina diagnósticos sin enfermedad asociada del mismo riesgo
+        diagnosticosActuales.removeAll { 
+            it.riesgoBiologico.id == diagnostico.id && it.enfermedad == null
+        }
         _diagnosticosSeleccionados.value = diagnosticosActuales
         
         actualizarEstadoDiagnosticoPrincipal()
