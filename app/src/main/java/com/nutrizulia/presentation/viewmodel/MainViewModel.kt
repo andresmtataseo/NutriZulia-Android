@@ -10,6 +10,7 @@ import com.nutrizulia.domain.usecase.user.GetPerfilesInstitucionales
 import com.nutrizulia.domain.usecase.user.GetPerfilesResult // ✅ 1. Importar el sealed class
 import com.nutrizulia.domain.usecase.user.GetUserDetails
 import com.nutrizulia.util.SessionManager
+import com.nutrizulia.util.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
@@ -21,7 +22,8 @@ class MainViewModel @Inject constructor(
     private val logoutUseCase: LogoutUseCase,
     private val getPerfilesInstitucionales: GetPerfilesInstitucionales,
     private val getUserDetails: GetUserDetails,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _logoutComplete = MutableLiveData<Boolean>()
@@ -78,6 +80,13 @@ class MainViewModel @Inject constructor(
     private fun loadHeaderData() {
         viewModelScope.launch {
             try {
+                // Evitar cargar si no hay token (usuario desconectado)
+                val token = tokenManager.getToken()
+                if (token.isNullOrEmpty()) {
+                    Log.d("MainViewModel", "Token vacío; omitimos carga de header.")
+                    return@launch
+                }
+
                 when (val result = getPerfilesInstitucionales()) {
                     is GetPerfilesResult.Success -> {
                         val currentInstitutionId = sessionManager.currentInstitutionIdFlow.firstOrNull()
@@ -119,9 +128,28 @@ class MainViewModel @Inject constructor(
     }
 
     fun logout() {
+        // Notificar inmediatamente al UI y limpiar local
+        _logoutComplete.postValue(true)
         viewModelScope.launch {
-            logoutUseCase()
-            _logoutComplete.postValue(true)
+            try {
+                tokenManager.clearToken()
+            } catch (e: Exception) {
+                Log.w("MainViewModel", "No se pudo limpiar token local: ${e.message}", e)
+            }
+
+            try {
+                sessionManager.clearCurrentInstitution()
+            } catch (e: Exception) {
+                Log.w("MainViewModel", "No se pudo limpiar institución local: ${e.message}", e)
+            }
+
+            // Ejecutar logout del servidor en segundo plano (no bloquea la UI)
+            try {
+                logoutUseCase()
+                Log.d("MainViewModel", "Logout en servidor ejecutado.")
+            } catch (e: Exception) {
+                Log.w("MainViewModel", "Fallo logout en servidor; UI ya desconectada: ${e.message}")
+            }
         }
     }
 }
