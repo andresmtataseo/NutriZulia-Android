@@ -14,6 +14,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.nutrizulia.R
 import com.nutrizulia.databinding.FragmentSyncBatchBinding
 import com.nutrizulia.presentation.viewmodel.SyncBatchViewModel
+import com.nutrizulia.presentation.viewmodel.CatalogSyncViewModel
+import com.nutrizulia.presentation.viewmodel.DataSyncViewModel
 import com.nutrizulia.util.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -25,6 +27,8 @@ class SyncBatchFragment : Fragment() {
     private val binding get() = _binding ?: throw IllegalStateException("Fragment binding is null")
 
     private val viewModel: SyncBatchViewModel by viewModels()
+    private val catalogViewModel: CatalogSyncViewModel by viewModels()
+    private val dataViewModel: DataSyncViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +52,7 @@ class SyncBatchFragment : Fragment() {
             // Activar estado de carga inmediatamente para cubrir verificación de autenticación
             binding.cardSyncButton.isEnabled = false
             binding.tvSyncTitle.text = "Verificando sesión..."
+            binding.tvSyncSubtitle.text = "Validando autenticación y permisos"
             binding.progressBarSync.visibility = View.VISIBLE
 
             viewModel.iniciarSincronizacion()
@@ -83,11 +88,17 @@ class SyncBatchFragment : Fragment() {
             onSyncError(message, details)
         }
 
+        // Tras finalizar la sincronización de datos, proceder con sincronización de catálogos
+        viewModel.onProceedCatalogSync = {
+            startCatalogSync()
+        }
+
         // Mostrar diálogo de sesión expirada/invalidada
         viewModel.onShowAuthExpiredDialog = dialogCallback@ { title, message ->
             if (_binding == null || !isAdded) return@dialogCallback
             // Restaurar UI al finalizar la verificación con sesión inválida
             restoreUI()
+            binding.tvSyncSubtitle.text = "Sesión expirada o inválida"
             Utils.mostrarDialog(
                 requireContext(),
                 title,
@@ -120,9 +131,10 @@ class SyncBatchFragment : Fragment() {
         // Deshabilitar botón del encabezado y mostrar progreso
         binding.cardSyncButton.isEnabled = false
         binding.tvSyncTitle.text = "Sincronizando..."
+        binding.tvSyncSubtitle.text = message
         binding.progressBarSync.visibility = View.VISIBLE
-        // Mostrar mensaje de inicio
-        showInfoMessage(message)
+        // Evitar snackbar duplicado con el mismo mensaje del subtítulo
+        // (Removemos el uso de showInfoMessage aquí para no duplicar)
     }
 
     /**
@@ -140,20 +152,18 @@ class SyncBatchFragment : Fragment() {
             return
         }
         
-        // Restaurar UI
-        restoreUI()
-
-        // Mostrar mensaje de éxito
+        // NO restaurar UI aquí para continuar con la actualización de catálogos
+        // Mensaje de éxito
         val fullMessage = if (totalProcessed > 0) {
             "$message\n$successCount registros sincronizados correctamente"
         } else {
-            message
+            "Sincronización de datos del usuario completada"
         }
-
-        showSuccessMessage(fullMessage)
+        binding.tvSyncSubtitle.text = fullMessage
 
         // Mostrar reporte detallado en log o dialog si es necesario
         showDetailedReport("Sincronización Exitosa", detailedReport)
+        // El ViewModel disparará startCatalogSync() mediante onProceedCatalogSync
     }
 
     /**
@@ -172,18 +182,17 @@ class SyncBatchFragment : Fragment() {
             return
         }
         
-        // Restaurar UI
-        restoreUI()
-
-        // Mostrar mensaje de advertencia
+        // NO restaurar UI aquí para continuar con la actualización de catálogos
         val fullMessage = "$message\n" +
                 "✅ $successCount exitosos, ❌ $failureCount fallidos de $totalProcessed total\n" +
                 "Los registros fallidos se reintentarán en la próxima sincronización"
-
-        showWarningMessage(fullMessage)
+        binding.tvSyncSubtitle.text = fullMessage
 
         // Mostrar reporte detallado
         showDetailedReport("Sincronización Parcial", detailedReport)
+        // Para evitar duplicar mensajes, mostramos un snackbar conciso distinto al subtítulo
+        showWarningMessage("Algunos registros fallaron; se reintentarán automáticamente.")
+        // El ViewModel disparará startCatalogSync() mediante onProceedCatalogSync
     }
 
     /**
@@ -199,7 +208,8 @@ class SyncBatchFragment : Fragment() {
         // Restaurar UI
         restoreUI()
 
-        // Mostrar mensaje de error
+        // Mensaje de error y subtítulo
+        binding.tvSyncSubtitle.text = message
         val fullMessage = if (details != null) {
             "$message\n$details"
         } else {
@@ -207,6 +217,66 @@ class SyncBatchFragment : Fragment() {
         }
 
         showErrorMessage(fullMessage)
+    }
+
+    /**
+     * Lanza la sincronización de catálogos manteniendo el estado de carga
+     */
+    private fun startCatalogSync() {
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Fragment not in valid state, skipping catalog sync")
+            return
+        }
+
+        binding.tvSyncTitle.text = "Actualizando catálogos..."
+        binding.tvSyncSubtitle.text = "Sincronizando catálogos de la aplicación"
+        binding.progressBarSync.visibility = View.VISIBLE
+        binding.cardSyncButton.isEnabled = false
+
+        catalogViewModel.syncCatalogsAsync { success ->
+            if (!isAdded || _binding == null) return@syncCatalogsAsync
+
+            if (success) {
+                binding.tvSyncSubtitle.text = "Catálogos actualizados correctamente"
+                showSuccessMessage("Catálogos actualizados correctamente")
+            } else {
+                val errorMsg = catalogViewModel.getCurrentErrorMessage() ?: "Error al actualizar catálogos"
+                binding.tvSyncSubtitle.text = errorMsg
+                showErrorMessage(errorMsg)
+            }
+            // Al finalizar la actualización de catálogos, encadenar sincronización de datos del usuario
+            startDataSync()
+        }
+    }
+
+    /**
+     * Lanza la sincronización de datos del usuario manteniendo el estado de carga
+     */
+    private fun startDataSync() {
+        if (_binding == null || !isAdded) {
+            Log.w("SyncBatchFragment", "Fragment not in valid state, skipping data sync")
+            return
+        }
+
+        binding.tvSyncTitle.text = "Actualizando datos del usuario..."
+        binding.tvSyncSubtitle.text = "Sincronizando datos del usuario"
+        binding.progressBarSync.visibility = View.VISIBLE
+        binding.cardSyncButton.isEnabled = false
+
+        dataViewModel.syncUserDataAsync { success ->
+            if (!isAdded || _binding == null) return@syncUserDataAsync
+
+            if (success) {
+                binding.tvSyncSubtitle.text = "Datos del usuario actualizados correctamente"
+                showSuccessMessage("Datos del usuario actualizados correctamente")
+            } else {
+                val errorMsg = dataViewModel.getCurrentErrorMessage() ?: "Error al actualizar datos del usuario"
+                binding.tvSyncSubtitle.text = errorMsg
+                showErrorMessage(errorMsg)
+            }
+            // Al finalizar la sincronización de datos del usuario, restaurar la UI
+            restoreUI()
+        }
     }
 
     /**
@@ -224,6 +294,14 @@ class SyncBatchFragment : Fragment() {
         binding.progressBarSync.visibility = View.GONE
     }
 
+    private fun isDuplicateWithUi(message: String): Boolean {
+        if (_binding == null) return false
+        val title = binding.tvSyncTitle.text?.toString()?.trim() ?: ""
+        val subtitle = binding.tvSyncSubtitle.text?.toString()?.trim() ?: ""
+        val m = message.trim()
+        return m.equals(title, ignoreCase = true) || m.equals(subtitle, ignoreCase = true)
+    }
+
     /**
      * Muestra mensaje de información (azul)
      */
@@ -232,6 +310,7 @@ class SyncBatchFragment : Fragment() {
             Log.w("SyncBatchFragment", "Cannot show info message, Fragment not in valid state")
             return
         }
+        if (isDuplicateWithUi(message)) return
         
         val snackbar = com.google.android.material.snackbar.Snackbar.make(binding.root, message, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
@@ -248,6 +327,7 @@ class SyncBatchFragment : Fragment() {
             Log.w("SyncBatchFragment", "Cannot show success message, Fragment not in valid state")
             return
         }
+        if (isDuplicateWithUi(message)) return
         
         val snackbar = com.google.android.material.snackbar.Snackbar.make(binding.root, message, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
@@ -264,6 +344,7 @@ class SyncBatchFragment : Fragment() {
             Log.w("SyncBatchFragment", "Cannot show warning message, Fragment not in valid state")
             return
         }
+        if (isDuplicateWithUi(message)) return
         
         val snackbar = com.google.android.material.snackbar.Snackbar.make(binding.root, message, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(
@@ -280,6 +361,7 @@ class SyncBatchFragment : Fragment() {
             Log.w("SyncBatchFragment", "Cannot show error message, Fragment not in valid state")
             return
         }
+        if (isDuplicateWithUi(message)) return
         
         val snackbar = com.google.android.material.snackbar.Snackbar.make(binding.root, message, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
         snackbar.view.setBackgroundColor(

@@ -37,6 +37,8 @@ class SyncBatchViewModel @Inject constructor(
     var onSyncError: ((message: String, details: String?) -> Unit)? = null
     // Callback para solicitar mostrar un diálogo de sesión expirada desde la UI usando Utils.mostrarDialog
     var onShowAuthExpiredDialog: ((title: String, message: String) -> Unit)? = null
+    // Callback para proceder a actualización de catálogos tras sincronización de datos
+    var onProceedCatalogSync: (() -> Unit)? = null
 
     init {
         loadPendingRecords()
@@ -107,6 +109,8 @@ class SyncBatchViewModel @Inject constructor(
                             "No hay registros pendientes de sincronización",
                             "Todas las tablas están actualizadas."
                         )
+                        // Luego de sincronización de datos, proceder con actualización de catálogos
+                        onProceedCatalogSync?.invoke()
                     }
                     totalFailure == 0 && totalSuccess > 0 -> {
                         // Éxito completo
@@ -117,6 +121,8 @@ class SyncBatchViewModel @Inject constructor(
                         )
                         // Recargar contadores después del éxito
                         loadPendingRecords()
+                        // Luego de sincronización de datos, proceder con actualización de catálogos
+                        onProceedCatalogSync?.invoke()
                     }
                     totalSuccess > 0 && totalFailure > 0 -> {
                         // Éxito parcial
@@ -127,11 +133,14 @@ class SyncBatchViewModel @Inject constructor(
                         )
                         // Recargar contadores después del éxito parcial
                         loadPendingRecords()
+                        // Luego de sincronización de datos, proceder con actualización de catálogos
+                        onProceedCatalogSync?.invoke()
                     }
                     else -> {
                         // Error completo
                         val errorInfo = analyzeErrors(results)
                         onSyncError?.invoke(errorInfo.first, errorInfo.second)
+                        // En caso de error, no proceder con actualización de catálogos
                     }
                 }
                 

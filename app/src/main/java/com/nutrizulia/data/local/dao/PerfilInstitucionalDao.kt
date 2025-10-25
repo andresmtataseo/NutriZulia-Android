@@ -7,7 +7,7 @@ import com.nutrizulia.data.local.view.PerfilInstitucional
 @Dao
 interface PerfilInstitucionalDao {
 
-    @Query("SELECT * FROM perfiles_institucionales WHERE usuario_id = :usuarioId")
+    @Query("SELECT * FROM perfiles_institucionales WHERE usuario_id = :usuarioId and is_enabled = 1")
     suspend fun fillAllPerfilInstitucionalByUsuarioId(usuarioId: Int): List<PerfilInstitucional>
 
 }

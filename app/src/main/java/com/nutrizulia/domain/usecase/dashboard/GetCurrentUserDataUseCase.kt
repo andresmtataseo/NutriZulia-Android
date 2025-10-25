@@ -1,6 +1,5 @@
 package com.nutrizulia.domain.usecase.dashboard
 
-import com.nutrizulia.data.local.view.PerfilInstitucional
 import com.nutrizulia.data.repository.user.UsuarioInstitucionRepository
 import com.nutrizulia.util.JwtUtils
 import com.nutrizulia.util.SessionManager
