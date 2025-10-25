@@ -45,6 +45,11 @@ class SyncBatchFragment : Fragment() {
     private fun setupUI() {
         // Configurar el botón de sincronización en el encabezado
         binding.cardSyncButton.setOnClickListener {
+            // Activar estado de carga inmediatamente para cubrir verificación de autenticación
+            binding.cardSyncButton.isEnabled = false
+            binding.tvSyncTitle.text = "Verificando sesión..."
+            binding.progressBarSync.visibility = View.VISIBLE
+
             viewModel.iniciarSincronizacion()
         }
     }
@@ -81,6 +86,8 @@ class SyncBatchFragment : Fragment() {
         // Mostrar diálogo de sesión expirada/invalidada
         viewModel.onShowAuthExpiredDialog = dialogCallback@ { title, message ->
             if (_binding == null || !isAdded) return@dialogCallback
+            // Restaurar UI al finalizar la verificación con sesión inválida
+            restoreUI()
             Utils.mostrarDialog(
                 requireContext(),
                 title,
