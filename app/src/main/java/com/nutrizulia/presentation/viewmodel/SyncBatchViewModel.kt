@@ -7,6 +7,12 @@ import com.nutrizulia.domain.usecase.auth.CheckAuthUseCase
 import com.nutrizulia.domain.usecase.dashboard.GetPendingRecordsByEntityUseCase
 import com.nutrizulia.domain.usecase.dashboard.GetTotalPendingRecordsUseCase
 import com.nutrizulia.domain.usecase.dashboard.PendingRecordsByEntity
+import com.nutrizulia.domain.usecase.user.SyncUsuarioInstituciones
+import com.nutrizulia.domain.usecase.user.SyncResult
+import com.nutrizulia.domain.usecase.user.GetPerfilesInstitucionales
+import com.nutrizulia.domain.usecase.user.GetPerfilesResult
+import com.nutrizulia.util.SessionManager
+import kotlinx.coroutines.flow.firstOrNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +25,10 @@ class SyncBatchViewModel @Inject constructor(
     private val syncCollectionBatch: SyncCollectionBatch,
     private val getPendingRecordsByEntityUseCase: GetPendingRecordsByEntityUseCase,
     private val getTotalPendingRecordsUseCase: GetTotalPendingRecordsUseCase,
-    private val checkAuthUseCase: CheckAuthUseCase
+    private val checkAuthUseCase: CheckAuthUseCase,
+    private val syncUsuarioInstituciones: SyncUsuarioInstituciones,
+    private val getPerfilesInstitucionales: GetPerfilesInstitucionales,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     // StateFlow para el total de registros pendientes
@@ -39,6 +48,8 @@ class SyncBatchViewModel @Inject constructor(
     var onShowAuthExpiredDialog: ((title: String, message: String) -> Unit)? = null
     // Callback para proceder a actualización de catálogos tras sincronización de datos
     var onProceedCatalogSync: (() -> Unit)? = null
+    // Callback para informar que la institución actual quedó desactivada y forzar re-selección
+    var onShowInstitutionDisabledDialog: ((title: String, message: String) -> Unit)? = null
 
     init {
         loadPendingRecords()
@@ -61,6 +72,60 @@ class SyncBatchViewModel @Inject constructor(
                 _totalPendingRecords.value = 0
                 _pendingRecords.value = PendingRecordsByEntity(0, 0, 0, 0, 0, 0)
             }
+        }
+    }
+
+    /**
+     * Sincroniza las asignaciones usuario-institución y valida la institución actual
+     */
+    private suspend fun syncAssignmentsAndValidate() {
+        try {
+            when (val result = syncUsuarioInstituciones()) {
+                is SyncResult.Success -> {
+                    validateCurrentInstitutionSelection()
+                }
+                is SyncResult.Failure.NotAuthenticated,
+                is SyncResult.Failure.InvalidToken -> {
+                    onShowAuthExpiredDialog?.invoke(
+                        "Sesión inválida",
+                        "No fue posible actualizar las asignaciones por sesión inválida."
+                    )
+                }
+                is SyncResult.Failure.ApiError -> {
+                    // No bloquear la sincronización principal; continuar
+                }
+            }
+        } catch (_: Exception) {
+            // Ignorar para no bloquear el proceso principal
+        }
+    }
+
+    /**
+     * Valida si la institución actual del usuario sigue habilitada tras sincronizar asignaciones.
+     * Si no es válida, limpia la selección y notifica a la UI.
+     */
+    private suspend fun validateCurrentInstitutionSelection() {
+        try {
+            when (val perfilesResult = getPerfilesInstitucionales()) {
+                is GetPerfilesResult.Success -> {
+                    val currentInstitutionId = sessionManager.currentInstitutionIdFlow.firstOrNull()
+                    if (currentInstitutionId != null && currentInstitutionId > 0) {
+                        val isStillValid = perfilesResult.perfiles.any { it.usuarioInstitucionId == currentInstitutionId }
+                        if (!isStillValid) {
+                            sessionManager.clearCurrentInstitution()
+                            onShowInstitutionDisabledDialog?.invoke(
+                                "Institución desactivada",
+                                "Tu institución seleccionada fue desactivada por el administrador. Selecciona otra para continuar."
+                            )
+                        }
+                    }
+                }
+                is GetPerfilesResult.Failure -> {
+                    // Si hay error de sesión, ya se maneja arriba
+                }
+            }
+        } catch (_: Exception) {
+            // Ignorar errores silenciosamente
         }
     }
 
@@ -89,6 +154,9 @@ class SyncBatchViewModel @Inject constructor(
 
                 // Paso 1: Mostrar mensaje de inicio
                 onSyncStart?.invoke("Iniciando sincronización con el servidor...")
+
+                // Paso 1.1: Sincronizar asignaciones usuario-institución y validar institución actual
+                syncAssignmentsAndValidate()
                 
                 // Paso 2: Ejecutar sincronización por lotes
                 val results = syncCollectionBatch.invoke()
@@ -152,7 +220,7 @@ class SyncBatchViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Genera un reporte detallado por tabla y lote según los requerimientos
      */
