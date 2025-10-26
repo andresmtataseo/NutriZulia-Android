@@ -15,9 +15,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.nutrizulia.util.Event
 import com.nutrizulia.domain.usecase.collection.GetPacienteById
+import com.nutrizulia.domain.usecase.collection.GetPacienteRepresentanteByPacienteId
+import com.nutrizulia.domain.usecase.collection.GetRepresentanteById
 import com.nutrizulia.domain.usecase.dashboard.GetCurrentUserDataUseCase
 import com.nutrizulia.domain.usecase.dashboard.CurrentUserDataResult
-import java.net.URLEncoder
+
+import java.time.LocalDate
+import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -27,7 +31,9 @@ class AccionesCitaViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val saveConsultaEstadoById: SaveConsultaEstadoById,
     private val getPacienteById: GetPacienteById,
-    private val getCurrentUserDataUseCase: GetCurrentUserDataUseCase
+    private val getCurrentUserDataUseCase: GetCurrentUserDataUseCase,
+    private val getPacienteRepresentanteByPacienteId: GetPacienteRepresentanteByPacienteId,
+    private val getRepresentanteById: GetRepresentanteById
 ) : ViewModel() {
 
     private val _pacienteConCita = MutableLiveData<PacienteConCita>()
@@ -78,10 +84,20 @@ class AccionesCitaViewModel @Inject constructor(
             if (result != null) {
                 _pacienteConCita.value = result
 
-                // Actualizar disponibilidad de WhatsApp según el teléfono del paciente
+                // Actualizar disponibilidad de WhatsApp considerando fallback al representante
                 val paciente = getPacienteById(_idUsuarioInstitucion.value ?: 0, result.pacienteId)
-                val telefonoWhatsApp = formatPhoneForWhatsApp(paciente?.telefono)
-                _canSendWhatsApp.value = telefonoWhatsApp != null
+                val telefonoPaciente = formatPhoneForWhatsApp(paciente?.telefono)
+                var puedeEnviar = telefonoPaciente != null
+
+                if (!puedeEnviar && paciente != null) {
+                    val relacion = getPacienteRepresentanteByPacienteId(paciente.id)
+                    val telefonoRepresentante = relacion?.let {
+                        val rep = getRepresentanteById(_idUsuarioInstitucion.value ?: 0, it.representanteId)
+                        formatPhoneForWhatsApp(rep?.telefono)
+                    }
+                    puedeEnviar = telefonoRepresentante != null
+                }
+                _canSendWhatsApp.value = puedeEnviar
             } else {
                 _mensaje.value = "No se encontraron datos."
                 _isLoading.value = false
@@ -124,13 +140,29 @@ class AccionesCitaViewModel @Inject constructor(
                 return@launch
             }
 
-            // Obtener teléfono del paciente
+            // Obtener teléfono del paciente y aplicar fallback al representante si es pediátrico y no tiene teléfono
             val paciente = getPacienteById(usuarioInstitucionId, cita.pacienteId)
-            val telefonoRaw = paciente?.telefono
-            val telefonoWhatsApp = formatPhoneForWhatsApp(telefonoRaw)
+            val telefonoRawPaciente = paciente?.telefono
+            var telefonoWhatsApp = formatPhoneForWhatsApp(telefonoRawPaciente)
+            var enviarARepresentante = false
+            var nombreRepresentanteCorto: String? = null
+
+
+            if (telefonoWhatsApp == null && paciente != null) {
+                val relacion = getPacienteRepresentanteByPacienteId(paciente.id)
+                if (relacion != null) {
+                    val representante = getRepresentanteById(usuarioInstitucionId, relacion.representanteId)
+                    val telefonoRep = formatPhoneForWhatsApp(representante?.telefono)
+                    if (telefonoRep != null && representante != null) {
+                        telefonoWhatsApp = telefonoRep
+                        enviarARepresentante = true
+                        nombreRepresentanteCorto = formatShortName(representante.nombres, representante.apellidos)
+                    }
+                }
+            }
 
             if (telefonoWhatsApp == null) {
-                _mensaje.value = "El paciente no tiene un teléfono válido para WhatsApp."
+                _mensaje.value = "El paciente no tiene un teléfono válido para WhatsApp; si es pediátrico, no se encontró teléfono válido del representante legal."
                 return@launch
             }
 
@@ -144,24 +176,40 @@ class AccionesCitaViewModel @Inject constructor(
                 "No disponible"
             }
 
-            val institutionName = when (val userDataResult = getCurrentUserDataUseCase()) {
-                is CurrentUserDataResult.Success -> userDataResult.userData.nombreInstitucion
-                else -> "su institución"
+            val (nutritionistName, institutionName) = when (val userDataResult = getCurrentUserDataUseCase()) {
+                is CurrentUserDataResult.Success -> userDataResult.userData.nombreUsuario to userDataResult.userData.nombreInstitucion
+                else -> "su nutricionista" to "su institución"
             }
 
             val tipo = cita.tipoConsulta.name.replace('_', ' ').lowercase(Locale("es", "ES")).replaceFirstChar { it.titlecase(Locale("es", "ES")) }
-            val especialidad = cita.nombreEspecialidadRemitente ?: "General"
-            val estado = cita.estadoConsulta.name.lowercase(Locale("es", "ES")).replaceFirstChar { it.titlecase(Locale("es", "ES")) }
 
-            val mensaje = "Hola ${cita.nombreCompleto} 👋\n\n" +
+            val mensaje = if (!enviarARepresentante) {
+                "Hola ${cita.nombreCompleto} 👋\n\n" +
                 "Te recordamos tu cita:\n" +
                 "• Fecha y hora: $fechaHoraStr\n" +
                 "• Institución: $institutionName\n" +
+                "• Nutricionista: $nutritionistName\n" +
                 "• Tipo de consulta: $tipo\n" +
                 "• Cédula: ${cita.cedulaPaciente}\n\n" +
                 "Por favor, confirma tu asistencia respondiendo este mensaje. ¡Gracias!"
-            val mensajeEncoded = URLEncoder.encode(mensaje, "UTF-8")
-            val uri = "https://wa.me/$telefonoWhatsApp?text=$mensajeEncoded"
+            } else {
+                val nombreRep = nombreRepresentanteCorto ?: "Estimado/a representante"
+                "Hola $nombreRep 👋\n\n" +
+                "Le recordamos la cita de ${cita.nombreCompleto}:\n" +
+                "• Fecha y hora: $fechaHoraStr\n" +
+                "• Institución: $institutionName\n" +
+                "• Nutricionista: $nutritionistName\n" +
+                "• Tipo de consulta: $tipo\n" +
+                "• Cédula: ${cita.cedulaPaciente}\n\n" +
+                "Por favor, confirma tu asistencia respondiendo este mensaje. ¡Gracias!"
+            }
+
+            val uri = android.net.Uri.parse("https://wa.me/")
+                .buildUpon()
+                .appendPath(telefonoWhatsApp)
+                .appendQueryParameter("text", mensaje)
+                .build()
+                .toString()
 
             // Emitir evento para abrir WhatsApp
             _openWhatsApp.value = Event(uri)
@@ -171,24 +219,19 @@ class AccionesCitaViewModel @Inject constructor(
     private fun formatPhoneForWhatsApp(phoneRaw: String?): String? {
         val digits = phoneRaw?.filter { it.isDigit() } ?: return null
         if (digits.isEmpty()) return null
-        if (digits.startsWith("58")) {
-            val rest = digits.removePrefix("58").trimStart('0')
-            return if (rest.length >= 10) {
-                "58" + rest.take(10)
-            } else null
-        }
 
-        if (digits.startsWith("0")) {
-            val rest = digits.drop(1)
-            return if (rest.length >= 10) {
-                "58" + rest.take(10)
-            } else null
+        return when {
+            digits.startsWith("58") -> digits
+            digits.startsWith("0") -> "58" + digits.drop(1)
+            digits.length == 10 -> "58" + digits
+            else -> null
         }
-
-        if (digits.length == 10) {
-            return "58" + digits
-        }
-
-        return null
     }
+
+    private fun formatShortName(nombres: String, apellidos: String): String {
+        val firstName = nombres.trim().split("\\s+".toRegex()).firstOrNull() ?: nombres.trim()
+        val firstSurname = apellidos.trim().split("\\s+".toRegex()).firstOrNull() ?: apellidos.trim()
+        return "$firstName $firstSurname".trim()
+    }
+
 }
