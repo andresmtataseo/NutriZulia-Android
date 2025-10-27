@@ -306,7 +306,15 @@
         android:hint="@string/buscar_consulta"
         app:layout_anchor="@id/search_bar">
 
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewConsultasFiltradas"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="8dp"
+            android:paddingBottom="88dp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:listitem="@layout/item_cita" />
 
     </com.google.android.material.search.SearchView>
 

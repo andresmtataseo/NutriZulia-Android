@@ -30,6 +30,7 @@ class ConsultasFragment : Fragment() {
     private lateinit var binding: FragmentConsultasBinding
     private lateinit var pacienteConCitaAdapter: PacienteConCitaAdapter
     private lateinit var pacienteConCitaFiltradoAdapter: PacienteConCitaAdapter
+    private lateinit var pacienteConCitaSearchAdapter: PacienteConCitaAdapter
     private var searchJob: Job? = null
 
     override fun onCreateView(
@@ -106,6 +107,30 @@ class ConsultasFragment : Fragment() {
             }
         )
 
+        // Adapter para resultados de búsqueda dentro del SearchView
+        pacienteConCitaSearchAdapter = PacienteConCitaAdapter(
+            emptyList(),
+            onClickCardCitaListener = { pacienteConCita ->
+                findNavController().navigate(
+                    ConsultasFragmentDirections.actionConsultasFragmentToAccionesCitaFragment(
+                        pacienteConCita.consultaId
+                    )
+                )
+            }, onClickCardConsultaListener = { pacienteConCita ->
+                findNavController().navigate(
+                    ConsultasFragmentDirections.actionConsultasFragmentToAccionesConsultaFragment(
+                        pacienteConCita.consultaId
+                    )
+                )
+            }, onClickCitaPerdidaListener = { pacienteConCita ->
+                findNavController().navigate(
+                    ConsultasFragmentDirections.actionConsultasFragmentToAccionesCitaPerdidaFragment(
+                        pacienteConCita.consultaId
+                    )
+                )
+            }
+        )
+
         binding.recyclerViewConsultas.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = pacienteConCitaAdapter
@@ -114,6 +139,12 @@ class ConsultasFragment : Fragment() {
         binding.recyclerViewCitasFiltradas.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = pacienteConCitaFiltradoAdapter
+        }
+
+        // RecyclerView dentro del SearchView para resultados de búsqueda
+        binding.recyclerViewConsultasFiltradas.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = pacienteConCitaSearchAdapter
         }
 
     }
@@ -249,6 +280,8 @@ class ConsultasFragment : Fragment() {
 
         viewModel.pacientesConCitasFiltrados.observe(viewLifecycleOwner) { consultasFiltradas ->
             pacienteConCitaFiltradoAdapter.updateCitas(consultasFiltradas)
+            // También actualizar los resultados del SearchView
+            pacienteConCitaSearchAdapter.updateCitas(consultasFiltradas)
             // Mostrar RecyclerView filtrado si hay resultados de búsqueda o filtros
             updateRecyclerViewVisibility()
         }
