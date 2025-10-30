@@ -56,7 +56,7 @@ class ConsultaRepository @Inject constructor(
         return consultaDao.findUltimaConsultaRealizada(usuarioInstitucionId)?.toDomain()
     }
     suspend fun updateEstadoById(id: String, estado: Estado) {
-        return consultaDao.updateEstadoById(id, estado)
+        return consultaDao.updateEstadoById(id, estado, LocalDateTime.now())
     }
 
     suspend fun findPreviousDayPendingAppointments(): List<Consulta> {

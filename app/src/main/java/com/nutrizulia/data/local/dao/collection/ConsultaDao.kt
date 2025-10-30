@@ -50,8 +50,8 @@ interface ConsultaDao {
     @Query("UPDATE consultas SET is_synced = 1, updated_at = :timestamp WHERE id = :id")
     suspend fun markAsSynced(id: String, timestamp: LocalDateTime)
 
-    @Query("UPDATE consultas SET estado = :estado WHERE id = :id")
-    suspend fun updateEstadoById(id: String, estado: Estado)
+    @Query("UPDATE consultas SET estado = :estado, updated_at = :timestamp, is_synced = 0 WHERE id = :id")
+    suspend fun updateEstadoById(id: String, estado: Estado, timestamp: LocalDateTime)
 
     @Query("""
         UPDATE consultas 
