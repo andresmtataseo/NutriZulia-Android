@@ -47,6 +47,11 @@
 ## Introducción
 
 **NutriZulia** es una aplicación móvil Android desarrollada para la **Coordinación Regional de Nutrición y Dietética**. Facilita la gestión integral de pacientes y consultas nutricionales, permitiendo a profesionales de la salud realizar seguimiento del estado nutricional con flujos de trabajo seguros y estructurados.
+Este proyecto forma parte del ecosistema NutriZulia junto con los repositorios correspondientes al frontend web (Angular) y al backend (Spring Boot) del sistema.
+
+Referencias públicas:
+- Backend (Spring Boot): [andresmtataseo/NutriZulia-Backend](https://github.com/andresmtataseo/NutriZulia-Backend)
+- Frontend web (Angular): [andresmtataseo/NutriZulia](https://github.com/andresmtataseo/NutriZulia)
 
 <a id="caracteristicas-principales"></a>
 ## Características Principales
