@@ -307,6 +307,84 @@ notificationHelper.show12hCount(count = 3)
 <a id="capturas-de-pantalla"></a>
 ## Capturas de Pantalla
 
+### Inicio
+- Pantalla principal con acceso rápido a funciones clave.
+<p align="center">
+  <img src="docs/inicio.jpg" alt="Inicio" width="320">
+</p>
+
+### Iniciar sesión
+- Formulario de acceso con cédula y contraseña.
+<p align="center">
+  <img src="docs/inicar%20sesion.jpg" alt="Iniciar sesión" width="320">
+</p>
+
+### Seleccionar institución
+- Selección del contexto institucional y perfiles de trabajo.
+<p align="center">
+  <img src="docs/seleccionar%20institucion.jpg" alt="Seleccionar institución" width="320">
+</p>
+
+### Gestionar pacientes
+- Listado y búsqueda de pacientes registrados.
+<p align="center">
+  <img src="docs/gestionar%20paciente.jpg" alt="Gestionar pacientes" width="320">
+</p>
+
+### Registrar paciente
+- Formulario de alta con validaciones de cédula y datos.
+<p align="center">
+  <img src="docs/registrar%20paciente.jpg" alt="Registrar paciente" width="320">
+</p>
+
+### Registrar representante
+- Registro de representante y asociación con paciente.
+<p align="center">
+  <img src="docs/registrar%20representante.jpg" alt="Registrar representante" width="320">
+</p>
+
+### Gestionar citas
+- Visualización y administración de citas programadas.
+<p align="center">
+  <img src="docs/gestionar%20cita.jpg" alt="Gestionar citas" width="320">
+</p>
+
+### Registrar cita
+- Creación de consulta con especialidad y fecha.
+<p align="center">
+  <img src="docs/registrar%20cita.jpg" alt="Registrar cita" width="320">
+</p>
+
+### Registrar evaluaciones en consulta
+- Captura de evaluaciones antropométricas y metabólicas durante la consulta.
+<p align="center">
+  <img src="docs/registrar%20evaluaciones%20en%20consulta.jpg" alt="Registrar evaluaciones en consulta" width="320">
+</p>
+
+### Registrar datos clínicos en consulta
+- Registro de signos vitales, diagnósticos y notas.
+<p align="center">
+  <img src="docs/registrar%20datos%20clinicos%20en%20consulta.jpg" alt="Registrar datos clínicos en consulta" width="320">
+</p>
+
+### Resumen médico
+- Resumen consolidado del estado y registros del paciente.
+<p align="center">
+  <img src="docs/resumen%20medico.jpg" alt="Resumen médico" width="320">
+</p>
+
+### Sincronizar datos
+- Sincronización de colecciones en lote y completa.
+<p align="center">
+  <img src="docs/sincronizar%20datos.jpg" alt="Sincronizar datos" width="320">
+</p>
+
+### Gestionar cuenta
+- Opciones de perfil, seguridad y cierre de sesión.
+<p align="center">
+  <img src="docs/gestionar%20cuenta.jpg" alt="Gestionar cuenta" width="320">
+</p>
+
 <a id="base-de-datos"></a>
 ## Base de Datos
 
